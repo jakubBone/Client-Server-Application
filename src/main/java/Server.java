@@ -6,7 +6,11 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Date;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 public class Server {
+    private static final Logger logger = LogManager.getLogger(Server.class);
     private Date serverTimeCreation = new Date();
     private final int PORT = 5000;
     private final String VERSION = "1.0.0";
@@ -27,11 +31,11 @@ public class Server {
     public void establishServerConnection() {
         try {
             serverSocket = new ServerSocket(PORT);
-            System.out.println("Server started");
+            logger.info("Server started");
             clientSocket = serverSocket.accept();
-            System.out.println("Connection with Client established");
+            logger.info("Connection with Client established");
         } catch (IOException ex) {
-            ex.printStackTrace();
+            logger.error("Error establishing server connection", ex);
         }
     }
 
@@ -49,7 +53,7 @@ public class Server {
                     sendResponse(request, outToClient);
                 }
         } catch (IOException ex){
-            ex.printStackTrace();
+            logger.error("Error handling client request", ex);
         }
     }
 
@@ -58,24 +62,24 @@ public class Server {
         switch (clientRequest) {
             case "UPTIME":
                 Date currentTime = new Date();
-                System.out.println("Time from server setup: " + (currentTime.getTime() - serverTimeCreation.getTime()));
+                logger.info("Time from server setup: " + (currentTime.getTime() - serverTimeCreation.getTime()));
                 outToClient.println("UPTIME returned");
                 break;
             case "INFO":
-                System.out.println("Server version: " + VERSION);
-                System.out.println("Setup date: " + serverTimeCreation);
+                logger.info("Server version: " + VERSION);
+                logger.info("Setup date: " + serverTimeCreation);
                 outToClient.println("INFO returned");
                 break;
             case "HELP":
-                System.out.println("Help Menu: ");
-                System.out.println("UPTIME - opis");
-                System.out.println("INFO - opis");
-                System.out.println("HELP - opis");
-                System.out.println("STOP - opis");
+                logger.info("Help Menu: ");
+                logger.info("UPTIME - opis");
+                logger.info("INFO - opis");
+                logger.info("HELP - opis");
+                logger.info("STOP - opis");
                 outToClient.println("HELP returned");
                 break;
             default:
-                System.out.println("Invalid request");
+                logger.warn("Invalid request");
                 outToClient.println("INVALID returned");
         }
     }
@@ -86,9 +90,9 @@ public class Server {
             outToClient.close();
             serverSocket.close();
             clientSocket.close();
-            System.out.println("Connection stopped");
+            logger.info("Connection stopped");
         } catch (IOException ex) {
-            ex.printStackTrace();
+            logger.error("Error disconnecting", ex);
         }
     }
 }

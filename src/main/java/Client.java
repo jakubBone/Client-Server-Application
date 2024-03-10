@@ -4,7 +4,11 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 public class Client {
+    private static final Logger logger = LogManager.getLogger(Client.class);
     private final int PORT_NUMBER = 5000;
     Socket clientSocket;
     PrintWriter outToServer;
@@ -23,9 +27,9 @@ public class Client {
     public void connectToServer() {
         try {
             clientSocket = new Socket("localhost", PORT_NUMBER);
-            System.out.println("Connection with Server established");
+            logger.info("Connection with Server established");
         } catch (IOException ex){
-            ex.printStackTrace();
+            logger.error("Error establishing connection with Server", ex);
         }
     }
     public void handleServerCommunication(){
@@ -46,7 +50,7 @@ public class Client {
                 }
 
             } catch (IOException ex){
-            ex.getStackTrace();
+            logger.error("Error handling server communication", ex);
         }
     }
 
@@ -55,9 +59,9 @@ public class Client {
             outToServer.close();
             inFromServer.close();
             clientSocket.close();
-            System.out.println("Connection stopped");
+            logger.info("Connection stopped");
         } catch (IOException ex) {
-            ex.printStackTrace();
+            logger.error("Error disconnecting", ex);
         }
     }
 }
