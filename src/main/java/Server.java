@@ -9,6 +9,8 @@ import java.util.Date;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.google.gson.Gson;
+
 public class Server {
     private static final Logger logger = LogManager.getLogger(Server.class);
     private Date serverTimeCreation = new Date();
@@ -57,31 +59,43 @@ public class Server {
         }
     }
 
-
     public void sendResponse(String clientRequest, PrintWriter outToClient) throws IOException {
+        Gson gson = new Gson();
+        ResponseService responseService = new ResponseService();
+
         switch (clientRequest) {
             case "UPTIME":
-                Date currentTime = new Date();
-                logger.info("Time from server setup: " + (currentTime.getTime() - serverTimeCreation.getTime()));
-                outToClient.println("UPTIME returned");
+                responseService.setUptime(countUpTime());
+                logger.info("Time from server setup: " + responseService.getUptime());
                 break;
             case "INFO":
-                logger.info("Server version: " + VERSION);
-                logger.info("Setup date: " + serverTimeCreation);
-                outToClient.println("INFO returned");
+                responseService.setVersion(VERSION);
+                responseService.setCreationDate(serverTimeCreation);
+                logger.info("Server version: " + VERSION + " / Setup date: " + serverTimeCreation);
                 break;
             case "HELP":
+                // in progress
+                /*responseService.setDescription("Available commands: ");
+                responseService.setCommands(new String[]{"uptime", "info", "help", "stop"});
                 logger.info("Help Menu: ");
                 logger.info("UPTIME - opis");
                 logger.info("INFO - opis");
                 logger.info("HELP - opis");
                 logger.info("STOP - opis");
-                outToClient.println("HELP returned");
+                outToClient.println("HELP returned");*/
                 break;
             default:
+                responseService.setMessage("Invalid request");
                 logger.warn("Invalid request");
-                outToClient.println("INVALID returned");
         }
+        outToClient.println(gson.toJson(responseService));
+    }
+
+    private String countUpTime(){
+        // in progress
+        //(currentTime.getTime() - serverTimeCreation.getTime())
+        Date currentTime = new Date();
+        return "exemple time";
     }
 
     public void disconnect()  {
