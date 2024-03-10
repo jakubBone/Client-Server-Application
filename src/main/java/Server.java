@@ -29,7 +29,7 @@ public class Server {
             serverSocket = new ServerSocket(PORT);
             System.out.println("Server started");
             clientSocket = serverSocket.accept();
-            System.out.println("Connection established");
+            System.out.println("Connection with Client established");
         } catch (IOException ex) {
             ex.printStackTrace();
         }
@@ -41,7 +41,7 @@ public class Server {
             outToClient = new PrintWriter(clientSocket.getOutputStream(), true);
 
                 while(true){
-                    String request = inFromClient.readLine().toUpperCase();
+                    String request = inFromClient.readLine();
                     if(request.equals("STOP")){
                         disconnect();
                         break;

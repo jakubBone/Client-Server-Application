@@ -33,8 +33,7 @@ public class Client {
             outToServer = new PrintWriter(clientSocket.getOutputStream(), true);
             inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             userInput = new BufferedReader(new InputStreamReader(System.in));
-            System.out.print("Type \"HELP\" to enter COMMANDS MENU: ");
-
+            System.out.print("\nType \"HELP\" to enter COMMANDS MENU: ");
                while(true) {
                     String request = userInput.readLine().toUpperCase();
                     outToServer.println(request);
@@ -43,7 +42,9 @@ public class Client {
                        break;
                     }
                     System.out.println(inFromServer.readLine());
+                    System.out.print("\nType next command: ");
                 }
+
             } catch (IOException ex){
             ex.getStackTrace();
         }
