@@ -40,29 +40,31 @@ public class Server {
             inFromClient = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             outToClient = new PrintWriter(clientSocket.getOutputStream(), true);
 
-            String request;
-            while(!(request = inFromClient.readLine()).equals("STOP")){
-                sendResponse(request, outToClient);
-                System.out.println("sendResponse");
-            }
-            disconnect();
-
+                while(true){
+                    String request = inFromClient.readLine().toUpperCase();
+                    if(request.equals("STOP")){
+                        disconnect();
+                        break;
+                    }
+                    sendResponse(request, outToClient);
+                }
         } catch (IOException ex){
             ex.printStackTrace();
         }
     }
+
 
     public void sendResponse(String clientRequest, PrintWriter outToClient) throws IOException {
         switch (clientRequest) {
             case "UPTIME":
                 Date currentTime = new Date();
                 System.out.println("Time from server setup: " + (currentTime.getTime() - serverTimeCreation.getTime()));
-                outToClient.println("UPTIME written");
+                outToClient.println("UPTIME returned");
                 break;
             case "INFO":
                 System.out.println("Server version: " + VERSION);
                 System.out.println("Setup date: " + serverTimeCreation);
-                outToClient.println("INFO written");
+                outToClient.println("INFO returned");
                 break;
             case "HELP":
                 System.out.println("Help Menu: ");
@@ -70,8 +72,11 @@ public class Server {
                 System.out.println("INFO - opis");
                 System.out.println("HELP - opis");
                 System.out.println("STOP - opis");
-                outToClient.println("HELP written");
+                outToClient.println("HELP returned");
                 break;
+            default:
+                System.out.println("Invalid request");
+                outToClient.println("INVALID returned");
         }
     }
 
@@ -81,6 +86,7 @@ public class Server {
             outToClient.close();
             serverSocket.close();
             clientSocket.close();
+            System.out.println("Connection stopped");
         } catch (IOException ex) {
             ex.printStackTrace();
         }

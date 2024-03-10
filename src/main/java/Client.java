@@ -38,13 +38,11 @@ public class Client {
                while(true) {
                     String request = userInput.readLine().toUpperCase();
                     outToServer.println(request);
-                    System.out.println(inFromServer.readLine());
-                    System.out.println("My request: " + request);
                     if(request.equals("STOP")){
-                        System.out.println("Client disconnected");
-                        disconnect();
-                        break;
+                       disconnect();
+                       break;
                     }
+                    System.out.println(inFromServer.readLine());
                 }
             } catch (IOException ex){
             ex.getStackTrace();
@@ -56,6 +54,7 @@ public class Client {
             outToServer.close();
             inFromServer.close();
             clientSocket.close();
+            System.out.println("Connection stopped");
         } catch (IOException ex) {
             ex.printStackTrace();
         }
