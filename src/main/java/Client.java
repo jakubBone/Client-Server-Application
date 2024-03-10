@@ -35,18 +35,18 @@ public class Client {
             userInput = new BufferedReader(new InputStreamReader(System.in));
             System.out.print("Type \"HELP\" to enter COMMANDS MENU: ");
 
-            String request = userInput.readLine().toUpperCase();
-            while(request != null) {
-                outToServer.println(request);
-                String response = inFromServer.readLine();
-                System.out.println("Server response: " + request);
-                if(request.equals("STOP")){
-                    System.out.println("Client disconnected");
-                    disconnect();
-                    break;
+               while(true) {
+                    String request = userInput.readLine().toUpperCase();
+                    outToServer.println(request);
+                    System.out.println(inFromServer.readLine());
+                    System.out.println("My request: " + request);
+                    if(request.equals("STOP")){
+                        System.out.println("Client disconnected");
+                        disconnect();
+                        break;
+                    }
                 }
-            }
-        } catch (IOException ex){
+            } catch (IOException ex){
             ex.getStackTrace();
         }
     }

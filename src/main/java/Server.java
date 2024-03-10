@@ -35,18 +35,18 @@ public class Server {
         }
     }
 
-
     public void handleClientRequest(){
         try{
             inFromClient = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             outToClient = new PrintWriter(clientSocket.getOutputStream(), true);
 
-            String request = inFromClient.readLine();
-            if (request != null) {
+            String request;
+            while(!(request = inFromClient.readLine()).equals("STOP")){
                 sendResponse(request, outToClient);
+                System.out.println("sendResponse");
             }
-            System.out.println("Connection stopped");
             disconnect();
+
         } catch (IOException ex){
             ex.printStackTrace();
         }
@@ -57,12 +57,12 @@ public class Server {
             case "UPTIME":
                 Date currentTime = new Date();
                 System.out.println("Time from server setup: " + (currentTime.getTime() - serverTimeCreation.getTime()));
-                //outToClient.println(JSON);
+                outToClient.println("UPTIME written");
                 break;
             case "INFO":
                 System.out.println("Server version: " + VERSION);
                 System.out.println("Setup date: " + serverTimeCreation);
-                //outToClient.println(JSON);
+                outToClient.println("INFO written");
                 break;
             case "HELP":
                 System.out.println("Help Menu: ");
@@ -70,15 +70,11 @@ public class Server {
                 System.out.println("INFO - opis");
                 System.out.println("HELP - opis");
                 System.out.println("STOP - opis");
-                //outToClient.println(JSON);
-                break;
-            case "STOP":
-                System.out.println("Connection stopped");
-                //outToClient.println(JSON);
-                disconnect();
+                outToClient.println("HELP written");
                 break;
         }
     }
+
     public void disconnect()  {
         try {
             inFromClient.close();
