@@ -6,10 +6,12 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Date;
 
+import com.google.gson.GsonBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.google.gson.Gson;
+import org.apache.logging.log4j.core.jackson.Log4jJsonObjectMapper;
 
 public class Server {
     private static final Logger logger = LogManager.getLogger(Server.class);
@@ -60,7 +62,7 @@ public class Server {
     }
 
     public void sendResponse(String clientRequest, PrintWriter outToClient) throws IOException {
-        Gson gson = new Gson();
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
         ResponseService responseService = new ResponseService();
 
         switch (clientRequest) {
@@ -74,15 +76,8 @@ public class Server {
                 logger.info("Server version: " + VERSION + " / Setup date: " + serverTimeCreation);
                 break;
             case "HELP":
-                // in progress
-                /*responseService.setDescription("Available commands: ");
-                responseService.setCommands(new String[]{"uptime", "info", "help", "stop"});
-                logger.info("Help Menu: ");
-                logger.info("UPTIME - opis");
-                logger.info("INFO - opis");
-                logger.info("HELP - opis");
-                logger.info("STOP - opis");
-                outToClient.println("HELP returned");*/
+                responseService.setCommands();
+                logger.info("Commend list displayed");
                 break;
             default:
                 responseService.setMessage("Invalid request");

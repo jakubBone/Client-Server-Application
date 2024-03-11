@@ -1,16 +1,14 @@
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ResponseService {
     private String uptime;
     private String version;
     private Date creationDate;
-    private String[] commands;
-    private String description;
+    private Map<String, String> commands = new HashMap<>();
     private String message;
 
-    public String getMessage() {
-        return message;
-    }
 
     public void setMessage(String message) {
         this.message = message;
@@ -24,35 +22,18 @@ public class ResponseService {
         this.uptime = uptime;
     }
 
-    public String getVersion() {
-        return version;
-    }
-
     public void setVersion(String version) {
         this.version = version;
-    }
-
-    public Date getCreationDate() {
-        return creationDate;
     }
 
     public void setCreationDate(Date creationDate) {
         this.creationDate = creationDate;
     }
 
-    public String[] getCommands() {
-        return commands;
-    }
-
-    public void setCommands(String[] commands) {
-        this.commands = commands;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
+    public void setCommands() {
+        commands.put("help", "returns a list of available commands with brief descriptions");
+        commands.put("info", "returns the server's version number and creation date");
+        commands.put("uptime", "returns the server's uptime");
+        commands.put("stop", "stops both the server and the client");
     }
 }
