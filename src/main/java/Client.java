@@ -38,18 +38,19 @@ public class Client {
             inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             userInput = new BufferedReader(new InputStreamReader(System.in));
             System.out.print("\nType \"HELP\" to enter COMMANDS MENU: ");
-               while(true) {
-                    String request = userInput.readLine().toUpperCase();
-                    outToServer.println(request);
-                    if(request.equals("STOP")){
-                       disconnect();
-                       break;
-                    }
-                    System.out.println(inFromServer.readLine());
-                    System.out.print("\nType next command: ");
-                }
 
-            } catch (IOException ex){
+            while(true) {
+                String request = userInput.readLine().toUpperCase();
+                outToServer.println(request);
+                if(request.equals("STOP")){
+                    disconnect();
+                    break;
+                }
+                System.out.println(inFromServer.readLine());
+                System.out.print("\nType next command: ");
+            }
+
+        } catch (IOException ex){
             logger.error("Error handling server communication", ex);
         }
     }

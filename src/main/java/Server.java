@@ -11,7 +11,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.google.gson.Gson;
-import org.apache.logging.log4j.core.jackson.Log4jJsonObjectMapper;
 
 public class Server {
     private static final Logger logger = LogManager.getLogger(Server.class);
@@ -48,49 +47,43 @@ public class Server {
             inFromClient = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             outToClient = new PrintWriter(clientSocket.getOutputStream(), true);
 
-                while(true){
-                    String request = inFromClient.readLine();
-                    if(request.equals("STOP")){
-                        disconnect();
-                        break;
-                    }
-                    sendResponse(request, outToClient);
+            while(true){
+                String request = inFromClient.readLine();
+                if(request.equals("STOP")){
+                    disconnect();
+                    break;
                 }
+                sendResponse(request, outToClient);
+            }
         } catch (IOException ex){
             logger.error("Error handling client request", ex);
         }
     }
 
     public void sendResponse(String clientRequest, PrintWriter outToClient) throws IOException {
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        ResponseService responseService = new ResponseService();
+        //Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        Gson gson = new Gson();
+        ResponseService responseService = new ResponseService(VERSION, serverTimeCreation);
+        String json;
 
         switch (clientRequest) {
             case "UPTIME":
-                responseService.setUptime(countUpTime());
+                json = gson.toJson(responseService.getUptime());
                 logger.info("Time from server setup: " + responseService.getUptime());
                 break;
             case "INFO":
-                responseService.setVersion(VERSION);
-                responseService.setCreationDate(serverTimeCreation);
+                json = gson.toJson(responseService.getServerDetails());
                 logger.info("Server version: " + VERSION + " / Setup date: " + serverTimeCreation);
                 break;
             case "HELP":
-                responseService.setCommands();
+                json = gson.toJson(responseService.getCommands());
                 logger.info("Commend list displayed");
                 break;
             default:
-                responseService.setMessage("Invalid request");
+                json = gson.toJson(responseService.getInvalidMessage());
                 logger.warn("Invalid request");
         }
-        outToClient.println(gson.toJson(responseService));
-    }
-
-    private String countUpTime(){
-        // in progress
-        //(currentTime.getTime() - serverTimeCreation.getTime())
-        Date currentTime = new Date();
-        return "exemple time";
+        outToClient.println(json);
     }
 
     public void disconnect()  {
@@ -105,5 +98,3 @@ public class Server {
         }
     }
 }
-
-
