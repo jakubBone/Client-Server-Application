@@ -1,9 +1,10 @@
+package client;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -28,9 +29,9 @@ public class Client {
     public void connectToServer() {
         try {
             clientSocket = new Socket("localhost", PORT_NUMBER);
-            logger.info("Connection with Server established");
+            logger.info("Connection with server.Server established");
         } catch (IOException ex){
-            logger.error("Error - establishing connection with Server", ex);
+            logger.error("Error - establishing connection with server.Server", ex);
         }
     }
     public void handleServerCommunication(){

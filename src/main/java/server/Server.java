@@ -1,3 +1,5 @@
+package server;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -5,7 +7,6 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Date;
-import java.util.Map;
 
 import com.google.gson.GsonBuilder;
 import org.apache.logging.log4j.LogManager;
@@ -35,9 +36,9 @@ public class Server {
     public void establishServerConnection() {
         try {
             serverSocket = new ServerSocket(PORT);
-            logger.info("Server started");
+            logger.info("server.Server started");
             clientSocket = serverSocket.accept();
-            logger.info("Connection with Client established");
+            logger.info("Connection with client.Client established");
         } catch (IOException ex) {
             logger.error("Error - establishing server connection", ex);
         }
@@ -72,7 +73,7 @@ public class Server {
                 break;
             case "INFO":
                 json = gson.toJson(responseService.getServerDetails());
-                logger.info("Server version: " + VERSION + " / Setup date: " + serverTimeCreation);
+                logger.info("server.Server version: " + VERSION + " / Setup date: " + serverTimeCreation);
                 break;
             case "HELP":
                 json = gson.toJson(responseService.getCommands());
@@ -82,7 +83,6 @@ public class Server {
                 json = gson.toJson(responseService.getInvalidMessage());
                 logger.warn("Invalid input");
         }
-        outToClient.println(json.length());
         outToClient.println(json);
     }
 
