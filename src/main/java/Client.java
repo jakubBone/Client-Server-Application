@@ -41,23 +41,26 @@ public class Client {
             System.out.print("\nType \"HELP\" to enter COMMANDS MENU: ");
 
             String request;
-            while((request = (userInput.readLine().toUpperCase())) != null) {
+            while((request = userInput.readLine().toUpperCase()) != null) {
                 outToServer.println(request);
                 if(request.equals("STOP")){
                     disconnect();
                     break;
                 }
-                System.out.println(inFromServer.readLine());
+
+                String response;
+                while ((response = inFromServer.readLine()) != null) {
+                    System.out.println(response);
+                    if (!inFromServer.ready()) {
+                        break;
+                    }
+                }
                 System.out.print("\nType next command: ");
             }
-
         } catch (IOException ex){
             logger.error("Error - handling server communication", ex);
         }
     }
-
-
-
 
     public void disconnect() {
         try {

@@ -63,10 +63,8 @@ public class Server {
 
     public void sendResponse(String clientRequest, PrintWriter outToClient) throws IOException {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        //Gson gson = new Gson();
         ResponseService responseService = new ResponseService(VERSION, serverTimeCreation);
         String json;
-
         switch (clientRequest) {
             case "UPTIME":
                 json = gson.toJson(responseService.getUptime());
@@ -84,20 +82,9 @@ public class Server {
                 json = gson.toJson(responseService.getInvalidMessage());
                 logger.warn("Invalid input");
         }
+        outToClient.println(json.length());
         outToClient.println(json);
-        System.out.println(json);
     }
-
-    /*public void printJsonAsTree(Gson gson,ResponseService responseService ){
-        Map<String, String> serverDetails = responseService.getServerDetails();
-        for (Map.Entry<String, String> entry : serverDetails.entrySet()) {
-            String key = entry.getKey();
-            Object value = entry.getValue();
-            String jsonElement = gson.toJsonTree(value).toString();
-            System.out.println(key + ": " + jsonElement);
-        }
-
-    }*/
 
     public void disconnect()  {
         try {
