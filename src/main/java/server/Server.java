@@ -35,9 +35,9 @@ public class Server {
     public void establishServerConnection() {
         try {
             serverSocket = new ServerSocket(PORT);
-            logger.info("server.Server started");
+            logger.info("Server started");
             clientSocket = serverSocket.accept();
-            logger.info("Connection with client.Client established");
+            logger.info("Connection with Client established");
         } catch (IOException ex) {
             logger.error("Error - establishing server connection", ex);
         }

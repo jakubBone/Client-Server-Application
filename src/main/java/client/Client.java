@@ -29,7 +29,7 @@ public class Client {
     public void connectToServer() {
         try {
             clientSocket = new Socket("localhost", PORT_NUMBER);
-            logger.info("Connection with server.Server established");
+            logger.info("Connection with Server established");
         } catch (IOException ex){
             logger.error("Error - establishing connection with server.Server", ex);
         }
