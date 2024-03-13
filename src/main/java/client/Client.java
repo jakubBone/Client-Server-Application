@@ -12,10 +12,10 @@ import org.apache.logging.log4j.Logger;
 public class Client {
     private static final Logger logger = LogManager.getLogger(Client.class);
     private final int PORT_NUMBER = 5000;
-    Socket clientSocket;
-    PrintWriter outToServer;
-    BufferedReader inFromServer;
-    BufferedReader userInput;
+    private Socket clientSocket;
+    private PrintWriter outToServer;
+    private BufferedReader inFromServer;
+    private BufferedReader userInput;
 
     public static void main(String[] args) {
         Client client = new Client();
@@ -34,6 +34,7 @@ public class Client {
             logger.error("Error - establishing connection with server.Server", ex);
         }
     }
+
     public void handleServerCommunication(){
         try {
             outToServer = new PrintWriter(clientSocket.getOutputStream(), true);

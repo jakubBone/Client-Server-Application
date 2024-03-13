@@ -8,11 +8,10 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Date;
 
+import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import com.google.gson.Gson;
 
 public class Server {
     private static final Logger logger = LogManager.getLogger(Server.class);
@@ -21,8 +20,8 @@ public class Server {
     private final String VERSION = "1.0.0";
     private ServerSocket serverSocket;
     private Socket clientSocket;
-    BufferedReader inFromClient;
-    PrintWriter outToClient;
+    private BufferedReader inFromClient;
+    private PrintWriter outToClient;
 
     public static void main(String[] args)  {
         Server server = new Server();
@@ -69,15 +68,15 @@ public class Server {
         switch (clientRequest) {
             case "UPTIME":
                 json = gson.toJson(responseService.getUptime());
-                logger.info("Time from server setup: " + responseService.getUptime());
+                logger.info("Time since server startup: " + responseService.getUptime());
                 break;
             case "INFO":
                 json = gson.toJson(responseService.getServerDetails());
-                logger.info("server.Server version: " + VERSION + " / Setup date: " + serverTimeCreation);
+                logger.info("Server version: " + VERSION + " / Setup date: " + serverTimeCreation);
                 break;
             case "HELP":
                 json = gson.toJson(responseService.getCommands());
-                logger.info("Commend list displayed");
+                logger.info("Command list displayed");
                 break;
             default:
                 json = gson.toJson(responseService.getInvalidMessage());
