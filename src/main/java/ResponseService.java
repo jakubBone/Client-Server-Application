@@ -39,8 +39,8 @@ public class ResponseService {
     }
 
     public void setCommands() {
-        commands.put("uptime", "returns the server's uptime");
-        commands.put("info", "returns the server's version number and creation date");
+        commands.put("uptime", "returns the server uptime");
+        commands.put("info", "returns the server version number and setup date");
         commands.put("help", "returns a list of available commands with brief descriptions");
         commands.put("stop", "stops both the server and the client");
     }
@@ -59,6 +59,6 @@ public class ResponseService {
     }
 
     public void setInvalidMessage() {
-       invalidMessage = "Invalid message";
+       invalidMessage = "Invalid input";
     }
 }

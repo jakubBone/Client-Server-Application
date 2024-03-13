@@ -5,6 +5,7 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Date;
+import java.util.Map;
 
 import com.google.gson.GsonBuilder;
 import org.apache.logging.log4j.LogManager;
@@ -38,7 +39,7 @@ public class Server {
             clientSocket = serverSocket.accept();
             logger.info("Connection with Client established");
         } catch (IOException ex) {
-            logger.error("Error establishing server connection", ex);
+            logger.error("Error - establishing server connection", ex);
         }
     }
 
@@ -47,8 +48,8 @@ public class Server {
             inFromClient = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             outToClient = new PrintWriter(clientSocket.getOutputStream(), true);
 
-            while(true){
-                String request = inFromClient.readLine();
+            String request;
+            while((request = inFromClient.readLine().toUpperCase()) != null){
                 if(request.equals("STOP")){
                     disconnect();
                     break;
@@ -56,13 +57,13 @@ public class Server {
                 sendResponse(request, outToClient);
             }
         } catch (IOException ex){
-            logger.error("Error handling client request", ex);
+            logger.error("Error - handling client request", ex);
         }
     }
 
     public void sendResponse(String clientRequest, PrintWriter outToClient) throws IOException {
-        //Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        Gson gson = new Gson();
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        //Gson gson = new Gson();
         ResponseService responseService = new ResponseService(VERSION, serverTimeCreation);
         String json;
 
@@ -81,10 +82,22 @@ public class Server {
                 break;
             default:
                 json = gson.toJson(responseService.getInvalidMessage());
-                logger.warn("Invalid request");
+                logger.warn("Invalid input");
         }
         outToClient.println(json);
+        System.out.println(json);
     }
+
+    /*public void printJsonAsTree(Gson gson,ResponseService responseService ){
+        Map<String, String> serverDetails = responseService.getServerDetails();
+        for (Map.Entry<String, String> entry : serverDetails.entrySet()) {
+            String key = entry.getKey();
+            Object value = entry.getValue();
+            String jsonElement = gson.toJsonTree(value).toString();
+            System.out.println(key + ": " + jsonElement);
+        }
+
+    }*/
 
     public void disconnect()  {
         try {
@@ -94,7 +107,7 @@ public class Server {
             clientSocket.close();
             logger.info("Connection stopped");
         } catch (IOException ex) {
-            logger.error("Error disconnecting", ex);
+            logger.error("Error - disconnecting", ex);
         }
     }
 }

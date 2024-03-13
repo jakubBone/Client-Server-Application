@@ -3,6 +3,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -29,7 +30,7 @@ public class Client {
             clientSocket = new Socket("localhost", PORT_NUMBER);
             logger.info("Connection with Server established");
         } catch (IOException ex){
-            logger.error("Error establishing connection with Server", ex);
+            logger.error("Error - establishing connection with Server", ex);
         }
     }
     public void handleServerCommunication(){
@@ -39,8 +40,8 @@ public class Client {
             userInput = new BufferedReader(new InputStreamReader(System.in));
             System.out.print("\nType \"HELP\" to enter COMMANDS MENU: ");
 
-            while(true) {
-                String request = userInput.readLine().toUpperCase();
+            String request;
+            while((request = (userInput.readLine().toUpperCase())) != null) {
                 outToServer.println(request);
                 if(request.equals("STOP")){
                     disconnect();
@@ -51,9 +52,12 @@ public class Client {
             }
 
         } catch (IOException ex){
-            logger.error("Error handling server communication", ex);
+            logger.error("Error - handling server communication", ex);
         }
     }
+
+
+
 
     public void disconnect() {
         try {
@@ -62,7 +66,7 @@ public class Client {
             clientSocket.close();
             logger.info("Connection stopped");
         } catch (IOException ex) {
-            logger.error("Error disconnecting", ex);
+            logger.error("Error - disconnecting", ex);
         }
     }
 }
