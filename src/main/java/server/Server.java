@@ -68,20 +68,21 @@ public class Server {
         switch (clientRequest) {
             case "UPTIME":
                 json = gson.toJson(responseService.getUptime());
-                logger.info("Time since server startup: " + responseService.getUptime());
+                logger.info("Time from server setup: " + responseService.getUptime());
                 break;
             case "INFO":
                 json = gson.toJson(responseService.getServerDetails());
-                logger.info("Server version: " + VERSION + " / Setup date: " + serverTimeCreation);
+                logger.info("server.Server version: " + VERSION + " / Setup date: " + serverTimeCreation);
                 break;
             case "HELP":
                 json = gson.toJson(responseService.getCommands());
-                logger.info("Command list displayed");
+                logger.info("Commend list displayed");
                 break;
             default:
                 json = gson.toJson(responseService.getInvalidMessage());
                 logger.warn("Invalid input");
         }
+        json += "\n<<END>>\n";
         outToClient.println(json);
     }
 
