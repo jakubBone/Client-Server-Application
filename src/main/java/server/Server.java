@@ -49,7 +49,7 @@ public class Server {
             outToClient = new PrintWriter(clientSocket.getOutputStream(), true);
 
             String request;
-            while((request = inFromClient.readLine().toUpperCase()) != null){
+            while((request = inFromClient.readLine()) != null){
                 if(request.equals("STOP")){
                     disconnect();
                     break;
