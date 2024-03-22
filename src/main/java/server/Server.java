@@ -12,6 +12,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import utils.Message;
 
 public class Server {
     private static final Logger logger = LogManager.getLogger(Server.class);
@@ -63,23 +64,23 @@ public class Server {
 
     public void sendResponse(String clientRequest, PrintWriter outToClient) throws IOException {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        ResponseService responseService = new ResponseService(VERSION, serverTimeCreation);
+        Message response = new Message(VERSION, serverTimeCreation);
         String json;
         switch (clientRequest) {
             case "UPTIME":
-                json = gson.toJson(responseService.getUptime());
-                logger.info("Time from server setup: " + responseService.getUptime());
+                json = gson.toJson(response.getUptime());
+                logger.info("Time from server setup: " + response.getUptime());
                 break;
             case "INFO":
-                json = gson.toJson(responseService.getServerDetails());
+                json = gson.toJson(response.getServerDetails());
                 logger.info("server.Server version: " + VERSION + " / Setup date: " + serverTimeCreation);
                 break;
             case "HELP":
-                json = gson.toJson(responseService.getCommands());
+                json = gson.toJson(response.getCommands());
                 logger.info("Commend list displayed");
                 break;
             default:
-                json = gson.toJson(responseService.getInvalidMessage());
+                json = gson.toJson(response.getInvalidMessage());
                 logger.warn("Invalid input");
         }
         json += "\n<<END>>\n";

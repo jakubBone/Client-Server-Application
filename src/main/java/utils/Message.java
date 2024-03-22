@@ -1,17 +1,17 @@
-package server;
+package utils;
 
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-public class ResponseService {
+public class Message {
     private Map<String, String> commands = new LinkedHashMap<>();
     private Map<String, String> serverDetails = new LinkedHashMap<>();
     private Map<String, Long> uptime = new LinkedHashMap<>();
     private String invalidMessage;
 
-    public ResponseService(String version, Date serverTimeCreation) {
+    public Message(String version, Date serverTimeCreation) {
         setCommands();
         setServerDetails(version, serverTimeCreation);
         setUptime(serverTimeCreation);
