@@ -1,80 +1,85 @@
 package utils;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class UserManager {
     private List<User> usersList;
-    private Map<String, String> userSession;
-    private boolean ifSessionInit;
 
     public UserManager() {
         usersList = new ArrayList<>();
-        userSession = new HashMap<>();
     }
 
-    private String registerUser(String userName, String password) {
+    private String register(String userName, String password) {
         for (User user : usersList) {
-            if (user.getUsername().equals(userName)) {
+            if(isUserNameEqual(user, userName))
                 throw new IllegalArgumentException("User already exists");
-            }
-            String hashedPassword = hashPassword(password);
-            usersList.add(new User(userName, hashedPassword, "user"));
         }
-        return "User registered successfully";
+        String hashedPassword = hashPassword(password);
+        usersList.add(new User(userName, hashedPassword, Role.USER));
+        return "Registration successful";
     }
 
-    private String loginUser(String userName, String password){
+    private String login(String userName, String password){
         for(User user: usersList) {
-            if (user.getUsername().equals(userName)) {
-                if (checkPassword(password, user.getHashedPassword())) {
-                    ifSessionInit = true;
-                }
-                else
+            if ((user, userName)) {
+                if (!ifPasswordEqual(password,user.getHashedPassword()) {
                     System.out.println("Incorrect password");
-            }
-            throw new RuntimeException("Login failed");
+                }
+            } else
+                throw new RuntimeException("Login failed");
         }
-        return "User logged successfully";
+        return "Login successful";
     }
 
-    private String logoutUser(String userName){
+    private String logout(String userName){
         for(User user: usersList){
-            if(user.getUsername().equals(userName) && ifSessionInit == true)
-                ifSessionInit = false;
-            else
+            if(!isUserNameEqual(user, userName)) {
                 throw new RuntimeException("Logout failed");
+            }
         }
-        return "User logout successfully";
+        return "Logout successful";
     }
 
-    private String removeUser(String userName){
-        for(User user: usersList) {
-            if (user.getUsername().equals(userName)) {
-                usersList.remove(user);
+    private String reguestAccountRemovalbyAdmin(String userName, Role requiredRole){
+        if(requiredRole == Role.ADMIN) {
+            for (User user : usersList) {
+                if (!isUserNameEqual(user.getUsername(), userName)) {
+                    throw new RuntimeException("User not found");
+                } else {
+                    usersList.remove(user);
+                }
             }
-            throw new RuntimeException("Authorization failed or user not found.");
+        } else {
+            return "No permission";
+        }
+        return "User deleted successfully";
+    }
+    private String requestPasswordChangeByAdmin(String userName, Role requiredRole, String newPassword, String oldPassword){
+        if(requiredRole == Role.ADMIN) {
+            for (User user : usersList) {
+                if (!isUserNameEqual(user.getUsername(), userName)) {
+                    throw new RuntimeException("User not found");
+                } else {
+                    if(ifPasswordEqual(user.getHashedPassword(), hashPassword(oldPassword))) {
+                        user.setHashedPassword(hashPassword(newPassword));
+                    }
+                }
+            }
+        } else {
+            return "No permission";
         }
         return "User deleted successfully";
     }
 
-    private String resetPassword(String userName, String password){
-        for(User user: usersList) {
-            if (user.getUsername().equals(userName)) {
-                // request to admin for change the password
-            }
-            throw new RuntimeException("           ");
-        }
-        return "Password reset successfully";
+    public boolean isUserNameEqual(User user, String userName) {
+        return user.getUsername().equals(userName);
     }
-
+    private boolean ifPasswordEqual(String password, String hashedPassword) {
+        return hashPassword(password).equals(hashedPassword);
+    }
     public String hashPassword(String password){
         return String.valueOf(password.hashCode());
-    }
-    private boolean checkPassword(String password, String hashedPassword) {
-        return hashPassword(password).equals(hashedPassword);
     }
 
 }

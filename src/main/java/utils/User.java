@@ -1,12 +1,11 @@
 package utils;
 
-
 public class User {
     private String username;
     private String hashedPassword;
-    private String role;
+    private Role role;
 
-    public User(String username, String hashedPassword, String role) {
+    public User(String username, String hashedPassword, Role role) {
         this.username = username;
         this.hashedPassword = hashedPassword;
         this.role = role;
@@ -31,9 +30,9 @@ public class User {
     public String getRole() {
         return role;
     }
-
     public void setRole(String role) {
         this.role = role;
     }
+
 }
 
