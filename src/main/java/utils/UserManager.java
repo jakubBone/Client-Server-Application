@@ -22,8 +22,8 @@ public class UserManager {
 
     private String login(String userName, String password){
         for(User user: usersList) {
-            if ((user, userName)) {
-                if (!ifPasswordEqual(password,user.getHashedPassword()) {
+            if (isUserNameEqual(user, userName)) {
+                if (!ifPasswordEqual(password,user.getHashedPassword())) {
                     System.out.println("Incorrect password");
                 }
             } else
@@ -44,7 +44,7 @@ public class UserManager {
     private String reguestAccountRemovalbyAdmin(String userName, Role requiredRole){
         if(requiredRole == Role.ADMIN) {
             for (User user : usersList) {
-                if (!isUserNameEqual(user.getUsername(), userName)) {
+                if (!isUserNameEqual(user, userName)) {
                     throw new RuntimeException("User not found");
                 } else {
                     usersList.remove(user);
@@ -58,7 +58,7 @@ public class UserManager {
     private String requestPasswordChangeByAdmin(String userName, Role requiredRole, String newPassword, String oldPassword){
         if(requiredRole == Role.ADMIN) {
             for (User user : usersList) {
-                if (!isUserNameEqual(user.getUsername(), userName)) {
+                if (!isUserNameEqual(user, userName)) {
                     throw new RuntimeException("User not found");
                 } else {
                     if(ifPasswordEqual(user.getHashedPassword(), hashPassword(oldPassword))) {
@@ -72,13 +72,13 @@ public class UserManager {
         return "User deleted successfully";
     }
 
-    public boolean isUserNameEqual(User user, String userName) {
+    private boolean isUserNameEqual(User user, String userName) {
         return user.getUsername().equals(userName);
     }
     private boolean ifPasswordEqual(String password, String hashedPassword) {
         return hashPassword(password).equals(hashedPassword);
     }
-    public String hashPassword(String password){
+    private String hashPassword(String password){
         return String.valueOf(password.hashCode());
     }
 

@@ -1,9 +1,9 @@
 package utils;
 
 public class User {
-    private String username;
-    private String hashedPassword;
-    private Role role;
+    protected String username;
+    protected String hashedPassword;
+    protected Role role;
 
     public User(String username, String hashedPassword, Role role) {
         this.username = username;
@@ -15,24 +15,24 @@ public class User {
         return username;
     }
 
-    public void setUsername(String username) {
+    private void setUsername(String username) {
         this.username = username;
     }
 
-    public String getHashedPassword() {
+    protected String getHashedPassword() {
         return hashedPassword;
     }
 
-    public void setHashedPassword(String hashedPassword) {
+    protected void setHashedPassword(String hashedPassword) {
         this.hashedPassword = hashedPassword;
     }
 
-    public String getRole() {
+    protected Role getRole() {
         return role;
     }
-    public void setRole(String role) {
+
+    protected void setRole(Role role) {
         this.role = role;
     }
-
 }
 
