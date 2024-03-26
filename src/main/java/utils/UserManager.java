@@ -53,7 +53,7 @@ public class UserManager {
         } else {
             return "No permission";
         }
-        return "User deleted successfully";
+        return "Account delete successful";
     }
     private String requestPasswordChangeByAdmin(String userName, Role requiredRole, String newPassword, String oldPassword){
         if(requiredRole == Role.ADMIN) {
@@ -63,13 +63,14 @@ public class UserManager {
                 } else {
                     if(ifPasswordEqual(user.getHashedPassword(), hashPassword(oldPassword))) {
                         user.setHashedPassword(hashPassword(newPassword));
+                        System.out.println("Password changed to:" + newPassword);
                     }
                 }
             }
         } else {
             return "No permission";
         }
-        return "User deleted successfully";
+        return "Password change successful";
     }
 
     private boolean isUserNameEqual(User user, String userName) {
