@@ -1,7 +1,11 @@
 package user;
 
 import mail.MailBox;
-import user.Role;
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 
 public class User {
     protected String username;
@@ -18,39 +22,8 @@ public class User {
         this.username = username;
         this.hashedPassword = hashedPassword;
         this.role = role;
-        mailBox = new MailBox();
+        this.mailBox = new MailBox();
     }
 
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getHashedPassword() {
-        return hashedPassword;
-    }
-
-    public void setHashedPassword(String hashedPassword) {
-        this.hashedPassword = hashedPassword;
-    }
-
-    public Role getRole() {
-        return role;
-    }
-
-    public void setRole(Role role) {
-        this.role = role;
-    }
-
-    public MailBox getMailBox() {
-        return mailBox;
-    }
-
-    public void setMailBox(MailBox mailBox) {
-        this.mailBox = mailBox;
-    }
 }
 

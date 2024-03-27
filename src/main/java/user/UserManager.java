@@ -7,7 +7,7 @@ public class UserManager {
     private List<User> usersList;
 
     public UserManager() {
-        usersList = new ArrayList<>();
+        this.usersList = new ArrayList<>();
     }
 
     public void register(String userName, String password) {
@@ -64,7 +64,7 @@ public class UserManager {
                 } else {
                     if(ifPasswordEqual(user.getHashedPassword(), hashPassword(oldPassword))) {
                         user.setHashedPassword(hashPassword(newPassword));
-                        System.out.println("Password change successful")
+                        System.out.println("Password change successful");
                     }
                 }
             }
