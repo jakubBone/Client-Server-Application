@@ -1,6 +1,6 @@
 package mail;
 
-import utils.User;
+import user.User;
 
 public class Mail {
     private User sender;

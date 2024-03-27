@@ -1,12 +1,18 @@
-package utils;
+package user;
 
 import mail.MailBox;
+import user.Role;
 
 public class User {
     protected String username;
     protected String hashedPassword;
     protected Role role;
     protected MailBox mailBox;
+
+    public enum Role {
+        ADMIN,
+        USER;
+    }
 
     public User(String username, String hashedPassword, Role role) {
         this.username = username;
@@ -19,23 +25,23 @@ public class User {
         return username;
     }
 
-    private void setUsername(String username) {
+    public void setUsername(String username) {
         this.username = username;
     }
 
-    protected String getHashedPassword() {
+    public String getHashedPassword() {
         return hashedPassword;
     }
 
-    protected void setHashedPassword(String hashedPassword) {
+    public void setHashedPassword(String hashedPassword) {
         this.hashedPassword = hashedPassword;
     }
 
-    protected Role getRole() {
+    public Role getRole() {
         return role;
     }
 
-    protected void setRole(Role role) {
+    public void setRole(Role role) {
         this.role = role;
     }
 

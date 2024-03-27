@@ -13,18 +13,18 @@ public class MailBox {
         mailList = new ArrayList<>();
     }
 
-    public String receive(Mail mail){
+    public void receive(Mail mail){
         if(ifBoxFull()){
             throw new RuntimeException("Mailbox is full");
         } else {
             mailList.add(mail);
+            System.out.println("You have a new unread message";);
         }
-        return "You have a new unread message";
     }
 
-    public String delete(Mail mail){
+    public void delete(Mail mail){
         mailList.remove(mail);
-        return "Message deleted successfully";
+        System.out.println("Message deleted successfully");
     }
 
     public boolean ifBoxFull(){
