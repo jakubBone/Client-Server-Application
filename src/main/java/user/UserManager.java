@@ -1,11 +1,14 @@
 package user;
 
 import exceptions.UserAutenthactionException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class UserManager {
+    private static final Logger logger = LogManager.getLogger(UserManager.class);
     private List<User> usersList;
 
     public UserManager() {
@@ -19,16 +22,18 @@ public class UserManager {
         }
         String hashedPassword = hashPassword(password);
         usersList.add(new User(userName, hashedPassword, User.Role.USER));
-        System.out.println("Registration successful");
+        logger.info("Registration successful");
     }
 
     public void login(String userName, String password) throws UserAutenthactionException {
         for(User user: usersList) {
             if (isUserNameEqual(user, userName)) {
                 if (!ifPasswordEqual(password,user.getHashedPassword())) {
-                    System.out.println("Incorrect password");
+                    logger.info("Incorrect password");
                 } else {
-                    System.out.println("Login successful");
+                    user.isUserLoggedIn = true;
+                    logger.info("Login successful");
+
                 }
             } else
                 throw new UserAutenthactionException("Login failed");
@@ -41,7 +46,7 @@ public class UserManager {
                 throw new UserAutenthactionException("Logout failed");
             }
         }
-        System.out.println("Logout successful");
+        logger.info("Logout successful");
     }
 
     public void reguestAccountRemovalbyAdmin(String userName, User.Role requiredRole) throws UserAutenthactionException{
@@ -51,11 +56,11 @@ public class UserManager {
                     throw new UserAutenthactionException("User not found");
                 } else {
                     usersList.remove(user);
-                    System.out.println("Account delete successful");
+                    logger.info("Account delete successful");
                 }
             }
         } else {
-            System.out.println("No permission");
+            logger.info("No permission");
         }
     }
 
@@ -67,12 +72,12 @@ public class UserManager {
                 } else {
                     if(ifPasswordEqual(user.getHashedPassword(), hashPassword(oldPassword))) {
                         user.setHashedPassword(hashPassword(newPassword));
-                        System.out.println("Password change successful");
+                        logger.info("Password change successful");
                     }
                 }
             }
         } else {
-            System.out.println("No permission");
+            logger.info("No permission");
         }
     }
 

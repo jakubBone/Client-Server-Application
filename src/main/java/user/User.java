@@ -3,7 +3,6 @@ package user;
 import mail.MailBox;
 import lombok.Getter;
 import lombok.Setter;
-
 @Getter
 @Setter
 public class User {
@@ -11,6 +10,7 @@ public class User {
     protected String hashedPassword;
     protected Role role;
     protected MailBox mailBox;
+    protected boolean isUserLoggedIn;
 
     public enum Role {
         ADMIN,
@@ -22,6 +22,9 @@ public class User {
         this.hashedPassword = hashedPassword;
         this.role = role;
         this.mailBox = new MailBox();
+        this.isUserLoggedIn = false;
     }
+
+
 }
 

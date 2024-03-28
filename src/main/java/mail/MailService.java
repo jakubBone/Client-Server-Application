@@ -1,15 +1,20 @@
 package mail;
 
 import exceptions.MailboxOverflowException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import user.User;
 
 public class MailService {
-
+    private static final Logger logger = LogManager.getLogger(MailService.class);
     public void sendMessage(User receiver, Mail mail) throws MailboxOverflowException {
         if(receiver.getMailBox().ifBoxFull())
-            throw new MailboxOverflowException("Unable to send message");
+            throw new MailboxOverflowException("Unable to send mail");
         else {
-            receiver.getMailBox().receive(mail);
+            if(mail.getMaxMessageLength() <= 255) {
+                receiver.getMailBox().receive(mail);
+            }
         }
     }
 
@@ -17,7 +22,7 @@ public class MailService {
         for (Mail mail: user.getMailBox().getMailList()){
             System.out.println(mail.getMessage());
             mail.markAsRead();
-            System.out.println("Message opened");
+            logger.info("Mail opened");
         }
     }
 

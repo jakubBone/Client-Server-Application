@@ -1,0 +1,9 @@
+{
+  "username": "pablo",
+  "hashedPassword": "dasdas",
+  "role": "ADMIN",
+  "mailBox": {
+    "mailList": [],
+    "BOXLIMIT": 5
+  }
+}
