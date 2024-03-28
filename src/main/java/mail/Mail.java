@@ -6,22 +6,20 @@ import lombok.Setter;
 
 @Getter
 @Setter
-
 public class Mail {
-
     private User sender;
     private User receiver;
     private String message;
-    private boolean ifMessageUnread;
+    private boolean isRead;
 
-    public Mail(User sender, User receiver, String message, boolean ifMessageUnread) {
+    public Mail(User sender, User receiver, String message) {
         this.sender = sender;
         this.receiver = receiver;
         this.message = message;
-        this.ifMessageUnread = ifMessageUnread;
+        this.isRead = false;
     }
 
-    public void setIfMessageUnread(boolean ifMessageUnread) {
-        this.ifMessageUnread = ifMessageUnread;
+    public void markAsRead() {
+        this.isRead = true;
     }
 }

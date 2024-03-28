@@ -6,7 +6,6 @@ import lombok.Setter;
 
 @Getter
 @Setter
-
 public class User {
     protected String username;
     protected String hashedPassword;
@@ -24,6 +23,5 @@ public class User {
         this.role = role;
         this.mailBox = new MailBox();
     }
-
 }
 
