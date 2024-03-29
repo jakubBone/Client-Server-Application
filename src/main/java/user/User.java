@@ -24,7 +24,5 @@ public class User {
         this.mailBox = new MailBox();
         this.isUserLoggedIn = false;
     }
-
-
 }
 

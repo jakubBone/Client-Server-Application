@@ -21,20 +21,6 @@ public class MailBox {
         this.mailList = new ArrayList<>();
     }
 
-    public void receive(Mail mail) throws MailboxOverflowException{
-        if(ifBoxFull()){
-           throw new MailboxOverflowException("Unable to receive mail");
-        } else {
-            mailList.add(mail);
-            logger.info("New unread mail");
-        }
-    }
-
-    public void delete(Mail mail){
-        mailList.remove(mail);
-        logger.info("Mail deleted successfully");
-    }
-
     public boolean ifBoxFull(){
         return mailList.size() >= BOXLIMIT;
     }

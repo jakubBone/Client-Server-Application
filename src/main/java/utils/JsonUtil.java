@@ -12,22 +12,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 
-
 public class JsonUtil {
 
     private static final Logger logger = LogManager.getLogger(JsonUtil.class);
-    public static void main(String[] args) {
-        User userToJSON = new User("pablo", "dasdas", User.Role.ADMIN);
-        String file = userToJSON.getUsername() + "Data.json";
-        JsonUtil.writeDataToJson(userToJSON, file);
-
-        //User userFromJSON = JsonUtil.readDataToJson(file);
-        User userFromJSON = JsonUtil.readDataToJson(file);
-        System.out.println("Content: " + userFromJSON);
-        if (userFromJSON != null) {
-            System.out.println("Odczytano użytkownika: " + userFromJSON.getUsername());
-        }
-    }
 
     public static void writeDataToJson(User user, String filePath){
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
