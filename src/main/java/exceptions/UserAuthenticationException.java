@@ -1,8 +1,8 @@
 package exceptions;
 
-public class UserAutenthactionException extends Exception {
+public class UserAuthenticationException extends Exception {
 
-    public UserAutenthactionException(String message){
+    public UserAuthenticationException(String message){
         super(message);
     }
 
