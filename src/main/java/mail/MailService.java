@@ -7,38 +7,36 @@ import org.apache.logging.log4j.Logger;
 
 import user.User;
 
+import java.util.List;
+
 public class MailService {
     private static final Logger logger = LogManager.getLogger(MailService.class);
 
-    public void sendMail(User sender, User receiver, Mail mail) throws MailboxOverflowException {
-        if(receiver.getMailBox().ifBoxFull())
-            throw new MailboxOverflowException("Unable to send mail");
+    public void sendMail(Mail mail) throws MailboxOverflowException {
+        if(mail.getReceiver().getMailBox().ifBoxFull())
+            throw new MailboxOverflowException("Receiver mailbox is full. Unable to send mail");
         else {
             if(mail.getMaxMessageLength() <= 255) {
-                receiver.getMailBox().getMailList().add(mail);
+                mail.getReceiver().getMailBox().getUnreadMails().add(mail);
+                logger.info("Mail sent to receiver");
             }
         }
     }
 
     public void readMail(User user){
-        for (Mail mail: user.getMailBox().getMailList()){
+        List<Mail> mailsToRead = user.getMailBox().getReadMails();
+        if(mailsToRead.isEmpty()){
+            throw new MailboxOverflowException("There is no unread mails in mailbox")
+        }
+        for (Mail mail: mailsToRead){
             System.out.println(mail.getMessage());
             mail.markAsRead();
-            logger.info("Mail opened");
+            logger.info("Mail read");
         }
     }
 
-    public void receiveMail(User user, Mail mail) throws MailboxOverflowException{
-        if(user.getMailBox().ifBoxFull()){
-            throw new MailboxOverflowException("Unable to receive mail");
-        } else {
-            user.getMailBox().getMailList().add(mail);
-            logger.info("New unread mail");
-        }
-    }
-
-    public void deleteMail(User user, Mail mail){
-        user.getMailBox().getMailList().remove(mail);
+    public void deleteMail(Mail mail){
+        mail.getSender().getMailBox().getReadMails().remove(mail);
         logger.info("Mail deleted successfully");
     }
 }
