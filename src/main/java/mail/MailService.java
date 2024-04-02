@@ -23,10 +23,10 @@ public class MailService {
         }
     }
 
-    public void readMail(User user){
+    public void readMail(User user) throws MailboxOverflowException{
         List<Mail> mailsToRead = user.getMailBox().getReadMails();
         if(mailsToRead.isEmpty()){
-            throw new MailboxOverflowException("There is no unread mails in mailbox")
+            throw new MailboxOverflowException("There is no unread mails in mailbox");
         }
         for (Mail mail: mailsToRead){
             System.out.println(mail.getMessage());

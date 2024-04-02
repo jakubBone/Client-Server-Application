@@ -2,7 +2,7 @@ package utils;
 
 public class Screen {
 
-    public String printLoginMenu() {
+    /*public static String printLoginMenu() {
         return  "+---------------------------------------------+\n" +
                 "|              Welcome in MailBox!            |\n" +
                 "|                                             |\n" +
@@ -10,13 +10,24 @@ public class Screen {
                 "|                                             |\n" +
                 "| Register                                    |\n" +
                 "| Login                                       |\n" +
-                "| Logout                                      |\n" +
                 "| Help                                        |\n" +
                 "| Exit                                        |\n" +
                 "+---------------------------------------------+";
+    }*/
+    public static void printLoginMenu() {
+        System.out.println("+---------------------------------------------+\n" +
+                "|              Welcome in MailBox!            |\n" +
+                "|                                             |\n" +
+                "| Select:                                     |\n" +
+                "|                                             |\n" +
+                "| Register                                    |\n" +
+                "| Login                                       |\n" +
+                "| Help                                        |\n" +
+                "| Exit                                        |\n" +
+                "+---------------------------------------------+");
     }
 
-    public String printMailBoxMenu() {
+    public static String printMailBoxMenu() {
         return  "+---------------------------------------------+\n" +
                 "|              You are logged in              |\n" +
                 "|                                             |\n" +

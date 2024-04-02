@@ -7,11 +7,15 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Date;
+import java.util.Scanner;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import exceptions.UserAuthenticationException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import user.User;
+import user.UserManager;
 import utils.Message;
 
 public class Server {
@@ -23,6 +27,8 @@ public class Server {
     private Socket clientSocket;
     private BufferedReader inFromClient;
     private PrintWriter outToClient;
+    private UserManager userManager;
+
 
     public static void main(String[] args)  {
         Server server = new Server();
@@ -50,19 +56,58 @@ public class Server {
             outToClient = new PrintWriter(clientSocket.getOutputStream(), true);
 
             String request;
+            String response;
+
             while((request = inFromClient.readLine()) != null){
-                if(request.equals("STOP")){
+                if(request.equals("EXIT")){
                     disconnect();
                     break;
                 }
-                sendResponse(request, outToClient);
+
+                if(request.equals("REGISTER") || request.equals("LOGIN")){
+                    response = "Username:" + "\n<<END>>\n";
+                    outToClient.println(response);
+                    String username = inFromClient.readLine();
+                    outToClient.println("Password:"+ "\n<<END>>\n");
+                    String password = inFromClient.readLine();
+                    handleLoginRequest(request, outToClient, username, password);
+                } else {
+                    sendHelpRequest(request, outToClient);
+                }
             }
         } catch (IOException ex){
             logger.error("Error - handling client request", ex);
         }
     }
 
-    public void sendResponse(String clientRequest, PrintWriter outToClient) throws IOException {
+    public void handleLoginRequest(String clientRequest, PrintWriter outToClient, String username, String password) {
+       try{
+           userManager = new UserManager();
+           switch (clientRequest) {
+               case "REGISTER":
+                   userManager.register(username,password);
+                   logger.info("REGISTER success");
+                   break;
+               case "LOGIN":
+                   userManager.login(username, password);
+                   logger.info("LOGIN success");
+                   break;
+               case "HELP":
+                   sendHelpRequest(clientRequest, outToClient);
+                   logger.info("HELP success");
+                   break;
+               default:
+                   logger.warn("Invalid input");
+           }
+       } catch (UserAuthenticationException exception){
+           exception.getMessage();
+       } catch (IOException e) {
+           throw new RuntimeException(e);
+       }
+
+    }
+
+    public void sendHelpRequest(String clientRequest, PrintWriter outToClient) throws IOException {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         Message response = new Message(VERSION, serverTimeCreation);
         String json;

@@ -5,9 +5,13 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.sql.SQLOutput;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import utils.Screen;
+
+import javax.swing.plaf.synth.SynthOptionPaneUI;
 
 public class Client {
     private static final Logger logger = LogManager.getLogger(Client.class);
@@ -35,7 +39,43 @@ public class Client {
         }
     }
 
-    public void handleServerCommunication(){
+    public void handleServerCommunication() {
+        try {
+            outToServer = new PrintWriter(clientSocket.getOutputStream(), true);
+            inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            userInput = new BufferedReader(new InputStreamReader(System.in));
+
+            String request;
+            Screen.printLoginMenu();
+            System.out.print("Type: ");
+
+            while (true) {
+                request = userInput.readLine();
+                if (request == null) {
+                    break;
+                }
+                request = request.toUpperCase();
+
+                if (request.equals("STOP")) {
+                    disconnect();
+                    break;
+                }
+                outToServer.println(request);
+                String x;
+                while (!(x = inFromServer.readLine()).equals("<<END>>")) {
+                    System.out.println(x);
+                }
+                if (x.equals("Password:" + "\n<<END>>\n")) {
+                    break;
+                }
+            }
+        } catch (IOException ex) {
+            logger.error("Error - handling server communication", ex);
+        }
+        logger.info("Client logged in");
+    }
+
+    /*public void handleServerCommunication(){
         try {
             outToServer = new PrintWriter(clientSocket.getOutputStream(), true);
             inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
@@ -68,7 +108,7 @@ public class Client {
         } catch (IOException ex){
             logger.error("Error - handling server communication", ex);
         }
-    }
+    }*/
 
     public void disconnect() {
         try {
