@@ -12,11 +12,20 @@ public class UserManager {
     private List<User> usersList;
     private List <String> passwordChangeRequesters;
     private List <String> removeAccountRequesters;
+    public static User currentLoggedInUser;
 
     public UserManager() {
         this.usersList = new ArrayList<>();
         this.passwordChangeRequesters = new ArrayList<>();
         this.removeAccountRequesters = new ArrayList<>();
+    }
+
+    public List<User> getUsersList() {
+        return usersList;
+    }
+
+    public void setUsersList(List<User> usersList) {
+        this.usersList = usersList;
     }
 
     public void register(String typedUserName, String typedPassword) throws IllegalArgumentException {
@@ -35,20 +44,21 @@ public class UserManager {
         }
     }
 
-    public void login(String typedUserName, String typedPassword) throws UserAuthenticationException {
+    public User login(String typedUserName, String typedPassword) /*throws UserAuthenticationException*/ {
         for (User user : usersList) {
             if (isUserNameEqual(user, typedUserName)) {
                 if (!ifPasswordEqual(typedPassword, user.getHashedPassword())) {
                     logger.info("Incorrect password");
-                    throw new UserAuthenticationException("Incorrect password");
+                    //throw new UserAuthenticationException("Incorrect password");
                 } else {
                     user.isUserLoggedIn = true;
                     logger.info("Login successful");
-                    return;
+                    return user;
                 }
             }
         }
-        throw new UserAuthenticationException("Login failed: user not found");
+        return null;
+        //throw new UserAuthenticationException("Login failed: user not found");
     }
 
     public void logout(String typedUserName) throws UserAuthenticationException {
@@ -101,6 +111,15 @@ public class UserManager {
             }
         }
         throw new UserAuthenticationException("User not found");
+    }
+
+    public User getRecipientByUsername(String username){
+        for(User recipient: usersList){
+            if(username.equals(recipient.getUsername())){
+                return recipient;
+            }
+        }
+        return null;
     }
 
     public boolean isUserNameEqual(User user, String userName) {

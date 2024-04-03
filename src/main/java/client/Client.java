@@ -5,13 +5,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.sql.SQLOutput;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import utils.Screen;
 
-import javax.swing.plaf.synth.SynthOptionPaneUI;
 
 public class Client {
     private static final Logger logger = LogManager.getLogger(Client.class);
@@ -45,70 +43,90 @@ public class Client {
             inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             userInput = new BufferedReader(new InputStreamReader(System.in));
 
-            String request;
-            Screen.printLoginMenu();
-            System.out.print("Type: ");
+            boolean loggedIn = false;
 
             while (true) {
+                String request;
+                while (!loggedIn) {
+                    Screen.printLoginMenu();
+                    request = userInput.readLine();
+                    if (request == null || request.equalsIgnoreCase("EXIT")) {
+                        disconnect();
+                        break;
+                    }
+                    if (request.equalsIgnoreCase("REGISTER") || request.equalsIgnoreCase("LOGIN")) {
+                        handleAuthentication();
+                        loggedIn = true;
+                    } else if (request.equalsIgnoreCase("HELP")) {
+                        outToServer.println(request);
+                        readServerHelpResponse();
+                    } else {
+                        System.out.println("Invalid input. Try again");
+                    }
+                }
+                Screen.printMailBoxMenu();
                 request = userInput.readLine();
-                if (request == null) {
-                    break;
-                }
-                request = request.toUpperCase();
-
-                if (request.equals("STOP")) {
-                    disconnect();
-                    break;
-                }
-                outToServer.println(request);
-                String x;
-                while (!(x = inFromServer.readLine()).equals("<<END>>")) {
-                    System.out.println(x);
-                }
-                if (x.equals("Password:" + "\n<<END>>\n")) {
-                    break;
+                if (request.equalsIgnoreCase("WRITE") || request.equalsIgnoreCase("READ") || request.equalsIgnoreCase("LOGOUT")) {
+                    handleMailRequests(request);
+                    if (request.equalsIgnoreCase("LOGOUT")) {
+                        loggedIn = false;
+                    }
+                } else {
+                    System.out.println("Invalid input.Try again");
                 }
             }
         } catch (IOException ex) {
             logger.error("Error - handling server communication", ex);
         }
-        logger.info("Client logged in");
     }
 
-    /*public void handleServerCommunication(){
-        try {
-            outToServer = new PrintWriter(clientSocket.getOutputStream(), true);
-            inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-            userInput = new BufferedReader(new InputStreamReader(System.in));
+    private void handleAuthentication() throws IOException {
+        System.out.println("Please enter username: ");
+        String username = userInput.readLine();
+        System.out.println("Please enter password: ");
+        String password = userInput.readLine();
+        outToServer.println(username + " " + password);
 
-            String request;
-            System.out.print("\nType \"HELP\" to enter COMMANDS MENU: ");
+        readServerResponse();
+    }
 
-            while(true) {
-                request = userInput.readLine();
-                if(request == null) {
-                    break;
-                }
-                request = request.toUpperCase();
+    private void handleMailRequests(String request) throws IOException {
+        switch (request.toUpperCase()) {
+            case "WRITE":
 
-                outToServer.println(request);
-                if(request.equals("STOP")){
-                    disconnect();
-                    break;
-                }
-
-                StringBuilder response = new StringBuilder();
-                String line;
-                while (!(line = inFromServer.readLine()).equals("<<END>>")) {
-                    response.append(line + "\n");
-                }
-                System.out.print(response.toString());
-                System.out.print("\nType next command:");
-            }
-        } catch (IOException ex){
-            logger.error("Error - handling server communication", ex);
+                String usersList = userInput.readLine(); // list printing
+                System.out.println("Enter recipient's username:");
+                String recipient = userInput.readLine();
+                System.out.println("Enter your message:");
+                String message = userInput.readLine();
+                outToServer.println("WRITE " + recipient + " " + message);
+                break;
+            case "READ":
+                outToServer.println("READ");
+                break;
+            case "LOGOUT":
+                outToServer.println("LOGOUT");
+                break;
         }
-    }*/
+        readServerResponse();
+    }
+
+    private void readServerHelpResponse() throws IOException {
+        StringBuilder response = new StringBuilder();
+        String line;
+        while (!(line = inFromServer.readLine()).equals("<<END>>")) {
+            response.append(line).append("\n");
+        }
+        System.out.println("Server response:\n" + response.toString());
+        System.out.print("\nType next command: ");
+    }
+
+    private void readServerResponse() throws IOException {
+        String response = null;
+        while (!(response = inFromServer.readLine()).equals("<<END>>")) {
+            System.out.println(response);
+        }
+    }
 
     public void disconnect() {
         try {

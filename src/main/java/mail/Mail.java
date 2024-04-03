@@ -8,14 +8,14 @@ import lombok.Setter;
 @Setter
 public class Mail {
     private User sender;
-    private User receiver;
+    private User recipient;
     private String message;
     private boolean isRead;
     private int maxMessageLength;
 
-    public Mail(User sender, User receiver, String message) {
+    public Mail(User sender, User recipient, String message) {
         this.sender = sender;
-        this.receiver = receiver;
+        this.recipient = recipient;
         this.message = message;
         this.isRead = false;
         this.maxMessageLength = message.length();

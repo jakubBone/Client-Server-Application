@@ -2,18 +2,6 @@ package utils;
 
 public class Screen {
 
-    /*public static String printLoginMenu() {
-        return  "+---------------------------------------------+\n" +
-                "|              Welcome in MailBox!            |\n" +
-                "|                                             |\n" +
-                "| Select:                                     |\n" +
-                "|                                             |\n" +
-                "| Register                                    |\n" +
-                "| Login                                       |\n" +
-                "| Help                                        |\n" +
-                "| Exit                                        |\n" +
-                "+---------------------------------------------+";
-    }*/
     public static void printLoginMenu() {
         System.out.println("+---------------------------------------------+\n" +
                 "|              Welcome in MailBox!            |\n" +
@@ -25,10 +13,11 @@ public class Screen {
                 "| Help                                        |\n" +
                 "| Exit                                        |\n" +
                 "+---------------------------------------------+");
+        System.out.print("Type:");
     }
 
-    public static String printMailBoxMenu() {
-        return  "+---------------------------------------------+\n" +
+    public static void  printMailBoxMenu() {
+        System.out.println("+---------------------------------------------+\n" +
                 "|              You are logged in              |\n" +
                 "|                                             |\n" +
                 "| Select:                                     |\n" +
@@ -37,6 +26,7 @@ public class Screen {
                 "| 2. Read mails                               |\n" +
                 "| 3. Sent mails                               |\n" +
                 "| 4. Logout                                  |\n" +
-                "+---------------------------------------------+";
+                "+---------------------------------------------+");
+        System.out.print("Type:");
     }
 }

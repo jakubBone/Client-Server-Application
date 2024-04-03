@@ -12,27 +12,24 @@ import java.util.List;
 public class MailService {
     private static final Logger logger = LogManager.getLogger(MailService.class);
 
-    public void sendMail(Mail mail) throws MailboxOverflowException {
-        if(mail.getReceiver().getMailBox().ifBoxFull())
-            throw new MailboxOverflowException("Receiver mailbox is full. Unable to send mail");
-        else {
+    public void sendMail(Mail mail) /*throws MailboxOverflowException*/ {
+        if(mail.getRecipient().getMailBox().ifBoxFull()){
+            //throw new MailboxOverflowException("Receiver mailbox is full. Unable to send mail");
+        } else {
             if(mail.getMaxMessageLength() <= 255) {
-                mail.getReceiver().getMailBox().getUnreadMails().add(mail);
+                mail.getRecipient().getMailBox().getUnreadMails().add(mail);
                 logger.info("Mail sent to receiver");
             }
         }
     }
 
-    public void readMail(User user) throws MailboxOverflowException{
+    public List <Mail> readMails(User user) {
         List<Mail> mailsToRead = user.getMailBox().getReadMails();
         if(mailsToRead.isEmpty()){
-            throw new MailboxOverflowException("There is no unread mails in mailbox");
+            //throw new MailboxOverflowException("There is no unread mails in mailbox");
         }
-        for (Mail mail: mailsToRead){
-            System.out.println(mail.getMessage());
-            mail.markAsRead();
-            logger.info("Mail read");
-        }
+        logger.info("Mail read");
+        return mailsToRead;
     }
 
     public void deleteMail(Mail mail){
