@@ -1,6 +1,5 @@
 package user;
 
-import exceptions.UserAuthenticationException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -9,13 +8,16 @@ import java.util.List;
 
 public class UserManager {
     private static final Logger logger = LogManager.getLogger(UserManager.class);
-    private List<User> usersList;
+    public static List<User> usersList;
     private List <String> passwordChangeRequesters;
     private List <String> removeAccountRequesters;
     public static User currentLoggedInUser;
+    public Admin admin;
 
     public UserManager() {
+        admin = new Admin();
         this.usersList = new ArrayList<>();
+        usersList.add(admin);
         this.passwordChangeRequesters = new ArrayList<>();
         this.removeAccountRequesters = new ArrayList<>();
     }
@@ -29,42 +31,43 @@ public class UserManager {
     }
 
     public void register(String typedUserName, String typedPassword) throws IllegalArgumentException {
+        logger.info("in user manager register");
         boolean userExists = false;
-        for (User user : usersList) {
-            if (isUserNameEqual(user, typedUserName)) {
+        for (User existingUser : usersList) {
+            if (isUserIdEqual(existingUser, typedUserName)) {
                 userExists = true;
                 break;
             }
         }
         if (userExists) {
-            throw new IllegalArgumentException("User already exists");
+            logger.info("User already exists");
         } else {
+            System.out.println(usersList);
             usersList.add(new User(typedUserName, typedPassword, User.Role.USER));
             logger.info("Registration successful");
+            System.out.println(usersList);
         }
     }
 
-    public User login(String typedUserName, String typedPassword) /*throws UserAuthenticationException*/ {
-        for (User user : usersList) {
-            if (isUserNameEqual(user, typedUserName)) {
-                if (!ifPasswordEqual(typedPassword, user.getHashedPassword())) {
+    public User login(String typedUsername, String typedPassword){
+        for (User existingUser : usersList) {
+            if (isUserIdEqual(existingUser, typedUsername)) {
+                if (!ifPasswordEqual(existingUser.getHashedPassword(), typedPassword)) {
                     logger.info("Incorrect password");
-                    //throw new UserAuthenticationException("Incorrect password");
                 } else {
-                    user.isUserLoggedIn = true;
+                    existingUser.isUserLoggedIn = true;
                     logger.info("Login successful");
-                    return user;
+                    return existingUser;
                 }
             }
         }
         return null;
-        //throw new UserAuthenticationException("Login failed: user not found");
     }
 
-    public void logout(String typedUserName) throws UserAuthenticationException {
+    /*public void logout(String typedUserName) throws UserAuthenticationException {
         boolean isUserFound = false;
         for (User user : usersList) {
-            if (isUserNameEqual(user, typedUserName)) {
+            if (isUserIDEqual(user, typedUserName)) {
                 isUserFound = true;
                 if (!user.isUserLoggedIn) {
                     throw new UserAuthenticationException("User is already logged out.");
@@ -78,12 +81,12 @@ public class UserManager {
         if (!isUserFound) {
             throw new UserAuthenticationException("User not found in the list.");
         }
-    }
+    }*/
 
-    public void requestAccountRemovalByAdmin(String typedUserName) throws UserAuthenticationException {
+    /*public void requestAccountRemovalByAdmin(String typedUserName) throws UserAuthenticationException {
         User userToDelete = null;
         for (User user : usersList) {
-            if (isUserNameEqual(user, typedUserName)) {
+            if (isUserIDEqual(user, typedUserName)) {
                 userToDelete = user;
                 break;
             }
@@ -95,11 +98,11 @@ public class UserManager {
         } else {
             throw new UserAuthenticationException("User not found");
         }
-    }
+    }*/
 
-    public void requestPasswordChangeByAdmin(String typedUserName, String newPassword, String oldPassword) throws UserAuthenticationException {
+    /*public void requestPasswordChangeByAdmin(String typedUserName, String newPassword, String oldPassword) throws UserAuthenticationException {
         for (User user : usersList) {
-            if (isUserNameEqual(user, typedUserName)) {
+            if (isUserIDEqual(user, typedUserName)) {
                 if (ifPasswordEqual(oldPassword, user.getHashedPassword())) {
                     user.setPassword(newPassword);
                     user.setHashedPassword(newPassword.hashCode());
@@ -111,7 +114,7 @@ public class UserManager {
             }
         }
         throw new UserAuthenticationException("User not found");
-    }
+    }*/
 
     public User getRecipientByUsername(String username){
         for(User recipient: usersList){
@@ -122,11 +125,11 @@ public class UserManager {
         return null;
     }
 
-    public boolean isUserNameEqual(User user, String userName) {
-        return user.getUsername().equals(userName);
+    public boolean isUserIdEqual(User existingUser, String userName) {
+        return  existingUser.getUserId() == userName.hashCode();
     }
 
-    public boolean ifPasswordEqual(String typedPassword, int hashedPassword) {
-        return typedPassword.hashCode() == hashedPassword;
+    public boolean ifPasswordEqual(int existingHashedPassword, String typedPassword) {
+        return existingHashedPassword == typedPassword.hashCode();
     }
 }

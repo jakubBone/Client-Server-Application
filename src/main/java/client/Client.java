@@ -4,10 +4,11 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.net.Socket;
+import java.net.Socket;;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import user.UserManager;
 import utils.Screen;
 
 
@@ -18,6 +19,8 @@ public class Client {
     private PrintWriter outToServer;
     private BufferedReader inFromServer;
     private BufferedReader userInput;
+    private static boolean loggedIn = false;
+
 
     public static void main(String[] args) {
         Client client = new Client();
@@ -43,8 +46,6 @@ public class Client {
             inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             userInput = new BufferedReader(new InputStreamReader(System.in));
 
-            boolean loggedIn = false;
-
             while (true) {
                 String request;
                 while (!loggedIn) {
@@ -54,61 +55,77 @@ public class Client {
                         disconnect();
                         break;
                     }
-                    if (request.equalsIgnoreCase("REGISTER") || request.equalsIgnoreCase("LOGIN")) {
-                        handleAuthentication();
-                        loggedIn = true;
-                    } else if (request.equalsIgnoreCase("HELP")) {
-                        outToServer.println(request);
-                        readServerHelpResponse();
-                    } else {
-                        System.out.println("Invalid input. Try again");
-                    }
+                    handleClientRequests(request);
                 }
+
                 Screen.printMailBoxMenu();
                 request = userInput.readLine();
-                if (request.equalsIgnoreCase("WRITE") || request.equalsIgnoreCase("READ") || request.equalsIgnoreCase("LOGOUT")) {
-                    handleMailRequests(request);
-                    if (request.equalsIgnoreCase("LOGOUT")) {
-                        loggedIn = false;
-                    }
-                } else {
-                    System.out.println("Invalid input.Try again");
+                if (request == null || request.equalsIgnoreCase("LOGOUT")) {
+                    break;
                 }
+                System.out.println("before");
+                handleMailRequests(request);
+                System.out.println("after");
             }
         } catch (IOException ex) {
             logger.error("Error - handling server communication", ex);
         }
     }
 
-    private void handleAuthentication() throws IOException {
-        System.out.println("Please enter username: ");
-        String username = userInput.readLine();
-        System.out.println("Please enter password: ");
-        String password = userInput.readLine();
-        outToServer.println(username + " " + password);
-
-        readServerResponse();
+    private void handleClientRequests(String request) throws IOException {
+        try {
+            switch (request.toUpperCase()) {
+                case "REGISTER":
+                case "LOGIN":
+                    System.out.println("Please enter username: ");
+                    String username = userInput.readLine();
+                    System.out.println("Please enter password: ");
+                    String password = userInput.readLine();
+                    outToServer.println(request + " " + username + " " + password);
+                    System.out.println("before response");
+                    readServerResponse();
+                    System.out.println("after response");
+                    loggedIn = true;
+                    break;
+                case "HELP":
+                    outToServer.println(request);
+                    System.out.println("before HELP");
+                    readServerHelpResponse();
+                    System.out.println("after help");
+                    break;
+                case "LOGOUT":
+                    outToServer.println("LOGOUT");
+                    break;
+            }
+        } catch (Exception ex){
+            ex.getStackTrace();
+        }
     }
 
     private void handleMailRequests(String request) throws IOException {
-        switch (request.toUpperCase()) {
-            case "WRITE":
-
-                String usersList = userInput.readLine(); // list printing
-                System.out.println("Enter recipient's username:");
-                String recipient = userInput.readLine();
-                System.out.println("Enter your message:");
-                String message = userInput.readLine();
-                outToServer.println("WRITE " + recipient + " " + message);
-                break;
-            case "READ":
-                outToServer.println("READ");
-                break;
-            case "LOGOUT":
-                outToServer.println("LOGOUT");
-                break;
+        try {
+            System.out.println("before write");
+            switch (request.toUpperCase()) {
+                case "WRITE":
+                    System.out.println("after write");
+                    System.out.println("Userslist: " + UserManager.usersList); // list printing
+                    System.out.println("Enter recipient's username:");
+                    String recipient = userInput.readLine();
+                    System.out.println("Enter your message:");
+                    String message = userInput.readLine();
+                    outToServer.println("WRITE " + recipient + " " + message);
+                    break;
+                case "READ":
+                    outToServer.println("READ");
+                    break;
+                case "LOGOUT":
+                    outToServer.println("LOGOUT");
+                    break;
+            }
+            readServerResponse();
+        } catch (Exception ex){
+            ex.getStackTrace();
         }
-        readServerResponse();
     }
 
     private void readServerHelpResponse() throws IOException {

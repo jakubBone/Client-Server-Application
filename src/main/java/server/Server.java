@@ -7,12 +7,8 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Date;
-import java.util.List;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import mail.Mail;
-import mail.MailService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import user.User;
@@ -29,7 +25,6 @@ public class Server {
     private BufferedReader inFromClient;
     private PrintWriter outToClient;
     private UserManager userManager;
-    private MailService mailService;
 
 
     public static void main(String[] args)  {
@@ -55,7 +50,7 @@ public class Server {
         try {
             inFromClient = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             outToClient = new PrintWriter(clientSocket.getOutputStream(), true);
-
+            userManager = new UserManager();
             String request;
             while ((request = inFromClient.readLine()) != null) {
                 if (request.equalsIgnoreCase("EXIT")) {
@@ -63,18 +58,30 @@ public class Server {
                     break;
                 }
 
-                switch (request.toUpperCase()) {
+                String[] parts = request.split(" ", 3); // format: COMMAND username password
+                String command = parts[0].toUpperCase();
+
+                switch (command.toUpperCase()) {
                     case "REGISTER":
                     case "LOGIN":
-                        handleAuthentication(request);
+                        String username = parts[1];
+                        String password = parts[2];
+                        logger.info("register");
+                        handleAuthentication(command, username, password);
+                        logger.info("after register");
+                        break;
+                    case "HELP":
+                        logger.info("before help");
+                        handleHelpRequest(command, outToClient);
+                        logger.info("after help");
                         break;
                     case "WRITE":
                     case "READ":
                     case "LOGOUT":
-                        handleMailRequests(request);
+                        //handleMailRequests(request);
                         break;
                     default:
-                        sendHelpRequest(request, outToClient);
+                        System.out.println("???");
                         break;
                 }
             }
@@ -82,13 +89,8 @@ public class Server {
             logger.error("Error - handling client request", ex);
         }
     }
-    private void handleAuthentication(String request) throws IOException {
-        String[] parts = request.split(" ", 3); // format: COMMAND username password
-        String command = parts[0].toUpperCase();
-        String username = parts[1];
-        String password = parts[2];
-
-        switch (command) {
+    public void handleAuthentication(String request, String username, String password) throws IOException {
+        switch (request) {
             case "REGISTER":
                 userManager.register(username, password);
                 outToClient.println("Registration successful\n<<END>>");
@@ -104,9 +106,11 @@ public class Server {
                 }
                 break;
         }
+        logger.info("out from handleAuthentication");
     }
 
-    private void handleMailRequests(String request) throws IOException  {
+
+    /*private void handleMailRequests(String request) throws IOException  {
         String[] parts = request.split(" ", 2);
         String command = parts[0].toUpperCase();
         String userDetails = parts.length > 1 ? parts[1] : null; // could contain recipient, message etc.
@@ -136,40 +140,13 @@ public class Server {
                 UserManager.currentLoggedInUser = null;
                 break;
         }
-    }
+    }*/
 
-    public void handleLoginRequest(String clientRequest, PrintWriter outToClient, String username, String password) {
-       //try{
-           userManager = new UserManager();
-           switch (clientRequest) {
-               case "REGISTER":
-                   userManager.register(username,password);
-                   logger.info("REGISTER success");
-                   break;
-               case "LOGIN":
-                   userManager.login(username, password);
-                   logger.info("LOGIN success");
-                   break;
-               case "HELP":
-                   sendHelpRequest(clientRequest, outToClient);
-                   logger.info("HELP success");
-                   break;
-               default:
-                   logger.warn("Invalid input");
-           }
-       /*} catch (UserAuthenticationException exception){
-           exception.getMessage();
-       } catch (IOException e) {
-           throw new RuntimeException(e);
-       }*/
-
-    }
-
-    public static void sendHelpRequest(String clientRequest, PrintWriter outToClient) /*throws IOException*/ {
+    public static void handleHelpRequest(String reguest, PrintWriter outToClient) {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         Message response = new Message(VERSION, serverTimeCreation);
         String json;
-        switch (clientRequest) {
+        switch (reguest) {
             case "UPTIME":
                 json = gson.toJson(response.getUptime());
                 logger.info("Time from server setup: " + response.getUptime());
@@ -184,7 +161,7 @@ public class Server {
                 break;
             default:
                 json = gson.toJson(response.getInvalidMessage());
-                logger.warn("Invalid input");
+                logger.warn("Invalid input ---------");
         }
         json += "\n<<END>>\n";
         outToClient.println(json);
