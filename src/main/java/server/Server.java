@@ -6,7 +6,6 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.sql.SQLOutput;
 import java.util.Date;
 import java.util.List;
 
@@ -103,7 +102,7 @@ public class Server {
 
         switch (command) {
             case "WRITE":
-                List<User> recipientsList = userManager.getUsersList();
+                List<User> recipientsList = UserManager.usersList;
                 outToClient.println("Choose user list:" + recipientsList + "\n<<END>>");
                 String mailRequest = inFromClient.readLine();
                 String[] writeParts = mailRequest.split(" ", 2);
@@ -114,19 +113,22 @@ public class Server {
                 outToClient.println("Mail sent successfully\n<<END>>");
                 break;
             case "READ":
-                List<Mail> mails = mailService.readMails(UserManager.currentLoggedInUser);
-                for (Mail mail : mails) {
+                logger.info("before read mails");
+                outToClient.println("Choose mailbox: OPENED / UNREAD\n<<END>>");
+                String requestedMailList = inFromClient.readLine();
+                List<Mail> mailsToRead = mailService.getMailsToRead(requestedMailList);
+                for (Mail mail : mailsToRead) {
                     outToClient.println("From: " + mail.getSender().getUsername() + " \n Message: " + mail.getMessage());
                     mail.markAsRead();
                 }
-                outToClient.println("<<END>>");
+                logger.info("after read mails");
+                outToClient.println("\n<<END>>");
                 break;
             case "LOGOUT":
-                outToClient.println("Successfully logged out\n<<END>>");
                 UserManager.currentLoggedInUser = null;
+                outToClient.println("Successfully logged out\n<<END>>");
                 break;
                 }
-        System.out.println("out switch");
         }
     public void handleAuthentication(String request, String username, String password) throws IOException {
         switch (request) {
@@ -147,8 +149,6 @@ public class Server {
         }
         logger.info("out from handleAuthentication");
     }
-
-
 
 
     public static void handleHelpRequest(String reguest, PrintWriter outToClient) {

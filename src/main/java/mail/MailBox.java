@@ -13,12 +13,12 @@ import org.apache.logging.log4j.Logger;
 public class MailBox {
 
     private static final Logger logger = LogManager.getLogger(MailBox.class);
-    private List<Mail> readMails;
+    private List<Mail> openedMails;
     private List<Mail> unreadMails;
     private final int BOXLIMIT = 5;
 
     public MailBox() {
-        this.readMails = new ArrayList<>();
+        this.openedMails = new ArrayList<>();
         this.unreadMails = new ArrayList<>();
     }
 

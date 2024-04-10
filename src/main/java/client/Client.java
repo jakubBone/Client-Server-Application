@@ -29,6 +29,7 @@ public class Client {
     public Client(){
         connectToServer();
         handleServerCommunication();
+        System.out.println("client logged out");
     }
 
     public void connectToServer() {
@@ -60,7 +61,7 @@ public class Client {
 
                 Screen.printMailBoxMenu();
                 request = userInput.readLine();
-                if (request == null || request.equalsIgnoreCase("LOGOUT")) {
+                if (request == null) {
                     break;
                 }
                 handleMailRequests(request);
@@ -111,35 +112,17 @@ public class Client {
                 case "READ":
                     outToServer.println("READ");
                     readServerResponse();
+                    String requestedMailList = userInput.readLine();
+                    outToServer.println(requestedMailList);
+                    readServerResponse();
                     break;
                 case "LOGOUT":
                     outToServer.println("LOGOUT");
+                    loggedIn = false;
+                    readServerResponse();
                     break;
             }
-            readServerResponse();
     }
-    /*private void handleMailRequests(String request) throws IOException {
-            switch (request) {
-                case "WRITE":
-                    outToServer.println("WRITE");
-                    readServerResponse();
-                    System.out.println("Type recipient's username:");
-                    String recipient = userInput.readLine();
-                    System.out.println("Type your message:");
-                    String message = userInput.readLine();
-                    outToServer.println(recipient + " " + message);
-                    readServerResponse();
-                    break;
-                case "READ":
-                    outToServer.println("READ");
-                    readServerResponse();
-                    break;
-                case "LOGOUT":
-                    outToServer.println("LOGOUT");
-                    break;
-            }
-            readServerResponse();
-    }*/
 
     private void readServerHelpResponse() throws IOException {
         StringBuilder response = new StringBuilder();
