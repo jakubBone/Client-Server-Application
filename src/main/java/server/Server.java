@@ -6,9 +6,14 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.sql.SQLOutput;
 import java.util.Date;
+import java.util.List;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import mail.Mail;
+import mail.MailService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import user.User;
@@ -25,6 +30,7 @@ public class Server {
     private BufferedReader inFromClient;
     private PrintWriter outToClient;
     private UserManager userManager;
+    private MailService mailService;
 
 
     public static void main(String[] args)  {
@@ -61,7 +67,7 @@ public class Server {
                 String[] parts = request.split(" ", 3); // format: COMMAND username password
                 String command = parts[0].toUpperCase();
 
-                switch (command.toUpperCase()) {
+                switch (command) {
                     case "REGISTER":
                     case "LOGIN":
                         String username = parts[1];
@@ -78,7 +84,9 @@ public class Server {
                     case "WRITE":
                     case "READ":
                     case "LOGOUT":
-                        //handleMailRequests(request);
+                        logger.info("before write");
+                        handleMailRequests(command);
+                        logger.info("after write");
                         break;
                     default:
                         System.out.println("???");
@@ -89,6 +97,37 @@ public class Server {
             logger.error("Error - handling client request", ex);
         }
     }
+
+    private void handleMailRequests(String command) throws IOException {
+        mailService = new MailService();
+
+        switch (command) {
+            case "WRITE":
+                List<User> recipientsList = userManager.getUsersList();
+                outToClient.println("Choose user list:" + recipientsList + "\n<<END>>");
+                String mailRequest = inFromClient.readLine();
+                String[] writeParts = mailRequest.split(" ", 2);
+                String recipientName = writeParts[0];
+                User recipient = userManager.getRecipientByUsername(recipientName);
+                String mailContent = writeParts[1];
+                mailService.sendMail(new Mail(UserManager.currentLoggedInUser, recipient, mailContent));
+                outToClient.println("Mail sent successfully\n<<END>>");
+                break;
+            case "READ":
+                List<Mail> mails = mailService.readMails(UserManager.currentLoggedInUser);
+                for (Mail mail : mails) {
+                    outToClient.println("From: " + mail.getSender().getUsername() + " \n Message: " + mail.getMessage());
+                    mail.markAsRead();
+                }
+                outToClient.println("<<END>>");
+                break;
+            case "LOGOUT":
+                outToClient.println("Successfully logged out\n<<END>>");
+                UserManager.currentLoggedInUser = null;
+                break;
+                }
+        System.out.println("out switch");
+        }
     public void handleAuthentication(String request, String username, String password) throws IOException {
         switch (request) {
             case "REGISTER":
@@ -110,37 +149,7 @@ public class Server {
     }
 
 
-    /*private void handleMailRequests(String request) throws IOException  {
-        String[] parts = request.split(" ", 2);
-        String command = parts[0].toUpperCase();
-        String userDetails = parts.length > 1 ? parts[1] : null; // could contain recipient, message etc.
 
-        switch (command) {
-            case "WRITE":
-                List<User> recipientsList = userManager.getUsersList();
-                outToClient.println(recipientsList);
-                // userDetails could contain recipient and message eg. "recipientName Mail content here"
-                String[] writeParts = userDetails.split(" ", 2);
-                String recipientName = writeParts[0];
-                User recipient = userManager.getRecipientByUsername(recipientName);
-                String mailContent = writeParts[1];
-                mailService.sendMail(new Mail(UserManager.currentLoggedInUser, recipient , mailContent));
-                outToClient.println("Mail sent successfully\n<<END>>");
-                break;
-            case "READ":
-                List<Mail> mails = mailService.readMails(UserManager.currentLoggedInUser);
-                for (Mail mail : mails) {
-                    outToClient.println("From: " + mail.getSender().getUsername() + " \n Message: " + mail.getMessage());
-                    mail.markAsRead();
-                }
-                outToClient.println("<<END>>");
-                break;
-            case "LOGOUT":
-                outToClient.println("Successfully logged out\n<<END>>");
-                UserManager.currentLoggedInUser = null;
-                break;
-        }
-    }*/
 
     public static void handleHelpRequest(String reguest, PrintWriter outToClient) {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();

@@ -13,6 +13,7 @@ public class MailService {
     private static final Logger logger = LogManager.getLogger(MailService.class);
 
     public void sendMail(Mail mail) /*throws MailboxOverflowException*/ {
+        System.out.println("in sendMail");
         if(mail.getRecipient().getMailBox().ifBoxFull()){
             //throw new MailboxOverflowException("Receiver mailbox is full. Unable to send mail");
         } else {

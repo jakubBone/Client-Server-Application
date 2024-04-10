@@ -15,19 +15,11 @@ public class UserManager {
     public Admin admin;
 
     public UserManager() {
-        admin = new Admin();
-        this.usersList = new ArrayList<>();
+        usersList = new ArrayList<>();
+        this.admin = new Admin();
         usersList.add(admin);
         this.passwordChangeRequesters = new ArrayList<>();
         this.removeAccountRequesters = new ArrayList<>();
-    }
-
-    public List<User> getUsersList() {
-        return usersList;
-    }
-
-    public void setUsersList(List<User> usersList) {
-        this.usersList = usersList;
     }
 
     public void register(String typedUserName, String typedPassword) throws IllegalArgumentException {
@@ -42,10 +34,8 @@ public class UserManager {
         if (userExists) {
             logger.info("User already exists");
         } else {
-            System.out.println(usersList);
             usersList.add(new User(typedUserName, typedPassword, User.Role.USER));
             logger.info("Registration successful");
-            System.out.println(usersList);
         }
     }
 
@@ -132,4 +122,5 @@ public class UserManager {
     public boolean ifPasswordEqual(int existingHashedPassword, String typedPassword) {
         return existingHashedPassword == typedPassword.hashCode();
     }
+
 }

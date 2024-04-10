@@ -4,11 +4,11 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.net.Socket;;
+import java.net.Socket;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import user.UserManager;
+
 import utils.Screen;
 
 
@@ -63,9 +63,7 @@ public class Client {
                 if (request == null || request.equalsIgnoreCase("LOGOUT")) {
                     break;
                 }
-                System.out.println("before");
                 handleMailRequests(request);
-                System.out.println("after");
             }
         } catch (IOException ex) {
             logger.error("Error - handling server communication", ex);
@@ -77,21 +75,17 @@ public class Client {
             switch (request.toUpperCase()) {
                 case "REGISTER":
                 case "LOGIN":
-                    System.out.println("Please enter username: ");
+                    System.out.println("Type username: ");
                     String username = userInput.readLine();
-                    System.out.println("Please enter password: ");
+                    System.out.println("Type password: ");
                     String password = userInput.readLine();
                     outToServer.println(request + " " + username + " " + password);
-                    System.out.println("before response");
                     readServerResponse();
-                    System.out.println("after response");
                     loggedIn = true;
                     break;
                 case "HELP":
                     outToServer.println(request);
-                    System.out.println("before HELP");
                     readServerHelpResponse();
-                    System.out.println("after help");
                     break;
                 case "LOGOUT":
                     outToServer.println("LOGOUT");
@@ -103,30 +97,49 @@ public class Client {
     }
 
     private void handleMailRequests(String request) throws IOException {
-        try {
-            System.out.println("before write");
             switch (request.toUpperCase()) {
                 case "WRITE":
-                    System.out.println("after write");
-                    System.out.println("Userslist: " + UserManager.usersList); // list printing
-                    System.out.println("Enter recipient's username:");
+                    outToServer.println("WRITE");
+                    readServerResponse();
+                    System.out.println("Type recipient's username:");
                     String recipient = userInput.readLine();
-                    System.out.println("Enter your message:");
+                    System.out.println("Type your message:");
                     String message = userInput.readLine();
-                    outToServer.println("WRITE " + recipient + " " + message);
+                    outToServer.println(recipient + " " + message);
+                    readServerResponse();
                     break;
                 case "READ":
                     outToServer.println("READ");
+                    readServerResponse();
                     break;
                 case "LOGOUT":
                     outToServer.println("LOGOUT");
                     break;
             }
             readServerResponse();
-        } catch (Exception ex){
-            ex.getStackTrace();
-        }
     }
+    /*private void handleMailRequests(String request) throws IOException {
+            switch (request) {
+                case "WRITE":
+                    outToServer.println("WRITE");
+                    readServerResponse();
+                    System.out.println("Type recipient's username:");
+                    String recipient = userInput.readLine();
+                    System.out.println("Type your message:");
+                    String message = userInput.readLine();
+                    outToServer.println(recipient + " " + message);
+                    readServerResponse();
+                    break;
+                case "READ":
+                    outToServer.println("READ");
+                    readServerResponse();
+                    break;
+                case "LOGOUT":
+                    outToServer.println("LOGOUT");
+                    break;
+            }
+            readServerResponse();
+    }*/
 
     private void readServerHelpResponse() throws IOException {
         StringBuilder response = new StringBuilder();

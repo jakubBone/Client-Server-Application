@@ -47,5 +47,9 @@ public class User {
     public int assignClientId(){
         return username.hashCode();
     }
+    public String toString() {
+        return "User: " + username;
+    }
 }
+
 
