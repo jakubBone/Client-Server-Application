@@ -34,7 +34,9 @@ public class UserManager {
         if (userExists) {
             logger.info("User already exists");
         } else {
-            usersList.add(new User(typedUserName, typedPassword, User.Role.USER));
+            User newUser = new User(typedUserName, typedPassword, User.Role.USER);
+            usersList.add(newUser);
+            currentLoggedInUser = newUser;
             logger.info("Registration successful");
         }
     }

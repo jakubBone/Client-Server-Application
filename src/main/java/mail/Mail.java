@@ -11,14 +11,14 @@ public class Mail {
     private User recipient;
     private String message;
     private boolean isRead;
-    private int maxMessageLength;
+    private int messageLength;
 
     public Mail(User sender, User recipient, String message) {
         this.sender = sender;
         this.recipient = recipient;
         this.message = message;
         this.isRead = false;
-        this.maxMessageLength = message.length();
+        this.messageLength = message.length();
     }
 
     public void markAsRead() {

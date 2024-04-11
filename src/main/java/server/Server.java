@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.sql.SQLOutput;
 import java.util.Date;
 import java.util.List;
 
@@ -35,7 +36,6 @@ public class Server {
     public static void main(String[] args)  {
         Server server = new Server();
     }
-
     public Server() {
         establishServerConnection();
         handleClientRequest();
@@ -63,7 +63,7 @@ public class Server {
                     break;
                 }
 
-                String[] parts = request.split(" ", 3); // format: COMMAND username password
+                String[] parts = request.split(" ", 3); // format: COMMAND, username, password
                 String command = parts[0].toUpperCase();
 
                 switch (command) {
@@ -109,6 +109,9 @@ public class Server {
                 String recipientName = writeParts[0];
                 User recipient = userManager.getRecipientByUsername(recipientName);
                 String mailContent = writeParts[1];
+                System.out.println("Current User: " + UserManager.currentLoggedInUser);
+                System.out.println("Recepient: " + recipientName);
+                System.out.println("Message: " + mailContent);
                 mailService.sendMail(new Mail(UserManager.currentLoggedInUser, recipient, mailContent));
                 outToClient.println("Mail sent successfully\n<<END>>");
                 break;
@@ -116,13 +119,18 @@ public class Server {
                 logger.info("before read mails");
                 outToClient.println("Choose mailbox: OPENED / UNREAD\n<<END>>");
                 String requestedMailList = inFromClient.readLine();
-                List<Mail> mailsToRead = mailService.getMailsToRead(requestedMailList);
+                List<Mail> mailsToRead = null;
+                if(requestedMailList.equals("OPENED")){
+                    mailsToRead = UserManager.currentLoggedInUser.getMailBox().getOpenedMails();
+                } else {
+                    mailsToRead = UserManager.currentLoggedInUser.getMailBox().getUnreadMails();
+                }
                 for (Mail mail : mailsToRead) {
                     outToClient.println("From: " + mail.getSender().getUsername() + " \n Message: " + mail.getMessage());
-                    mail.markAsRead();
                 }
                 logger.info("after read mails");
                 outToClient.println("\n<<END>>");
+                UserManager.currentLoggedInUser.getMailBox().getUnreadMails().clear();
                 break;
             case "LOGOUT":
                 UserManager.currentLoggedInUser = null;

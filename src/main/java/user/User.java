@@ -48,7 +48,7 @@ public class User {
         return username.hashCode();
     }
     public String toString() {
-        return "User: " + username;
+        return username;
     }
 }
 
