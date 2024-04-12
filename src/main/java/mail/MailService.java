@@ -45,6 +45,16 @@ public class MailService {
     }
 
     public void markMailsAsRead(){
+        List<Mail> unreadMails = UserManager.currentLoggedInUser.getMailBox().getUnreadMails();
+
+        List<Mail> openedMails = new ArrayList<>(unreadMails);
+
+        UserManager.currentLoggedInUser.getMailBox().setOpenedMails(openedMails);
+
+        unreadMails.clear();
+    }
+
+    /*public void markMailsAsRead(){
         if(UserManager.currentLoggedInUser.getMailBox().getUnreadMails().isEmpty()){
             System.out.println("there is no new mails");
         } else {
@@ -53,7 +63,7 @@ public class MailService {
             List<Mail> emptyList = new ArrayList<>();
             UserManager.currentLoggedInUser.getMailBox().setUnreadMails(emptyList);
         }
-    }
+    }*/
 
     public void deleteMail(Mail mail){
         mail.getSender().getMailBox().getOpenedMails().remove(mail);

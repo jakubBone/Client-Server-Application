@@ -106,6 +106,7 @@ public class Server {
             outToClient.println("From: " + mail.getSender().getUsername() + "\n Message: " + mail.getMessage());
         }
         outToClient.println("<<END>>");
+        mailService.markMailsAsRead();
     }
 
     public void handleAuthentication(String request, String username, String password) throws IOException {
