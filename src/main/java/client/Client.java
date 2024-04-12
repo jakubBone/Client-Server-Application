@@ -105,7 +105,6 @@ public class Client {
             case "READ":
                 String boxType = userInteraction.chooseMailBox();
                 outToServer.println(request + " " + boxType);
-                System.out.println("X: " + boxType);
                 readServerResponse();
                 break;
             case "LOGOUT":

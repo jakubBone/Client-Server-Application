@@ -4,23 +4,16 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import user.UserManager;
-
-import java.util.ArrayList;
 import java.util.List;
 
 public class MailService {
     private static final Logger logger = LogManager.getLogger(MailService.class);
 
     public void sendMail(Mail mail) {
-
         if(mail.getRecipient().getMailBox().ifBoxFull()){
             logger.info("Mailboxfull");
         } else {
             if(mail.getMessageLength() <= 255) {
-                System.out.println("Current User: " + UserManager.currentLoggedInUser);
-                System.out.println("Recipient: " + mail.getRecipient());
-                System.out.println("Message: " + mail.getMessage());
-                System.out.println("Mail length: " + mail.getMessageLength());
                 mail.getRecipient().getMailBox().getUnreadMails().add(mail);
                 logger.info("Mail sent to receiver");
             } else{
@@ -46,24 +39,11 @@ public class MailService {
 
     public void markMailsAsRead(){
         List<Mail> unreadMails = UserManager.currentLoggedInUser.getMailBox().getUnreadMails();
-
-        List<Mail> openedMails = new ArrayList<>(unreadMails);
-
-        UserManager.currentLoggedInUser.getMailBox().setOpenedMails(openedMails);
-
-        unreadMails.clear();
-    }
-
-    /*public void markMailsAsRead(){
-        if(UserManager.currentLoggedInUser.getMailBox().getUnreadMails().isEmpty()){
-            System.out.println("there is no new mails");
-        } else {
-            List<Mail> unreadMails = UserManager.currentLoggedInUser.getMailBox().getUnreadMails();
-            UserManager.currentLoggedInUser.getMailBox().setOpenedMails(unreadMails);
-            List<Mail> emptyList = new ArrayList<>();
-            UserManager.currentLoggedInUser.getMailBox().setUnreadMails(emptyList);
+        for(Mail mail: unreadMails){
+            UserManager.currentLoggedInUser.getMailBox().getOpenedMails().add(mail);
         }
-    }*/
+        UserManager.currentLoggedInUser.getMailBox().getUnreadMails().clear();
+    }
 
     public void deleteMail(Mail mail){
         mail.getSender().getMailBox().getOpenedMails().remove(mail);
