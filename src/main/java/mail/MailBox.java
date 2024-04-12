@@ -11,7 +11,6 @@ import org.apache.logging.log4j.Logger;
 @Getter
 @Setter
 public class MailBox {
-
     private static final Logger logger = LogManager.getLogger(MailBox.class);
     private List<Mail> openedMails;
     private List<Mail> unreadMails;

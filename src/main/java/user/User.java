@@ -44,12 +44,12 @@ public class User {
     public void requestAccountRemoval(List <String> accountRemovalRequests) {
         accountRemovalRequests.add(this.username);
     }
+
     public int assignClientId(){
         return username.hashCode();
     }
+
     public String toString() {
         return username;
     }
 }
-
-

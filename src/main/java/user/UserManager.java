@@ -75,6 +75,10 @@ public class UserManager {
         }
     }*/
 
+    public void logoutCurrentUser() {
+        currentLoggedInUser = null;
+    }
+
     /*public void requestAccountRemovalByAdmin(String typedUserName) throws UserAuthenticationException {
         User userToDelete = null;
         for (User user : usersList) {

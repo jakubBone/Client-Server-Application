@@ -6,19 +6,14 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.sql.SQLOutput;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import mail.Mail;
 import mail.MailService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import user.User;
 import user.UserManager;
-import utils.Message;
 
 public class Server {
     private static final Logger logger = LogManager.getLogger(Server.class);
@@ -31,11 +26,13 @@ public class Server {
     private PrintWriter outToClient;
     private UserManager userManager;
     private MailService mailService;
+    private ServerInfoService helperService;
 
 
-    public static void main(String[] args)  {
+    public static void main(String[] args) {
         Server server = new Server();
     }
+
     public Server() {
         establishServerConnection();
         handleClientRequest();
@@ -43,6 +40,7 @@ public class Server {
 
     public void establishServerConnection() {
         try {
+            helperService = new ServerInfoService(VERSION, serverTimeCreation);
             serverSocket = new ServerSocket(PORT);
             logger.info("Server started");
             clientSocket = serverSocket.accept();
@@ -51,11 +49,15 @@ public class Server {
             logger.error("Error - establishing server connection", ex);
         }
     }
+
     public void handleClientRequest() {
         try {
             inFromClient = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             outToClient = new PrintWriter(clientSocket.getOutputStream(), true);
             userManager = new UserManager();
+            mailService = new MailService();
+            helperService = new ServerInfoService(VERSION, serverTimeCreation);
+
             String request;
             while ((request = inFromClient.readLine()) != null) {
                 if (request.equalsIgnoreCase("EXIT")) {
@@ -63,29 +65,30 @@ public class Server {
                     break;
                 }
 
-                String[] parts = request.split(" ", 3); // format: COMMAND, username, password
+                String[] parts = request.split(" ", 3);
                 String command = parts[0].toUpperCase();
-
+                System.out.println(UserManager.usersList);
                 switch (command) {
                     case "REGISTER":
                     case "LOGIN":
                         String username = parts[1];
                         String password = parts[2];
-                        logger.info("register");
                         handleAuthentication(command, username, password);
-                        logger.info("after register");
                         break;
                     case "HELP":
-                        logger.info("before help");
-                        handleHelpRequest(command, outToClient);
-                        logger.info("after help");
+                        helperService.handleHelpRequest(command, outToClient);
                         break;
                     case "WRITE":
+                        String recipient = parts[1];
+                        String message = parts[2];
+                        handleWrite(recipient, message);
+                        break;
                     case "READ":
+                        String boxType = parts[1];
+                        handleRead(boxType);
+                        break;
                     case "LOGOUT":
-                        logger.info("before write");
-                        handleMailRequests(command);
-                        logger.info("after write");
+                        handleLogout();
                         break;
                     default:
                         System.out.println("???");
@@ -97,47 +100,6 @@ public class Server {
         }
     }
 
-    private void handleMailRequests(String command) throws IOException {
-        mailService = new MailService();
-
-        switch (command) {
-            case "WRITE":
-                List<User> recipientsList = UserManager.usersList;
-                outToClient.println("Choose user list:" + recipientsList + "\n<<END>>");
-                String mailRequest = inFromClient.readLine();
-                String[] writeParts = mailRequest.split(" ", 2);
-                String recipientName = writeParts[0];
-                User recipient = userManager.getRecipientByUsername(recipientName);
-                String mailContent = writeParts[1];
-                System.out.println("Current User: " + UserManager.currentLoggedInUser);
-                System.out.println("Recepient: " + recipientName);
-                System.out.println("Message: " + mailContent);
-                mailService.sendMail(new Mail(UserManager.currentLoggedInUser, recipient, mailContent));
-                outToClient.println("Mail sent successfully\n<<END>>");
-                break;
-            case "READ":
-                logger.info("before read mails");
-                outToClient.println("Choose mailbox: OPENED / UNREAD\n<<END>>");
-                String requestedMailList = inFromClient.readLine();
-                List<Mail> mailsToRead = null;
-                if(requestedMailList.equals("OPENED")){
-                    mailsToRead = UserManager.currentLoggedInUser.getMailBox().getOpenedMails();
-                } else {
-                    mailsToRead = UserManager.currentLoggedInUser.getMailBox().getUnreadMails();
-                }
-                for (Mail mail : mailsToRead) {
-                    outToClient.println("From: " + mail.getSender().getUsername() + " \n Message: " + mail.getMessage());
-                }
-                logger.info("after read mails");
-                outToClient.println("\n<<END>>");
-                UserManager.currentLoggedInUser.getMailBox().getUnreadMails().clear();
-                break;
-            case "LOGOUT":
-                UserManager.currentLoggedInUser = null;
-                outToClient.println("Successfully logged out\n<<END>>");
-                break;
-                }
-        }
     public void handleAuthentication(String request, String username, String password) throws IOException {
         switch (request) {
             case "REGISTER":
@@ -158,33 +120,22 @@ public class Server {
         logger.info("out from handleAuthentication");
     }
 
-
-    public static void handleHelpRequest(String reguest, PrintWriter outToClient) {
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        Message response = new Message(VERSION, serverTimeCreation);
-        String json;
-        switch (reguest) {
-            case "UPTIME":
-                json = gson.toJson(response.getUptime());
-                logger.info("Time from server setup: " + response.getUptime());
-                break;
-            case "INFO":
-                json = gson.toJson(response.getServerDetails());
-                logger.info("server.Server version: " + VERSION + " / Setup date: " + serverTimeCreation);
-                break;
-            case "HELP":
-                json = gson.toJson(response.getCommands());
-                logger.info("Commend list displayed");
-                break;
-            default:
-                json = gson.toJson(response.getInvalidMessage());
-                logger.warn("Invalid input ---------");
+    private void handleWrite(String recipient, String message) throws IOException {
+        User recipientUser = userManager.getRecipientByUsername(recipient);
+        if (recipientUser != null) {
+            mailService.sendMail(new Mail(UserManager.currentLoggedInUser, recipientUser, message));
+            outToClient.println("Mail sent successfully\n<<END>>");
+        } else {
+            outToClient.println("Error: Recipient not found\n<<END>>");
         }
-        json += "\n<<END>>\n";
-        outToClient.println(json);
     }
 
-    public void disconnect()  {
+    private void handleLogout() {
+        userManager.logoutCurrentUser();
+        outToClient.println("Successfully logged out\n<<END>>");
+    }
+
+    public void disconnect() {
         try {
             inFromClient.close();
             outToClient.close();

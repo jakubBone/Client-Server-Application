@@ -1,28 +1,33 @@
-package utils;
+package server;
 
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-public class Message {
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
+public class ServerInfo {
     private Map<String, String> commands = new LinkedHashMap<>();
     private Map<String, String> serverDetails = new LinkedHashMap<>();
     private Map<String, Long> uptime = new LinkedHashMap<>();
     private String invalidMessage;
+    private String version;
+    Date serverTimeCreation;
 
-    public Message(String version, Date serverTimeCreation) {
+    public ServerInfo(String version, Date serverTimeCreation) {
+        this.version = version;
+        this.serverTimeCreation = serverTimeCreation;
         setCommands();
-        setServerDetails(version, serverTimeCreation);
-        setUptime(serverTimeCreation);
+        setServerDetails();
+        setUptime();
         setInvalidMessage();
     }
 
-    public Map<String, Long> getUptime() {
-        return uptime;
-    }
-
-    public void setUptime(Date serverTimeCreation){
+    public void setUptime(){
         Date currentTime = new Date();
         long uptimeInMillis = currentTime.getTime() - serverTimeCreation.getTime();
 
@@ -36,10 +41,6 @@ public class Message {
         uptime.put("seconds", seconds);
     }
 
-    public Map<String, String> getCommands() {
-        return commands;
-    }
-
     public void setCommands() {
         commands.put("uptime", "returns the server uptime");
         commands.put("info", "returns the server version number and setup date");
@@ -47,20 +48,12 @@ public class Message {
         commands.put("stop", "stops both the server and the client");
     }
 
-    public Map<String, String> getServerDetails() {
-        return serverDetails;
-    }
-
-    public void setServerDetails(String version, Date serverTimeCreation) {
+    public void setServerDetails() {
         serverDetails.put("version", version);
         serverDetails.put("setup time ", serverTimeCreation.toString());
     }
 
-    public String getInvalidMessage() {
-        return invalidMessage;
-    }
-
     public void setInvalidMessage() {
-       invalidMessage = "Invalid input";
+        invalidMessage = "Invalid input";
     }
 }

@@ -12,9 +12,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 
-public class JsonUtil {
-
-    private static final Logger logger = LogManager.getLogger(JsonUtil.class);
+public class UserSerializer {
+    private static final Logger logger = LogManager.getLogger(UserSerializer.class);
 
     public static void writeDataToJson(User user, String filePath){
         Gson gson = new GsonBuilder().setPrettyPrinting().create();

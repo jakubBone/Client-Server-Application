@@ -5,23 +5,26 @@ import org.apache.logging.log4j.Logger;
 
 import user.UserManager;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MailService {
     private static final Logger logger = LogManager.getLogger(MailService.class);
 
-    public void sendMail(Mail mail) /*throws MailboxOverflowException */{
+    public void sendMail(Mail mail) {
+
         if(mail.getRecipient().getMailBox().ifBoxFull()){
             logger.info("Mailboxfull");
-            /*throw new MailboxOverflowException("Receiver mailbox is full. Unable to send mail");*/
         } else {
             if(mail.getMessageLength() <= 255) {
                 System.out.println("Current User: " + UserManager.currentLoggedInUser);
-                System.out.println("Recepient: " + mail.getRecipient());
+                System.out.println("Recipient: " + mail.getRecipient());
                 System.out.println("Message: " + mail.getMessage());
                 System.out.println("Mail length: " + mail.getMessageLength());
                 mail.getRecipient().getMailBox().getUnreadMails().add(mail);
                 logger.info("Mail sent to receiver");
+            } else{
+                System.out.println("Message too long");
             }
         }
     }
@@ -39,6 +42,17 @@ public class MailService {
                 break;
         }
         return mailsToRead;
+    }
+
+    public void markMailsAsRead(){
+        if(UserManager.currentLoggedInUser.getMailBox().getUnreadMails().isEmpty()){
+            System.out.println("there is no new mails");
+        } else {
+            List<Mail> unreadMails = UserManager.currentLoggedInUser.getMailBox().getUnreadMails();
+            UserManager.currentLoggedInUser.getMailBox().setOpenedMails(unreadMails);
+            List<Mail> emptyList = new ArrayList<>();
+            UserManager.currentLoggedInUser.getMailBox().setUnreadMails(emptyList);
+        }
     }
 
     public void deleteMail(Mail mail){
