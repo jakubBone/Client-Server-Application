@@ -100,6 +100,14 @@ public class Server {
         }
     }
 
+    private void handleRead(String boxType) throws IOException {
+        List<Mail> mailsToRead = mailService.getMailsToRead(boxType);
+        for (Mail mail : mailsToRead) {
+            outToClient.println("From: " + mail.getSender().getUsername() + "\n Message: " + mail.getMessage());
+        }
+        outToClient.println("<<END>>");
+    }
+
     public void handleAuthentication(String request, String username, String password) throws IOException {
         switch (request) {
             case "REGISTER":
