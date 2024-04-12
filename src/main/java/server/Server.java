@@ -132,10 +132,18 @@ public class Server {
     private void handleWrite(String recipient, String message) throws IOException {
         User recipientUser = userManager.getRecipientByUsername(recipient);
         if (recipientUser != null) {
-            mailService.sendMail(new Mail(UserManager.currentLoggedInUser, recipientUser, message));
-            outToClient.println("Mail sent successfully\n<<END>>");
+            if(recipientUser.getMailBox().ifBoxFull()){
+                outToClient.println("Sending failed: Recipient MailBox is full \n<<END>>");
+            } else {
+                if(message.length() <= 255){
+                    mailService.sendMail(new Mail(UserManager.currentLoggedInUser, recipientUser, message));
+                    outToClient.println("Mail sent successfully\n<<END>>");
+                } else {
+                    outToClient.println("Sending failed: Message too long (max 255 signs) \n<<END>>");
+                }
+            }
         } else {
-            outToClient.println("Error: Recipient not found\n<<END>>");
+            outToClient.println("Sending failed: Recipient not found\n<<END>>");
         }
     }
 

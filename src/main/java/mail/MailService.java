@@ -10,16 +10,12 @@ public class MailService {
     private static final Logger logger = LogManager.getLogger(MailService.class);
 
     public void sendMail(Mail mail) {
-        if(mail.getRecipient().getMailBox().ifBoxFull()){
-            logger.info("Mailboxfull");
-        } else {
             if(mail.getMessageLength() <= 255) {
                 mail.getRecipient().getMailBox().getUnreadMails().add(mail);
                 logger.info("Mail sent to receiver");
             } else{
                 System.out.println("Message too long");
             }
-        }
     }
 
     public List <Mail> getMailsToRead(String requestedMailList) {
