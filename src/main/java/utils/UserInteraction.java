@@ -1,5 +1,6 @@
 package utils;
 
+import mail.Mail;
 import user.User;
 import user.UserManager;
 
@@ -24,8 +25,6 @@ public class UserInteraction {
     }
 
     public String getRecipient() throws IOException {
-        List<User> recipientsList = UserManager.usersList;
-        System.out.println("Users: " + recipientsList);
         System.out.println("Type recipient's username:");
         return reader.readLine();
     }
@@ -40,4 +39,5 @@ public class UserInteraction {
         String input = reader.readLine();
         return input.equalsIgnoreCase("OPENED") ? "OPENED" : "UNREAD";
     }
+
 }

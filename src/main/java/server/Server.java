@@ -51,6 +51,12 @@ public class Server {
     }
 
     public void handleClientRequest() {
+        /*try (BufferedReader inFromClient = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+             PrintWriter outToClient = new PrintWriter(clientSocket.getOutputStream(), true)) {
+            // reszta kodu
+        }*/
+
+
         try {
             inFromClient = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             outToClient = new PrintWriter(clientSocket.getOutputStream(), true);
@@ -67,7 +73,6 @@ public class Server {
 
                 String[] parts = request.split(" ", 3);
                 String command = parts[0].toUpperCase();
-                System.out.println(UserManager.usersList);
                 switch (command) {
                     case "REGISTER":
                     case "LOGIN":
@@ -89,9 +94,6 @@ public class Server {
                         break;
                     case "LOGOUT":
                         handleLogout();
-                        break;
-                    default:
-                        System.out.println("???");
                         break;
                 }
             }
@@ -151,6 +153,7 @@ public class Server {
         userManager.logoutCurrentUser();
         outToClient.println("Successfully logged out\n<<END>>");
     }
+
 
     public void disconnect() {
         try {

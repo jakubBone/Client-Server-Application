@@ -13,7 +13,7 @@ public class Screen {
                 "| Help                                        |\n" +
                 "| Exit                                        |\n" +
                 "+---------------------------------------------+");
-        System.out.print("Type:");
+        System.out.print("Type: ");
     }
 
     public static void  printMailBoxMenu() {
@@ -27,6 +27,6 @@ public class Screen {
                 "| 3. Sent mails                               |\n" +
                 "| 4. Logout                                  |\n" +
                 "+---------------------------------------------+");
-        System.out.print("Type:");
+        System.out.print("Type: ");
     }
 }

@@ -8,14 +8,15 @@ import java.util.List;
 
 public class UserManager {
     private static final Logger logger = LogManager.getLogger(UserManager.class);
-    public static List<User> usersList;
+    public static List<User> usersList = new ArrayList<>();
     private List <String> passwordChangeRequesters;
     private List <String> removeAccountRequesters;
     public static User currentLoggedInUser;
     public Admin admin;
+    private static UserManager instance;
+
 
     public UserManager() {
-        usersList = new ArrayList<>();
         this.admin = new Admin();
         usersList.add(admin);
         this.passwordChangeRequesters = new ArrayList<>();
@@ -56,30 +57,11 @@ public class UserManager {
         return null;
     }
 
-    /*public void logout(String typedUserName) throws UserAuthenticationException {
-        boolean isUserFound = false;
-        for (User user : usersList) {
-            if (isUserIDEqual(user, typedUserName)) {
-                isUserFound = true;
-                if (!user.isUserLoggedIn) {
-                    throw new UserAuthenticationException("User is already logged out.");
-                } else {
-                    user.isUserLoggedIn = false;
-                    logger.info("Logout successful for user: " + user.getUsername());
-                    return;
-                }
-            }
-        }
-        if (!isUserFound) {
-            throw new UserAuthenticationException("User not found in the list.");
-        }
-    }*/
-
     public void logoutCurrentUser() {
         currentLoggedInUser = null;
     }
 
-    /*public void requestAccountRemovalByAdmin(String typedUserName) throws UserAuthenticationException {
+    /*public void requestAccountRemovalByAdmin(String typedUserName)  {
         User userToDelete = null;
         for (User user : usersList) {
             if (isUserIDEqual(user, typedUserName)) {
@@ -93,8 +75,8 @@ public class UserManager {
             logger.info("Account delete successful");
         } else {
             throw new UserAuthenticationException("User not found");
-        }
-    }*/
+        }*/
+    }
 
     /*public void requestPasswordChangeByAdmin(String typedUserName, String newPassword, String oldPassword) throws UserAuthenticationException {
         for (User user : usersList) {

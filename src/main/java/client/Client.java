@@ -5,11 +5,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.sql.SQLOutput;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
+import user.UserManager;
 import utils.Screen;
 import utils.UserInteraction;
 
@@ -87,9 +86,11 @@ public class Client {
                     outToServer.println(request);
                     readServerHelpResponse();
                     break;
+                default:
+                    System.out.println("Incorrect input. please, try again.");
             }
         } catch (Exception ex){
-            ex.getStackTrace();
+            ex.printStackTrace();
         }
     }
 
@@ -112,6 +113,8 @@ public class Client {
                 loggedIn = false;
                 readServerResponse();
                 break;
+            default:
+                System.out.println("Incorrect input. please, try again.");
         }
     }
 
