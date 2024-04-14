@@ -56,7 +56,6 @@ public class Server {
             // reszta kodu
         }*/
 
-
         try {
             inFromClient = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             outToClient = new PrintWriter(clientSocket.getOutputStream(), true);
@@ -144,10 +143,9 @@ public class Server {
     private void handleRead(String boxType) throws IOException {
         List<Mail> mailsToRead = mailService.getMailsToRead(boxType);
         for (Mail mail : mailsToRead) {
-            System.out.println("Sendi " + mail.getSender());
             outToClient.println("From: " + mail.getSender().getUsername() + "\n Message: " + mail.getMessage());
         }
-        mailService.markMailsAsRead(mailsToRead); /// tutaj UNREAD zawsze jest Null
+        mailService.markMailsAsRead(boxType);
         outToClient.println("<<END>>");
 
     }
