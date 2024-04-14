@@ -35,9 +35,15 @@ public class UserInteraction {
     }
 
     public String chooseMailBox() throws IOException {
-        System.out.println("Choose mailbox: OPENED / UNREAD");
+        System.out.println("Choose mailbox: OPENED / UNREAD / SENT");
         String input = reader.readLine();
-        return input.equalsIgnoreCase("OPENED") ? "OPENED" : "UNREAD";
+        if (input.equalsIgnoreCase("OPENED")) {
+            return "OPENED";
+        } else if (input.equalsIgnoreCase("UNREAD")) {
+            return "UNREAD";
+        } else {
+            return "SENT";
+        }
     }
 
 }

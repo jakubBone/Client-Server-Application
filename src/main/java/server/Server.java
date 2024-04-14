@@ -102,14 +102,7 @@ public class Server {
         }
     }
 
-    private void handleRead(String boxType) throws IOException {
-        List<Mail> mailsToRead = mailService.getMailsToRead(boxType);
-        for (Mail mail : mailsToRead) {
-            outToClient.println("From: " + mail.getSender().getUsername() + "\n Message: " + mail.getMessage());
-        }
-        outToClient.println("<<END>>");
-        mailService.markMailsAsRead();
-    }
+
 
     public void handleAuthentication(String request, String username, String password) throws IOException {
         switch (request) {
@@ -147,6 +140,16 @@ public class Server {
         } else {
             outToClient.println("Sending failed: Recipient not found\n<<END>>");
         }
+    }
+    private void handleRead(String boxType) throws IOException {
+        List<Mail> mailsToRead = mailService.getMailsToRead(boxType);
+        for (Mail mail : mailsToRead) {
+            System.out.println("Sendi " + mail.getSender());
+            outToClient.println("From: " + mail.getSender().getUsername() + "\n Message: " + mail.getMessage());
+        }
+        mailService.markMailsAsRead(mailsToRead); /// tutaj UNREAD zawsze jest Null
+        outToClient.println("<<END>>");
+
     }
 
     private void handleLogout() {

@@ -8,15 +8,14 @@ import java.util.List;
 
 public class UserManager {
     private static final Logger logger = LogManager.getLogger(UserManager.class);
-    public static List<User> usersList = new ArrayList<>();
+    public static List<User> usersList;
     private List <String> passwordChangeRequesters;
     private List <String> removeAccountRequesters;
     public static User currentLoggedInUser;
     public Admin admin;
-    private static UserManager instance;
-
 
     public UserManager() {
+        usersList = new ArrayList<>();
         this.admin = new Admin();
         usersList.add(admin);
         this.passwordChangeRequesters = new ArrayList<>();
@@ -76,7 +75,6 @@ public class UserManager {
         } else {
             throw new UserAuthenticationException("User not found");
         }*/
-    }
 
     /*public void requestPasswordChangeByAdmin(String typedUserName, String newPassword, String oldPassword) throws UserAuthenticationException {
         for (User user : usersList) {

@@ -3,6 +3,7 @@ package mail;
 import user.User;
 import lombok.Getter;
 import lombok.Setter;
+import user.UserManager;
 
 @Getter
 @Setter

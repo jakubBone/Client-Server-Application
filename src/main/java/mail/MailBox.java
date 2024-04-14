@@ -14,11 +14,14 @@ public class MailBox {
     private static final Logger logger = LogManager.getLogger(MailBox.class);
     private List<Mail> openedMails;
     private List<Mail> unreadMails;
+    private List<Mail> sentMails;
     private final int BOXLIMIT = 5;
 
     public MailBox() {
         this.openedMails = new ArrayList<>();
         this.unreadMails = new ArrayList<>();
+        this.sentMails = new ArrayList<>();
+
     }
 
     public boolean ifBoxFull(){

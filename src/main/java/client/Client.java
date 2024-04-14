@@ -113,6 +113,14 @@ public class Client {
                 loggedIn = false;
                 readServerResponse();
                 break;
+            /*case "PASSWORD":
+                outToServer.println(request);
+                readServerResponse();
+                break;
+            case "REMOVE ACCOUNT":
+                outToServer.println(request);
+                readServerResponse();
+                break;*/
             default:
                 System.out.println("Incorrect input. please, try again.");
         }
