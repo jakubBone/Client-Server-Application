@@ -60,38 +60,6 @@ public class UserManager {
         currentLoggedInUser = null;
     }
 
-    /*public void requestAccountRemovalByAdmin(String typedUserName)  {
-        User userToDelete = null;
-        for (User user : usersList) {
-            if (isUserIDEqual(user, typedUserName)) {
-                userToDelete = user;
-                break;
-            }
-        }
-
-        if (userToDelete != null) {
-            usersList.remove(userToDelete);
-            logger.info("Account delete successful");
-        } else {
-            throw new UserAuthenticationException("User not found");
-        }*/
-
-    /*public void requestPasswordChangeByAdmin(String typedUserName, String newPassword, String oldPassword) throws UserAuthenticationException {
-        for (User user : usersList) {
-            if (isUserIDEqual(user, typedUserName)) {
-                if (ifPasswordEqual(oldPassword, user.getHashedPassword())) {
-                    user.setPassword(newPassword);
-                    user.setHashedPassword(newPassword.hashCode());
-                    logger.info("Password change successful");
-                    return;
-                } else {
-                    throw new UserAuthenticationException("Incorrect old password");
-                }
-            }
-        }
-        throw new UserAuthenticationException("User not found");
-    }*/
-
     public User getRecipientByUsername(String username){
         for(User recipient: usersList){
             if(username.equals(recipient.getUsername())){

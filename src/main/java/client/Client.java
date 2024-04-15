@@ -8,6 +8,7 @@ import java.net.Socket;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import user.User;
 import user.UserManager;
 import utils.Screen;
 import utils.UserInteraction;
@@ -108,19 +109,16 @@ public class Client {
                 outToServer.println(request + " " + boxType);
                 readServerResponse();
                 break;
+            case "SETTINGS":
+                String accountUpdate = userInteraction.chooseAccountUpdate();
+                outToServer.println(request + " " + accountUpdate);
+                readServerResponse();
+                break;
             case "LOGOUT":
                 outToServer.println(request);
                 loggedIn = false;
                 readServerResponse();
                 break;
-            /*case "PASSWORD":
-                outToServer.println(request);
-                readServerResponse();
-                break;
-            case "REMOVE ACCOUNT":
-                outToServer.println(request);
-                readServerResponse();
-                break;*/
             default:
                 System.out.println("Incorrect input. please, try again.");
         }

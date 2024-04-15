@@ -1,12 +1,10 @@
 package utils;
 
-import mail.Mail;
 import user.User;
 import user.UserManager;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.List;
 
 public class UserInteraction {
     private BufferedReader reader;
@@ -21,6 +19,11 @@ public class UserInteraction {
 
     public String getPassword() throws IOException {
         System.out.println("Type password:");
+        return reader.readLine();
+    }
+
+    public String getNewPassword() throws IOException {
+        System.out.println("Type new password:");
         return reader.readLine();
     }
 
@@ -52,4 +55,19 @@ public class UserInteraction {
         }
     }
 
+    public String chooseAccountUpdate() throws IOException{
+        while (true) {
+            System.out.println("Manage account settings: PASSWORD / DELETE");
+            String input = reader.readLine();
+            switch (input.toUpperCase()) {
+                case "PASSWORD":
+                    return "PASSWORD";
+                case "DELETE":
+                    return "DELETE";
+                default:
+                    System.out.println("Incorrect input. Please, try again.");
+                    break;
+            }
+        }
+    }
 }

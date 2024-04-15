@@ -16,7 +16,7 @@ public class Screen {
         System.out.print("Type: ");
     }
 
-    public static void  printMailBoxMenu() {
+    public static void printMailBoxMenu() {
         System.out.println("+---------------------------------------------+\n" +
                 "|              You are logged in              |\n" +
                 "|                                             |\n" +
@@ -25,7 +25,8 @@ public class Screen {
                 "| 1. Write mail                               |\n" +
                 "| 2. Read mails                               |\n" +
                 "| 3. Sent mails                               |\n" +
-                "| 4. Logout                                  |\n" +
+                "| 3. Settings                                 |\n" +
+                "| 4. Logout                                   |\n" +
                 "+---------------------------------------------+");
         System.out.print("Type: ");
     }

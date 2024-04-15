@@ -51,11 +51,6 @@ public class Server {
     }
 
     public void handleClientRequest() {
-        /*try (BufferedReader inFromClient = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-             PrintWriter outToClient = new PrintWriter(clientSocket.getOutputStream(), true)) {
-            // reszta kodu
-        }*/
-
         try {
             inFromClient = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             outToClient = new PrintWriter(clientSocket.getOutputStream(), true);
@@ -91,6 +86,10 @@ public class Server {
                         String boxType = parts[1];
                         handleRead(boxType);
                         break;
+                    case "SETTINGS":
+                        String accountUpdate = parts[1];
+                        handleSettings(accountUpdate);
+                        break;
                     case "LOGOUT":
                         handleLogout();
                         break;
@@ -101,7 +100,35 @@ public class Server {
         }
     }
 
+    private void handleSettings(String accountUpdate) throws IOException {
+        User currentUser = UserManager.currentLoggedInUser;
+        User admin = userManager.admin;
+        if(currentUser.equals(admin)){
+            handleAdminOperation(accountUpdate);
+        } else {
+            if(accountUpdate.equals("PASSWORD")){
+                admin.getMailBox().getUnreadMails().add(new Mail(user, admin, user + "requested for password change"))
+            } else {
+                admin.getMailBox().getUnreadMails().add(new Mail(user, admin, user + "requested for account deletion")
+            }
+            outToClient.println("Request sent to admin \n<<END>>");
+        }
 
+    }
+    private void handleAdminOperation(String adminOperation) throws IOException {
+        switch (adminOperation) {
+            case "MY_PASSWORD":
+                userManager
+                outToClient.println("Registration successful\n<<END>>");
+                break;
+            case "USER_PASSWORD":
+
+            case "USER_DELETE":
+                break;
+            default:
+        }
+        logger.info("out from handleAuthentication");
+    }
 
     public void handleAuthentication(String request, String username, String password) throws IOException {
         switch (request) {
