@@ -6,7 +6,7 @@ import java.util.List;
 
 public class Admin extends User {
 
-    List<User> pendingAccountDeletions;
+    public static List<User> pendingAccountDeletions;
 
     public Admin() {
         super("admin", "a", Role.ADMIN);

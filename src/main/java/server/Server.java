@@ -12,6 +12,7 @@ import mail.Mail;
 import mail.MailService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import user.Admin;
 import user.User;
 import user.UserManager;
 
@@ -103,31 +104,15 @@ public class Server {
     private void handleSettings(String accountUpdate) throws IOException {
         User currentUser = UserManager.currentLoggedInUser;
         User admin = userManager.admin;
-        if(currentUser.equals(admin)){
-            handleAdminOperation(accountUpdate);
-        } else {
+        if(!currentUser.equals(admin)){
             if(accountUpdate.equals("PASSWORD")){
-                admin.getMailBox().getUnreadMails().add(new Mail(user, admin, user + "requested for password change"))
+                admin.getMailBox().getUnreadMails().add(new Mail(currentUser, admin, user + "requested for password change"))
             } else {
-                admin.getMailBox().getUnreadMails().add(new Mail(user, admin, user + "requested for account deletion")
+                Admin.pendingAccountDeletions.add(currentUser)
+                admin.getMailBox().getUnreadMails().add(new Mail(currentUser, admin, user + "requested for account deletion")
             }
             outToClient.println("Request sent to admin \n<<END>>");
         }
-
-    }
-    private void handleAdminOperation(String adminOperation) throws IOException {
-        switch (adminOperation) {
-            case "MY_PASSWORD":
-                userManager
-                outToClient.println("Registration successful\n<<END>>");
-                break;
-            case "USER_PASSWORD":
-
-            case "USER_DELETE":
-                break;
-            default:
-        }
-        logger.info("out from handleAuthentication");
     }
 
     public void handleAuthentication(String request, String username, String password) throws IOException {
