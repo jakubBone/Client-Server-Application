@@ -12,7 +12,6 @@ import mail.Mail;
 import mail.MailService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import user.Admin;
 import user.User;
 import user.UserManager;
 
@@ -87,9 +86,10 @@ public class Server {
                         String boxType = parts[1];
                         handleRead(boxType);
                         break;
-                    case "SETTINGS":
-                        String accountUpdate = parts[1];
-                        handleSettings(accountUpdate);
+                    case "OPERATION":
+                        String operation = parts[1];
+                        String userToUpdate = parts[2];
+                        handleOperation(operation, userToUpdate);
                         break;
                     case "LOGOUT":
                         handleLogout();
@@ -101,17 +101,30 @@ public class Server {
         }
     }
 
-    private void handleSettings(String accountUpdate) throws IOException {
-        User currentUser = UserManager.currentLoggedInUser;
-        User admin = userManager.admin;
-        if(!currentUser.equals(admin)){
-            if(accountUpdate.equals("PASSWORD")){
-                admin.getMailBox().getUnreadMails().add(new Mail(currentUser, admin, user + "requested for password change"))
-            } else {
-                Admin.pendingAccountDeletions.add(currentUser)
-                admin.getMailBox().getUnreadMails().add(new Mail(currentUser, admin, user + "requested for account deletion")
+
+
+    private void handleOperation(String operation, String userToUpdate) throws IOException {
+        boolean ifUserUpdated = false;
+        if(UserManager.currentLoggedInUser.getRole().equals(User.Role.ADMIN)) {
+            for (User user : UserManager.usersList) {
+                if (userToUpdate.equals(user.getUsername())) {
+                    switch (operation) {
+                        case "PASSWORD":
+                            outToClient.println("User + password change successful\n<<END>>");
+                            ifUserUpdated = true;
+                            break;
+                        case "DELETE":
+                            outToClient.println("User + account delete successful\n<<END>>");
+                            ifUserUpdated = true;
+                            break;
+                    }
+                }
             }
-            outToClient.println("Request sent to admin \n<<END>>");
+            if(!ifUserUpdated){
+                outToClient.println("Operation failed: " + userToUpdate + " not authorized\\n<<END>>");
+            }
+        } else {
+            outToClient.println("Operation failed: Not authorized\\n<<END>>");
         }
     }
 
@@ -124,14 +137,14 @@ public class Server {
             case "LOGIN":
                 User user = userManager.login(username, password);
                 if (user != null) {
+                    UserManager.currentLoggedInUser = user;
                     outToClient.println("Login successful\n<<END>>");
                     user.setUserLoggedIn(true);
-                    UserManager.currentLoggedInUser = user;
                 } else {
                     outToClient.println("Login failed: Incorrect username or password\n<<END>>");
                 }
                 break;
-        }
+        };
         logger.info("out from handleAuthentication");
     }
 

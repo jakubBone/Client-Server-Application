@@ -1,23 +1,27 @@
 package user;
 
-
-import java.util.ArrayList;
-import java.util.List;
-
 public class Admin extends User {
-
-    public static List<User> pendingAccountDeletions;
 
     public Admin() {
         super("admin", "a", Role.ADMIN);
-        pendingAccountDeletions = new ArrayList<>();
     }
 
-    public void deleteUser(){
-        for(User userToRemove: pendingAccountDeletions){
-            UserManager.usersList.remove(userToRemove);
+    public void changePassword(String username){
+        for(User userToRemove: UserManager.usersList){
+            if(username.equals(userToRemove.getUsername())){
+                UserManager.usersList.remove(userToRemove);
+            }
         }
     }
+
+    public void deleteUser(String username){
+        for(User userToRemove: UserManager.usersList){
+            if(username.equals(userToRemove.getUsername())){
+                UserManager.usersList.remove(userToRemove);
+            }
+        }
+    }
+
 
 }
 

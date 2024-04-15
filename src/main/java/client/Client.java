@@ -8,8 +8,6 @@ import java.net.Socket;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import user.User;
-import user.UserManager;
 import utils.Screen;
 import utils.UserInteraction;
 
@@ -58,7 +56,6 @@ public class Client {
                     }
                     handleLoginRequests(request);
                 }
-
                 Screen.printMailBoxMenu();
                 request = userInput.readLine();
                 if (request == null) {
@@ -109,9 +106,10 @@ public class Client {
                 outToServer.println(request + " " + boxType);
                 readServerResponse();
                 break;
-            case "SETTINGS":
-                String accountUpdate = userInteraction.chooseAccountUpdate();
-                outToServer.println(request + " " + accountUpdate);
+            case "OPERATIONS":
+                String operation = userInteraction.chooseAccountOperation();
+                String userToUpdate = userInteraction.chooseUserToUpdate();
+                outToServer.println(request + " " + operation + userToUpdate);
                 readServerResponse();
                 break;
             case "LOGOUT":

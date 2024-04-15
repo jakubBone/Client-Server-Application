@@ -9,8 +9,6 @@ import java.util.List;
 public class UserManager {
     private static final Logger logger = LogManager.getLogger(UserManager.class);
     public static List<User> usersList;
-    private List <String> passwordChangeRequesters;
-    private List <String> removeAccountRequesters;
     public static User currentLoggedInUser;
     public Admin admin;
 
@@ -18,8 +16,6 @@ public class UserManager {
         usersList = new ArrayList<>();
         this.admin = new Admin();
         usersList.add(admin);
-        this.passwordChangeRequesters = new ArrayList<>();
-        this.removeAccountRequesters = new ArrayList<>();
     }
 
     public void register(String typedUserName, String typedPassword) throws IllegalArgumentException {
@@ -77,4 +73,7 @@ public class UserManager {
         return existingHashedPassword == typedPassword.hashCode();
     }
 
+    public boolean isAdmin(){
+        return currentLoggedInUser.role.equals(User.Role.ADMIN);
+    }
 }

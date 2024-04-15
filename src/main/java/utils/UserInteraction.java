@@ -1,8 +1,5 @@
 package utils;
 
-import user.User;
-import user.UserManager;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 
@@ -19,11 +16,6 @@ public class UserInteraction {
 
     public String getPassword() throws IOException {
         System.out.println("Type password:");
-        return reader.readLine();
-    }
-
-    public String getNewPassword() throws IOException {
-        System.out.println("Type new password:");
         return reader.readLine();
     }
 
@@ -55,7 +47,7 @@ public class UserInteraction {
         }
     }
 
-    public String chooseAccountUpdate() throws IOException{
+    public String chooseAccountOperation() throws IOException {
         while (true) {
             System.out.println("Manage account settings: PASSWORD / DELETE");
             String input = reader.readLine();
@@ -69,5 +61,10 @@ public class UserInteraction {
                     break;
             }
         }
+    }
+
+    public String chooseUserToUpdate() throws IOException {
+        System.out.println("Type username to update:");
+        return reader.readLine();
     }
 }
