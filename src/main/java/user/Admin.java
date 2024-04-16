@@ -1,7 +1,5 @@
 package user;
 
-import client.Client;
-
 public class Admin extends User {
 
     public Admin() {
@@ -10,11 +8,11 @@ public class Admin extends User {
 
     public void changePassword(User user, String newPassword){
             user.setPassword(newPassword);
+                System.out.println("new1: " + user.getPassword());
     }
 
     public void deleteUser(User user){
         UserManager.usersList.remove(user);
-
     }
 }
 

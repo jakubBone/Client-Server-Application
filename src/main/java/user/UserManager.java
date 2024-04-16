@@ -18,11 +18,11 @@ public class UserManager {
         usersList.add(admin);
     }
 
-    public void register(String typedUserName, String typedPassword) throws IllegalArgumentException {
+    public void register(String typedUsername, String typedPassword) throws IllegalArgumentException {
         logger.info("in user manager register");
         boolean userExists = false;
         for (User existingUser : usersList) {
-            if (isUserIdEqual(existingUser, typedUserName)) {
+            if (typedUsername.equals(existingUser.getUsername())) {
                 userExists = true;
                 break;
             }
@@ -30,7 +30,7 @@ public class UserManager {
         if (userExists) {
             logger.info("User already exists");
         } else {
-            User newUser = new User(typedUserName, typedPassword, User.Role.USER);
+            User newUser = new User(typedUsername, typedPassword, User.Role.USER);
             usersList.add(newUser);
             currentLoggedInUser = newUser;
             logger.info("Registration successful");
@@ -39,8 +39,8 @@ public class UserManager {
 
     public User login(String typedUsername, String typedPassword){
         for (User existingUser : usersList) {
-            if (isUserIdEqual(existingUser, typedUsername)) {
-                if (!ifPasswordEqual(existingUser.getHashedPassword(), typedPassword)) {
+            if (typedUsername.equals(existingUser.getUsername())) {
+                if (!typedPassword.equals(existingUser.getPassword())) {
                     logger.info("Incorrect password");
                 } else {
                     existingUser.isUserLoggedIn = true;
@@ -65,30 +65,18 @@ public class UserManager {
         return null;
     }
 
-    public boolean isUserIdEqual(User existingUser, String userName) {
-        return  existingUser.getUserId() == userName.hashCode();
-    }
-
-    public boolean ifPasswordEqual(int existingHashedPassword, String typedPassword) {
-        return existingHashedPassword == typedPassword.hashCode();
-    }
-
     public User findUserOnTheList(String username){
         User searchedUser = null;
-        System.out.println("Userlist " + usersList);
         for (User user : usersList) {
             if (username.equals(user.getUsername())) {
                 searchedUser = user;
                 break;
             }
         }
-        System.out.println("Username " + searchedUser.getUsername());
         return searchedUser;
     }
 
     public boolean isAdmin(){
         return currentLoggedInUser.role.equals(User.Role.ADMIN);
     }
-
-
 }

@@ -112,14 +112,12 @@ public class Client {
                 readServerResponse();
                 if(isAutorized) {
                     String operation = userInteraction.chooseAccountOperation();
-                    /*if(operation.equals("PASSWORD")){
-                        String userToUpdate = userInteraction.chooseUserToUpdate();
-                        outToServer.println(operation + " " + userToUpdate);
-                    } else {*/
-                        String userToUpdate = userInteraction.chooseUserToUpdate();
-                        outToServer.println(operation + " " + userToUpdate);
+                    String userToUpdate = userInteraction.chooseUserToUpdate();
+                    String newPassword = null;
+                    if(operation.equals("PASSWORD")){
+                        newPassword = userInteraction.getNewPassword();
                     }
-
+                    outToServer.println(operation + " " + userToUpdate + " " + newPassword);
                     readServerResponse();
                 }
                 break;

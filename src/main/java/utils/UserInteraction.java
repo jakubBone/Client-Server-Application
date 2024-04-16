@@ -19,6 +19,11 @@ public class UserInteraction {
         return reader.readLine();
     }
 
+    public String getNewPassword() throws IOException{
+        System.out.println("Type a new password:");
+        return reader.readLine();
+    }
+
     public String getRecipient() throws IOException {
         System.out.println("Type recipient's username:");
         return reader.readLine();

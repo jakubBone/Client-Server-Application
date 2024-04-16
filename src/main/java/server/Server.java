@@ -92,9 +92,10 @@ public class Server {
                         String[] operationParts = request.split(" ", 3);
                         String operation = operationParts[0];
                         String userToUpdate = operationParts[1];
-                        //String password = operationParts[2];
+                        String newPassword = operationParts[2];
                         System.out.println("User to update: " + userToUpdate);
-                        handleOperation(operation, userToUpdate);
+                        handleOperation(operation, userToUpdate, newPassword);
+                        System.out.println("new 3: " + UserManager.currentLoggedInUser.getPassword());
                         break;
                     case "LOGOUT":
                         handleLogout();
@@ -123,6 +124,7 @@ public class Server {
                     case "PASSWORD":
                         admin.changePassword(searchedUser, newPassword);
                         outToClient.println(searchedUser + " password change successful\n<<END>>");
+                        System.out.println("new 2: " + searchedUser.getPassword());
                         break;
                     case "DELETE":
                         if(searchedUser.getRole().equals(User.Role.ADMIN)){
