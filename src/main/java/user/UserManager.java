@@ -73,7 +73,22 @@ public class UserManager {
         return existingHashedPassword == typedPassword.hashCode();
     }
 
+    public User findUserOnTheList(String username){
+        User searchedUser = null;
+        System.out.println("Userlist " + usersList);
+        for (User user : usersList) {
+            if (username.equals(user.getUsername())) {
+                searchedUser = user;
+                break;
+            }
+        }
+        System.out.println("Username " + searchedUser.getUsername());
+        return searchedUser;
+    }
+
     public boolean isAdmin(){
         return currentLoggedInUser.role.equals(User.Role.ADMIN);
     }
+
+
 }

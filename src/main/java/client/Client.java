@@ -20,6 +20,7 @@ public class Client {
     private BufferedReader inFromServer;
     private BufferedReader userInput;
     private static boolean loggedIn = false;
+    private boolean isAutorized = false;
 
 
     public static void main(String[] args) {
@@ -107,10 +108,20 @@ public class Client {
                 readServerResponse();
                 break;
             case "OPERATIONS":
-                String operation = userInteraction.chooseAccountOperation();
-                String userToUpdate = userInteraction.chooseUserToUpdate();
-                outToServer.println(request + " " + operation + userToUpdate);
+                outToServer.println(request);
                 readServerResponse();
+                if(isAutorized) {
+                    String operation = userInteraction.chooseAccountOperation();
+                    /*if(operation.equals("PASSWORD")){
+                        String userToUpdate = userInteraction.chooseUserToUpdate();
+                        outToServer.println(operation + " " + userToUpdate);
+                    } else {*/
+                        String userToUpdate = userInteraction.chooseUserToUpdate();
+                        outToServer.println(operation + " " + userToUpdate);
+                    }
+
+                    readServerResponse();
+                }
                 break;
             case "LOGOUT":
                 outToServer.println(request);
@@ -135,6 +146,9 @@ public class Client {
     private void readServerResponse() throws IOException {
         String response = null;
         while (!(response = inFromServer.readLine()).equals("<<END>>")) {
+            if(response.equals("Operation succeeded: Authorized")){
+                isAutorized = true;
+            }
             System.out.println(response);
         }
     }

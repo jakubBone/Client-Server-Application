@@ -12,6 +12,7 @@ import mail.Mail;
 import mail.MailService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import user.Admin;
 import user.User;
 import user.UserManager;
 
@@ -64,7 +65,6 @@ public class Server {
                     disconnect();
                     break;
                 }
-
                 String[] parts = request.split(" ", 3);
                 String command = parts[0].toUpperCase();
                 switch (command) {
@@ -86,9 +86,14 @@ public class Server {
                         String boxType = parts[1];
                         handleRead(boxType);
                         break;
-                    case "OPERATION":
-                        String operation = parts[1];
-                        String userToUpdate = parts[2];
+                    case "OPERATIONS":
+                        checkRolePermission();
+                        request = inFromClient.readLine();
+                        String[] operationParts = request.split(" ", 3);
+                        String operation = operationParts[0];
+                        String userToUpdate = operationParts[1];
+                        //String password = operationParts[2];
+                        System.out.println("User to update: " + userToUpdate);
                         handleOperation(operation, userToUpdate);
                         break;
                     case "LOGOUT":
@@ -101,11 +106,40 @@ public class Server {
         }
     }
 
+    private void checkRolePermission(){
+        if(!userManager.isAdmin()){
+            outToClient.println("Operation failed: Not authorized\n<<END>>");
+        } else {
+            outToClient.println("Operation succeeded: Authorized\n<<END>>");
+        }
+    }
 
 
-    private void handleOperation(String operation, String userToUpdate) throws IOException {
-        boolean ifUserUpdated = false;
-        if(UserManager.currentLoggedInUser.getRole().equals(User.Role.ADMIN)) {
+    private void handleOperation(String operation, String userToUpdate, String newPassword) throws IOException {
+        User searchedUser = userManager.findUserOnTheList(userToUpdate);
+        Admin admin = new Admin();
+            if(!(searchedUser == null)) {
+                switch (operation.toUpperCase()) {
+                    case "PASSWORD":
+                        admin.changePassword(searchedUser, newPassword);
+                        outToClient.println(searchedUser + " password change successful\n<<END>>");
+                        break;
+                    case "DELETE":
+                        if(searchedUser.getRole().equals(User.Role.ADMIN)){
+                            outToClient.println("Operation failed: admin account cannot be deleted\n<<END>>");
+                        } else {
+                            admin.deleteUser(searchedUser);
+                            outToClient.println(searchedUser + " account deletion successful\n<<END>>");
+                        }
+                        break;
+                }
+            } else {
+                outToClient.println("Operation failed:" +  searchedUser + " not on the list\n<<END>>");
+            }
+    }
+
+    /*private void handleOperation(String operation, String userToUpdate) throws IOException {
+        boolean User user;
             for (User user : UserManager.usersList) {
                 if (userToUpdate.equals(user.getUsername())) {
                     switch (operation) {
@@ -118,6 +152,8 @@ public class Server {
                             ifUserUpdated = true;
                             break;
                     }
+                } else {
+                    outToClient.println("Operation failed:" +  user + " not on the list\n<<END>>");
                 }
             }
             if(!ifUserUpdated){
@@ -126,7 +162,7 @@ public class Server {
         } else {
             outToClient.println("Operation failed: Not authorized\\n<<END>>");
         }
-    }
+    }*/
 
     public void handleAuthentication(String request, String username, String password) throws IOException {
         switch (request) {
