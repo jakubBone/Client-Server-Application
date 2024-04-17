@@ -28,7 +28,7 @@ public class Server {
     private UserManager userManager;
     private MailService mailService;
     private ServerInfoService helperService;
-
+    private boolean isAuthorized = false;
 
     public static void main(String[] args) {
         Server server = new Server();
@@ -83,11 +83,19 @@ public class Server {
                         handleWrite(recipient, message);
                         break;
                     case "READ":
+                    case "EMPTY":
                         String boxType = parts[1];
-                        handleRead(boxType);
+                        if(request.equals("READ")){
+                            handleRead(boxType);
+                        } else {
+                            handleEmpty(boxType)
+                        }
                         break;
                     case "OPERATIONS":
-                        checkRolePermission();
+                        checkRoleAuthorization();
+                        if(!isAuthorized){
+                            break;
+                        }
                         request = inFromClient.readLine();
                         String[] operationParts = request.split(" ", 3);
                         String operation = operationParts[0];
@@ -107,10 +115,70 @@ public class Server {
         }
     }
 
-    private void checkRolePermission(){
+    /*public void handleClientRequest() {
+        try {
+            inFromClient = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            outToClient = new PrintWriter(clientSocket.getOutputStream(), true);
+            userManager = new UserManager();
+            mailService = new MailService();
+            helperService = new ServerInfoService(VERSION, serverTimeCreation);
+
+            String request;
+            while ((request = inFromClient.readLine()) != null) {
+                if (request.equalsIgnoreCase("EXIT")) {
+                    disconnect();
+                    break;
+                }
+                String[] parts = request.split(" ", 3);
+                String command = parts[0].toUpperCase();
+                switch (command) {
+                    case "REGISTER":
+                    case "LOGIN":
+                        String username = parts[1];
+                        String password = parts[2];
+                        handleAuthentication(command, username, password);
+                        break;
+                    case "HELP":
+                        helperService.handleHelpRequest(command, outToClient);
+                        break;
+                    case "WRITE":
+                        String recipient = parts[1];
+                        String message = parts[2];
+                        handleWrite(recipient, message);
+                        break;
+                    case "READ":
+                        String boxType = parts[1];
+                        handleRead(boxType);
+                        break;
+                    case "OPERATIONS":
+                        checkRoleAuthorization();
+                        if(!isAuthorized){
+                            break;
+                        }
+                        request = inFromClient.readLine();
+                        String[] operationParts = request.split(" ", 3);
+                        String operation = operationParts[0];
+                        String userToUpdate = operationParts[1];
+                        String newPassword = operationParts[2];
+                        System.out.println("User to update: " + userToUpdate);
+                        handleOperation(operation, userToUpdate, newPassword);
+                        System.out.println("new 3: " + UserManager.currentLoggedInUser.getPassword());
+                        break;
+                    case "LOGOUT":
+                        handleLogout();
+                        break;
+                }
+            }
+        } catch (IOException ex) {
+            logger.error("Error - handling client request", ex);
+        }
+    }*/
+
+    private void checkRoleAuthorization(){
         if(!userManager.isAdmin()){
             outToClient.println("Operation failed: Not authorized\n<<END>>");
         } else {
+            isAuthorized = true;
             outToClient.println("Operation succeeded: Authorized\n<<END>>");
         }
     }
@@ -139,32 +207,6 @@ public class Server {
                 outToClient.println("Operation failed:" +  searchedUser + " not on the list\n<<END>>");
             }
     }
-
-    /*private void handleOperation(String operation, String userToUpdate) throws IOException {
-        boolean User user;
-            for (User user : UserManager.usersList) {
-                if (userToUpdate.equals(user.getUsername())) {
-                    switch (operation) {
-                        case "PASSWORD":
-                            outToClient.println("User + password change successful\n<<END>>");
-                            ifUserUpdated = true;
-                            break;
-                        case "DELETE":
-                            outToClient.println("User + account delete successful\n<<END>>");
-                            ifUserUpdated = true;
-                            break;
-                    }
-                } else {
-                    outToClient.println("Operation failed:" +  user + " not on the list\n<<END>>");
-                }
-            }
-            if(!ifUserUpdated){
-                outToClient.println("Operation failed: " + userToUpdate + " not authorized\\n<<END>>");
-            }
-        } else {
-            outToClient.println("Operation failed: Not authorized\\n<<END>>");
-        }
-    }*/
 
     public void handleAuthentication(String request, String username, String password) throws IOException {
         switch (request) {
@@ -210,14 +252,16 @@ public class Server {
         }
         mailService.markMailsAsRead(boxType);
         outToClient.println("<<END>>");
+    }
 
+    private void handleEmpty(String boxType){
+        mailService.emptyMailbox(boxType);
     }
 
     private void handleLogout() {
         userManager.logoutCurrentUser();
         outToClient.println("Successfully logged out\n<<END>>");
     }
-
 
     public void disconnect() {
         try {

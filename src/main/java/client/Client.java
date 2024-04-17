@@ -103,6 +103,7 @@ public class Client {
                 readServerResponse();
                 break;
             case "READ":
+            case "EMPTY":
                 String boxType = userInteraction.chooseMailBox();
                 outToServer.println(request + " " + boxType);
                 readServerResponse();
@@ -130,6 +131,44 @@ public class Client {
                 System.out.println("Incorrect input. please, try again.");
         }
     }
+
+    /*private void handleMailRequests(String request) throws IOException {
+        UserInteraction userInteraction = new UserInteraction(userInput);
+        switch (request.toUpperCase()) {
+            case "WRITE":
+                String recipient = userInteraction.getRecipient();
+                String message = userInteraction.getMessage();
+                outToServer.println(request + " " + recipient + " " + message);
+                readServerResponse();
+                break;
+            case "READ":
+                String boxType = userInteraction.chooseMailBox();
+                outToServer.println(request + " " + boxType);
+                readServerResponse();
+                break;
+            case "OPERATIONS":
+                outToServer.println(request);
+                readServerResponse();
+                if(isAutorized) {
+                    String operation = userInteraction.chooseAccountOperation();
+                    String userToUpdate = userInteraction.chooseUserToUpdate();
+                    String newPassword = null;
+                    if(operation.equals("PASSWORD")){
+                        newPassword = userInteraction.getNewPassword();
+                    }
+                    outToServer.println(operation + " " + userToUpdate + " " + newPassword);
+                    readServerResponse();
+                }
+                break;
+            case "LOGOUT":
+                outToServer.println(request);
+                loggedIn = false;
+                readServerResponse();
+                break;
+            default:
+                System.out.println("Incorrect input. please, try again.");
+        }
+    }*/
 
     private void readServerHelpResponse() throws IOException {
         StringBuilder response = new StringBuilder();

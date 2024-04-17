@@ -45,8 +45,7 @@ public class MailService {
         }
     }
 
-    public void deleteMail(Mail mail){
-        mail.getSender().getMailBox().getOpenedMails().remove(mail);
-        logger.info("Mail deleted successfully");
+    public void emptyMailbox(String boxType){
+        logger.info("Mails deleted successfully");
     }
 }
