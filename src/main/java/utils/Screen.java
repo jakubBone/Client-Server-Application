@@ -23,9 +23,8 @@ public class Screen {
                 "| Select:                                     |\n" +
                 "|                                             |\n" +
                 "| Write mail                                  |\n" +
-                "| Read mails                                  |\n" +
-                "| Sent mails                                  |\n" +
-                "| Operations                                  |\n" +
+                "| Mailbox                                     |\n" +
+                "| Update                                      |\n" +
                 "| Logout                                      |\n" +
                 "+---------------------------------------------+");
         System.out.print("Type: ");

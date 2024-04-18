@@ -82,28 +82,27 @@ public class Server {
                         String message = parts[2];
                         handleWrite(recipient, message);
                         break;
-                    case "READ":
-                    case "EMPTY":
-                        String boxType = parts[1];
-                        if(request.equals("READ")){
-                            handleRead(boxType);
+                    case "MAILBOX":
+                        String operation = parts[1];
+                        String boxType = parts[2];
+                        if(operation.equals("READ")){
+                            handleMailbox(boxType);
                         } else {
-                            handleEmpty(boxType)
+                            handleEmpty(boxType);
+                            System.out.println("???");
                         }
                         break;
-                    case "OPERATIONS":
+                    case "UPDATE":
                         checkRoleAuthorization();
                         if(!isAuthorized){
                             break;
                         }
                         request = inFromClient.readLine();
-                        String[] operationParts = request.split(" ", 3);
-                        String operation = operationParts[0];
-                        String userToUpdate = operationParts[1];
-                        String newPassword = operationParts[2];
-                        System.out.println("User to update: " + userToUpdate);
-                        handleOperation(operation, userToUpdate, newPassword);
-                        System.out.println("new 3: " + UserManager.currentLoggedInUser.getPassword());
+                        String[] updateParts = request.split(" ", 3);
+                        String update = updateParts[0];
+                        String userToUpdate = updateParts[1];
+                        String newPassword = updateParts[2];
+                        handleUpdate(update, userToUpdate, newPassword);
                         break;
                     case "LOGOUT":
                         handleLogout();
@@ -114,65 +113,6 @@ public class Server {
             logger.error("Error - handling client request", ex);
         }
     }
-
-    /*public void handleClientRequest() {
-        try {
-            inFromClient = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-            outToClient = new PrintWriter(clientSocket.getOutputStream(), true);
-            userManager = new UserManager();
-            mailService = new MailService();
-            helperService = new ServerInfoService(VERSION, serverTimeCreation);
-
-            String request;
-            while ((request = inFromClient.readLine()) != null) {
-                if (request.equalsIgnoreCase("EXIT")) {
-                    disconnect();
-                    break;
-                }
-                String[] parts = request.split(" ", 3);
-                String command = parts[0].toUpperCase();
-                switch (command) {
-                    case "REGISTER":
-                    case "LOGIN":
-                        String username = parts[1];
-                        String password = parts[2];
-                        handleAuthentication(command, username, password);
-                        break;
-                    case "HELP":
-                        helperService.handleHelpRequest(command, outToClient);
-                        break;
-                    case "WRITE":
-                        String recipient = parts[1];
-                        String message = parts[2];
-                        handleWrite(recipient, message);
-                        break;
-                    case "READ":
-                        String boxType = parts[1];
-                        handleRead(boxType);
-                        break;
-                    case "OPERATIONS":
-                        checkRoleAuthorization();
-                        if(!isAuthorized){
-                            break;
-                        }
-                        request = inFromClient.readLine();
-                        String[] operationParts = request.split(" ", 3);
-                        String operation = operationParts[0];
-                        String userToUpdate = operationParts[1];
-                        String newPassword = operationParts[2];
-                        System.out.println("User to update: " + userToUpdate);
-                        handleOperation(operation, userToUpdate, newPassword);
-                        System.out.println("new 3: " + UserManager.currentLoggedInUser.getPassword());
-                        break;
-                    case "LOGOUT":
-                        handleLogout();
-                        break;
-                }
-            }
-        } catch (IOException ex) {
-            logger.error("Error - handling client request", ex);
-        }
-    }*/
 
     private void checkRoleAuthorization(){
         if(!userManager.isAdmin()){
@@ -184,15 +124,14 @@ public class Server {
     }
 
 
-    private void handleOperation(String operation, String userToUpdate, String newPassword) throws IOException {
+    private void handleUpdate(String update, String userToUpdate, String newPassword) throws IOException {
         User searchedUser = userManager.findUserOnTheList(userToUpdate);
         Admin admin = new Admin();
             if(!(searchedUser == null)) {
-                switch (operation.toUpperCase()) {
+                switch (update.toUpperCase()) {
                     case "PASSWORD":
                         admin.changePassword(searchedUser, newPassword);
                         outToClient.println(searchedUser + " password change successful\n<<END>>");
-                        System.out.println("new 2: " + searchedUser.getPassword());
                         break;
                     case "DELETE":
                         if(searchedUser.getRole().equals(User.Role.ADMIN)){
@@ -204,7 +143,7 @@ public class Server {
                         break;
                 }
             } else {
-                outToClient.println("Operation failed:" +  searchedUser + " not on the list\n<<END>>");
+                outToClient.println("Update failed:" +  searchedUser + " not on the list\n<<END>>");
             }
     }
 
@@ -245,17 +184,22 @@ public class Server {
             outToClient.println("Sending failed: Recipient not found\n<<END>>");
         }
     }
-    private void handleRead(String boxType) throws IOException {
+    private void handleMailbox(String boxType) throws IOException {
         List<Mail> mailsToRead = mailService.getMailsToRead(boxType);
-        for (Mail mail : mailsToRead) {
-            outToClient.println("From: " + mail.getSender().getUsername() + "\n Message: " + mail.getMessage());
+        if(mailsToRead.isEmpty()){
+            outToClient.println("Mailbox empty");
+        } else{
+            for (Mail mail : mailsToRead) {
+                outToClient.println("From: " + mail.getSender().getUsername() + "\n Message: " + mail.getMessage());
+            }
+            mailService.markMailsAsRead(boxType);
         }
-        mailService.markMailsAsRead(boxType);
         outToClient.println("<<END>>");
     }
 
     private void handleEmpty(String boxType){
         mailService.emptyMailbox(boxType);
+        outToClient.println("Mails deleted successfully\n<<END>>");
     }
 
     private void handleLogout() {

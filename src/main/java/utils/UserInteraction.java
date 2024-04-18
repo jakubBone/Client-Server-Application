@@ -36,23 +36,30 @@ public class UserInteraction {
 
     public String chooseMailBox() throws IOException {
         while (true) {
-            System.out.println("Choose mailbox: OPENED / UNREAD / SENT");
-            String input = reader.readLine();
-            switch (input.toUpperCase()) {
-                case "OPENED":
-                    return "OPENED";
-                case "UNREAD":
-                    return "UNREAD";
-                case "SENT":
-                    return "SENT";
+            System.out.println("Choose operation: READ / EMPTY");
+            String operation = reader.readLine().toUpperCase();
+            switch (operation) {
+                case "READ":
+                case "EMPTY":
+                    System.out.println("Choose mailbox: OPENED / UNREAD / SENT");
+                    String mailbox = reader.readLine().toUpperCase();
+                    switch (mailbox) {
+                        case "OPENED":
+                        case "UNREAD":
+                        case "SENT":
+                            return operation + " " + mailbox;
+                        default:
+                            System.out.println("Incorrect mailbox input. Please, try again.");
+                            break;
+                    }
+                    break;
                 default:
-                    System.out.println("Incorrect input. Please, try again.");
+                    System.out.println("Incorrect update input. Please, try again.");
                     break;
             }
         }
     }
-
-    public String chooseAccountOperation() throws IOException {
+    public String chooseAccountUpdate() throws IOException {
         while (true) {
             System.out.println("Manage account settings: PASSWORD / DELETE");
             String input = reader.readLine();

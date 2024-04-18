@@ -4,6 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import user.UserManager;
+
 import java.util.List;
 
 public class MailService {
@@ -14,25 +15,29 @@ public class MailService {
         mail.getSender().getMailBox().getSentMails().add(mail);
         logger.info("Mail sent to receiver");
     }
-    public List <Mail> getMailsToRead(String requestedMailList) {
-        List<Mail> mailsToRead = null;
-        switch (requestedMailList){
-            case "OPENED":
-                logger.info("Opened mails returned");
-                mailsToRead = UserManager.currentLoggedInUser.getMailBox().getOpenedMails();
-                break;
-            case "UNREAD":
-                logger.info("Unread mails returned");
-                mailsToRead = UserManager.currentLoggedInUser.getMailBox().getUnreadMails();
-                break;
-            case "SENT":
-                logger.info("Sent mails returned");
-                mailsToRead = UserManager.currentLoggedInUser.getMailBox().getSentMails();
-                break;
-            default:
-                logger.info("Incorrect");
-        }
+
+    public List<Mail> getMailsToRead(String requestedMailList) {
+        List<Mail> mailsToRead = getMailListByType(requestedMailList);
+        logger.info(requestedMailList + " mails returned");
         return mailsToRead;
+    }
+
+    public void emptyMailbox(String requestedMailList) {
+        List<Mail> mailList = getMailListByType(requestedMailList);
+        mailList.clear();
+        logger.info(requestedMailList + " mails deleted successfully");
+    }
+
+    private List<Mail> getMailListByType(String type) {
+        MailBox mailBox = UserManager.currentLoggedInUser.getMailBox();
+        switch (type.toUpperCase()) {
+            case "OPENED":
+                return mailBox.getOpenedMails();
+            case "UNREAD":
+                return mailBox.getUnreadMails();
+            case "SENT":
+                return mailBox.getSentMails();
+        }
     }
 
     public void markMailsAsRead(String boxType){
@@ -43,9 +48,5 @@ public class MailService {
             }
             UserManager.currentLoggedInUser.getMailBox().getUnreadMails().clear();
         }
-    }
-
-    public void emptyMailbox(String boxType){
-        logger.info("Mails deleted successfully");
     }
 }

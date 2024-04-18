@@ -20,7 +20,7 @@ public class Client {
     private BufferedReader inFromServer;
     private BufferedReader userInput;
     private static boolean loggedIn = false;
-    private boolean isAutorized = false;
+    private boolean isAuthorized = false;
 
 
     public static void main(String[] args) {
@@ -79,7 +79,6 @@ public class Client {
                     String password = userInteraction.getPassword();
                     outToServer.println(request + " " + username + " " + password);
                     readServerResponse();
-                    loggedIn = true;
                     break;
                 case "HELP":
                     outToServer.println(request);
@@ -102,23 +101,22 @@ public class Client {
                 outToServer.println(request + " " + recipient + " " + message);
                 readServerResponse();
                 break;
-            case "READ":
-            case "EMPTY":
-                String boxType = userInteraction.chooseMailBox();
-                outToServer.println(request + " " + boxType);
+            case "MAILBOX":
+                String boxOperation = userInteraction.chooseMailBox();
+                outToServer.println(request + " " + boxOperation);
                 readServerResponse();
                 break;
-            case "OPERATIONS":
+            case "UPDATE":
                 outToServer.println(request);
                 readServerResponse();
-                if(isAutorized) {
-                    String operation = userInteraction.chooseAccountOperation();
+                if(isAuthorized) {
+                    String update = userInteraction.chooseAccountUpdate();
                     String userToUpdate = userInteraction.chooseUserToUpdate();
                     String newPassword = null;
-                    if(operation.equals("PASSWORD")){
+                    if(update.equals("PASSWORD")){
                         newPassword = userInteraction.getNewPassword();
                     }
-                    outToServer.println(operation + " " + userToUpdate + " " + newPassword);
+                    outToServer.println(update + " " + userToUpdate + " " + newPassword);
                     readServerResponse();
                 }
                 break;
@@ -131,44 +129,6 @@ public class Client {
                 System.out.println("Incorrect input. please, try again.");
         }
     }
-
-    /*private void handleMailRequests(String request) throws IOException {
-        UserInteraction userInteraction = new UserInteraction(userInput);
-        switch (request.toUpperCase()) {
-            case "WRITE":
-                String recipient = userInteraction.getRecipient();
-                String message = userInteraction.getMessage();
-                outToServer.println(request + " " + recipient + " " + message);
-                readServerResponse();
-                break;
-            case "READ":
-                String boxType = userInteraction.chooseMailBox();
-                outToServer.println(request + " " + boxType);
-                readServerResponse();
-                break;
-            case "OPERATIONS":
-                outToServer.println(request);
-                readServerResponse();
-                if(isAutorized) {
-                    String operation = userInteraction.chooseAccountOperation();
-                    String userToUpdate = userInteraction.chooseUserToUpdate();
-                    String newPassword = null;
-                    if(operation.equals("PASSWORD")){
-                        newPassword = userInteraction.getNewPassword();
-                    }
-                    outToServer.println(operation + " " + userToUpdate + " " + newPassword);
-                    readServerResponse();
-                }
-                break;
-            case "LOGOUT":
-                outToServer.println(request);
-                loggedIn = false;
-                readServerResponse();
-                break;
-            default:
-                System.out.println("Incorrect input. please, try again.");
-        }
-    }*/
 
     private void readServerHelpResponse() throws IOException {
         StringBuilder response = new StringBuilder();
@@ -183,8 +143,11 @@ public class Client {
     private void readServerResponse() throws IOException {
         String response = null;
         while (!(response = inFromServer.readLine()).equals("<<END>>")) {
+            if(response.equals("Login successful")){
+                loggedIn = true;
+            }
             if(response.equals("Operation succeeded: Authorized")){
-                isAutorized = true;
+                isAuthorized = true;
             }
             System.out.println(response);
         }
