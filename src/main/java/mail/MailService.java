@@ -37,8 +37,22 @@ public class MailService {
                 return mailBox.getUnreadMails();
             case "SENT":
                 return mailBox.getSentMails();
+            default:
+                return null;
         }
     }
+
+    /*private List<Mail> getMailListByType(String type) {
+        MailBox mailBox = UserManager.currentLoggedInUser.getMailBox();
+        switch (type.toUpperCase()) {
+            case "OPENED":
+                return mailBox.getOpenedMails();
+            case "UNREAD":
+                return mailBox.getUnreadMails();
+            case "SENT":
+                return mailBox.getSentMails();
+        }
+    }*/
 
     public void markMailsAsRead(String boxType){
         if(!boxType.equals("SENT")){

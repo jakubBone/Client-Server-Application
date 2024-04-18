@@ -16,7 +16,6 @@ public class User {
     protected String password;
     protected Role role;
     protected MailBox mailBox;
-    protected boolean isUserLoggedIn;
 
     public enum Role {
         ADMIN,
@@ -28,7 +27,7 @@ public class User {
         this.password = password;
         this.role = role;
         this.mailBox = new MailBox();
-        this.isUserLoggedIn = false;
+        //this.isUserLoggedIn = false;
     }
 
     public String toString() {

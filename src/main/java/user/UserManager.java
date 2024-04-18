@@ -2,6 +2,7 @@ package user;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import utils.UserSerializer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +20,7 @@ public class UserManager {
     }
 
     public void register(String typedUsername, String typedPassword) throws IllegalArgumentException {
-        logger.info("in user manager register");
+        UserSerializer userSerializer = new UserSerializer();
         boolean userExists = false;
         for (User existingUser : usersList) {
             if (typedUsername.equals(existingUser.getUsername())) {
@@ -31,8 +32,10 @@ public class UserManager {
             logger.info("User already exists");
         } else {
             User newUser = new User(typedUsername, typedPassword, User.Role.USER);
+            userSerializer.writeDataToJson(newUser, "C:\\Users\\Jakub Bone\\Desktop\\Z2J\\projects\\Client-Server\\" + newUser.getUsername() + ".json");
             usersList.add(newUser);
             currentLoggedInUser = newUser;
+            //currentLoggedInUser.isUserLoggedIn = true;
             logger.info("Registration successful");
         }
     }
@@ -43,7 +46,6 @@ public class UserManager {
                 if (!typedPassword.equals(existingUser.getPassword())) {
                     logger.info("Incorrect password");
                 } else {
-                    existingUser.isUserLoggedIn = true;
                     logger.info("Login successful");
                     return existingUser;
                 }

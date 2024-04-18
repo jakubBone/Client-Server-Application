@@ -15,7 +15,7 @@ import java.io.IOException;
 public class UserSerializer {
     private static final Logger logger = LogManager.getLogger(UserSerializer.class);
 
-    public static void writeDataToJson(User user, String filePath){
+    public void writeDataToJson(User user, String filePath){
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         try(FileWriter writer = new FileWriter(filePath)) {
             gson.toJson(user, writer);
@@ -25,7 +25,7 @@ public class UserSerializer {
         }
     }
 
-    public static User readDataToJson(String filePath){
+    public User readDataToJson(String filePath){
         Gson gson = new Gson();
         try(FileReader reader = new FileReader(filePath)) {
             return gson.fromJson(reader, User.class);

@@ -15,6 +15,7 @@ import org.apache.logging.log4j.Logger;
 import user.Admin;
 import user.User;
 import user.UserManager;
+import utils.UserSerializer;
 
 public class Server {
     private static final Logger logger = LogManager.getLogger(Server.class);
@@ -158,7 +159,6 @@ public class Server {
                 if (user != null) {
                     UserManager.currentLoggedInUser = user;
                     outToClient.println("Login successful\n<<END>>");
-                    user.setUserLoggedIn(true);
                 } else {
                     outToClient.println("Login failed: Incorrect username or password\n<<END>>");
                 }
