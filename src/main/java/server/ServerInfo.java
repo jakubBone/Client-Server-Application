@@ -11,16 +11,15 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ServerInfo {
+
+    private final String VERSION = "1.0.0";
     private Map<String, String> commands = new LinkedHashMap<>();
     private Map<String, String> serverDetails = new LinkedHashMap<>();
     private Map<String, Long> uptime = new LinkedHashMap<>();
     private String invalidMessage;
-    private String version;
-    Date serverTimeCreation;
+    private Date serverTimeCreation;
 
-    public ServerInfo(String version, Date serverTimeCreation) {
-        this.version = version;
-        this.serverTimeCreation = serverTimeCreation;
+    public ServerInfo() {
         setCommands();
         setServerDetails();
         setUptime();
@@ -29,7 +28,7 @@ public class ServerInfo {
 
     public void setUptime(){
         Date currentTime = new Date();
-        long uptimeInMillis = currentTime.getTime() - serverTimeCreation.getTime();
+        long uptimeInMillis = currentTime.getTime() - ServerConnectionHandler.serverTimeCreation.getTime();
 
         long days = TimeUnit.MILLISECONDS.toDays(uptimeInMillis);
         long hours = TimeUnit.MILLISECONDS.toHours(uptimeInMillis) % 24;
@@ -49,8 +48,8 @@ public class ServerInfo {
     }
 
     public void setServerDetails() {
-        serverDetails.put("version", version);
-        serverDetails.put("setup time ", serverTimeCreation.toString());
+        serverDetails.put("version", VERSION);
+        serverDetails.put("setup time ", String.valueOf(ServerConnectionHandler.serverTimeCreation.getTime()));
     }
 
     public void setInvalidMessage() {

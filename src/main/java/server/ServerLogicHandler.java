@@ -1,5 +1,7 @@
 package server;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import mail.Mail;
 import mail.MailService;
 import org.apache.logging.log4j.LogManager;
@@ -18,15 +20,16 @@ public class ServerLogicHandler {
     private final BufferedReader inFromClient;
     private final UserManager userManager;
     private final MailService mailService;
+    private final ServerInfo serverInfo;
     private boolean isAuthorized = false;
-
-    //private ServerInfoService helperService = new ServerInfoService();
+    
 
     public ServerLogicHandler(PrintWriter outToClient, BufferedReader inFromClient) {
         this.outToClient = outToClient;
         this.inFromClient = inFromClient;
         this.userManager = new UserManager();
         this.mailService = new MailService();
+        this.serverInfo = new ServerInfo();
     }
 
     public void handleClientRequest() {
@@ -43,7 +46,7 @@ public class ServerLogicHandler {
                         handleAuthentication(command, parts[1], parts[2]);
                         break;
                     case "HELP":
-                        //helperService.handleHelpRequest(command, outToClient);
+                        handleHelpRequest(command);
                         break;
                     case "WRITE":
                         handleWrite(parts[1], parts[2]);
@@ -127,6 +130,52 @@ public class ServerLogicHandler {
                 break;
         }
     }
+
+    public void handleHelpRequest(String request) {
+        String json = null;
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        switch (request) {
+            case "UPTIME":
+                json = gson.toJson(serverInfo.getUptime());
+
+                break;
+            case "INFO":
+                json = gson.toJson(serverInfo.getServerDetails());
+
+                break;
+            case "HELP":
+                json = gson.toJson(serverInfo.getCommands());
+
+                break;
+            default:
+                json = gson.toJson(serverInfo.getInvalidMessage());
+
+        }
+        json += "\n<<END>>\n";
+        outToClient.println(json);
+    }
+    /*public void handleHelpRequest(String request, PrintWriter outToClient) {
+        String 
+        switch (request) {
+            case "UPTIME":
+                outToClient.println(serverInfo.getUptime()+ "<<END>>");
+                logger.info("Time from server setup: " + serverInfo.getUptime());
+                break;
+            case "INFO":
+                outToClient.println(serverInfo.getServerDetails());
+                logger.info("Server version: " + serverInfo.getVersion() + " / Setup date: " + serverInfo.getServerTimeCreation());
+                break;
+            case "HELP":
+                outToClient.println(serverInfo.getCommands());
+                logger.info("Command list displayed");
+                break;
+            default:
+                outToClient.println(serverInfo.getInvalidMessage());
+                logger.warn("Invalid input ---------");
+        }
+        json += "\n<<END>>\n";
+        outToClient.println("<<END>>");
+    }*/
 
     private void handleWrite(String recipient, String message) throws IOException {
         User recipientUser = userManager.getRecipientByUsername(recipient);

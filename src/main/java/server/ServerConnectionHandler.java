@@ -9,12 +9,12 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Date;
 
 public class ServerConnectionHandler {
     private static final Logger logger = LogManager.getLogger(ServerConnectionHandler.class);
-
-
     private int port;
+    public static Date serverTimeCreation;
     private ServerSocket serverSocket;
     private Socket clientSocket;
     private BufferedReader inFromClient;
@@ -26,6 +26,7 @@ public class ServerConnectionHandler {
 
     public void startServer(){
             try{
+                serverTimeCreation = new Date();
                 serverSocket = new ServerSocket(port);
                 logger.info("Server started on port {}", port);
                 clientSocket = serverSocket.accept();
