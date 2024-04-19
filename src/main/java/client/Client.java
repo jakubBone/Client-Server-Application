@@ -53,7 +53,7 @@ public class Client {
                     request = userInput.readLine();
                     if (request == null || request.equalsIgnoreCase("EXIT")) {
                         disconnect();
-                        break;
+                        return;
                     }
                     handleLoginRequests(request);
                 }

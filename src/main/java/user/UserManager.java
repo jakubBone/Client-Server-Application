@@ -35,7 +35,6 @@ public class UserManager {
             userSerializer.writeDataToJson(newUser, "C:\\Users\\Jakub Bone\\Desktop\\Z2J\\projects\\Client-Server\\" + newUser.getUsername() + ".json");
             usersList.add(newUser);
             currentLoggedInUser = newUser;
-            //currentLoggedInUser.isUserLoggedIn = true;
             logger.info("Registration successful");
         }
     }
