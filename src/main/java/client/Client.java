@@ -98,23 +98,21 @@ public class Client {
                 connection.sendRequest(request);
                 logger.info("User attempted to update settings");
                 connection.readResponse();
-                System.out.println(connection.isAuthorized());
                 if(connection.isAuthorized()) {
-                    String update = userInteraction.chooseAccountUpdate();
+                    String updateOperation = userInteraction.chooseAccountUpdate();
                     String userToUpdate = userInteraction.chooseUserToUpdate();
                     String newPassword = null;
-                    if(update.equals("PASSWORD")){
+                    if(updateOperation.equals("PASSWORD")){
                         newPassword = userInteraction.getNewPassword();
                     }
-                    connection.sendRequest(update + " " + userToUpdate + " " + newPassword);
-                    logger.info("User updated {} for {}", update, userToUpdate);
+                    connection.sendRequest(updateOperation + " " + userToUpdate + " " + newPassword);
+                    logger.info("User updated {} for {}", updateOperation, userToUpdate);
                     connection.readResponse();
                 }
                 break;
             case "LOGOUT":
                 connection.sendRequest(request);
                 connection.setLoggedIn(false);
-                System.out.println("is loggggged: " + connection.isLoggedIn());
                 logger.info("User logged out");
                 connection.readResponse();
                 break;

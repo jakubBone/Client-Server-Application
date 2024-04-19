@@ -86,7 +86,7 @@ public class ClientConnection {
     }
 
     private void checkResponseStatus(String response) {
-        if (response.equals("Login successful")) {
+        if (response.equals("Login successful") || response.equals("Registration successful")) {
             loggedIn = true;
             logger.info("User logged in successfully");
         }

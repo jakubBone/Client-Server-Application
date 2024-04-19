@@ -1,0 +1,11 @@
+{
+  "username": "new",
+  "password": "a",
+  "role": "USER",
+  "mailBox": {
+    "openedMails": [],
+    "unreadMails": [],
+    "sentMails": [],
+    "BOXLIMIT": 5
+  }
+}
