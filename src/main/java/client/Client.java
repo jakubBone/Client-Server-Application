@@ -3,164 +3,124 @@ package client;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.Socket;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import utils.Screen;
 import utils.UserInteraction;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class Client {
     private static final Logger logger = LogManager.getLogger(Client.class);
-    private final int PORT_NUMBER = 5000;
-    private Socket clientSocket;
-    private PrintWriter outToServer;
-    private BufferedReader inFromServer;
+    private ClientConnection connection;
     private BufferedReader userInput;
-    private static boolean loggedIn = false;
-    private boolean isAuthorized = false;
-
 
     public static void main(String[] args) {
         Client client = new Client();
+        client.handleServerCommunication();
     }
 
-    public Client(){
-        connectToServer();
-        handleServerCommunication();
-    }
-    public void connectToServer() {
-        try {
-            clientSocket = new Socket("localhost", PORT_NUMBER);
-            logger.info("Connection with Server established");
-        } catch (IOException ex){
-            logger.error("Error - establishing connection with server.Server", ex);
-        }
+    public Client() {
+        connection = new ClientConnection();
+        userInput = new BufferedReader(new InputStreamReader(System.in));
+        logger.info("Client application started");
     }
 
     public void handleServerCommunication() {
         try {
-            outToServer = new PrintWriter(clientSocket.getOutputStream(), true);
-            inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-            userInput = new BufferedReader(new InputStreamReader(System.in));
-
-            while (true) {
+            while(true) {
                 String request;
-                while (!loggedIn) {
+                while (!connection.isLoggedIn()) {
                     Screen.printLoginMenu();
                     request = userInput.readLine();
                     if (request == null || request.equalsIgnoreCase("EXIT")) {
-                        disconnect();
+                        connection.disconnect();
+                        logger.info("User exited the application");
                         return;
                     }
-                    handleLoginRequests(request);
+                    handleLoginRequest(request);
                 }
+                logger.info("User is logged in, moving to main menu");
+
                 Screen.printMailBoxMenu();
                 request = userInput.readLine();
                 if (request == null) {
+                    logger.info("End of user input stream");
                     break;
                 }
-                handleMailRequests(request);
+                handleMailRequest(request);
             }
         } catch (IOException ex) {
-            logger.error("Error - handling server communication", ex);
+            logger.error("Error in handling server communication: {}", ex.getMessage());
         }
     }
 
-    private void handleLoginRequests(String request) throws IOException {
+    private void handleLoginRequest(String request) throws IOException {
         UserInteraction userInteraction = new UserInteraction(userInput);
-        try {
-            switch (request.toUpperCase()) {
-                case "REGISTER":
-                case "LOGIN":
-                    String username = userInteraction.getUsername();
-                    String password = userInteraction.getPassword();
-                    outToServer.println(request + " " + username + " " + password);
-                    readServerResponse();
-                    break;
-                case "HELP":
-                    outToServer.println(request);
-                    readServerHelpResponse();
-                    break;
-                default:
-                    System.out.println("Incorrect input. please, try again.");
-            }
-        } catch (Exception ex){
-            ex.printStackTrace();
+        String username, password;
+        switch (request.toUpperCase()) {
+            case "REGISTER":
+            case "LOGIN":
+                username = userInteraction.getUsername();
+                password = userInteraction.getPassword();
+                connection.sendRequest(request + " " + username + " " + password);
+                logger.info("User attempted to {}", request);
+                connection.readResponse();
+                break;
+            case "HELP":
+                connection.sendRequest(request);
+                logger.info("User requested help");
+                connection.readResponse();
+                break;
+            default:
+                logger.warn("User entered incorrect input: {}", request);
+                System.out.println("Incorrect input. Please, try again");
         }
     }
 
-    private void handleMailRequests(String request) throws IOException {
+    private void handleMailRequest(String request) throws IOException {
         UserInteraction userInteraction = new UserInteraction(userInput);
         switch (request.toUpperCase()) {
             case "WRITE":
                 String recipient = userInteraction.getRecipient();
                 String message = userInteraction.getMessage();
-                outToServer.println(request + " " + recipient + " " + message);
-                readServerResponse();
+                connection.sendRequest(request + " " + recipient + " " + message);
+                logger.info("User sent a message to {}", recipient);
+                connection.readResponse();
                 break;
             case "MAILBOX":
                 String boxOperation = userInteraction.chooseMailBox();
-                outToServer.println(request + " " + boxOperation);
-                readServerResponse();
+                connection.sendRequest(request + " " + boxOperation);
+                logger.info("User accessed their mailbox: {}", boxOperation);
+                connection.readResponse();
                 break;
             case "UPDATE":
-                outToServer.println(request);
-                readServerResponse();
-                if(isAuthorized) {
+                connection.sendRequest(request);
+                logger.info("User attempted to update settings");
+                connection.readResponse();
+                System.out.println(connection.isAuthorized());
+                if(connection.isAuthorized()) {
                     String update = userInteraction.chooseAccountUpdate();
                     String userToUpdate = userInteraction.chooseUserToUpdate();
                     String newPassword = null;
                     if(update.equals("PASSWORD")){
                         newPassword = userInteraction.getNewPassword();
                     }
-                    outToServer.println(update + " " + userToUpdate + " " + newPassword);
-                    readServerResponse();
+                    connection.sendRequest(update + " " + userToUpdate + " " + newPassword);
+                    logger.info("User updated {} for {}", update, userToUpdate);
+                    connection.readResponse();
                 }
                 break;
             case "LOGOUT":
-                outToServer.println(request);
-                loggedIn = false;
-                readServerResponse();
+                connection.sendRequest(request);
+                connection.setLoggedIn(false);
+                System.out.println("is loggggged: " + connection.isLoggedIn());
+                logger.info("User logged out");
+                connection.readResponse();
                 break;
             default:
-                System.out.println("Incorrect input. please, try again.");
-        }
-    }
-
-    private void readServerHelpResponse() throws IOException {
-        StringBuilder response = new StringBuilder();
-        String line;
-        while (!(line = inFromServer.readLine()).equals("<<END>>")) {
-            response.append(line).append("\n");
-        }
-        System.out.println("Server response:\n" + response.toString());
-        System.out.print("\nType next command: ");
-    }
-
-    private void readServerResponse() throws IOException {
-        String response = null;
-        while (!(response = inFromServer.readLine()).equals("<<END>>")) {
-            if(response.equals("Login successful")){
-                loggedIn = true;
-            }
-            if(response.equals("Operation succeeded: Authorized")){
-                isAuthorized = true;
-            }
-            System.out.println(response);
-        }
-    }
-
-    public void disconnect() {
-        try {
-            outToServer.close();
-            inFromServer.close();
-            clientSocket.close();
-            logger.info("Connection stopped");
-        } catch (IOException ex) {
-            logger.error("Error - disconnecting", ex);
+                logger.warn("Incorrect input from user: {}", request);
+                System.out.println("Incorrect input. Please, try again");
         }
     }
 }
