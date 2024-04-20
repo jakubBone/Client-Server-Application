@@ -8,7 +8,6 @@ public class Admin extends User {
 
     public void changePassword(User user, String newPassword){
             user.setPassword(newPassword);
-                System.out.println("new1: " + user.getPassword());
     }
 
     public void deleteUser(User user){

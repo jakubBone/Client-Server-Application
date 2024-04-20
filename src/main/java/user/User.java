@@ -27,7 +27,6 @@ public class User {
         this.password = password;
         this.role = role;
         this.mailBox = new MailBox();
-        //this.isUserLoggedIn = false;
     }
 
     public String toString() {

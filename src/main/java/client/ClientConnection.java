@@ -93,7 +93,6 @@ public class ClientConnection {
         if (response.equals("Operation succeeded: Authorized")) {;
             isAuthorized = true;
             logger.info("User authorized for operations");
-
         }
     }
 

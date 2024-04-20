@@ -29,13 +29,13 @@ public class UserManager {
             }
         }
         if (userExists) {
-            logger.info("User already exists");
+            logger.info("Registration attempt failed - user already exists: {}", typedUsername);
         } else {
             User newUser = new User(typedUsername, typedPassword, User.Role.USER);
-            userSerializer.writeDataToJson(newUser, "C:\\Users\\Jakub Bone\\Desktop\\Z2J\\projects\\Client-Server\\" + newUser.getUsername() + ".json");
+            userSerializer.writeToJson(newUser, "C:\\Users\\Jakub Bone\\Desktop\\Z2J\\projects\\Client-Server\\" + newUser.getUsername() + ".json");
             usersList.add(newUser);
             currentLoggedInUser = newUser;
-            logger.info("Registration successful");
+            logger.info("New user registered: {}", typedUsername);
         }
     }
 
@@ -43,26 +43,30 @@ public class UserManager {
         for (User existingUser : usersList) {
             if (typedUsername.equals(existingUser.getUsername())) {
                 if (!typedPassword.equals(existingUser.getPassword())) {
-                    logger.info("Incorrect password");
+                    logger.info("Incorrect password attempt for user: {}", typedUsername);
                 } else {
-                    logger.info("Login successful");
+                    logger.info("User logged in successfully: {}", typedUsername);
                     return existingUser;
                 }
             }
         }
+        logger.info("Login attempt failed - username not found: {}", typedUsername);
         return null;
     }
 
     public void logoutCurrentUser() {
+        logger.info("User logged out: {}", currentLoggedInUser.getUsername());
         currentLoggedInUser = null;
     }
 
     public User getRecipientByUsername(String username){
         for(User recipient: usersList){
             if(username.equals(recipient.getUsername())){
+                logger.info("Recipient found: {}", username);
                 return recipient;
             }
         }
+        logger.info("Recipient not found: {}", username);
         return null;
     }
 
@@ -74,10 +78,16 @@ public class UserManager {
                 break;
             }
         }
+        if (searchedUser != null) {
+            logger.info("User found on the list: {}", username);
+        } else {
+            logger.warn("User not found on the list: {}", username);
+        }
         return searchedUser;
     }
 
     public boolean isAdmin(){
+        logger.debug("Admin checking for user: {}", currentLoggedInUser.getUsername())
         return currentLoggedInUser.role.equals(User.Role.ADMIN);
     }
 }

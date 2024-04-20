@@ -21,7 +21,6 @@ public class MailBox {
         this.openedMails = new ArrayList<>();
         this.unreadMails = new ArrayList<>();
         this.sentMails = new ArrayList<>();
-
     }
 
     public boolean ifBoxFull(){

@@ -18,5 +18,4 @@ public class Mail {
         this.message = message;
         this.messageLength = message.length();
     }
-
 }

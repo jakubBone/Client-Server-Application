@@ -39,7 +39,7 @@ public class ServerLogicHandler {
             while ((request = inFromClient.readLine()) != null) {
                 String[] parts = request.split(" ", 3);
                 String command = parts[0].toUpperCase();
-                logger.debug("Handling command: {}", command);
+                logger.info("Handling command: {}", command);
                 switch (command) {
                     case "REGISTER":
                     case "LOGIN":
@@ -67,7 +67,7 @@ public class ServerLogicHandler {
                     case "EXIT":
                         return;
                 }
-                logger.debug("Completed authentication command: {}", command);
+                logger.info("Completed authentication command: {}", command);
             }
         } catch (IOException ex) {
             logger.error("IOException occurred while processing the request: {}. Error: {}", request, ex.getMessage());
@@ -79,7 +79,7 @@ public class ServerLogicHandler {
             logger.warn("Unauthorized attempt to update by non-admin user.");
             outToClient.println("Operation failed: Not authorized\n<<END>>");
         } else {
-            logger.warn("Authorized attempt to update by admin user.");
+            logger.info("Authorized update attempt by admin user.");
             isAuthorized = true;
             outToClient.println("Operation succeeded: Authorized\n<<END>>");
             String updateRequest = inFromClient.readLine();
@@ -96,18 +96,22 @@ public class ServerLogicHandler {
                 case "PASSWORD":
                     admin.changePassword(searchedUser, newPassword);
                     outToClient.println(searchedUser.getUsername() + " password change successful\n<<END>>");
+                    logger.info("Password changed successfully for user: {}", searchedUser.getUsername());
                     break;
                 case "DELETE":
                     if(searchedUser.getRole().equals(User.Role.ADMIN)){
                         outToClient.println("Operation failed: admin account cannot be deleted\n<<END>>");
+                        logger.warn("Attempted to impossible delete admin account for user: {}", searchedUser.getUsername());
                     } else {
                         admin.deleteUser(searchedUser);
                         outToClient.println(searchedUser.getUsername() + " account deletion successful\n<<END>>");
+                        logger.info("User account deleted successfully: {}", searchedUser.getUsername());
                     }
                     break;
             }
         } else {
             outToClient.println("Update failed: " + userToUpdate + " not found\n<<END>>");
+            logger.warn("Failed to find user for update: {}", userToUpdate);
         }
     }
 
@@ -116,6 +120,7 @@ public class ServerLogicHandler {
         switch (command) {
             case "REGISTER":
                 userManager.register(username, password);
+                logger.info("Registration attempted for user: {}", username);
                 outToClient.println("Registration successful\n<<END>>");
                 break;
             case "LOGIN":
@@ -125,6 +130,7 @@ public class ServerLogicHandler {
                     UserManager.currentLoggedInUser = user;
                     outToClient.println("Login successful\n<<END>>");
                 } else {
+                    logger.warn("Login attempt failed for user: {}", username);
                     outToClient.println("Login failed: Incorrect username or password\n<<END>>");
                 }
                 break;
@@ -181,16 +187,20 @@ public class ServerLogicHandler {
         User recipientUser = userManager.getRecipientByUsername(recipient);
         if (recipientUser != null) {
             if(recipientUser.getMailBox().ifBoxFull()){
+                logger.warn("Mail sending failed, recipient's mailbox is full: {}", recipient);
                 outToClient.println("Sending failed: Recipient's mailbox is full\n<<END>>");
             } else {
                 if(message.length() <= 255){
                     mailService.sendMail(new Mail(UserManager.currentLoggedInUser, recipientUser, message));
+                    logger.info("Mail sent successfully to: {}", recipient);
                     outToClient.println("Mail sent successfully\n<<END>>");
                 } else {
+                    logger.warn("Mail sending failed, message too long for recipient: {}", recipient);
                     outToClient.println("Sending failed: Message too long (maximum 255 characters)\n<<END>>");
                 }
             }
         } else {
+            logger.warn("Mail sending failed, recipient not found: {}", recipient);
             outToClient.println("Sending failed: Recipient not found\n<<END>>");
         }
     }
@@ -214,6 +224,7 @@ public class ServerLogicHandler {
 
     private void handleLogout() {
         userManager.logoutCurrentUser();
+        logger.info("User successfully logged out.");
         outToClient.println("Successfully logged out\n<<END>>");
     }
 }
