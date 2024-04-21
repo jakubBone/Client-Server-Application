@@ -1,7 +1,5 @@
 package server;
 
-import java.util.*;
-
 public class Server {
     private static final int PORT = 5000;
 

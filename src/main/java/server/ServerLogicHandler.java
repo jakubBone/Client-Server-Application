@@ -23,6 +23,7 @@ public class ServerLogicHandler {
     private final UserManager userManager;
     private final MailService mailService;
     private final ServerInfo serverInfo;
+    private JsonConverter jsonResponse;
     private boolean isAuthorized = false;
     
 
@@ -77,13 +78,15 @@ public class ServerLogicHandler {
     }
 
     private void handleUpdateRequest() throws IOException{
+        String response = null;
         if(!userManager.isAdmin()){
             logger.warn("Unauthorized attempt to update by non-admin user.");
-            outToClient.println("Operation failed: Not authorized\n<<END>>");
+            response = "Operation failed: Not authorized";
         } else {
-            logger.info("Authorized update attempt by admin user.");
+            logger.info("Authorized update attempt by admin user");
             isAuthorized = true;
-            outToClient.println("Operation succeeded: Authorized\n<<END>>");
+            response = "Operation succeeded: Authorized";
+            sendResponse(response);
             String updateRequest = inFromClient.readLine();
             String[] updateOperationParts = updateRequest.split(" ", 3);
             handleUpdate(updateOperationParts[0], updateOperationParts[1], updateOperationParts[2]);
@@ -93,77 +96,33 @@ public class ServerLogicHandler {
     private void handleUpdate(String updateOperation, String userToUpdate, String newPassword) throws IOException {
         User searchedUser = userManager.findUserOnTheList(userToUpdate);
         Admin admin = new Admin();
+        String response = null;
         if(!(searchedUser == null)) {
             switch (updateOperation.toUpperCase()) {
                 case "PASSWORD":
                     admin.changePassword(searchedUser, newPassword);
-                    outToClient.println(searchedUser.getUsername() + " password change successful\n<<END>>");
+                    response = searchedUser.getUsername() + " password change successful";
                     logger.info("Password changed successfully for user: {}", searchedUser.getUsername());
                     break;
                 case "DELETE":
                     if(searchedUser.getRole().equals(User.Role.ADMIN)){
-                        outToClient.println("Operation failed: admin account cannot be deleted\n<<END>>");
+                        response = "Operation failed: admin account cannot be deleted";
                         logger.warn("Attempted to impossible delete admin account for user: {}", searchedUser.getUsername());
                     } else {
                         admin.deleteUser(searchedUser);
-                        outToClient.println(searchedUser.getUsername() + " account deletion successful\n<<END>>");
+                        response = searchedUser.getUsername() + " account deletion successful";
                         logger.info("User account deleted successfully: {}", searchedUser.getUsername());
                     }
                     break;
             }
         } else {
-            outToClient.println("Update failed: " + userToUpdate + " not found\n<<END>>");
+            response = "Update failed: " + userToUpdate + " not found";
             logger.warn("Failed to find user for update: {}", userToUpdate);
         }
+        sendResponse(response);
     }
 
-
-    /*public void handleAuthentication(String command, String username, String password) throws IOException {
-        UserSerializer serializer = new UserSerializer();
-        String out = null;
-        switch (command) {
-            case "REGISTER":
-                userManager.register(username, password);
-                logger.info("Registration attempted for user: {}", username);
-                out = "Registration successful";
-                break;
-            case "LOGIN":
-                User user = userManager.login(username, password);
-                if (user != null) {
-                    logger.info("User logged in successfully: {}", username);
-                    UserManager.currentLoggedInUser = user;
-                    out = "Login successful";
-                } else {
-                    out = "Login failed: Incorrect username or password";
-                    logger.warn("Login attempt failed for user: {}", username);
-                }
-                break;
-        }
-        System.out.println(serializer.toJson(out));
-        outToClient.println(serializer.toJson(out));
-    }*/
-    /*public void handleAuthentication(String command, String username, String password) throws IOException {
-        switch (command) {
-            case "REGISTER":
-                userManager.register(username, password);
-                logger.info("Registration attempted for user: {}", username);
-                outToClient.println("Registration successful\n<<END>>");
-                break;
-            case "LOGIN":
-                User user = userManager.login(username, password);
-                if (user != null) {
-                    logger.info("User logged in successfully: {}", username);
-                    UserManager.currentLoggedInUser = user;
-                    outToClient.println("Login successful\n<<END>>");
-                } else {
-                    logger.warn("Login attempt failed for user: {}", username);
-                    outToClient.println("Login failed: Incorrect username or password\n<<END>>");
-                }
-                break;
-        }
-    }*/
     public void handleAuthentication(String command, String username, String password) throws IOException {
-        JsonConverter jsonResponse;
         String response = null;
         switch (command) {
             case "REGISTER":
@@ -176,106 +135,90 @@ public class ServerLogicHandler {
                 if (user != null) {
                     logger.info("User logged in successfully: {}", username);
                     UserManager.currentLoggedInUser = user;
-                    outToClient.println("Login successful\n<<END>>");
+                    response = "Login successful";
                 } else {
                     logger.warn("Login attempt failed for user: {}", username);
-                    outToClient.println("Login failed: Incorrect username or password\n<<END>>");
+                    response = "Login failed: Incorrect username or password";
                 }
                 break;
         }
-        jsonResponse = new JsonConverter(response);
-        String json = jsonResponse.toJson();
-        outToClient.println(json);
+        sendResponse(response);
     }
 
     public void handleHelpRequest(String request) {
-        String json = null;
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        logger.info("Received help request: {}", request);
+        String response = null;
         switch (request) {
             case "UPTIME":
-                json = gson.toJson(serverInfo.getUptime());
-
+                response = serverInfo.getUptime().toString();
+                logger.info("UPTIME requested, response: {}", response);
                 break;
             case "INFO":
-                json = gson.toJson(serverInfo.getServerDetails());
-
+                response = serverInfo.getServerDetails().toString();
+                logger.info("INFO requested, response: {}", response);
                 break;
             case "HELP":
-                json = gson.toJson(serverInfo.getCommands());
-
+                response = serverInfo.getCommands().toString();
+                logger.info("HELP requested, response: {}", response);
                 break;
-            default:
-                json = gson.toJson(serverInfo.getInvalidMessage());
-
         }
-        json += "\n<<END>>\n";
-        outToClient.println(json);
+        sendResponse(response);
     }
-    /*public void handleHelpRequest(String request, PrintWriter outToClient) {
-        String 
-        switch (request) {
-            case "UPTIME":
-                outToClient.println(serverInfo.getUptime()+ "<<END>>");
-                logger.info("Time from server setup: " + serverInfo.getUptime());
-                break;
-            case "INFO":
-                outToClient.println(serverInfo.getServerDetails());
-                logger.info("Server version: " + serverInfo.getVersion() + " / Setup date: " + serverInfo.getServerTimeCreation());
-                break;
-            case "HELP":
-                outToClient.println(serverInfo.getCommands());
-                logger.info("Command list displayed");
-                break;
-            default:
-                outToClient.println(serverInfo.getInvalidMessage());
-                logger.warn("Invalid input ---------");
-        }
-        json += "\n<<END>>\n";
-        outToClient.println("<<END>>");
-    }*/
 
     private void handleWrite(String recipient, String message) throws IOException {
         User recipientUser = userManager.getRecipientByUsername(recipient);
+        String response = null;
         if (recipientUser != null) {
             if(recipientUser.getMailBox().ifBoxFull()){
                 logger.warn("Mail sending failed, recipient's mailbox is full: {}", recipient);
-                outToClient.println("Sending failed: Recipient's mailbox is full\n<<END>>");
+                response = "Sending failed: Recipient's mailbox is full";
             } else {
                 if(message.length() <= 255){
                     mailService.sendMail(new Mail(UserManager.currentLoggedInUser, recipientUser, message));
                     logger.info("Mail sent successfully to: {}", recipient);
-                    outToClient.println("Mail sent successfully\n<<END>>");
+                    response = "Mail sent successfully";
                 } else {
                     logger.warn("Mail sending failed, message too long for recipient: {}", recipient);
-                    outToClient.println("Sending failed: Message too long (maximum 255 characters)\n<<END>>");
+                    response = "Sending failed: Message too long (maximum 255 characters)";
                 }
             }
         } else {
             logger.warn("Mail sending failed, recipient not found: {}", recipient);
-            outToClient.println("Sending failed: Recipient not found\n<<END>>");
+            response = "Sending failed: Recipient not found";
         }
+        sendResponse(response);
     }
+
+    public void sendResponse(String response){
+        jsonResponse = new JsonConverter(response);
+        String json = jsonResponse.toJson();
+        outToClient.println(json);
+        logger.info("Response sent: {}", json);
+    }
+
     private void handleMailbox(String boxType) throws IOException {
+        String response = null;
         List<Mail> mailsToRead = mailService.getMailsToRead(boxType);
         if(mailsToRead.isEmpty()){
-            outToClient.println("Mailbox is empty");
+            response = "Mailbox is empty";
         } else{
             for (Mail mail : mailsToRead) {
-                outToClient.println("From: " + mail.getSender().getUsername() + "\n Message: " + mail.getMessage());
+                response = "From: " + mail.getSender().getUsername() + "\n Message: " + mail.getMessage();
             }
             mailService.markMailsAsRead(boxType);
         }
-        outToClient.println("<<END>>");
+        sendResponse(response);
     }
 
     private void handleEmpty(String boxType){
+        sendResponse("Mails deleted successfully");
         mailService.emptyMailbox(boxType);
-        outToClient.println("Mails deleted successfully\n<<END>>");
     }
 
     private void handleLogout() {
         userManager.logoutCurrentUser();
         logger.info("User successfully logged out.");
-        outToClient.println("Successfully logged out\n<<END>>");
+        sendResponse("Successfully logged out");
+
     }
 }

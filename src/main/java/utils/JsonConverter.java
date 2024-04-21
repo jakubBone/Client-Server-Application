@@ -7,6 +7,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import user.User;
 
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
@@ -21,7 +22,7 @@ public class JsonConverter {
 
     }
 
-    public void writeDataToPath(User user, String filePath){
+    public void writeUserToPath(User user, String filePath){
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         try(FileWriter writer = new FileWriter(filePath)) {
             gson.toJson(user, writer);
@@ -33,7 +34,7 @@ public class JsonConverter {
     }
 
 
-    /*public User readFromJson(String filePath){
+    public User readUserFromPath(String filePath){
         Gson gson = new Gson();
         try(FileReader reader = new FileReader(filePath)) {
             User user = gson.fromJson(reader, User.class);
@@ -43,31 +44,25 @@ public class JsonConverter {
             logger.error("Error - failed to deserialize data to JSON  ", ex);
         }
         return null;
-    }*/
-
-
-
-    /*public String toJson() {
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        return gson.toJson(this) + "\n<<END>>\n";
-    }*/
+    }
 
     public String toJson() {
         try {
             Gson gson = new Gson();
-            return gson.toJson(this) + "\n<<END>>\n";
+            return gson.toJson(this) + "\n<<END>>";
         } catch (Exception e) {
             throw new IllegalStateException("Error - failed to serialize JsonResponse to JSON", e);
         }
     }
 
-    public static JsonConverter fromJson(String json) {
+
+    public static String fromJson(String json) {
         if (json == null || json.trim().isEmpty()) {
             throw new IllegalArgumentException("Input JSON is null or empty.");
         }
         try {
             Gson gson = new Gson();
-            return gson.fromJson(json, JsonConverter.class);
+            return gson.fromJson(json, JsonConverter.class).toString();
         } catch (JsonSyntaxException e) {
             throw new IllegalArgumentException("Error deserializing JSON. Please check syntax.", e);
         }

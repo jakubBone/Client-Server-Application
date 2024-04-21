@@ -23,7 +23,6 @@ public class ServerInfo {
         setCommands();
         setServerDetails();
         setUptime();
-        setInvalidMessage();
     }
 
     public void setUptime(){
@@ -50,9 +49,5 @@ public class ServerInfo {
     public void setServerDetails() {
         serverDetails.put("version", VERSION);
         serverDetails.put("setup time ", String.valueOf(ServerConnectionHandler.serverTimeCreation.getTime()));
-    }
-
-    public void setInvalidMessage() {
-        invalidMessage = "Invalid input";
     }
 }

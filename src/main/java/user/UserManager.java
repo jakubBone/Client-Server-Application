@@ -32,7 +32,7 @@ public class UserManager {
             logger.info("Registration attempt failed - user already exists: {}", typedUsername);
         } else {
             User newUser = new User(typedUsername, typedPassword, User.Role.USER);
-            jsonConverter.writeDataToPath(newUser, "C:\\Users\\Jakub Bone\\Desktop\\Z2J\\projects\\Client-Server\\" + newUser.getUsername() + ".json");
+            jsonConverter.writeUserToPath(newUser, "C:\\Users\\Jakub Bone\\Desktop\\Z2J\\projects\\Client-Server\\" + newUser.getUsername() + ".json");
             usersList.add(newUser);
             currentLoggedInUser = newUser;
             logger.info("New user registered: {}", typedUsername);

@@ -50,49 +50,17 @@ public class ClientConnection {
     public void sendRequest(String request) {
         System.out.println(request);
         outToServer.println(request);
-        logger.debug("Sent request to server: {}", request);
+        logger.info("Sent request to server: {}", request);
     }
-
-    /*public void readResponse() throws IOException {
-        String response = null;
-        while (!(response = inFromServer.readLine()).equals("<<END>>")) {
-            if(response.equals("Login successful")){
-                loggedIn = true;
-            }
-            if(response.equals("Operation succeeded: Authorized")){
-                isAuthorized = true;
-            }
-            System.out.println(response);
-        }
-    }*/
-
-    /*public void readResponse() throws IOException {
-        StringBuilder response = new StringBuilder();
-        String line;
-        while (!(line = inFromServer.readLine()).equals("<<END>>")) {
-            response.append(line).append("\n");
-            checkResponseStatus(line);
-        }
-        logger.debug("Received response from server: {}", response.toString());
-        System.out.println(JsonResponse.fromJson(String.valueOf(response)));
-    }*/
-
 
     public void readResponse() throws IOException {
-        String response = null;
-        while (!(response = inFromServer.readLine()).equals("<<END>>")) {
+        String jsonResponse = null;
+        while (!(jsonResponse = inFromServer.readLine()).equals("<<END>>")) {
+            String response = JsonConverter.fromJson(jsonResponse);
             checkResponseStatus(response);
-            System.out.println(JsonConverter.fromJson(response));
+            System.out.println(JsonConverter.fromJson(jsonResponse));
         }
     }
-
-    /*public void readResponse() throws IOException {
-        String response = null;
-        while (!(response = inFromServer.readLine()).equals("<<END>>")) {
-            checkResponseStatus(response);
-            System.out.println(response);
-        }
-    }*/
 
     private void checkResponseStatus(String response) {
         if (response.equals("Login successful") || response.equals("Registration successful")) {
