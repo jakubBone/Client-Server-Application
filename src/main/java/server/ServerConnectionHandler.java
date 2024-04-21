@@ -11,6 +11,11 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Date;
 
+ /*
+  * The ServerConnectionHandler class is responsible for managing server connections, including starting the server
+  * Establishes connections with client, and handling communication between server and client
+  */
+
 public class ServerConnectionHandler {
     private static final Logger logger = LogManager.getLogger(ServerConnectionHandler.class);
     private int port;

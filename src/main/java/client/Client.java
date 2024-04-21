@@ -10,6 +10,11 @@ import utils.UserInteraction;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+ /*
+  * This class represents a simple client application for server communication.
+  * It allows users to log in, send requests, and interact with a mailbox
+  */
+
 public class Client {
     private static final Logger logger = LogManager.getLogger(Client.class);
     private ClientConnection connection;
@@ -26,35 +31,44 @@ public class Client {
         logger.info("Client application started");
     }
 
+    /*
+     * Handles communication with the server.
+     * Includes user login, mailbox interaction, and handling other requests
+     */
     public void handleServerCommunication() {
         try {
             while(true) {
                 String request;
                 while (!connection.isLoggedIn()) {
-                    Screen.printLoginMenu();
+                    Screen.printLoginMenu(); // Display login menu
                     request = userInput.readLine();
                     if (request == null || request.equalsIgnoreCase("EXIT")) {
                         connection.disconnect();
                         logger.info("User exited the application");
                         return;
                     }
-                    handleLoginRequest(request);
+                    handleLoginRequest(request); // Handle login-related requests
                 }
                 logger.info("User is logged in, moving to main menu");
 
-                Screen.printMailBoxMenu();
+                Screen.printMailBoxMenu(); // Display mailbox menu
                 request = userInput.readLine();
                 if (request == null) {
                     logger.info("End of user input stream");
                     break;
                 }
-                handleMailRequest(request);
+                handleMailRequest(request); // Handle mailbox-related requests
             }
         } catch (IOException ex) {
             logger.error("Error in handling server communication: {}", ex.getMessage());
         }
     }
 
+
+    /*
+     * Handles user login requests (e.g., REGISTER, LOGIN, HELP)
+     * HELP - displays help menu
+     */
     private void handleLoginRequest(String request) throws IOException {
         UserInteraction userInteraction = new UserInteraction(userInput);
         String username, password;
@@ -78,6 +92,12 @@ public class Client {
         }
     }
 
+    /*
+     * Handles mailbox and related requests (WRITE, MAILBOX, UPDATE, LOGOUT)
+     * WRITE - mail sending
+     * MAILBOX - mail reading and deleting
+     * UPDATE - password changing and account removing required ADMIN role
+     */
     private void handleMailRequest(String request) throws IOException {
         UserInteraction userInteraction = new UserInteraction(userInput);
         switch (request.toUpperCase()) {

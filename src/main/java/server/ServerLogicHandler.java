@@ -1,7 +1,5 @@
 package server;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import mail.Mail;
 import mail.MailService;
 import org.apache.logging.log4j.LogManager;
@@ -15,6 +13,11 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
+
+ /*
+  * The ServerLogicHandler class is responsible for handling various client requests and processing server-side logic
+  * It manages user authentication, mail operations, and server information
+  */
 
 public class ServerLogicHandler {
     private static final Logger logger = LogManager.getLogger(ServerLogicHandler.class);
@@ -77,6 +80,7 @@ public class ServerLogicHandler {
         }
     }
 
+    // Handles UPDATE request for updating user data. It checks for authorization before proceeding
     private void handleUpdateRequest() throws IOException{
         String response = null;
         if(!userManager.isAdmin()){
@@ -93,6 +97,7 @@ public class ServerLogicHandler {
         }
     }
 
+    // Handles a specific update operation, such as changing a password or deleting a user
     private void handleUpdate(String updateOperation, String userToUpdate, String newPassword) throws IOException {
         User searchedUser = userManager.findUserOnTheList(userToUpdate);
         Admin admin = new Admin();
@@ -145,6 +150,10 @@ public class ServerLogicHandler {
         sendResponse(response);
     }
 
+    /*
+     * Handles client requests for server information or help.
+     * Needs to be improved
+     */
     public void handleHelpRequest(String request) {
         logger.info("Received help request: {}", request);
         String response = null;
@@ -165,6 +174,10 @@ public class ServerLogicHandler {
         sendResponse(response);
     }
 
+    /*
+     * Handles writing a mail to a specific recipient
+     * Checks if the recipient exists and if the message length is within limits.
+     */
     private void handleWrite(String recipient, String message) throws IOException {
         User recipientUser = userManager.getRecipientByUsername(recipient);
         String response = null;
@@ -189,6 +202,7 @@ public class ServerLogicHandler {
         sendResponse(response);
     }
 
+    // Sends a response to the client after converting it to JSON format.
     public void sendResponse(String response){
         jsonResponse = new JsonConverter(response);
         String json = jsonResponse.toJson();
@@ -196,6 +210,8 @@ public class ServerLogicHandler {
         logger.info("Response sent: {}", json);
     }
 
+
+    // Handles the reading of a specific mailbox type and sends the corresponding mails to the client
     private void handleMailbox(String boxType) throws IOException {
         String response = null;
         List<Mail> mailsToRead = mailService.getMailsToRead(boxType);

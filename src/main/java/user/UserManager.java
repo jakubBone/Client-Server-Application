@@ -7,6 +7,10 @@ import utils.JsonConverter;
 import java.util.ArrayList;
 import java.util.List;
 
+ /*
+  * The UserManager class manages user-related operations, including registration, login, logout
+  * It maintains a list of users and tracks the currently logged-in user
+  */
 public class UserManager {
     private static final Logger logger = LogManager.getLogger(UserManager.class);
     public static List<User> usersList;
@@ -19,9 +23,15 @@ public class UserManager {
         usersList.add(admin);
     }
 
+     /*
+      * Registers a new user with the specified username and password
+      * If the username already exists, it's failure
+      * Otherwise, successful registration
+      */
     public void register(String typedUsername, String typedPassword) throws IllegalArgumentException {
         JsonConverter jsonConverter = new JsonConverter();
         boolean userExists = false;
+
         for (User existingUser : usersList) {
             if (typedUsername.equals(existingUser.getUsername())) {
                 userExists = true;
@@ -39,6 +49,8 @@ public class UserManager {
         }
     }
 
+
+    // Attempts to log in a user with the specified username and password
     public User login(String typedUsername, String typedPassword){
         for (User existingUser : usersList) {
             if (typedUsername.equals(existingUser.getUsername())) {
@@ -59,6 +71,7 @@ public class UserManager {
         currentLoggedInUser = null;
     }
 
+    // Finds a recipient by the username
     public User getRecipientByUsername(String username){
         for(User recipient: usersList){
             if(username.equals(recipient.getUsername())){
@@ -70,6 +83,7 @@ public class UserManager {
         return null;
     }
 
+    // Finds a user by the username
     public User findUserOnTheList(String username){
         User searchedUser = null;
         for (User user : usersList) {

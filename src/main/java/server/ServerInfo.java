@@ -8,6 +8,10 @@ import java.util.concurrent.TimeUnit;
 import lombok.Getter;
 import lombok.Setter;
 
+ /*
+  * The ServerInfo class provides information about the server
+  * Include server version, available commands and server uptime
+  */
 @Getter
 @Setter
 public class ServerInfo {

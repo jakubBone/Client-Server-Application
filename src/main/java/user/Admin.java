@@ -3,7 +3,7 @@ package user;
 public class Admin extends User {
 
     public Admin() {
-        super("admin", "a", Role.ADMIN);
+        super("admin", "java10", Role.ADMIN);
     }
 
     public void changePassword(User user, String newPassword){

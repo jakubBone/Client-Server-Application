@@ -11,6 +11,11 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
+ /*
+  * The JsonConverter class provides utilities for converting objects to and from JSON
+  * It includes methods for serializing and deserializing user data
+  */
+
 public class JsonConverter {
     private static final Logger logger = LogManager.getLogger(JsonConverter.class);
     private String message;
@@ -22,6 +27,7 @@ public class JsonConverter {
 
     }
 
+    // Writes a user object to the specified file path in JSON format
     public void writeUserToPath(User user, String filePath){
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         try(FileWriter writer = new FileWriter(filePath)) {
@@ -33,7 +39,10 @@ public class JsonConverter {
         }
     }
 
-
+    /*
+     * Reads a User object from the specified file path in JSON format
+     * Needs to be improved and implement in appropriate place
+     */
     public User readUserFromPath(String filePath){
         Gson gson = new Gson();
         try(FileReader reader = new FileReader(filePath)) {
@@ -46,6 +55,8 @@ public class JsonConverter {
         return null;
     }
 
+
+    // Converts the server response to JSON format on the Server side
     public String toJson() {
         try {
             Gson gson = new Gson();
@@ -55,7 +66,7 @@ public class JsonConverter {
         }
     }
 
-
+    // Converts a JSON string to a JsonConverter object on the Client side
     public static String fromJson(String json) {
         if (json == null || json.trim().isEmpty()) {
             throw new IllegalArgumentException("Input JSON is null or empty.");

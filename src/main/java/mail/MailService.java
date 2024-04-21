@@ -7,6 +7,10 @@ import user.UserManager;
 
 import java.util.List;
 
+ /*
+  * The MailService class provides various operations related to email management,
+  * including sending mail, returning mail lists, emptying mailboxes, and marking mails as read
+  */
 public class MailService {
     private static final Logger logger = LogManager.getLogger(MailService.class);
 
@@ -16,6 +20,7 @@ public class MailService {
         logger.info("Mail successfully sent to {}", mail.getRecipient().getUsername());
     }
 
+    // Returns a list of mails to read based on the requested mail list type (e.g. OPENED, UNREAD, SENT)
     public List<Mail> getMailsToRead(String requestedMailList) {
         List<Mail> mailsToRead = getMailListByType(requestedMailList);
         if (mailsToRead != null) {
@@ -36,6 +41,7 @@ public class MailService {
         }
     }
 
+    // Returns the list of mails based on the specified type
     private List<Mail> getMailListByType(String type) {
         MailBox mailBox = UserManager.currentLoggedInUser.getMailBox();
         switch (type.toUpperCase()) {
@@ -51,6 +57,7 @@ public class MailService {
         }
     }
 
+    // Marks all unread mails as read by moving them to the OPENED mail list and clearing the UNREAD list
     public void markMailsAsRead(String boxType){
         if(!boxType.equals("SENT")){
             List<Mail> unreadMails = UserManager.currentLoggedInUser.getMailBox().getUnreadMails();

@@ -11,6 +11,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import utils.JsonConverter;
 
+ /*
+  * The ClientConnection class manages the client's connection to the server, allowing sending and receiving of data
+  * It handles establishing a connection, sending requests, reading responses, and disconnecting
+  */
+
 public class ClientConnection {
     private static final Logger logger = LogManager.getLogger(ClientConnection.class);
     private final int PORT_NUMBER = 5000;
@@ -62,6 +67,8 @@ public class ClientConnection {
         }
     }
 
+
+    // Checks the login update and role authorization
     private void checkResponseStatus(String response) {
         if (response.equals("Login successful") || response.equals("Registration successful")) {
             loggedIn = true;
