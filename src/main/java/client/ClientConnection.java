@@ -9,6 +9,7 @@ import java.net.Socket;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import utils.JsonConverter;
 
 public class ClientConnection {
     private static final Logger logger = LogManager.getLogger(ClientConnection.class);
@@ -65,7 +66,7 @@ public class ClientConnection {
         }
     }*/
 
-   /* public String readResponse() throws IOException {
+    /*public void readResponse() throws IOException {
         StringBuilder response = new StringBuilder();
         String line;
         while (!(line = inFromServer.readLine()).equals("<<END>>")) {
@@ -73,7 +74,7 @@ public class ClientConnection {
             checkResponseStatus(line);
         }
         logger.debug("Received response from server: {}", response.toString());
-        return response.toString();
+        System.out.println(JsonResponse.fromJson(String.valueOf(response)));
     }*/
 
 
@@ -81,9 +82,17 @@ public class ClientConnection {
         String response = null;
         while (!(response = inFromServer.readLine()).equals("<<END>>")) {
             checkResponseStatus(response);
-            System.out.println(response);
+            System.out.println(JsonConverter.fromJson(response));
         }
     }
+
+    /*public void readResponse() throws IOException {
+        String response = null;
+        while (!(response = inFromServer.readLine()).equals("<<END>>")) {
+            checkResponseStatus(response);
+            System.out.println(response);
+        }
+    }*/
 
     private void checkResponseStatus(String response) {
         if (response.equals("Login successful") || response.equals("Registration successful")) {

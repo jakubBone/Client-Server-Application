@@ -9,6 +9,8 @@ import org.apache.logging.log4j.Logger;
 import user.Admin;
 import user.User;
 import user.UserManager;
+import utils.JsonConverter;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -116,7 +118,31 @@ public class ServerLogicHandler {
     }
 
 
-    public void handleAuthentication(String command, String username, String password) throws IOException {
+    /*public void handleAuthentication(String command, String username, String password) throws IOException {
+        UserSerializer serializer = new UserSerializer();
+        String out = null;
+        switch (command) {
+            case "REGISTER":
+                userManager.register(username, password);
+                logger.info("Registration attempted for user: {}", username);
+                out = "Registration successful";
+                break;
+            case "LOGIN":
+                User user = userManager.login(username, password);
+                if (user != null) {
+                    logger.info("User logged in successfully: {}", username);
+                    UserManager.currentLoggedInUser = user;
+                    out = "Login successful";
+                } else {
+                    out = "Login failed: Incorrect username or password";
+                    logger.warn("Login attempt failed for user: {}", username);
+                }
+                break;
+        }
+        System.out.println(serializer.toJson(out));
+        outToClient.println(serializer.toJson(out));
+    }*/
+    /*public void handleAuthentication(String command, String username, String password) throws IOException {
         switch (command) {
             case "REGISTER":
                 userManager.register(username, password);
@@ -135,6 +161,31 @@ public class ServerLogicHandler {
                 }
                 break;
         }
+    }*/
+    public void handleAuthentication(String command, String username, String password) throws IOException {
+        JsonConverter jsonResponse;
+        String response = null;
+        switch (command) {
+            case "REGISTER":
+                userManager.register(username, password);
+                logger.info("Registration attempted for user: {}", username);
+                response = "Registration successful";
+                break;
+            case "LOGIN":
+                User user = userManager.login(username, password);
+                if (user != null) {
+                    logger.info("User logged in successfully: {}", username);
+                    UserManager.currentLoggedInUser = user;
+                    outToClient.println("Login successful\n<<END>>");
+                } else {
+                    logger.warn("Login attempt failed for user: {}", username);
+                    outToClient.println("Login failed: Incorrect username or password\n<<END>>");
+                }
+                break;
+        }
+        jsonResponse = new JsonConverter(response);
+        String json = jsonResponse.toJson();
+        outToClient.println(json);
     }
 
     public void handleHelpRequest(String request) {

@@ -18,9 +18,9 @@ public class MailBox {
     private final int BOXLIMIT = 5;
 
     public MailBox() {
-        this.openedMails = new ArrayList<>();
-        this.unreadMails = new ArrayList<>();
-        this.sentMails = new ArrayList<>();
+        openedMails = new ArrayList<>();
+        unreadMails = new ArrayList<>();
+        sentMails = new ArrayList<>();
     }
 
     public boolean ifBoxFull(){

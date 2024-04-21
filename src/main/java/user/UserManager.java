@@ -2,7 +2,7 @@ package user;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import utils.UserSerializer;
+import utils.JsonConverter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,13 +14,13 @@ public class UserManager {
     public Admin admin;
 
     public UserManager() {
-        usersList = new ArrayList<>();
         this.admin = new Admin();
+        usersList = new ArrayList<>();
         usersList.add(admin);
     }
 
     public void register(String typedUsername, String typedPassword) throws IllegalArgumentException {
-        UserSerializer userSerializer = new UserSerializer();
+        JsonConverter jsonConverter = new JsonConverter();
         boolean userExists = false;
         for (User existingUser : usersList) {
             if (typedUsername.equals(existingUser.getUsername())) {
@@ -32,7 +32,7 @@ public class UserManager {
             logger.info("Registration attempt failed - user already exists: {}", typedUsername);
         } else {
             User newUser = new User(typedUsername, typedPassword, User.Role.USER);
-            userSerializer.writeToJson(newUser, "C:\\Users\\Jakub Bone\\Desktop\\Z2J\\projects\\Client-Server\\" + newUser.getUsername() + ".json");
+            jsonConverter.writeDataToPath(newUser, "C:\\Users\\Jakub Bone\\Desktop\\Z2J\\projects\\Client-Server\\" + newUser.getUsername() + ".json");
             usersList.add(newUser);
             currentLoggedInUser = newUser;
             logger.info("New user registered: {}", typedUsername);
@@ -87,7 +87,7 @@ public class UserManager {
     }
 
     public boolean isAdmin(){
-        logger.debug("Admin checking for user: {}", currentLoggedInUser.getUsername())
+        logger.info("Admin checking for user: {}", currentLoggedInUser.getUsername());
         return currentLoggedInUser.role.equals(User.Role.ADMIN);
     }
 }
