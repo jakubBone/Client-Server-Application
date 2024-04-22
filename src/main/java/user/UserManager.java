@@ -28,9 +28,10 @@ public class UserManager {
       * If the username already exists, it's failure
       * Otherwise, successful registration
       */
-    public void register(String typedUsername, String typedPassword) throws IllegalArgumentException {
+    public String register(String typedUsername, String typedPassword) throws IllegalArgumentException {
         JsonConverter jsonConverter = new JsonConverter();
         boolean userExists = false;
+        String registerStatus = null;
 
         for (User existingUser : usersList) {
             if (typedUsername.equals(existingUser.getUsername())) {
@@ -39,14 +40,17 @@ public class UserManager {
             }
         }
         if (userExists) {
+            registerStatus = "User exist";
             logger.info("Registration attempt failed - user already exists: {}", typedUsername);
         } else {
+            registerStatus = "User does not exist";
             User newUser = new User(typedUsername, typedPassword, User.Role.USER);
             jsonConverter.writeUserToPath(newUser, "C:\\Users\\Jakub Bone\\Desktop\\Z2J\\projects\\Client-Server\\" + newUser.getUsername() + ".json");
             usersList.add(newUser);
             currentLoggedInUser = newUser;
             logger.info("New user registered: {}", typedUsername);
         }
+        return registerStatus;
     }
 
 
@@ -60,9 +64,10 @@ public class UserManager {
                     logger.info("User logged in successfully: {}", typedUsername);
                     return existingUser;
                 }
+            } else{
+                logger.info("Login attempt failed - username not found: {}", typedUsername);
             }
         }
-        logger.info("Login attempt failed - username not found: {}", typedUsername);
         return null;
     }
 

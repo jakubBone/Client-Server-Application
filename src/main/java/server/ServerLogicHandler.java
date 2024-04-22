@@ -84,15 +84,17 @@ public class ServerLogicHandler {
         if(!userManager.isAdmin()){
             logger.warn("Unauthorized attempt to update by non-admin user.");
             response = "Operation failed: Not authorized";
+            sendResponse(response);
         } else {
             logger.info("Authorized update attempt by admin user");
             isAuthorized = true;
             response = "Operation succeeded: Authorized";
-            sendResponse(response);
+            sendResponse(response); //
             String updateRequest = inFromClient.readLine();
             String[] updateOperationParts = updateRequest.split(" ", 3);
             handleUpdate(updateOperationParts[0], updateOperationParts[1], updateOperationParts[2]);
         }
+
     }
 
     // Handles a specific update operation, such as changing a password or deleting a user
@@ -129,9 +131,13 @@ public class ServerLogicHandler {
         String response = null;
         switch (command) {
             case "REGISTER":
-                userManager.register(username, password);
                 logger.info("Registration attempted for user: {}", username);
-                response = "Registration successful";
+                String registerStatus = userManager.register(username, password);
+                if(registerStatus.equals("User exist")){
+                    response = "Login failed: Existing user";
+                } else {
+                    response = "Registration successful";
+                }
                 break;
             case "LOGIN":
                 User user = userManager.login(username, password);
@@ -233,6 +239,5 @@ public class ServerLogicHandler {
         userManager.logoutCurrentUser();
         logger.info("User successfully logged out.");
         sendResponse("Successfully logged out");
-
     }
 }

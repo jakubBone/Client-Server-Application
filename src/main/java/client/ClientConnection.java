@@ -79,9 +79,21 @@ public class ClientConnection {
             loggedIn = true;
             logger.info("User logged in successfully");
         }
+        if(response.equals("Successfully logged out")){
+            loggedIn = false;
+            logger.info("User attempted to update settings");
+        }
+        if(response.equals("Registration failed")){
+            loggedIn = false;
+            logger.info("Registration failed");
+        }
         if (response.equals("Operation succeeded: Authorized")) {;
             isAuthorized = true;
             logger.info("User authorized for operations");
+        }
+        if(response.equals("Operation failed: Not authorized")){
+            isAuthorized = false;
+            logger.info("User not authorized for operations");
         }
     }
 

@@ -131,10 +131,11 @@ public class Client {
                 }
                 break;
             case "LOGOUT":
+                logger.info("User attempted to log out");
                 connection.sendRequest(request);
                 connection.setLoggedIn(false);
                 connection.readResponse();
-                logger.info("User logged out");
+
                 break;
             default:
                 logger.warn("Incorrect input from user: {}", request);
