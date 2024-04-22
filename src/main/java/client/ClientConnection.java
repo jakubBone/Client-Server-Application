@@ -25,6 +25,11 @@ public class ClientConnection {
     private static boolean loggedIn = false;
     private boolean isAuthorized = false;
 
+    /*
+     * The ClientConnection class is responsible for managing connections
+     * Establishes connections with server, and handles the communication
+     */
+
     public ClientConnection() {
         connectToServer();
     }

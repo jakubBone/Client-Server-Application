@@ -13,7 +13,7 @@ import java.util.Date;
 
  /*
   * The ServerConnectionHandler class is responsible for managing server connections, including starting the server
-  * Establishes connections with client, and handling communication between server and client
+  * Establishes connections with client, and handle the communication
   */
 
 public class ServerConnectionHandler {
