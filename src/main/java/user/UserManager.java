@@ -84,7 +84,7 @@ public class UserManager {
     }
 
     // Finds a user by the username
-    public User findUserOnTheList(String username){
+    public User findUserByUsername(String username){
         User searchedUser = null;
         for (User user : usersList) {
             if (username.equals(user.getUsername())) {

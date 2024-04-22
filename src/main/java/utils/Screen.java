@@ -17,7 +17,7 @@ public class Screen {
                 "| Help                                        |\n" +
                 "| Exit                                        |\n" +
                 "+---------------------------------------------+");
-        System.out.print("Type: ");
+        System.out.println("Select an option:");
     }
 
     public static void printMailBoxMenu() {
@@ -31,6 +31,6 @@ public class Screen {
                 "| Update                                      |\n" +
                 "| Logout                                      |\n" +
                 "+---------------------------------------------+");
-        System.out.print("Type: ");
+        System.out.println("Select an option:");
     }
 }

@@ -43,25 +43,25 @@ public class ServerLogicHandler {
         String request = null;
         try {
             while ((request = inFromClient.readLine()) != null) {
-                String[] parts = request.split(" ", 3);
-                String command = parts[0].toUpperCase();
+                String[] requestParts = request.split(" ", 3); // The array storing main request details
+                String command = requestParts[0].toUpperCase();
                 logger.info("Handling command: {}", command);
                 switch (command) {
                     case "REGISTER":
                     case "LOGIN":
-                        handleAuthentication(command, parts[1], parts[2]);
+                        handleAuthentication(command, requestParts[1], requestParts[2]);
                         break;
                     case "HELP":
                         handleHelpRequest(command);
                         break;
                     case "WRITE":
-                        handleWrite(parts[1], parts[2]);
+                        handleWrite(requestParts[1], requestParts[2]);
                         break;
                     case "MAILBOX":
-                        if(parts[1].equals("READ")){
-                            handleMailbox(parts[2]);
+                        if(requestParts[1].equals("READ")){
+                            handleMailbox(requestParts[2]);
                         } else {
-                            handleEmpty(parts[2]);
+                            handleEmpty(requestParts[2]);
                         }
                         break;
                     case "UPDATE":
@@ -70,8 +70,6 @@ public class ServerLogicHandler {
                     case "LOGOUT":
                         handleLogout();
                         break;
-                    case "EXIT":
-                        return;
                 }
                 logger.info("Completed authentication command: {}", command);
             }
@@ -98,31 +96,31 @@ public class ServerLogicHandler {
     }
 
     // Handles a specific update operation, such as changing a password or deleting a user
-    private void handleUpdate(String updateOperation, String userToUpdate, String newPassword) throws IOException {
-        User searchedUser = userManager.findUserOnTheList(userToUpdate);
+    private void handleUpdate(String updateOperation, String username, String newPassword) throws IOException {
+        User userToUpdate = userManager.findUserByUsername(username);
         Admin admin = new Admin();
         String response = null;
-        if(!(searchedUser == null)) {
+        if(!(userToUpdate == null)) {
             switch (updateOperation.toUpperCase()) {
                 case "PASSWORD":
-                    admin.changePassword(searchedUser, newPassword);
-                    response = searchedUser.getUsername() + " password change successful";
-                    logger.info("Password changed successfully for user: {}", searchedUser.getUsername());
+                    admin.changePassword(userToUpdate, newPassword);
+                    response = userToUpdate.getUsername() + " password change successful";
+                    logger.info("Password changed successfully for user: {}", userToUpdate.getUsername());
                     break;
                 case "DELETE":
-                    if(searchedUser.getRole().equals(User.Role.ADMIN)){
+                    if(userToUpdate.getRole().equals(User.Role.ADMIN)){
                         response = "Operation failed: admin account cannot be deleted";
-                        logger.warn("Attempted to impossible delete admin account for user: {}", searchedUser.getUsername());
+                        logger.warn("Attempted to impossible delete admin account for user: {}", userToUpdate.getUsername());
                     } else {
-                        admin.deleteUser(searchedUser);
-                        response = searchedUser.getUsername() + " account deletion successful";
-                        logger.info("User account deleted successfully: {}", searchedUser.getUsername());
+                        admin.deleteUser(userToUpdate);
+                        response = userToUpdate.getUsername() + " account deletion successful";
+                        logger.info("User account deleted successfully: {}", userToUpdate.getUsername());
                     }
                     break;
             }
         } else {
-            response = "Update failed: " + userToUpdate + " not found";
-            logger.warn("Failed to find user for update: {}", userToUpdate);
+            response = "Update failed: " + username + " not found";
+            logger.warn("Failed to find user for update: {}", username);
         }
         sendResponse(response);
     }

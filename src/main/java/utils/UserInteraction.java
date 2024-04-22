@@ -53,16 +53,17 @@ public class UserInteraction {
                         case "SENT":
                             return operation + " " + mailbox;
                         default:
-                            System.out.println("Invalid mailbox type entered. Please try again.");
+                            System.out.println("Invalid mailbox type entered. Please try again");
                             break;
                     }
                     break;
                 default:
-                    System.out.println("Invalid operation entered. Please try again.");;
+                    System.out.println("Invalid operation entered. Please try again");;
                     break;
             }
         }
     }
+
     public String chooseAccountUpdate() throws IOException {
         while (true) {
             System.out.println("Choose account setting to update: PASSWORD / DELETE");;
@@ -73,7 +74,7 @@ public class UserInteraction {
                 case "DELETE":
                     return "DELETE";
                 default:
-                    System.out.println("Invalid input. Please enter either 'PASSWORD' or 'DELETE'.");
+                    System.out.println("Invalid input. Please enter either 'PASSWORD' or 'DELETE'");
                     break;
             }
         }
