@@ -6,13 +6,7 @@ public class Admin extends User {
         super("admin", "java10", Role.ADMIN);
     }
 
-    public void changePassword(User user, String newPassword){
-            user.setPassword(newPassword);
-    }
 
-    public void deleteUser(User user){
-        UserManager.usersList.remove(user);
-    }
 }
 
 

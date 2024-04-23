@@ -77,28 +77,28 @@ public class ServerRequestHandler {
 
     // Handles UPDATE request for updating user data. It checks for authorization before proceeding
     private void handleUpdateRequest() throws IOException{
-        if(!userManager.isAdmin()){
-            log.warn("Unauthorized attempt to update by non-admin user.");
-            sendResponse("Operation failed: Not authorized");
-        } else {
+        if(userManager.isAdmin()){
             log.info("Authorized update attempt by admin user");
             isAuthorized = true;
             sendResponse("Operation succeeded: Authorized");
             String updateRequest = inFromClient.readLine();
             String[] updateOperationParts = updateRequest.split(" ", 3);
             handleUpdate(updateOperationParts[0], updateOperationParts[1], updateOperationParts[2]);
+        } else {
+            log.warn("Unauthorized attempt to update by non-admin user.");
+            sendResponse("Operation failed: Not authorized");
         }
     }
 
     // Handles a specific update operation, such as changing a password or deleting a user
     private void handleUpdate(String updateOperation, String username, String newPassword) throws IOException {
         User userToUpdate = userManager.findUserByUsername(username);
-        Admin admin = new Admin();
+        //Admin admin = new Admin();
         String response = null;
         if(userToUpdate != null ) {
             switch (updateOperation.toUpperCase()) {
                 case "PASSWORD":
-                    admin.changePassword(userToUpdate, newPassword);
+                    userManager.changePassword(userToUpdate, newPassword);
                     response = userToUpdate.getUsername() + " password change successful";
                     log.info("Password changed successfully for user: {}", userToUpdate.getUsername());
                     break;
@@ -107,7 +107,7 @@ public class ServerRequestHandler {
                         response = "Operation failed: admin account cannot be deleted";
                         log.warn("Attempted to impossible delete admin account for user: {}", userToUpdate.getUsername());
                     } else {
-                        admin.deleteUser(userToUpdate);
+                        userManager.deleteUser(userToUpdate);
                         response = userToUpdate.getUsername() + " account deletion successful";
                         log.info("User account deleted successfully: {}", userToUpdate.getUsername());
                     }

@@ -106,6 +106,14 @@ public class UserManager {
         return searchedUser;
     }
 
+    public void changePassword(User user, String newPassword){
+        user.setPassword(newPassword);
+    }
+
+    public void deleteUser(User user){
+        UserManager.usersList.remove(user);
+    }
+
     public boolean isAdmin(){
         log.info("Admin checking for user: {}", currentLoggedInUser.getUsername());
         return currentLoggedInUser.role.equals(User.Role.ADMIN);
