@@ -1,32 +1,29 @@
 package mail;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
+import lombok.extern.log4j.Log4j2;
 import user.UserManager;
-
 import java.util.List;
 
  /*
   * The MailService class provides various operations related to email management,
   * including sending mail, returning mail lists, emptying mailboxes, and marking mails as read
   */
-public class MailService {
-    private static final Logger logger = LogManager.getLogger(MailService.class);
 
+@Log4j2
+public class MailService {
     public void sendMail(Mail mail) {
         mail.getRecipient().getMailBox().getUnreadMails().add(mail);
         mail.getSender().getMailBox().getSentMails().add(mail);
-        logger.info("Mail successfully sent to {}", mail.getRecipient().getUsername());
+        log.info("Mail successfully sent to {}", mail.getRecipient().getUsername());
     }
 
     // Returns a list of mails to read based on the requested mail list type (e.g. OPENED, UNREAD, SENT)
     public List<Mail> getMailsToRead(String requestedMailList) {
         List<Mail> mailsToRead = getMailListByType(requestedMailList);
         if (mailsToRead != null) {
-            logger.info("{} mails returned for user {}", requestedMailList, UserManager.currentLoggedInUser.getUsername());
+            log.info("{} mails returned for user {}", requestedMailList, UserManager.currentLoggedInUser.getUsername());
         } else {
-            logger.warn("Invalid mail list type requested: {}", requestedMailList);
+            log.warn("Invalid mail list type requested: {}", requestedMailList);
         }
         return mailsToRead;
     }
@@ -35,9 +32,9 @@ public class MailService {
         List<Mail> mailList = getMailListByType(requestedMailList);
         if (mailList != null) {
             mailList.clear();
-            logger.info("{} mails deleted successfully for user {}", requestedMailList, UserManager.currentLoggedInUser.getUsername());
+            log.info("{} mails deleted successfully for user {}", requestedMailList, UserManager.currentLoggedInUser.getUsername());
         } else {
-            logger.warn("Attempted to empty non-existent mail list type: {}", requestedMailList);
+            log.warn("Attempted to empty non-existent mail list type: {}", requestedMailList);
         }
     }
 
@@ -52,7 +49,7 @@ public class MailService {
             case "SENT":
                 return mailBox.getSentMails();
             default:
-                logger.error("Unknown mail list type requested: {}", type);
+                log.error("Unknown mail list type requested: {}", type);
                 return null;
         }
     }
@@ -65,9 +62,9 @@ public class MailService {
                 UserManager.currentLoggedInUser.getMailBox().getOpenedMails().add(mail);
             }
             UserManager.currentLoggedInUser.getMailBox().getUnreadMails().clear();
-            logger.info("Marked all unread mails as read for user {}", UserManager.currentLoggedInUser.getUsername());
+            log.info("Marked all unread mails as read for user {}", UserManager.currentLoggedInUser.getUsername());
         } else {
-        logger.warn("Attempted to mark 'sent' mails as read, operation not allowed");
+        log.warn("Attempted to mark 'sent' mails as read, operation not allowed");
         }
     }
 }

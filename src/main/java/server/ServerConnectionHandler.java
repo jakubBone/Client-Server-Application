@@ -1,7 +1,6 @@
 package server;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.log4j.Log4j2;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -16,8 +15,8 @@ import java.util.Date;
   * Establishes connections with client, and handle the communication
   */
 
+@Log4j2
 public class ServerConnectionHandler {
-    private static final Logger logger = LogManager.getLogger(ServerConnectionHandler.class);
     private int port;
     public static Date serverTimeCreation;
     private ServerSocket serverSocket;
@@ -33,13 +32,13 @@ public class ServerConnectionHandler {
             try{
                 serverTimeCreation = new Date();
                 serverSocket = new ServerSocket(port);
-                logger.info("Server started on port {}", port);
+                log.info("Server started on port {}", port);
                 clientSocket = serverSocket.accept();
-                logger.info("Connection with client established");
+                log.info("Connection with client established");
                 inFromClient = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
                 outToClient = new PrintWriter(clientSocket.getOutputStream(), true);
             } catch (IOException ex){
-                logger.error("Error starting server on port {}: {}", port, ex.getMessage());
+                log.error("Error starting server on port {}: {}", port, ex.getMessage());
             }
     }
 
@@ -65,9 +64,9 @@ public class ServerConnectionHandler {
             if (serverSocket != null) {
                 serverSocket.close();
             }
-            logger.info("Server and client connections closed");
+            log.info("Server and client connections closed");
         } catch (IOException ex) {
-            logger.error("Error closing connections: {}", ex.getMessage());
+            log.error("Error closing connections: {}", ex.getMessage());
         }
     }
 }

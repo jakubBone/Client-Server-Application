@@ -1,9 +1,8 @@
 package server;
 
+import lombok.extern.log4j.Log4j2;
 import mail.Mail;
 import mail.MailService;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import user.Admin;
 import user.User;
 import user.UserManager;
@@ -19,8 +18,8 @@ import java.util.List;
   * It manages user authentication, mail operations, and server information
   */
 
-public class ServerLogicHandler {
-    private static final Logger logger = LogManager.getLogger(ServerLogicHandler.class);
+@Log4j2
+public class ServerRequestHandler {
     private final PrintWriter outToClient;
     private final BufferedReader inFromClient;
     private final UserManager userManager;
@@ -30,7 +29,7 @@ public class ServerLogicHandler {
     private boolean isAuthorized = false;
     
 
-    public ServerLogicHandler(PrintWriter outToClient, BufferedReader inFromClient) {
+    public ServerRequestHandler(PrintWriter outToClient, BufferedReader inFromClient) {
         this.outToClient = outToClient;
         this.inFromClient = inFromClient;
         this.userManager = new UserManager();
@@ -39,13 +38,13 @@ public class ServerLogicHandler {
     }
 
     public void handleClientRequest() {
-        logger.info("Starting to handle client requests.");
+        log.info("Starting to handle client requests.");
         String request = null;
         try {
             while ((request = inFromClient.readLine()) != null) {
                 String[] requestParts = request.split(" ", 3); // The array storing main request details
                 String command = requestParts[0].toUpperCase();
-                logger.info("Handling command: {}", command);
+                log.info("Handling command: {}", command);
                 switch (command) {
                     case "REGISTER":
                     case "LOGIN":
@@ -71,10 +70,10 @@ public class ServerLogicHandler {
                         handleLogout();
                         break;
                 }
-                logger.info("Completed authentication command: {}", command);
+                log.info("Completed authentication command: {}", command);
             }
         } catch (IOException ex) {
-            logger.error("IOException occurred while processing the request: {}. Error: {}", request, ex.getMessage());
+            log.error("IOException occurred while processing the request: {}. Error: {}", request, ex.getMessage());
         }
     }
 
@@ -82,14 +81,14 @@ public class ServerLogicHandler {
     private void handleUpdateRequest() throws IOException{
         String response = null;
         if(!userManager.isAdmin()){
-            logger.warn("Unauthorized attempt to update by non-admin user.");
+            log.warn("Unauthorized attempt to update by non-admin user.");
             response = "Operation failed: Not authorized";
             sendResponse(response);
         } else {
-            logger.info("Authorized update attempt by admin user");
+            log.info("Authorized update attempt by admin user");
             isAuthorized = true;
             response = "Operation succeeded: Authorized";
-            sendResponse(response); //
+            sendResponse(response);
             String updateRequest = inFromClient.readLine();
             String[] updateOperationParts = updateRequest.split(" ", 3);
             handleUpdate(updateOperationParts[0], updateOperationParts[1], updateOperationParts[2]);
@@ -102,27 +101,27 @@ public class ServerLogicHandler {
         User userToUpdate = userManager.findUserByUsername(username);
         Admin admin = new Admin();
         String response = null;
-        if(!(userToUpdate == null)) {
+        if(userToUpdate != null ) {
             switch (updateOperation.toUpperCase()) {
                 case "PASSWORD":
                     admin.changePassword(userToUpdate, newPassword);
                     response = userToUpdate.getUsername() + " password change successful";
-                    logger.info("Password changed successfully for user: {}", userToUpdate.getUsername());
+                    log.info("Password changed successfully for user: {}", userToUpdate.getUsername());
                     break;
                 case "DELETE":
                     if(userToUpdate.getRole().equals(User.Role.ADMIN)){
                         response = "Operation failed: admin account cannot be deleted";
-                        logger.warn("Attempted to impossible delete admin account for user: {}", userToUpdate.getUsername());
+                        log.warn("Attempted to impossible delete admin account for user: {}", userToUpdate.getUsername());
                     } else {
                         admin.deleteUser(userToUpdate);
                         response = userToUpdate.getUsername() + " account deletion successful";
-                        logger.info("User account deleted successfully: {}", userToUpdate.getUsername());
+                        log.info("User account deleted successfully: {}", userToUpdate.getUsername());
                     }
                     break;
             }
         } else {
             response = "Update failed: " + username + " not found";
-            logger.warn("Failed to find user for update: {}", username);
+            log.warn("Failed to find user for update: {}", username);
         }
         sendResponse(response);
     }
@@ -131,7 +130,7 @@ public class ServerLogicHandler {
         String response = null;
         switch (command) {
             case "REGISTER":
-                logger.info("Registration attempted for user: {}", username);
+                log.info("Registration attempted for user: {}", username);
                 String registerStatus = userManager.register(username, password);
                 if(registerStatus.equals("User exist")){
                     response = "Login failed: Existing user";
@@ -142,11 +141,11 @@ public class ServerLogicHandler {
             case "LOGIN":
                 User user = userManager.login(username, password);
                 if (user != null) {
-                    logger.info("User logged in successfully: {}", username);
+                    log.info("User logged in successfully: {}", username);
                     UserManager.currentLoggedInUser = user;
                     response = "Login successful";
                 } else {
-                    logger.warn("Login attempt failed for user: {}", username);
+                    log.warn("Login attempt failed for user: {}", username);
                     response = "Login failed: Incorrect username or password";
                 }
                 break;
@@ -159,20 +158,20 @@ public class ServerLogicHandler {
      * Needs to be improved
      */
     public void handleHelpRequest(String request) {
-        logger.info("Received help request: {}", request);
+        log.info("Received help request: {}", request);
         String response = null;
         switch (request) {
             case "UPTIME":
                 response = serverInfo.getUptime().toString();
-                logger.info("UPTIME requested, response: {}", response);
+                log.info("UPTIME requested, response: {}", response);
                 break;
             case "INFO":
                 response = serverInfo.getServerDetails().toString();
-                logger.info("INFO requested, response: {}", response);
+                log.info("INFO requested, response: {}", response);
                 break;
             case "HELP":
                 response = serverInfo.getCommands().toString();
-                logger.info("HELP requested, response: {}", response);
+                log.info("HELP requested, response: {}", response);
                 break;
         }
         sendResponse(response);
@@ -187,20 +186,20 @@ public class ServerLogicHandler {
         String response = null;
         if (recipientUser != null) {
             if(recipientUser.getMailBox().ifBoxFull()){
-                logger.warn("Mail sending failed, recipient's mailbox is full: {}", recipient);
+                log.warn("Mail sending failed, recipient's mailbox is full: {}", recipient);
                 response = "Sending failed: Recipient's mailbox is full";
             } else {
                 if(message.length() <= 255){
                     mailService.sendMail(new Mail(UserManager.currentLoggedInUser, recipientUser, message));
-                    logger.info("Mail sent successfully to: {}", recipient);
+                    log.info("Mail sent successfully to: {}", recipient);
                     response = "Mail sent successfully";
                 } else {
-                    logger.warn("Mail sending failed, message too long for recipient: {}", recipient);
+                    log.warn("Mail sending failed, message too long for recipient: {}", recipient);
                     response = "Sending failed: Message too long (maximum 255 characters)";
                 }
             }
         } else {
-            logger.warn("Mail sending failed, recipient not found: {}", recipient);
+            log.warn("Mail sending failed, recipient not found: {}", recipient);
             response = "Sending failed: Recipient not found";
         }
         sendResponse(response);
@@ -211,7 +210,7 @@ public class ServerLogicHandler {
         jsonResponse = new JsonConverter(response);
         String json = jsonResponse.toJson();
         outToClient.println(json);
-        logger.info("Response sent: {}", json);
+        log.info("Response sent: {}", json);
     }
 
 
@@ -237,7 +236,7 @@ public class ServerLogicHandler {
 
     private void handleLogout() {
         userManager.logoutCurrentUser();
-        logger.info("User successfully logged out.");
+        log.info("User successfully logged out.");
         sendResponse("Successfully logged out");
     }
 }

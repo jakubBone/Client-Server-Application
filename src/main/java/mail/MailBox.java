@@ -5,13 +5,10 @@ import java.util.List;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 @Getter
 @Setter
 public class MailBox {
-    private static final Logger logger = LogManager.getLogger(MailBox.class);
     private List<Mail> openedMails;
     private List<Mail> unreadMails;
     private List<Mail> sentMails;

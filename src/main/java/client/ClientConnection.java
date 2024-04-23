@@ -7,8 +7,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.log4j.Log4j2;
 import utils.JsonConverter;
 
  /*
@@ -16,8 +15,8 @@ import utils.JsonConverter;
   * It handles establishing a connection, sending requests, reading responses, and disconnecting
   */
 
+@Log4j2
 public class ClientConnection {
-    private static final Logger logger = LogManager.getLogger(ClientConnection.class);
     private final int PORT_NUMBER = 5000;
     private Socket clientSocket;
     private PrintWriter outToServer;
@@ -39,9 +38,9 @@ public class ClientConnection {
             clientSocket = new Socket("localhost", PORT_NUMBER);
             outToServer = new PrintWriter(clientSocket.getOutputStream(), true);
             inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-            logger.info("Connection with Server established on port {}", PORT_NUMBER);
+            log.info("Connection with Server established on port {}", PORT_NUMBER);
         } catch (IOException ex) {
-            logger.error("Failed to establish connection with the server at port {}. Error: {}", PORT_NUMBER, ex.getMessage());
+            log.error("Failed to establish connection with the server at port {}. Error: {}", PORT_NUMBER, ex.getMessage());
             retryConnection();
         }
     }
@@ -49,18 +48,18 @@ public class ClientConnection {
     private void retryConnection() {
         try {
             Thread.sleep(5000);
-            logger.info("Attempting to reconnect to the server...");
+            log.info("Attempting to reconnect to the server...");
             connectToServer();
         } catch (InterruptedException ie) {
             Thread.currentThread().interrupt();
-            logger.warn("Reconnection attempt interrupted", ie);
+            log.warn("Reconnection attempt interrupted", ie);
         }
     }
 
     public void sendRequest(String request) {
         System.out.println(request);
         outToServer.println(request);
-        logger.info("Sent request to server: {}", request);
+        log.info("Sent request to server: {}", request);
     }
 
     public void readResponse() throws IOException {
@@ -77,23 +76,23 @@ public class ClientConnection {
     private void checkResponseStatus(String response) {
         if (response.equals("Login successful") || response.equals("Registration successful")) {
             loggedIn = true;
-            logger.info("User logged in successfully");
+            log.info("User logged in successfully");
         }
         if(response.equals("Successfully logged out")){
             loggedIn = false;
-            logger.info("User attempted to update settings");
+            log.info("User attempted to update settings");
         }
         if(response.equals("Registration failed")){
             loggedIn = false;
-            logger.info("Registration failed");
+            log.info("Registration failed");
         }
         if (response.equals("Operation succeeded: Authorized")) {;
             isAuthorized = true;
-            logger.info("User authorized for operations");
+            log.info("User authorized for operations");
         }
         if(response.equals("Operation failed: Not authorized")){
             isAuthorized = false;
-            logger.info("User not authorized for operations");
+            log.info("User not authorized for operations");
         }
     }
 
@@ -108,9 +107,9 @@ public class ClientConnection {
             if (clientSocket != null) {
                 clientSocket.close();
             }
-            logger.info("Disconnected from server");
+            log.info("Disconnected from server");
         } catch (IOException ex) {
-            logger.error("Error during disconnection: {}", ex.getMessage());
+            log.error("Error during disconnection: {}", ex.getMessage());
         }
     }
 
@@ -120,7 +119,7 @@ public class ClientConnection {
 
     public void setLoggedIn(boolean loggedIn) {
         ClientConnection.loggedIn = loggedIn;
-        logger.info("Login status changed: {}", loggedIn);
+        log.info("Login status changed: {}", loggedIn);
     }
 
     public boolean isAuthorized() {

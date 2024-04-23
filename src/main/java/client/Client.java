@@ -4,19 +4,17 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+import lombok.extern.log4j.Log4j2;
 import utils.Screen;
 import utils.UserInteraction;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
  /*
   * This class represents a simple client application for server communication.
   * It allows users to log in, send requests, and interact with a mailbox
   */
 
+@Log4j2
 public class Client {
-    private static final Logger logger = LogManager.getLogger(Client.class);
     private ClientConnection connection;
     private BufferedReader userInput;
 
@@ -28,7 +26,7 @@ public class Client {
     public Client() {
         connection = new ClientConnection();
         userInput = new BufferedReader(new InputStreamReader(System.in));
-        logger.info("Client application started");
+        log.info("Client application started");
     }
 
     /*
@@ -44,23 +42,23 @@ public class Client {
                     request = userInput.readLine();
                     if (request == null || request.equalsIgnoreCase("EXIT")) {
                         connection.disconnect();
-                        logger.info("User exited the application");
+                        log.info("User exited the application");
                         return;
                     }
                     handleLoginRequest(request); // Handle login-related requests
                 }
-                logger.info("User is logged in, moving to main menu");
+                log.info("User is logged in, moving to main menu");
 
                 Screen.printMailBoxMenu(); // Display mailbox menu
                 request = userInput.readLine();
                 if (request == null) {
-                    logger.info("End of user input stream");
+                    log.info("End of user input stream");
                     break;
                 }
                 handleMailRequest(request); // Handle mailbox-related requests
             }
         } catch (IOException ex) {
-            logger.error("Error in handling server communication: {}", ex.getMessage());
+            //ogger.error("Error in handling server communication: {}", ex.getMessage());
         }
     }
 
@@ -78,16 +76,16 @@ public class Client {
                 username = userInteraction.getUsername();
                 password = userInteraction.getPassword();
                 connection.sendRequest(request + " " + username + " " + password);
-                logger.info("User attempted to {}", request);
+                log.info("User attempted to {}", request);
                 connection.readResponse();
                 break;
             case "HELP":
                 connection.sendRequest(request);
-                logger.info("User requested help");
+                log.info("User requested help");
                 connection.readResponse();
                 break;
             default:
-                logger.warn("User entered incorrect input: {}", request);
+                log.warn("User entered incorrect input: {}", request);
                 System.out.println("Incorrect input. Please, try again");
         }
     }
@@ -105,18 +103,18 @@ public class Client {
                 String recipient = userInteraction.getRecipient();
                 String message = userInteraction.getMessage();
                 connection.sendRequest(request + " " + recipient + " " + message);
-                logger.info("User sent a message to {}", recipient);
+                log.info("User sent a message to {}", recipient);
                 connection.readResponse();
                 break;
             case "MAILBOX":
                 String boxOperation = userInteraction.chooseMailBox();
                 connection.sendRequest(request + " " + boxOperation);
-                logger.info("User accessed their mailbox: {}", boxOperation);
+                log.info("User accessed their mailbox: {}", boxOperation);
                 connection.readResponse();
                 break;
             case "UPDATE":
                 connection.sendRequest(request);
-                logger.info("User attempted to update settings");
+                log.info("User attempted to update settings");
                 connection.readResponse();
                 if(connection.isAuthorized()) {
                     String updateOperation = userInteraction.chooseAccountUpdate();
@@ -126,19 +124,19 @@ public class Client {
                         newPassword = userInteraction.getNewPassword();
                     }
                     connection.sendRequest(updateOperation + " " + userToUpdate + " " + newPassword);
-                    logger.info("User updated {} for {}", updateOperation, userToUpdate);
+                    log.info("User updated {} for {}", updateOperation, userToUpdate);
                     connection.readResponse();
                 }
                 break;
             case "LOGOUT":
-                logger.info("User attempted to log out");
+                log.info("User attempted to log out");
                 connection.sendRequest(request);
                 connection.setLoggedIn(false);
                 connection.readResponse();
 
                 break;
             default:
-                logger.warn("Incorrect input from user: {}", request);
+                log.warn("Incorrect input from user: {}", request);
                 System.out.println("Incorrect input. Please, try again");
         }
     }

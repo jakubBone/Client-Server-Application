@@ -3,8 +3,7 @@ package utils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.log4j.Log4j2;
 import user.User;
 
 import java.io.FileReader;
@@ -16,8 +15,8 @@ import java.io.IOException;
   * It includes methods for serializing and deserializing user data
   */
 
+@Log4j2
 public class JsonConverter {
-    private static final Logger logger = LogManager.getLogger(JsonConverter.class);
     private String message;
 
     public JsonConverter(String message) {
@@ -33,9 +32,9 @@ public class JsonConverter {
         try(FileWriter writer = new FileWriter(filePath)) {
             gson.toJson(user, writer);
             writer.flush();
-            logger.info("Successfully serialized user data for {} to file: {}", user.getUsername(), filePath);
+            log.info("Successfully serialized user data for {} to file: {}", user.getUsername(), filePath);
         } catch(IOException ex) {
-            logger.error("Error - failed to serialize data for {} to JSON at {}: ", user.getUsername(), filePath, ex);
+            log.error("Error - failed to serialize data for {} to JSON at {}: ", user.getUsername(), filePath, ex);
         }
     }
 
@@ -47,10 +46,10 @@ public class JsonConverter {
         Gson gson = new Gson();
         try(FileReader reader = new FileReader(filePath)) {
             User user = gson.fromJson(reader, User.class);
-            logger.info("Successfully deserialized user data from file: {}", filePath);
+            log.info("Successfully deserialized user data from file: {}", filePath);
             return gson.fromJson(reader, User.class);
         } catch(IOException ex) {
-            logger.error("Error - failed to deserialize data to JSON  ", ex);
+            log.error("Error - failed to deserialize data to JSON  ", ex);
         }
         return null;
     }

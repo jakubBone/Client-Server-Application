@@ -7,7 +7,7 @@ public class Server {
         ServerConnectionHandler connectionHandler = new ServerConnectionHandler(PORT);
         connectionHandler.startServer();
 
-        ServerLogicHandler logicHandler = new ServerLogicHandler(
+        ServerRequestHandler logicHandler = new ServerRequestHandler(
                 connectionHandler.getOutToClient(),
                 connectionHandler.getInFromClient());
 
