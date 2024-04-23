@@ -1,0 +1,1204 @@
+====================
+FILE: Client.java
+
+package client;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
+import lombok.extern.log4j.Log4j2;
+import utils.Screen;
+import utils.UserInteraction;
+
+ /*
+  * This class represents a simple client application for server communication.
+  * It allows users to log in, send requests, and interact with a mailbox
+  */
+
+@Log4j2
+public class Client {
+    private ClientConnection connection;
+    private BufferedReader userInput;
+
+    public static void main(String[] args) {
+        Client client = new Client();
+        client.handleServerCommunication();
+    }
+
+    public Client() {
+        connection = new ClientConnection();
+        userInput = new BufferedReader(new InputStreamReader(System.in));
+        log.info("Client application started");
+    }
+
+    /*
+     * Handles communication with the server.
+     * Includes user login, mailbox interaction, and handling other requests
+     */
+    public void handleServerCommunication() {
+        try {
+            while(true) {
+                String request;
+                while (!connection.isLoggedIn()) {
+                    Screen.printLoginMenu(); // Display login menu
+                    request = userInput.readLine();
+                    if (request == null || request.equalsIgnoreCase("EXIT")) {
+                        connection.disconnect();
+                        log.info("User exited the application");
+                        return;
+                    }
+                    handleLoginRequest(request); // Handle login-related requests
+                }
+                log.info("User is logged in, moving to main menu");
+
+                Screen.printMailBoxMenu(); // Display mailbox menu
+                request = userInput.readLine();
+                if (request == null) {
+                    log.info("End of user input stream");
+                    break;
+                }
+                handleMailRequest(request); // Handle mailbox-related requests
+            }
+        } catch (IOException ex) {
+            //ogger.error("Error in handling server communication: {}", ex.getMessage());
+        }
+    }
+
+
+    /*
+     * Handles user login requests (e.g., REGISTER, LOGIN, HELP)
+     * HELP - displays help menu
+     */
+    private void handleLoginRequest(String request) throws IOException {
+        UserInteraction userInteraction = new UserInteraction(userInput);
+        String username, password;
+        switch (request.toUpperCase()) {
+            case "REGISTER":
+            case "LOGIN":
+                username = userInteraction.getUsername();
+                password = userInteraction.getPassword();
+                connection.sendRequest(request + " " + username + " " + password);
+                log.info("User attempted to {}", request);
+                connection.readResponse();
+                break;
+            case "HELP":
+                connection.sendRequest(request);
+                log.info("User requested help");
+                connection.readResponse();
+                break;
+            default:
+                log.warn("User entered incorrect input: {}", request);
+                System.out.println("Incorrect input. Please, try again");
+        }
+    }
+
+    /*
+     * Handles mailbox and related requests (WRITE, MAILBOX, UPDATE, LOGOUT)
+     * WRITE - mail sending
+     * MAILBOX - mail reading and deleting
+     * UPDATE - password changing and account removing required ADMIN role
+     */
+    private void handleMailRequest(String request) throws IOException {
+        UserInteraction userInteraction = new UserInteraction(userInput);
+        switch (request.toUpperCase()) {
+            case "WRITE":
+                String recipient = userInteraction.getRecipient();
+                String message = userInteraction.getMessage();
+                connection.sendRequest(request + " " + recipient + " " + message);
+                log.info("User sent a message to {}", recipient);
+                connection.readResponse();
+                break;
+            case "MAILBOX":
+                String boxOperation = userInteraction.chooseMailBox();
+                connection.sendRequest(request + " " + boxOperation);
+                log.info("User accessed their mailbox: {}", boxOperation);
+                connection.readResponse();
+                break;
+            case "UPDATE":
+                connection.sendRequest(request);
+                log.info("User attempted to update settings");
+                connection.readResponse();
+                if(connection.isAuthorized()) {
+                    String updateOperation = userInteraction.chooseAccountUpdate();
+                    String userToUpdate = userInteraction.chooseUserToUpdate();
+                    String newPassword = null;
+                    if(updateOperation.equals("PASSWORD")){
+                        newPassword = userInteraction.getNewPassword();
+                    }
+                    connection.sendRequest(updateOperation + " " + userToUpdate + " " + newPassword);
+                    log.info("User updated {} for {}", updateOperation, userToUpdate);
+                    connection.readResponse();
+                }
+                break;
+            case "LOGOUT":
+                log.info("User attempted to log out");
+                connection.sendRequest(request);
+                connection.setLoggedIn(false);
+                connection.readResponse();
+
+                break;
+            default:
+                log.warn("Incorrect input from user: {}", request);
+                System.out.println("Incorrect input. Please, try again");
+        }
+    }
+}
+
+====================
+FILE: ClientConnection.java
+
+
+package client;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
+
+import lombok.extern.log4j.Log4j2;
+import utils.JsonConverter;
+
+ /*
+  * The ClientConnection class manages the client's connection to the server, allowing sending and receiving of data
+  * It handles establishing a connection, sending requests, reading responses, and disconnecting
+  */
+
+@Log4j2
+public class ClientConnection {
+    private final int PORT_NUMBER = 5000;
+    private Socket clientSocket;
+    private PrintWriter outToServer;
+    private BufferedReader inFromServer;
+    private static boolean loggedIn = false;
+    private boolean isAuthorized = false;
+
+    /*
+     * The ClientConnection class is responsible for managing connections
+     * Establishes connections with server, and handles the communication
+     */
+
+    public ClientConnection() {
+        connectToServer();
+    }
+
+    public void connectToServer() {
+        try {
+            clientSocket = new Socket("localhost", PORT_NUMBER);
+            outToServer = new PrintWriter(clientSocket.getOutputStream(), true);
+            inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            log.info("Connection with Server established on port {}", PORT_NUMBER);
+        } catch (IOException ex) {
+            log.error("Failed to establish connection with the server at port {}. Error: {}", PORT_NUMBER, ex.getMessage());
+            retryConnection();
+        }
+    }
+
+    private void retryConnection() {
+        try {
+            Thread.sleep(5000);
+            log.info("Attempting to reconnect to the server...");
+            connectToServer();
+        } catch (InterruptedException ie) {
+            Thread.currentThread().interrupt();
+            log.warn("Reconnection attempt interrupted", ie);
+        }
+    }
+
+    public void sendRequest(String request) {
+        System.out.println(request);
+        outToServer.println(request);
+        log.info("Sent request to server: {}", request);
+    }
+
+    public void readResponse() throws IOException {
+        String jsonResponse = null;
+        while (!(jsonResponse = inFromServer.readLine()).equals("<<END>>")) {
+            String response = JsonConverter.fromJson(jsonResponse);
+            checkResponseStatus(response);
+            System.out.println(JsonConverter.fromJson(jsonResponse));
+        }
+    }
+
+
+    // Checks the login update and role authorization
+    private void checkResponseStatus(String response) {
+        if (response.equals("Login successful") || response.equals("Registration successful")) {
+            loggedIn = true;
+            log.info("User logged in successfully");
+        }
+        if(response.equals("Successfully logged out")){
+            loggedIn = false;
+            log.info("User attempted to update settings");
+        }
+        if(response.equals("Registration failed")){
+            loggedIn = false;
+            log.info("Registration failed");
+        }
+        if (response.equals("Operation succeeded: Authorized")) {;
+            isAuthorized = true;
+            log.info("User authorized for operations");
+        }
+        if(response.equals("Operation failed: Not authorized")){
+            isAuthorized = false;
+            log.info("User not authorized for operations");
+        }
+    }
+
+    public void disconnect() {
+        try {
+            if (outToServer != null) {
+                outToServer.close();
+            }
+            if (inFromServer != null) {
+                inFromServer.close();
+            }
+            if (clientSocket != null) {
+                clientSocket.close();
+            }
+            log.info("Disconnected from server");
+        } catch (IOException ex) {
+            log.error("Error during disconnection: {}", ex.getMessage());
+        }
+    }
+
+    public boolean isLoggedIn() {
+        return loggedIn;
+    }
+
+    public void setLoggedIn(boolean loggedIn) {
+        ClientConnection.loggedIn = loggedIn;
+        log.info("Login status changed: {}", loggedIn);
+    }
+
+    public boolean isAuthorized() {
+        return isAuthorized;
+    }
+}
+
+====================
+FILE: Mail.java
+
+package mail;
+
+import user.User;
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
+public class Mail {
+    private User sender;
+    private User recipient;
+    private String message;
+    private int messageLength;
+
+    public Mail(User sender, User recipient, String message) {
+        this.sender = sender;
+        this.recipient = recipient;
+        this.message = message;
+        this.messageLength = message.length();
+    }
+}
+
+====================
+FILE: MailBox.java
+
+package mail;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
+public class MailBox {
+    private List<Mail> openedMails;
+    private List<Mail> unreadMails;
+    private List<Mail> sentMails;
+    private final int BOXLIMIT = 5;
+
+    public MailBox() {
+        openedMails = new ArrayList<>();
+        unreadMails = new ArrayList<>();
+        sentMails = new ArrayList<>();
+    }
+
+    public boolean ifBoxFull(){
+        return unreadMails.size() == BOXLIMIT;
+    }
+}
+
+====================
+FILE: MailService.java
+
+package mail;
+
+import lombok.extern.log4j.Log4j2;
+import user.UserManager;
+import java.util.List;
+
+ /*
+  * The MailService class provides various operations related to email management,
+  * including sending mail, returning mail lists, emptying mailboxes, and marking mails as read
+  */
+
+@Log4j2
+public class MailService {
+    public void sendMail(Mail mail) {
+        mail.getRecipient().getMailBox().getUnreadMails().add(mail);
+        mail.getSender().getMailBox().getSentMails().add(mail);
+        log.info("Mail successfully sent to {}", mail.getRecipient().getUsername());
+    }
+
+    // Returns a list of mails to read based on the requested mail list type (e.g. OPENED, UNREAD, SENT)
+    public List<Mail> getMailsToRead(String requestedMailList) {
+        List<Mail> mailsToRead = getMailListByType(requestedMailList);
+        if (mailsToRead != null) {
+            log.info("{} mails returned for user {}", requestedMailList, UserManager.currentLoggedInUser.getUsername());
+        } else {
+            log.warn("Invalid mail list type requested: {}", requestedMailList);
+        }
+        return mailsToRead;
+    }
+
+    public void emptyMailbox(String requestedMailList) {
+        List<Mail> mailList = getMailListByType(requestedMailList);
+        if (mailList != null) {
+            mailList.clear();
+            log.info("{} mails deleted successfully for user {}", requestedMailList, UserManager.currentLoggedInUser.getUsername());
+        } else {
+            log.warn("Attempted to empty non-existent mail list type: {}", requestedMailList);
+        }
+    }
+
+    // Returns the list of mails based on the specified type
+    private List<Mail> getMailListByType(String type) {
+        MailBox mailBox = UserManager.currentLoggedInUser.getMailBox();
+        switch (type.toUpperCase()) {
+            case "OPENED":
+                return mailBox.getOpenedMails();
+            case "UNREAD":
+                return mailBox.getUnreadMails();
+            case "SENT":
+                return mailBox.getSentMails();
+            default:
+                log.error("Unknown mail list type requested: {}", type);
+                return null;
+        }
+    }
+
+    // Marks all unread mails as read by moving them to the OPENED mail list and clearing the UNREAD list
+    public void markMailsAsRead(String boxType){
+        if(!boxType.equals("SENT")){
+            List<Mail> unreadMails = UserManager.currentLoggedInUser.getMailBox().getUnreadMails();
+            for(Mail mail: unreadMails){
+                UserManager.currentLoggedInUser.getMailBox().getOpenedMails().add(mail);
+            }
+            UserManager.currentLoggedInUser.getMailBox().getUnreadMails().clear();
+            log.info("Marked all unread mails as read for user {}", UserManager.currentLoggedInUser.getUsername());
+        } else {
+        log.warn("Attempted to mark 'sent' mails as read, operation not allowed");
+        }
+    }
+}
+
+====================
+FILE: Server.java
+
+package server;
+
+public class Server {
+    private static final int PORT = 5000;
+    public static void main(String[] args) {
+        ServerConnectionHandler connectionHandler = new ServerConnectionHandler(PORT);
+        connectionHandler.startServer();
+
+        ServerRequestHandler logicHandler = new ServerRequestHandler(
+                connectionHandler.getOutToClient(),
+                connectionHandler.getInFromClient());
+
+        logicHandler.handleClientRequest();
+
+        connectionHandler.closeConnections();
+    }
+}
+
+====================
+FILE: ServerConnectionHandler.java
+
+package server;
+
+import lombok.extern.log4j.Log4j2;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.Date;
+
+ /*
+  * The ServerConnectionHandler class is responsible for managing server connections, including starting the server
+  * Establishes connections with client, and handle the communication
+  */
+
+@Log4j2
+public class ServerConnectionHandler {
+    private int port;
+    public static Date serverTimeCreation;
+    private ServerSocket serverSocket;
+    private Socket clientSocket;
+    private BufferedReader inFromClient;
+    private PrintWriter outToClient;
+
+    public ServerConnectionHandler(int port) {
+        this.port = port;
+    }
+
+    public void startServer(){
+            try{
+                serverTimeCreation = new Date();
+                serverSocket = new ServerSocket(port);
+                log.info("Server started on port {}", port);
+                clientSocket = serverSocket.accept();
+                log.info("Connection with client established");
+                inFromClient = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+                outToClient = new PrintWriter(clientSocket.getOutputStream(), true);
+            } catch (IOException ex){
+                log.error("Error starting server on port {}: {}", port, ex.getMessage());
+            }
+    }
+
+    public BufferedReader getInFromClient() {
+        return inFromClient;
+    }
+
+    public PrintWriter getOutToClient() {
+        return outToClient;
+    }
+
+    public void closeConnections() {
+        try {
+            if (inFromClient != null) {
+                inFromClient.close();
+            }
+            if (outToClient != null) {
+                outToClient.close();
+            }
+            if (clientSocket != null) {
+                clientSocket.close();
+            }
+            if (serverSocket != null) {
+                serverSocket.close();
+            }
+            log.info("Server and client connections closed");
+        } catch (IOException ex) {
+            log.error("Error closing connections: {}", ex.getMessage());
+        }
+    }
+}
+
+====================
+FILE: ServerInfo.java
+
+package server;
+
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
+import lombok.Getter;
+import lombok.Setter;
+
+ /*
+  * The ServerInfo class provides information about the server
+  * Include server version, available commands and server uptime
+  */
+@Getter
+@Setter
+public class ServerInfo {
+
+    private final String VERSION = "1.0.0";
+    private Map<String, String> commands = new LinkedHashMap<>();
+    private Map<String, String> serverDetails = new LinkedHashMap<>();
+    private Map<String, Long> uptime = new LinkedHashMap<>();
+    private String invalidMessage;
+    private Date serverTimeCreation;
+
+    public ServerInfo() {
+        setCommands();
+        setServerDetails();
+        setUptime();
+    }
+
+    public void setUptime(){
+        Date currentTime = new Date();
+        long uptimeInMillis = currentTime.getTime() - ServerConnectionHandler.serverTimeCreation.getTime();
+
+        long days = TimeUnit.MILLISECONDS.toDays(uptimeInMillis);
+        long hours = TimeUnit.MILLISECONDS.toHours(uptimeInMillis) % 24;
+        long minutes = TimeUnit.MILLISECONDS.toMinutes(uptimeInMillis) % 60;
+        long seconds = TimeUnit.MILLISECONDS.toSeconds(uptimeInMillis) % 60;
+        uptime.put("days", days);
+        uptime.put("hours", hours);
+        uptime.put("minutes", minutes);
+        uptime.put("seconds", seconds);
+    }
+
+    public void setCommands() {
+        commands.put("uptime", "returns the server uptime");
+        commands.put("info", "returns the server version number and setup date");
+        commands.put("help", "returns a list of available commands with brief descriptions");
+        commands.put("stop", "stops both the server and the client");
+    }
+
+    public void setServerDetails() {
+        serverDetails.put("version", VERSION);
+        serverDetails.put("setup time ", String.valueOf(ServerConnectionHandler.serverTimeCreation.getTime()));
+    }
+}
+
+====================
+FILE: ServerRequestHandler.java
+
+package server;
+
+import lombok.extern.log4j.Log4j2;
+import mail.Mail;
+import mail.MailService;
+import user.Admin;
+import user.User;
+import user.UserManager;
+import utils.JsonConverter;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.List;
+
+ /*
+  * The ServerLogicHandler class is responsible for handling various client requests and processing server-side logic
+  * It manages user authentication, mail operations, and server information
+  */
+
+@Log4j2
+public class ServerRequestHandler {
+    private final PrintWriter outToClient;
+    private final BufferedReader inFromClient;
+    private final UserManager userManager;
+    private final MailService mailService;
+    private final ServerInfo serverInfo;
+    private JsonConverter jsonResponse;
+    private boolean isAuthorized;
+    
+
+    public ServerRequestHandler(PrintWriter outToClient, BufferedReader inFromClient) {
+        this.outToClient = outToClient;
+        this.inFromClient = inFromClient;
+        this.userManager = new UserManager();
+        this.mailService = new MailService();
+        this.serverInfo = new ServerInfo();
+        isAuthorized = false;
+    }
+
+    public void handleClientRequest() {
+        String request = null;
+        try {
+            while ((request = inFromClient.readLine()) != null) {
+                String[] requestParts = request.split(" ", 3); // The array storing main request details
+                String command = requestParts[0].toUpperCase();
+                log.info("Handling command: {}", command);
+                switch (command) {
+                    case "REGISTER":
+                    case "LOGIN":
+                        handleAuthentication(command, requestParts[1], requestParts[2]);
+                        break;
+                    case "HELP":
+                        handleHelpRequest(command);
+                        break;
+                    case "WRITE":
+                        handleWrite(requestParts[1], requestParts[2]);
+                        break;
+                    case "MAILBOX":
+                        handleMailbox(requestParts[1], requestParts[2]);
+
+                        break;
+                    case "UPDATE":
+                        handleUpdateRequest();
+                        break;
+                    case "LOGOUT":
+                        handleLogout();
+                        break;
+                }
+                log.info("Completed authentication command: {}", command);
+            }
+        } catch (IOException ex) {
+            log.error("IOException occurred while processing the request: {}. Error: ", request, ex);
+        }
+    }
+
+
+    // Handles UPDATE request for updating user data. It checks for authorization before proceeding
+    private void handleUpdateRequest() throws IOException{
+        if(userManager.isAdmin()){
+            log.info("Authorized update attempt by admin user");
+            isAuthorized = true;
+            sendResponse("Operation succeeded: Authorized");
+            String updateRequest = inFromClient.readLine();
+            String[] updateOperationParts = updateRequest.split(" ", 3);
+            handleUpdate(updateOperationParts[0], updateOperationParts[1], updateOperationParts[2]);
+        } else {
+            log.warn("Unauthorized attempt to update by non-admin user.");
+            sendResponse("Operation failed: Not authorized");
+        }
+    }
+
+    // Handles a specific update operation, such as changing a password or deleting a user
+    private void handleUpdate(String updateOperation, String username, String newPassword) throws IOException {
+        User userToUpdate = userManager.findUserByUsername(username);
+        //Admin admin = new Admin();
+        String response = null;
+        if(userToUpdate != null ) {
+            switch (updateOperation.toUpperCase()) {
+                case "PASSWORD":
+                    userManager.changePassword(userToUpdate, newPassword);
+                    response = userToUpdate.getUsername() + " password change successful";
+                    log.info("Password changed successfully for user: {}", userToUpdate.getUsername());
+                    break;
+                case "DELETE":
+                    if(userToUpdate.getRole().equals(User.Role.ADMIN)){
+                        response = "Operation failed: admin account cannot be deleted";
+                        log.warn("Attempted to impossible delete admin account for user: {}", userToUpdate.getUsername());
+                    } else {
+                        userManager.deleteUser(userToUpdate);
+                        response = userToUpdate.getUsername() + " account deletion successful";
+                        log.info("User account deleted successfully: {}", userToUpdate.getUsername());
+                    }
+                    break;
+            }
+        } else {
+            response = "Update failed: " + username + " not found";
+            log.warn("Failed to find user for update: {}", username);
+        }
+        sendResponse(response);
+    }
+
+    public void handleAuthentication(String command, String username, String password) throws IOException {
+        String response = null;
+        switch (command) {
+            case "REGISTER":
+                log.info("Registration attempted for user: {}", username);
+                String registerStatus = userManager.register(username, password);
+                if(registerStatus.equals("User exist")){
+                    response = "Login failed: Existing user";
+                } else {
+                    response = "Registration successful";
+                }
+                break;
+            case "LOGIN":
+                User user = userManager.login(username, password);
+                if (user != null) {
+                    log.info("User logged in successfully: {}", username);
+                    UserManager.currentLoggedInUser = user;
+                    response = "Login successful";
+                } else {
+                    log.warn("Login attempt failed for user: {}", username);
+                    response = "Login failed: Incorrect username or password";
+                }
+                break;
+        }
+        sendResponse(response);
+    }
+
+    /*
+     * Handles client requests for server information or help.
+     * Needs to be improved
+     */
+    public void handleHelpRequest(String request) {
+        log.info("Received help request: {}", request);
+        String response = null;
+        switch (request) {
+            case "UPTIME":
+                response = serverInfo.getUptime().toString();
+                log.info("UPTIME requested, response: {}", response);
+                break;
+            case "INFO":
+                response = serverInfo.getServerDetails().toString();
+                log.info("INFO requested, response: {}", response);
+                break;
+            case "HELP":
+                response = serverInfo.getCommands().toString();
+                log.info("HELP requested, response: {}", response);
+                break;
+        }
+        sendResponse(response);
+    }
+
+    /*
+     * Handles writing a mail to a specific recipient
+     * Checks if the recipient exists and if the message length is within limits.
+     */
+    private void handleWrite(String recipient, String message) throws IOException {
+        User recipientUser = userManager.getRecipientByUsername(recipient);
+        String response = null;
+        if (recipientUser != null) {
+            if(recipientUser.getMailBox().ifBoxFull()){
+                log.warn("Mail sending failed, recipient's mailbox is full: {}", recipient);
+                response = "Sending failed: Recipient's mailbox is full";
+            } else {
+                if(message.length() <= 255){
+                    mailService.sendMail(new Mail(UserManager.currentLoggedInUser, recipientUser, message));
+                    log.info("Mail sent successfully to: {}", recipient);
+                    response = "Mail sent successfully";
+                } else {
+                    log.warn("Mail sending failed, message too long for recipient: {}", recipient);
+                    response = "Sending failed: Message too long (maximum 255 characters)";
+                }
+            }
+        } else {
+            log.warn("Mail sending failed, recipient not found: {}", recipient);
+            response = "Sending failed: Recipient not found";
+        }
+        sendResponse(response);
+    }
+
+    public void sendResponse(String response){
+        jsonResponse = new JsonConverter(response);
+        String json = jsonResponse.toJson();
+        outToClient.println(json);
+        log.info("Response sent: {}", json);
+    }
+
+    private void handleMailbox(String mailOperation, String boxType) throws IOException {
+        if(mailOperation.equals("READ")){
+            handleRead(boxType);
+        } else if(mailOperation.equals("EMPTY")){
+            handleEmpty(boxType);
+        }
+    }
+    private void handleRead(String boxType){
+        String response = null;
+        List<Mail> mailsToRead = mailService.getMailsToRead(boxType);
+        if(mailsToRead.isEmpty()){
+            response = "Mailbox is empty";
+        } else{
+            for (Mail mail : mailsToRead) {
+                response = "From: " + mail.getSender().getUsername() + "\n Message: " + mail.getMessage();
+            }
+            mailService.markMailsAsRead(boxType);
+        }
+        sendResponse(response);
+    }
+
+    private void handleEmpty(String boxType){
+        mailService.emptyMailbox(boxType);
+        sendResponse("Mails deleted successfully");
+    }
+
+    private void handleLogout() {
+        userManager.logoutCurrentUser();
+        sendResponse("Successfully logged out");
+    }
+}
+
+====================
+FILE: Admin.java
+
+package user;
+
+public class Admin extends User {
+
+    public Admin() {
+        super("admin", "java10", Role.ADMIN);
+    }
+
+
+}
+
+
+
+====================
+FILE: User.java
+
+package user;
+
+import mail.MailBox;
+
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
+public class User {
+    public enum Role {
+        ADMIN,
+        USER;
+    }
+    protected String username;
+    protected String password;
+    protected Role role;
+    protected MailBox mailBox;
+
+    public User(String username, String password, Role role) {
+        this.username = username;
+        this.password = password;
+        this.role = role;
+        this.mailBox = new MailBox();
+    }
+
+    public String toString() {
+        return username;
+    }
+}
+
+====================
+FILE: UserManager.java
+
+package user;
+
+import utils.JsonConverter;
+import java.util.ArrayList;
+import java.util.List;
+
+import lombok.extern.log4j.Log4j2;
+
+ /*
+  * The UserManager class manages user-related operations, including registration, login, logout
+  * It maintains a list of users and tracks the currently logged-in user
+  */
+
+@Log4j2
+public class UserManager {
+    public static List<User> usersList;
+    public static User currentLoggedInUser;
+    public Admin admin;
+
+    public UserManager() {
+        this.admin = new Admin();
+        usersList = new ArrayList<>();
+        usersList.add(admin);
+    }
+
+     /*
+      * Registers a new user with the specified username and password
+      * If the username already exists, it's failure
+      * Otherwise, successful registration
+      */
+
+    public String register(String typedUsername, String typedPassword) throws IllegalArgumentException {
+        JsonConverter jsonConverter = new JsonConverter();
+        boolean userExists = false;
+        String registerStatus = null;
+
+        for (User existingUser : usersList) {
+            if (typedUsername.equals(existingUser.getUsername())) {
+                userExists = true;
+                break;
+            }
+        }
+        if (userExists) {
+            registerStatus = "User exist";
+            log.info("Registration attempt failed - user already exists: {}", typedUsername);
+        } else {
+            registerStatus = "User does not exist";
+            User newUser = new User(typedUsername, typedPassword, User.Role.USER);
+            jsonConverter.writeUserToPath(newUser, "C:\\Users\\Jakub Bone\\Desktop\\Z2J\\projects\\Client-Server\\" + newUser.getUsername() + ".json");
+            usersList.add(newUser);
+            currentLoggedInUser = newUser;
+            log.info("New user registered: {}", typedUsername);
+        }
+        return registerStatus;
+    }
+
+
+    // Attempts to log in a user with the specified username and password
+    public User login(String typedUsername, String typedPassword){
+        for (User existingUser : usersList) {
+            if (typedUsername.equals(existingUser.getUsername())) {
+                if (!typedPassword.equals(existingUser.getPassword())) {
+                    log.info("Incorrect password attempt for user: {}", typedUsername);
+                } else {
+                    log.info("User logged in successfully: {}", typedUsername);
+                    return existingUser;
+                }
+            } else{
+                log.info("Login attempt failed - username not found: {}", typedUsername);
+            }
+        }
+        return null;
+    }
+
+    public void logoutCurrentUser() {
+        log.info("User successfully logged out: {}", currentLoggedInUser.getUsername());
+        currentLoggedInUser = null;
+    }
+
+    // Finds a recipient by the username
+    public User getRecipientByUsername(String username){
+        for(User recipient: usersList){
+            if(username.equals(recipient.getUsername())){
+                log.info("Recipient found: {}", username);
+                return recipient;
+            }
+        }
+        log.info("Recipient not found: {}", username);
+        return null;
+    }
+
+    // Finds a user by the username
+    public User findUserByUsername(String username){
+        User searchedUser = null;
+        for (User user : usersList) {
+            if (username.equals(user.getUsername())) {
+                searchedUser = user;
+                break;
+            }
+        }
+        if (searchedUser != null) {
+            log.info("User found on the list: {}", username);
+        } else {
+            log.warn("User not found on the list: {}", username);
+        }
+        return searchedUser;
+    }
+
+    public void changePassword(User user, String newPassword){
+        user.setPassword(newPassword);
+    }
+
+    public void deleteUser(User user){
+        UserManager.usersList.remove(user);
+    }
+
+    public boolean isAdmin(){
+        log.info("Admin checking for user: {}", currentLoggedInUser.getUsername());
+        return currentLoggedInUser.role.equals(User.Role.ADMIN);
+    }
+}
+
+====================
+FILE: JsonConverter.java
+
+package utils;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
+import lombok.extern.log4j.Log4j2;
+import user.User;
+
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+
+ /*
+  * The JsonConverter class provides utilities for converting objects to and from JSON
+  * It includes methods for serializing and deserializing user data
+  */
+
+@Log4j2
+public class JsonConverter {
+    private String message;
+
+    public JsonConverter(String message) {
+        this.message = message;
+    }
+    public JsonConverter() {
+
+    }
+
+    // Writes a user object to the specified file path in JSON format
+    public void writeUserToPath(User user, String filePath){
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        try(FileWriter writer = new FileWriter(filePath)) {
+            gson.toJson(user, writer);
+            writer.flush();
+            log.info("Successfully serialized user data for {} to file: {}", user.getUsername(), filePath);
+        } catch(IOException ex) {
+            log.error("Error - failed to serialize data for {} to JSON at {}: ", user.getUsername(), filePath, ex);
+        }
+    }
+
+    /*
+     * Reads a User object from the specified file path in JSON format
+     * Needs to be improved and implement in appropriate place
+     */
+    public User readUserFromPath(String filePath){
+        Gson gson = new Gson();
+        try(FileReader reader = new FileReader(filePath)) {
+            User user = gson.fromJson(reader, User.class);
+            log.info("Successfully deserialized user data from file: {}", filePath);
+            return gson.fromJson(reader, User.class);
+        } catch(IOException ex) {
+            log.error("Error - failed to deserialize data to JSON  ", ex);
+        }
+        return null;
+    }
+
+
+    // Converts the server response to JSON format on the Server side
+    public String toJson() {
+        try {
+            Gson gson = new Gson();
+            return gson.toJson(this) + "\n<<END>>";
+        } catch (Exception e) {
+            throw new IllegalStateException("Error - failed to serialize JsonResponse to JSON", e);
+        }
+    }
+
+    // Converts a JSON string to a JsonConverter object on the Client side
+    public static String fromJson(String json) {
+        if (json == null || json.trim().isEmpty()) {
+            throw new IllegalArgumentException("Input JSON is null or empty.");
+        }
+        try {
+            Gson gson = new Gson();
+            return gson.fromJson(json, JsonConverter.class).toString();
+        } catch (JsonSyntaxException e) {
+            throw new IllegalArgumentException("Error deserializing JSON. Please check syntax.", e);
+        }
+    }
+
+    @Override
+    public String toString() {
+        return message;
+    }
+}
+
+====================
+FILE: Screen.java
+
+package utils;
+
+public class Screen {
+
+    /*
+     * The Screen class is used to display various menu screens to the console
+     * It provides static methods for printing different menu options
+     */
+    public static void printLoginMenu() {
+        System.out.println("+---------------------------------------------+\n" +
+                "|              Welcome in MailBox!            |\n" +
+                "|                                             |\n" +
+                "| Select:                                     |\n" +
+                "|                                             |\n" +
+                "| Register                                    |\n" +
+                "| Login                                       |\n" +
+                "| Help                                        |\n" +
+                "| Exit                                        |\n" +
+                "+---------------------------------------------+");
+        System.out.println("Select an option:");
+    }
+
+    public static void printMailBoxMenu() {
+        System.out.println("+---------------------------------------------+\n" +
+                "|              You are logged in              |\n" +
+                "|                                             |\n" +
+                "| Select:                                     |\n" +
+                "|                                             |\n" +
+                "| Write mail                                  |\n" +
+                "| Mailbox                                     |\n" +
+                "| Update                                      |\n" +
+                "| Logout                                      |\n" +
+                "+---------------------------------------------+");
+        System.out.println("Select an option:");
+    }
+}
+
+====================
+FILE: UserInteraction.java
+
+package utils;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+
+ /*
+  * The UserInteraction class is responsible for interaction with users through the console
+  * The methods used to obtain user input for various purposes, such as usernames, passwords, and mailbox operations
+  */
+public class UserInteraction {
+    private BufferedReader reader;
+    public UserInteraction(BufferedReader reader) {
+        this.reader = reader;
+    }
+
+    public String getUsername() throws IOException {
+        System.out.println("Please enter your username:");
+        return reader.readLine();
+    }
+
+    public String getPassword() throws IOException {
+        System.out.println("Please enter your password:");
+        return reader.readLine();
+    }
+
+    public String getNewPassword() throws IOException{
+        System.out.println("Please enter a new password:");
+        return reader.readLine();
+    }
+
+    public String getRecipient() throws IOException {
+        System.out.println("Please enter the recipient's username:");
+        return reader.readLine();
+    }
+
+    public String getMessage() throws IOException {
+        System.out.println("Please type your message (max 255 characters):");
+        return reader.readLine();
+    }
+
+    public String chooseMailBox() throws IOException {
+        while (true) {
+            System.out.println("Select an operation for the mailbox: READ / EMPTY");
+            String operation = reader.readLine().toUpperCase();
+            switch (operation) {
+                case "READ":
+                case "EMPTY":
+                    System.out.println("Select the mailbox type: OPENED / UNREAD / SENT");
+                    String mailbox = reader.readLine().toUpperCase();
+                    switch (mailbox) {
+                        case "OPENED":
+                        case "UNREAD":
+                        case "SENT":
+                            return operation + " " + mailbox;
+                        default:
+                            System.out.println("Invalid mailbox type entered. Please try again");
+                            break;
+                    }
+                    break;
+                default:
+                    System.out.println("Invalid operation entered. Please try again");;
+                    break;
+            }
+        }
+    }
+
+    public String chooseAccountUpdate() throws IOException {
+        while (true) {
+            System.out.println("Choose account setting to update: PASSWORD / DELETE");;
+            String input = reader.readLine();
+            switch (input.toUpperCase()) {
+                case "PASSWORD":
+                    return "PASSWORD";
+                case "DELETE":
+                    return "DELETE";
+                default:
+                    System.out.println("Invalid input. Please enter either 'PASSWORD' or 'DELETE'");
+                    break;
+            }
+        }
+    }
+
+    public String chooseUserToUpdate() throws IOException {
+        System.out.println("Please enter the username of the account to update:");
+        return reader.readLine();
+    }
+}
+
