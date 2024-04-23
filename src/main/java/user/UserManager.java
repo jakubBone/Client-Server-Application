@@ -73,7 +73,7 @@ public class UserManager {
     }
 
     public void logoutCurrentUser() {
-        log.info("User logged out: {}", currentLoggedInUser.getUsername());
+        log.info("User successfully logged out: {}", currentLoggedInUser.getUsername());
         currentLoggedInUser = null;
     }
 

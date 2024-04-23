@@ -26,7 +26,7 @@ public class ServerRequestHandler {
     private final MailService mailService;
     private final ServerInfo serverInfo;
     private JsonConverter jsonResponse;
-    private boolean isAuthorized = false;
+    private boolean isAuthorized;
     
 
     public ServerRequestHandler(PrintWriter outToClient, BufferedReader inFromClient) {
@@ -35,10 +35,10 @@ public class ServerRequestHandler {
         this.userManager = new UserManager();
         this.mailService = new MailService();
         this.serverInfo = new ServerInfo();
+        isAuthorized = false;
     }
 
     public void handleClientRequest() {
-        log.info("Starting to handle client requests.");
         String request = null;
         try {
             while ((request = inFromClient.readLine()) != null) {
@@ -73,27 +73,24 @@ public class ServerRequestHandler {
                 log.info("Completed authentication command: {}", command);
             }
         } catch (IOException ex) {
-            log.error("IOException occurred while processing the request: {}. Error: {}", request, ex.getMessage());
+            log.error("IOException occurred while processing the request: {}. Error: ", request, ex);
         }
     }
 
+
     // Handles UPDATE request for updating user data. It checks for authorization before proceeding
     private void handleUpdateRequest() throws IOException{
-        String response = null;
         if(!userManager.isAdmin()){
             log.warn("Unauthorized attempt to update by non-admin user.");
-            response = "Operation failed: Not authorized";
-            sendResponse(response);
+            sendResponse("Operation failed: Not authorized");
         } else {
             log.info("Authorized update attempt by admin user");
             isAuthorized = true;
-            response = "Operation succeeded: Authorized";
-            sendResponse(response);
+            sendResponse("Operation succeeded: Authorized");
             String updateRequest = inFromClient.readLine();
             String[] updateOperationParts = updateRequest.split(" ", 3);
             handleUpdate(updateOperationParts[0], updateOperationParts[1], updateOperationParts[2]);
         }
-
     }
 
     // Handles a specific update operation, such as changing a password or deleting a user
@@ -236,7 +233,6 @@ public class ServerRequestHandler {
 
     private void handleLogout() {
         userManager.logoutCurrentUser();
-        log.info("User successfully logged out.");
         sendResponse("Successfully logged out");
     }
 }
