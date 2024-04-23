@@ -57,11 +57,8 @@ public class ServerRequestHandler {
                         handleWrite(requestParts[1], requestParts[2]);
                         break;
                     case "MAILBOX":
-                        if(requestParts[1].equals("READ")){
-                            handleMailbox(requestParts[2]);
-                        } else {
-                            handleEmpty(requestParts[2]);
-                        }
+                        handleMailbox(requestParts[1], requestParts[2]);
+
                         break;
                     case "UPDATE":
                         handleUpdateRequest();
@@ -202,7 +199,6 @@ public class ServerRequestHandler {
         sendResponse(response);
     }
 
-    // Sends a response to the client after converting it to JSON format.
     public void sendResponse(String response){
         jsonResponse = new JsonConverter(response);
         String json = jsonResponse.toJson();
@@ -210,9 +206,14 @@ public class ServerRequestHandler {
         log.info("Response sent: {}", json);
     }
 
-
-    // Handles the reading of a specific mailbox type and sends the corresponding mails to the client
-    private void handleMailbox(String boxType) throws IOException {
+    private void handleMailbox(String mailOperation, String boxType) throws IOException {
+        if(mailOperation.equals("READ")){
+            handleRead(boxType);
+        } else if(mailOperation.equals("EMPTY")){
+            handleEmpty(boxType);
+        }
+    }
+    private void handleRead(String boxType){
         String response = null;
         List<Mail> mailsToRead = mailService.getMailsToRead(boxType);
         if(mailsToRead.isEmpty()){
@@ -227,8 +228,8 @@ public class ServerRequestHandler {
     }
 
     private void handleEmpty(String boxType){
-        sendResponse("Mails deleted successfully");
         mailService.emptyMailbox(boxType);
+        sendResponse("Mails deleted successfully");
     }
 
     private void handleLogout() {
