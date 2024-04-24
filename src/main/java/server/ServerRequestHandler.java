@@ -3,7 +3,6 @@ package server;
 import lombok.extern.log4j.Log4j2;
 import mail.Mail;
 import mail.MailService;
-import user.Admin;
 import user.User;
 import user.UserManager;
 import utils.JsonConverter;
@@ -58,7 +57,6 @@ public class ServerRequestHandler {
                         break;
                     case "MAILBOX":
                         handleMailbox(requestParts[1], requestParts[2]);
-
                         break;
                     case "UPDATE":
                         handleUpdateRequest();
@@ -93,7 +91,6 @@ public class ServerRequestHandler {
     // Handles a specific update operation, such as changing a password or deleting a user
     private void handleUpdate(String updateOperation, String username, String newPassword) throws IOException {
         User userToUpdate = userManager.findUserByUsername(username);
-        //Admin admin = new Admin();
         String response = null;
         if(userToUpdate != null ) {
             switch (updateOperation.toUpperCase()) {
