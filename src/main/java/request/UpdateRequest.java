@@ -8,6 +8,6 @@ public class UpdateRequest extends Request{
     }
 
     public UpdateRequest(String request) {
-        this.requestCommand = request;
+        super(request);
     }
 }

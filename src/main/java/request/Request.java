@@ -19,5 +19,8 @@ public class Request {
     public Request(String requestCommand) {
         this.requestCommand = requestCommand;
     }
+
+    public Request() {
+    }
 }
 
