@@ -78,6 +78,11 @@ public class JsonConverter {
         }
     }
 
+    public void saveUserData(User newUser){
+        writeUserToPath(newUser, "C:\\Users\\Jakub Bone\\Desktop\\Z2J\\projects\\Client-Server\\" + newUser.getUsername() + ".json");
+    }
+
+
     @Override
     public String toString() {
         return message;

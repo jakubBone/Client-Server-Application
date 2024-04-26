@@ -17,8 +17,12 @@ public class UserManager {
     public static User currentLoggedInUser;
     public Admin admin;
 
+    JsonConverter jsonConverter;
+
     public UserManager() {
         this.admin = new Admin();
+        jsonConverter = new JsonConverter();
+        jsonConverter.saveUserData(admin);
         usersList = new ArrayList<>();
         usersList.add(admin);
     }
@@ -30,7 +34,6 @@ public class UserManager {
       */
 
     public String register(String typedUsername, String typedPassword) throws IllegalArgumentException {
-        JsonConverter jsonConverter = new JsonConverter();
         boolean userExists = false;
         String registerStatus = null;
 
@@ -46,7 +49,8 @@ public class UserManager {
         } else {
             registerStatus = "User does not exist";
             User newUser = new User(typedUsername, typedPassword, User.Role.USER);
-            jsonConverter.writeUserToPath(newUser, "C:\\Users\\Jakub Bone\\Desktop\\Z2J\\projects\\Client-Server\\" + newUser.getUsername() + ".json");
+            jsonConverter.saveUserData(newUser);
+            //jsonConverter.writeUserToPath(newUser, "C:\\Users\\Jakub Bone\\Desktop\\Z2J\\projects\\Client-Server\\" + newUser.getUsername() + ".json");
             usersList.add(newUser);
             currentLoggedInUser = newUser;
             log.info("New user registered: {}", typedUsername);
@@ -108,6 +112,7 @@ public class UserManager {
 
     public void changePassword(User user, String newPassword){
         user.setPassword(newPassword);
+        jsonConverter.saveUserData(user); // update old password after change
     }
 
     public void deleteUser(User user){

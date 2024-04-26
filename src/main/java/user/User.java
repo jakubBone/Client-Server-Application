@@ -9,6 +9,8 @@ import org.mindrot.jbcrypt.BCrypt;
 @Getter
 @Setter
 public class User {
+    public static User.Role Role;
+
     public enum Role {
         ADMIN,
         USER;
