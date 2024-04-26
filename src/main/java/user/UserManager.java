@@ -59,11 +59,11 @@ public class UserManager {
     public User login(String typedUsername, String typedPassword){
         for (User existingUser : usersList) {
             if (typedUsername.equals(existingUser.getUsername())) {
-                if (!typedPassword.equals(existingUser.getPassword())) {
-                    log.info("Incorrect password attempt for user: {}", typedUsername);
-                } else {
+                if (existingUser.checkPassword(typedPassword)) {
                     log.info("User logged in successfully: {}", typedUsername);
                     return existingUser;
+                } else {
+                    log.info("Incorrect password attempt for user: {}", typedUsername);
                 }
             } else{
                 log.info("Login attempt failed - username not found: {}", typedUsername);

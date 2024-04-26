@@ -82,6 +82,10 @@ public class ClientConnection {
             loggedIn = false;
             log.info("User attempted to update settings");
         }
+        if(response.equals("Login failed: Incorrect username or password")){
+            loggedIn = false;
+            log.info("Login failed: Incorrect username or password");
+        }
         if(response.equals("Registration failed")){
             loggedIn = false;
             log.info("Registration failed");

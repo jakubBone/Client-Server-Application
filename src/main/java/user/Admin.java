@@ -6,7 +6,6 @@ public class Admin extends User {
         super("admin", "java10", Role.ADMIN);
     }
 
-
 }
 
 
