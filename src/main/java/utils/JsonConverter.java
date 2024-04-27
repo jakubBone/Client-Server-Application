@@ -4,13 +4,15 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import lombok.extern.log4j.Log4j2;
+import request.Request;
 import user.User;
 
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.Type;
 
- /*
+/*
   * The JsonConverter class provides utilities for converting objects to and from JSON
   * It includes methods for serializing and deserializing user data
   */
@@ -49,14 +51,14 @@ public class JsonConverter {
             log.info("Successfully deserialized user data from file: {}", filePath);
             return gson.fromJson(reader, User.class);
         } catch(IOException ex) {
-            log.error("Error - failed to deserialize data to JSON  ", ex);
+            log.error("Error - failed to deserialize data to JSON", ex);
         }
         return null;
     }
 
 
     // Converts the server response to JSON format on the Server side
-    public String toJson() {
+    public String serializeMessage() {
         try {
             Gson gson = new Gson();
             return gson.toJson(this) + "\n<<END>>";
@@ -66,15 +68,37 @@ public class JsonConverter {
     }
 
     // Converts a JSON string to a JsonConverter object on the Client side
-    public static String fromJson(String json) {
+    public static String deserializeMessage(String json) {
         if (json == null || json.trim().isEmpty()) {
-            throw new IllegalArgumentException("Input JSON is null or empty.");
+            throw new IllegalArgumentException("Input JSON is null or empty");
         }
         try {
             Gson gson = new Gson();
             return gson.fromJson(json, JsonConverter.class).toString();
         } catch (JsonSyntaxException e) {
-            throw new IllegalArgumentException("Error deserializing JSON. Please check syntax.", e);
+            throw new IllegalArgumentException("Error deserializing JSON. Please check syntax", e);
+        }
+    }
+    public static Request deserializeObject(String json) {
+        if (json == null) {
+            throw new IllegalArgumentException("Input JSON is null or empty");
+        }
+        try {
+            Gson gson = new Gson();
+            return gson.fromJson(json, Request.class);
+        } catch (JsonSyntaxException e) {
+            throw new IllegalArgumentException("Error deserializing JSON. Please check syntax", e);
+        }
+    }
+    public static String serializeObject(Object obj) {
+        if (obj == null) {
+            throw new IllegalArgumentException("Object is null or empty");
+        }
+        try {
+            Gson gson = new Gson();
+            return gson.toJson(obj, JsonConverter.class);
+        } catch (JsonSyntaxException e) {
+            throw new IllegalArgumentException("Error serializing JSON. Please check syntax", e);
         }
     }
 

@@ -29,7 +29,7 @@ public class UserInteraction {
     }
 
     public String getRecipient() throws IOException {
-        System.out.println("Please enter the recipient's username:");
+        System.out.println("Please enter a recipient's username:");
         return reader.readLine();
     }
 
@@ -38,35 +38,39 @@ public class UserInteraction {
         return reader.readLine();
     }
 
-    public String chooseMailBox() throws IOException {
+    public String chooseBoxOperation() throws IOException {
         while (true) {
             System.out.println("Select an operation for the mailbox: READ / EMPTY");
             String operation = reader.readLine().toUpperCase();
             switch (operation) {
                 case "READ":
                 case "EMPTY":
-                    System.out.println("Select the mailbox type: OPENED / UNREAD / SENT");
-                    String mailbox = reader.readLine().toUpperCase();
-                    switch (mailbox) {
-                        case "OPENED":
-                        case "UNREAD":
-                        case "SENT":
-                            return operation + " " + mailbox;
-                        default:
-                            System.out.println("Invalid mailbox type entered. Please try again");
-                            break;
-                    }
-                    break;
+                    return operation;
                 default:
                     System.out.println("Invalid operation entered. Please try again");;
                     break;
             }
         }
     }
+    public String chooseMailBox() throws IOException {
+        while (true) {
+                System.out.println("Select a mailbox type: OPENED / UNREAD / SENT");
+                String mailbox = reader.readLine().toUpperCase();
+                switch (mailbox) {
+                    case "OPENED":
+                    case "UNREAD":
+                    case "SENT":
+                        return mailbox;
+                    default:
+                        System.out.println("Invalid mailbox type entered. Please try again");
+                        break;
+                }
+        }
+    }
 
     public String chooseAccountUpdate() throws IOException {
         while (true) {
-            System.out.println("Choose account setting to update: PASSWORD / DELETE");;
+            System.out.println("Choose an account setting to update: PASSWORD / DELETE");;
             String input = reader.readLine();
             switch (input.toUpperCase()) {
                 case "PASSWORD":
@@ -81,7 +85,7 @@ public class UserInteraction {
     }
 
     public String chooseUserToUpdate() throws IOException {
-        System.out.println("Please enter the username of the account to update:");
+        System.out.println("Please enter an username of the account to update:");
         return reader.readLine();
     }
 }

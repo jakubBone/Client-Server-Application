@@ -36,6 +36,10 @@ public class User {
     public boolean checkPassword(String typedPassword) {
         return BCrypt.checkpw(typedPassword, hashedPassword);
     }
+
+    public void hashNewPassword(){
+        hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
+    }
     public String toString() {
         return username;
     }

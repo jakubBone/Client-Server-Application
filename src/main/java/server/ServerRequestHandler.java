@@ -1,8 +1,10 @@
 package server;
 
+import com.google.gson.Gson;
 import lombok.extern.log4j.Log4j2;
 import mail.Mail;
 import mail.MailService;
+import request.Request;
 import user.User;
 import user.UserManager;
 import utils.JsonConverter;
@@ -25,6 +27,7 @@ public class ServerRequestHandler {
     private final MailService mailService;
     private final ServerInfo serverInfo;
     private JsonConverter jsonResponse;
+    private Gson gson;
     private boolean isAuthorized;
     
 
@@ -34,6 +37,7 @@ public class ServerRequestHandler {
         this.userManager = new UserManager();
         this.mailService = new MailService();
         this.serverInfo = new ServerInfo();
+        gson = new Gson();
         isAuthorized = false;
     }
 
@@ -41,22 +45,33 @@ public class ServerRequestHandler {
         String request = null;
         try {
             while ((request = inFromClient.readLine()) != null) {
-                String[] requestParts = request.split(" ", 3); // The array storing main request details
-                String command = requestParts[0].toUpperCase();
+                Request deserializedRequest = gson.fromJson(request, Request.class);
+                System.out.println(deserializedRequest.getRequestCommand());
+                System.out.println(deserializedRequest.getUsername());
+                System.out.println(deserializedRequest.getPassword());
+                System.out.println(deserializedRequest.getRecipient());
+                System.out.println(deserializedRequest.getMessage());
+                System.out.println(deserializedRequest.getBoxOperation());
+                System.out.println(deserializedRequest.getPassword());
+
+                String command = deserializedRequest.getRequestCommand().toUpperCase();
                 log.info("Handling command: {}", command);
                 switch (command) {
                     case "REGISTER":
                     case "LOGIN":
-                        handleAuthentication(command, requestParts[1], requestParts[2]);
+                        //handleAuthentication(command, requestParts[1], requestParts[2]);
+                        handleAuthentication(command, deserializedRequest.getUsername(), deserializedRequest.getPassword());
                         break;
                     case "HELP":
                         handleHelpRequest(command);
                         break;
                     case "WRITE":
-                        handleWrite(requestParts[1], requestParts[2]);
+                        handleWrite(deserializedRequest.getRecipient(), deserializedRequest.getMessage());
+                        //handleWrite(requestParts[1], requestParts[2]);
                         break;
                     case "MAILBOX":
-                        handleMailbox(requestParts[1], requestParts[2]);
+                        handleMailbox(deserializedRequest.getBoxOperation(), deserializedRequest.getMailbox());
+                        //handleMailbox(requestParts[1], requestParts[2]);
                         break;
                     case "UPDATE":
                         handleUpdateRequest();
@@ -80,8 +95,8 @@ public class ServerRequestHandler {
             isAuthorized = true;
             sendResponse("Operation succeeded: Authorized");
             String updateRequest = inFromClient.readLine();
-            String[] updateOperationParts = updateRequest.split(" ", 3);
-            handleUpdate(updateOperationParts[0], updateOperationParts[1], updateOperationParts[2]);
+            Request deserializedRequest = gson.fromJson(updateRequest, Request.class);
+            handleUpdate(deserializedRequest.getUpdateOperation(), deserializedRequest.getUserToUpdate(), deserializedRequest.getNewPassword());
         } else {
             log.warn("Unauthorized attempt to update by non-admin user.");
             sendResponse("Operation failed: Not authorized");
@@ -134,6 +149,8 @@ public class ServerRequestHandler {
                 if (user != null) {
                     log.info("User logged in successfully: {}", username);
                     UserManager.currentLoggedInUser = user;
+                    System.out.println(UserManager.currentLoggedInUser);
+                    System.out.println(UserManager.currentLoggedInUser.getPassword());
                     response = "Login successful";
                 } else {
                     log.warn("Login attempt failed for user: {}", username);
@@ -198,7 +215,7 @@ public class ServerRequestHandler {
 
     public void sendResponse(String response){
         jsonResponse = new JsonConverter(response);
-        String json = jsonResponse.toJson();
+        String json = jsonResponse.serializeMessage();
         outToClient.println(json);
         log.info("Response sent: {}", json);
     }

@@ -112,6 +112,7 @@ public class UserManager {
 
     public void changePassword(User user, String newPassword){
         user.setPassword(newPassword);
+        user.hashNewPassword();
         jsonConverter.saveUserData(user); // update old password after change
     }
 

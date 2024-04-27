@@ -4,7 +4,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+import com.google.gson.Gson;
 import lombok.extern.log4j.Log4j2;
+import request.*;
 import utils.Screen;
 import utils.UserInteraction;
 
@@ -17,9 +19,13 @@ import utils.UserInteraction;
 public class Client {
     private ClientConnection connection;
     private BufferedReader userInput;
+    private static Gson gson;
+    private Request requestType;
+    private String jsonRequest;
 
     public static void main(String[] args) {
         Client client = new Client();
+        gson = new Gson();
         client.handleServerCommunication();
     }
 
@@ -69,18 +75,21 @@ public class Client {
      */
     private void handleLoginRequest(String request) throws IOException {
         UserInteraction userInteraction = new UserInteraction(userInput);
-        String username, password;
         switch (request.toUpperCase()) {
             case "REGISTER":
             case "LOGIN":
-                username = userInteraction.getUsername();
-                password = userInteraction.getPassword();
-                connection.sendRequest(request + " " + username + " " + password);
+                String username = userInteraction.getUsername();
+                String password = userInteraction.getPassword();
+                requestType = new LoginRegisterRequest(request, username, password);
+                jsonRequest = gson.toJson(requestType);
+                connection.sendRequest(jsonRequest);
                 log.info("User attempted to {}", request);
                 connection.readResponse();
                 break;
             case "HELP":
-                connection.sendRequest(request);
+                requestType = new HelpRequest(request);
+                jsonRequest = gson.toJson(requestType);
+                connection.sendRequest(jsonRequest);
                 log.info("User requested help");
                 connection.readResponse();
                 break;
@@ -102,18 +111,27 @@ public class Client {
             case "WRITE":
                 String recipient = userInteraction.getRecipient();
                 String message = userInteraction.getMessage();
-                connection.sendRequest(request + " " + recipient + " " + message);
+                System.out.println(request);
+                System.out.println(message);
+                requestType = new WriteRequest(request, recipient, message);
+                jsonRequest = gson.toJson(requestType);
+                connection.sendRequest(jsonRequest);
                 log.info("User sent a message to {}", recipient);
                 connection.readResponse();
                 break;
             case "MAILBOX":
-                String boxOperation = userInteraction.chooseMailBox();
-                connection.sendRequest(request + " " + boxOperation);
+                String boxOperation = userInteraction.chooseBoxOperation();
+                String mailbox = userInteraction.chooseMailBox();
+                requestType = new MailBoxRequest(request, boxOperation, mailbox);
+                jsonRequest = gson.toJson(requestType);
+                connection.sendRequest(jsonRequest);
                 log.info("User accessed their mailbox: {}", boxOperation);
                 connection.readResponse();
                 break;
             case "UPDATE":
-                connection.sendRequest(request);
+                requestType = new UpdateRequest(request);
+                jsonRequest = gson.toJson(requestType);
+                connection.sendRequest(jsonRequest);
                 log.info("User attempted to update settings");
                 connection.readResponse();
                 if(connection.isAuthorized()) {
@@ -123,17 +141,20 @@ public class Client {
                     if(updateOperation.equals("PASSWORD")){
                         newPassword = userInteraction.getNewPassword();
                     }
-                    connection.sendRequest(updateOperation + " " + userToUpdate + " " + newPassword);
+                    requestType = new UpdateRequest(updateOperation, userToUpdate, newPassword);
+                    jsonRequest = gson.toJson(requestType);
+                    connection.sendRequest(jsonRequest);
                     log.info("User updated {} for {}", updateOperation, userToUpdate);
                     connection.readResponse();
                 }
                 break;
             case "LOGOUT":
                 log.info("User attempted to log out");
-                connection.sendRequest(request);
+                requestType = new LogoutRequest(request);
+                jsonRequest = gson.toJson(requestType);
+                connection.sendRequest(jsonRequest);
                 connection.setLoggedIn(false);
                 connection.readResponse();
-
                 break;
             default:
                 log.warn("Incorrect input from user: {}", request);

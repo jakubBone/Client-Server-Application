@@ -57,7 +57,6 @@ public class ClientConnection {
     }
 
     public void sendRequest(String request) {
-        System.out.println(request);
         outToServer.println(request);
         log.info("Sent request to server: {}", request);
     }
@@ -65,9 +64,9 @@ public class ClientConnection {
     public void readResponse() throws IOException {
         String jsonResponse = null;
         while (!(jsonResponse = inFromServer.readLine()).equals("<<END>>")) {
-            String response = JsonConverter.fromJson(jsonResponse);
+            String response = JsonConverter.deserializeMessage(jsonResponse);
             checkResponseStatus(response);
-            System.out.println(JsonConverter.fromJson(jsonResponse));
+            System.out.println(JsonConverter.deserializeMessage(jsonResponse));
         }
     }
 
