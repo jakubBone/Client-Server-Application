@@ -46,20 +46,12 @@ public class ServerRequestHandler {
         try {
             while ((request = inFromClient.readLine()) != null) {
                 Request deserializedRequest = gson.fromJson(request, Request.class);
-                System.out.println(deserializedRequest.getRequestCommand());
-                System.out.println(deserializedRequest.getUsername());
-                System.out.println(deserializedRequest.getPassword());
-                System.out.println(deserializedRequest.getRecipient());
-                System.out.println(deserializedRequest.getMessage());
-                System.out.println(deserializedRequest.getBoxOperation());
-                System.out.println(deserializedRequest.getPassword());
 
                 String command = deserializedRequest.getRequestCommand().toUpperCase();
                 log.info("Handling command: {}", command);
                 switch (command) {
                     case "REGISTER":
                     case "LOGIN":
-                        //handleAuthentication(command, requestParts[1], requestParts[2]);
                         handleAuthentication(command, deserializedRequest.getUsername(), deserializedRequest.getPassword());
                         break;
                     case "HELP":
@@ -67,11 +59,9 @@ public class ServerRequestHandler {
                         break;
                     case "WRITE":
                         handleWrite(deserializedRequest.getRecipient(), deserializedRequest.getMessage());
-                        //handleWrite(requestParts[1], requestParts[2]);
                         break;
                     case "MAILBOX":
                         handleMailbox(deserializedRequest.getBoxOperation(), deserializedRequest.getMailbox());
-                        //handleMailbox(requestParts[1], requestParts[2]);
                         break;
                     case "UPDATE":
                         handleUpdateRequest();
@@ -106,15 +96,21 @@ public class ServerRequestHandler {
     // Handles a specific update operation, such as changing a password or deleting a user
     private void handleUpdate(String updateOperation, String username, String newPassword) throws IOException {
         User userToUpdate = userManager.findUserByUsername(username);
+        System.out.println("0");
         String response = null;
+        System.out.println("1");
         if(userToUpdate != null ) {
+            System.out.println("2");
             switch (updateOperation.toUpperCase()) {
                 case "PASSWORD":
+                    System.out.println("4");
                     userManager.changePassword(userToUpdate, newPassword);
                     response = userToUpdate.getUsername() + " password change successful";
                     log.info("Password changed successfully for user: {}", userToUpdate.getUsername());
+                    System.out.println("5");
                     break;
                 case "DELETE":
+                    System.out.println("6");
                     if(userToUpdate.getRole().equals(User.Role.ADMIN)){
                         response = "Operation failed: admin account cannot be deleted";
                         log.warn("Attempted to impossible delete admin account for user: {}", userToUpdate.getUsername());
@@ -126,9 +122,11 @@ public class ServerRequestHandler {
                     break;
             }
         } else {
+            System.out.println("7");
             response = "Update failed: " + username + " not found";
             log.warn("Failed to find user for update: {}", username);
         }
+        System.out.println("8");
         sendResponse(response);
     }
 
@@ -149,8 +147,6 @@ public class ServerRequestHandler {
                 if (user != null) {
                     log.info("User logged in successfully: {}", username);
                     UserManager.currentLoggedInUser = user;
-                    System.out.println(UserManager.currentLoggedInUser);
-                    System.out.println(UserManager.currentLoggedInUser.getPassword());
                     response = "Login successful";
                 } else {
                     log.warn("Login attempt failed for user: {}", username);

@@ -7,6 +7,8 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
 import utils.JsonConverter;
 
@@ -16,6 +18,8 @@ import utils.JsonConverter;
   */
 
 @Log4j2
+@Getter
+@Setter
 public class ClientConnection {
     private final int PORT_NUMBER = 5000;
     private Socket clientSocket;

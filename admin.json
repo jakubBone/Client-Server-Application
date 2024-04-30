@@ -1,0 +1,12 @@
+{
+  "username": "admin",
+  "password": "java10",
+  "hashedPassword": "$2a$10$ycHiUlHTedqOAOz4ZqryEuu9hc3KazgnMO.jop8dfh0y03n.gIugO",
+  "role": "ADMIN",
+  "mailBox": {
+    "openedMails": [],
+    "unreadMails": [],
+    "sentMails": [],
+    "BOXLIMIT": 5
+  }
+}

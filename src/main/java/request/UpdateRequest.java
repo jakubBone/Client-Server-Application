@@ -6,8 +6,8 @@ public class UpdateRequest extends Request{
         this.userToUpdate = userToUpdate;
         this.newPassword = newPassword;
     }
-
     public UpdateRequest(String request) {
         super(request);
     }
+
 }
