@@ -6,5 +6,4 @@ public class MailBoxRequest extends Request {
         this.boxOperation = boxOperation;
         this.mailbox = mailbox;
     }
-
 }

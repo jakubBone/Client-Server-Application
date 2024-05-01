@@ -40,10 +40,4 @@ public class RequestFactory {
         }
         return new UpdateRequest(updateOperation, userToUpdate, newPassword);
     }
-
-        /*requestType = new UpdateRequest(updateOperation, userToUpdate, newPassword);
-        jsonRequest = gson.toJson(requestType);
-        connection.sendRequest(jsonRequest);
-        log.info("User updated {} for {}", updateOperation, userToUpdate);
-        connection.readResponse();*/
 }
