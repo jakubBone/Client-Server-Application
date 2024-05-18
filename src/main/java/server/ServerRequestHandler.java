@@ -24,11 +24,11 @@ public class ServerRequestHandler {
     private Gson gson;
     public static boolean isAuthorized;
     private JsonConverter jsonResponse;
-    private CredentialHandler credentialHandler
-    private HelpHandler helpHandler
-    private MailboxHandler mailboxHandler
-    private AccountUpdateHandler accountUpdateHandler
-    private WriteHandler writeHandler
+    private CredentialHandler credentialHandler;
+    private HelpHandler helpHandler;
+    private MailboxHandler mailboxHandler;
+    private AccountUpdateHandler accountUpdateHandler;
+    private WriteHandler writeHandler;
 
     public ServerRequestHandler(PrintWriter outToClient, BufferedReader inFromClient) {
         this.outToClient = outToClient;
