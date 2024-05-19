@@ -27,6 +27,7 @@ public class ClientConnection {
     private BufferedReader inFromServer;
     private static boolean loggedIn = false;
     private boolean isAuthorized = false;
+    private static int connectionAttempts = 0;
 
     /*
      * The ClientConnection class is responsible for managing connections
@@ -59,6 +60,23 @@ public class ClientConnection {
             log.warn("Reconnection attempt interrupted", ie);
         }
     }
+
+    /*private void retryConnection() {
+        if (connectionAttempts >= 2) {
+            log.error("Max reconnection attempts reached. Giving up");
+            disconnect();
+            return;
+        }
+        try {
+            Thread.sleep(5000);
+            log.info("Attempting to reconnect to the server...");
+            connectionAttempts++;
+            connectToServer();
+        } catch (InterruptedException ie) {
+            Thread.currentThread().interrupt();
+            log.warn("Reconnection attempt interrupted", ie);
+        }
+    }*/
 
     public void sendRequest(String request) {
         outToServer.println(request);
