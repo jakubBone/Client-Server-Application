@@ -30,7 +30,6 @@ public class Client {
     public Client() {
         connection = new ClientConnection();
         userInput = new BufferedReader(new InputStreamReader(System.in));
-        log.info("Client application started");
     }
 
     /*
@@ -39,7 +38,7 @@ public class Client {
      */
     public void handleServerCommunication() {
         try {
-            while(true){
+            while(connection.isConnected()){
                 if(!connection.isLoggedIn()) {
                     Screen.printLoginMenu();
                 } else {
@@ -51,7 +50,7 @@ public class Client {
                     log.info("User exited the application");
                     return;
                 }
-                handleRequest(request); // Handle login-related requests
+                    handleRequest(request); // Handle login-related requests
             }
         } catch (IOException ex) {
             log.error("Error in handling server communication: {}", ex.getMessage());

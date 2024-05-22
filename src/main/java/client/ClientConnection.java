@@ -28,6 +28,7 @@ public class ClientConnection {
     private static boolean loggedIn = false;
     private boolean isAuthorized = false;
     private static int connectionAttempts = 0;
+    private boolean connected = false;
 
     /*
      * The ClientConnection class is responsible for managing connections
@@ -43,6 +44,7 @@ public class ClientConnection {
             clientSocket = new Socket("localhost", PORT_NUMBER);
             outToServer = new PrintWriter(clientSocket.getOutputStream(), true);
             inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            connected = true;
             log.info("Connection with Server established on port {}", PORT_NUMBER);
         } catch (IOException ex) {
             log.error("Failed to establish connection with the server at port {}. Error: {}", PORT_NUMBER, ex.getMessage());
@@ -50,33 +52,24 @@ public class ClientConnection {
         }
     }
 
-    private void retryConnection() {
-        try {
-            Thread.sleep(5000);
-            log.info("Attempting to reconnect to the server...");
-            connectToServer();
-        } catch (InterruptedException ie) {
-            Thread.currentThread().interrupt();
-            log.warn("Reconnection attempt interrupted", ie);
-        }
-    }
 
-    /*private void retryConnection() {
+    public void retryConnection() {
         if (connectionAttempts >= 2) {
             log.error("Max reconnection attempts reached. Giving up");
             disconnect();
             return;
         }
         try {
-            Thread.sleep(5000);
+            Thread.sleep(2000);
             log.info("Attempting to reconnect to the server...");
+            Thread.sleep(5000);
             connectionAttempts++;
             connectToServer();
         } catch (InterruptedException ie) {
             Thread.currentThread().interrupt();
             log.warn("Reconnection attempt interrupted", ie);
         }
-    }*/
+    }
 
     public void sendRequest(String request) {
         outToServer.println(request);
@@ -94,7 +87,7 @@ public class ClientConnection {
 
 
     // Checks the login update and role authorization
-    private void checkResponseStatus(String response) {
+    public void checkResponseStatus(String response) {
         if (response.equals("Login successful") || response.equals("Registration successful")) {
             loggedIn = true;
             log.info("User logged in successfully");
@@ -142,12 +135,10 @@ public class ClientConnection {
         return loggedIn;
     }
 
-    public void setLoggedIn(boolean loggedIn) {
-        ClientConnection.loggedIn = loggedIn;
-        log.info("Login status changed: {}", loggedIn);
-    }
-
     public boolean isAuthorized() {
         return isAuthorized;
+    }
+    public boolean isConnected(){
+        return connected;
     }
 }
