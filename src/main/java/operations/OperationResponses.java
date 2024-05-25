@@ -7,8 +7,8 @@ public enum OperationResponses {
     LOGIN_FAILED("Login failed: Incorrect username or password"),
     REGISTRATION_FAILED("Registration failed"),
     OPERATION_SUCCEEDED("Operation succeeded: Authorized"),
-    OPERATION_FAILED("Operation failed: Not authorized");
-
+    OPERATION_FAILED("Operation failed: Not authorized"),
+    UNKNOWN_RESPONSE("Unknown response");
     private final String RESPONSE;
 
     OperationResponses(String response){
@@ -25,7 +25,7 @@ public enum OperationResponses {
                 return opResponse;
             }
         }
-        return null;
+        return UNKNOWN_RESPONSE;
     }
 
 }

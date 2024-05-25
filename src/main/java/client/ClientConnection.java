@@ -127,33 +127,6 @@ public class ClientConnection {
         }
     }
 
-    /*public void checkResponseStatus(String response) {
-        if (response.equals("Login successful") || response.equals("Registration successful")) {
-            loggedIn = true;
-            log.info("User logged in successfully");
-        }
-        if(response.equals("Successfully logged out")){
-            loggedIn = false;
-            log.info("User attempted to update settings");
-        }
-        if(response.equals("Login failed: Incorrect username or password")){
-            loggedIn = false;
-            log.info("Login failed: Incorrect username or password");
-        }
-        if(response.equals("Registration failed")){
-            loggedIn = false;
-            log.info("Registration failed");
-        }
-        if (response.equals("Operation succeeded: Authorized")) {;
-            isAuthorized = true;
-            log.info("User authorized for operations");
-        }
-        if(response.equals("Operation failed: Not authorized")){
-            isAuthorized = false;
-            log.info("User not authorized for operations");
-        }
-    }*/
-
     public void disconnect() {
         try {
             if (outToServer != null) {

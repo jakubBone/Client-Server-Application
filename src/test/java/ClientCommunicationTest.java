@@ -1,7 +1,7 @@
 import client.ClientConnection;
+import operations.OperationResponses;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -63,20 +63,33 @@ public class ClientCommunicationTest {
     }
 
 
-    // Need to be improved
-    @ParameterizedTest
+    @Test
     @DisplayName("Should check response status")
-    @CsvSource({
-            "'Login successful', true, false",
-            "'Registration successful', true, false",
-            "'Successfully logged out', false, false",
-            "'Login failed: Incorrect username or password', false, false",
-            "'Registration failed', false, false",
-            "'Operation succeeded: Authorized', false, true",
-            "'Operation failed: Not authorized', false, false"
-    })
     public void testCheckResponseStatus() {
-        Assertions.fail("Not implemented yet");
+        String response = OperationResponses.LOGIN_SUCCESSFUL.getResponse();
+        clientConnection.checkResponseStatus(response);
+        Assertions.assertTrue(clientConnection.isLoggedIn());
+
+        response = OperationResponses.REGISTRATION_SUCCESSFUL.getResponse();
+        clientConnection.checkResponseStatus(response);
+        Assertions.assertTrue(clientConnection.isLoggedIn());
+
+        response = OperationResponses.SUCCESSFULLY_LOGGED_OUT.getResponse();
+        clientConnection.checkResponseStatus(response);
+        Assertions.assertFalse(clientConnection.isLoggedIn());
+
+        response = OperationResponses.REGISTRATION_FAILED.getResponse();
+        clientConnection.checkResponseStatus(response);
+        Assertions.assertFalse(clientConnection.isLoggedIn());
+
+        response = OperationResponses.OPERATION_SUCCEEDED.getResponse();
+        clientConnection.checkResponseStatus(response);
+        Assertions.assertTrue(clientConnection.isAuthorized());
+
+        response = OperationResponses.OPERATION_FAILED.getResponse();
+        clientConnection.checkResponseStatus(response);
+        Assertions.assertFalse(clientConnection.isAuthorized());
+
     }
 
 }
