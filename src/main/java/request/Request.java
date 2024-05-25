@@ -17,6 +17,7 @@ public class Request {
     String userToUpdate;
     String newPassword;
 
+
     public Request(String requestCommand) {
         this.requestCommand = requestCommand;
     }

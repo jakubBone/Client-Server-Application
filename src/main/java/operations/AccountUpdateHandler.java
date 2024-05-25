@@ -17,9 +17,9 @@ public class AccountUpdateHandler {
         if (userManager.isAdmin()){
             log.info("Authorized update attempt by admin user");
             ServerRequestHandler.isAuthorized = true;
-            status = "Operation succeeded: Authorized";
+            status = OperationResponses.OPERATION_SUCCEEDED.getResponse();
         } else {
-            status = "Operation failed: Not authorized";
+            status = OperationResponses.OPERATION_FAILED.getResponse();
         }
         return status;
     }

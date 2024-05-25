@@ -10,6 +10,7 @@ import java.net.Socket;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
+import operations.OperationResponses;
 import utils.JsonConverter;
 
  /*
@@ -29,6 +30,9 @@ public class ClientConnection {
     private boolean isAuthorized = false;
     private static int connectionAttempts = 0;
     private boolean connected = false;
+
+    private static OperationResponses response;
+
 
     /*
      * The ClientConnection class is responsible for managing connections
@@ -89,6 +93,41 @@ public class ClientConnection {
 
     // Checks the login update and role authorization
     public void checkResponseStatus(String response) {
+        OperationResponses operationResponse = OperationResponses.fromString(response);
+
+        switch (operationResponse) {
+            case LOGIN_SUCCESSFUL:
+            case REGISTRATION_SUCCESSFUL:
+                loggedIn = true;
+                log.info("User logged in successfully");
+                break;
+            case SUCCESSFULLY_LOGGED_OUT:
+                loggedIn = false;
+                log.info("User logged out successfully");
+                break;
+            case LOGIN_FAILED:
+                loggedIn = false;
+                log.info("Login failed: Incorrect username or password");
+                break;
+            case REGISTRATION_FAILED:
+                loggedIn = false;
+                log.info("Registration failed");
+                break;
+            case OPERATION_SUCCEEDED:
+                isAuthorized = true;
+                log.info("User authorized for operations");
+                break;
+            case OPERATION_FAILED:
+                isAuthorized = false;
+                log.info("User not authorized for operations");
+                break;
+            default:
+                log.warn("Unknown response");
+                break;
+        }
+    }
+
+    /*public void checkResponseStatus(String response) {
         if (response.equals("Login successful") || response.equals("Registration successful")) {
             loggedIn = true;
             log.info("User logged in successfully");
@@ -113,7 +152,7 @@ public class ClientConnection {
             isAuthorized = false;
             log.info("User not authorized for operations");
         }
-    }
+    }*/
 
     public void disconnect() {
         try {
