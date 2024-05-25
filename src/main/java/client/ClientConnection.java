@@ -76,6 +76,7 @@ public class ClientConnection {
         log.info("Sent request to server: {}", request);
     }
 
+
     public void readResponse() throws IOException {
         String jsonResponse = null;
         while (!(jsonResponse = inFromServer.readLine()).equals("<<END>>")) {

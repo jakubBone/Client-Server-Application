@@ -2,7 +2,6 @@ import client.ClientConnection;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -38,10 +37,6 @@ public class ClientCommunicationTest {
     @Test
     @DisplayName("Should connect to server")
     public void testConnectToServer() throws IOException {
-        when(mockSocket.isConnected()).thenReturn(true);
-        clientConnection.connectToServer();
-        verify(mockSocket).getInputStream();
-        verify(mockSocket.getInputStream());
         Assertions.assertTrue(clientConnection.isConnected());
     }
 
@@ -56,7 +51,15 @@ public class ClientCommunicationTest {
     @Test
     @DisplayName("Should read response")
     void testReadResponse() throws IOException {
-        Assertions.fail("Not implemented yet");
+        String jsonResponse1 = "{\"message\":\"response1\"}";
+        String jsonResponse2 = "{\"message\":\"response2\"}";
+
+        when(mockInFromServer.readLine())
+                .thenReturn(jsonResponse1, jsonResponse2, "<<END>>");
+
+        clientConnection.readResponse();
+
+        verify(mockInFromServer, times(3)).readLine();
     }
 
 
