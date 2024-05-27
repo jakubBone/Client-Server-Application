@@ -1,5 +1,7 @@
 package server;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
 
 import java.io.BufferedReader;
@@ -16,13 +18,15 @@ import java.util.Date;
   */
 
 @Log4j2
+@Getter
+@Setter
 public class ServerConnectionHandler {
     private int port;
     public static Date serverTimeCreation;
-    private ServerSocket serverSocket;
-    private Socket clientSocket;
-    private BufferedReader inFromClient;
-    private PrintWriter outToClient;
+    public  ServerSocket serverSocket;
+    public  Socket clientSocket;
+    public BufferedReader inFromClient;
+    public PrintWriter outToClient;
 
     public ServerConnectionHandler(int port) {
         this.port = port;

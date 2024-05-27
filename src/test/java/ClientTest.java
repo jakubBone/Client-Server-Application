@@ -1,9 +1,11 @@
-
 import client.Client;
 import client.ClientConnection;
-import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.*;
+import org.mockito.MockedStatic;
+import request.Request;
+import request.RequestFactory;
 import utils.Screen;
+import utils.UserInteraction;
 
 import java.io.*;
 
@@ -11,72 +13,85 @@ import static org.mockito.Mockito.*;
 
 public class ClientTest {
 
-    private Client mockClient;
+    private Client client;
     private ClientConnection mockConnection;
     private BufferedReader mockUserInput;
-    private Logger mockLogger;
-    private Screen mockScreen;
+    private UserInteraction mockUserInteraction;
+    private RequestFactory mockFactory;
 
+    private Request mockRequestType;
 
     @BeforeEach
     public void setUp() {
-        mockClient = mock(Client.class);
+        client = new Client();
         mockConnection = mock(ClientConnection.class);
         mockUserInput = mock(BufferedReader.class);
-        mockLogger = mock(Logger.class);
-        mockScreen = mock(Screen.class);
+        client.setConnection(mockConnection);
+        client.setUserInput(mockUserInput);
+        mockUserInteraction = mock(UserInteraction.class);
+        mockFactory = mock(RequestFactory.class);
+        mockRequestType = mock(Request.class);
     }
 
     @AfterEach
     public void closeDown() throws IOException {
         mockConnection.disconnect();
-        mockUserInput.close();
     }
 
     @Test
-    @DisplayName("Should test handle disconnect when user inputs 'EXIT'")
+    @DisplayName("Should test disconnect when user inputs 'EXIT'")
     void testHandleServerCommunication_EXIT() throws IOException {
-        when(mockConnection.isConnected()).thenReturn(true, false);
+        when(mockConnection.isConnected()).thenReturn(true);
         when(mockConnection.isLoggedIn()).thenReturn(true);
         when(mockUserInput.readLine()).thenReturn("EXIT");
 
-        mockClient.handleServerCommunication();
+        client.handleServerCommunication();
 
+        Assertions.assertTrue(mockConnection.isConnected());
+        Assertions.assertTrue(mockConnection.isLoggedIn());
         verify(mockConnection, times(1)).disconnect();
-        verify(mockLogger).info("User exited the application");
     }
 
     @Test
-    @DisplayName("Should test handle communication when user NOT LOGGED IN")
+    @DisplayName("Should test communication handling when user is NOT LOGGED IN")
     void testHandleServerCommunication_NotLoggedIn() throws IOException {
-        when(mockConnection.isConnected()).thenReturn(true, false);
+        when(mockConnection.isConnected()).thenReturn(true);
         when(mockConnection.isLoggedIn()).thenReturn(false);
-        when(mockUserInput.readLine()).thenReturn("Request");
 
-        mockClient.handleServerCommunication();
+        MockedStatic<Screen> mockScreen = mockStatic(Screen.class);
+        client.handleServerCommunication();
 
-        verify(mockScreen.getClass());
+        mockScreen.verify(() -> Screen.printLoginMenu());
+        mockScreen.close();
     }
+
     @Test
-    @DisplayName("Should test handle communication when user LOGGED IN")
+    @DisplayName("Should test communication handling when user is LOGGED IN")
     void testHandleServerCommunication_LoggedIn() throws IOException {
-        when(mockConnection.isConnected()).thenReturn(true, false);
+        when(mockConnection.isConnected()).thenReturn(true);
         when(mockConnection.isLoggedIn()).thenReturn(true);
-        when(mockUserInput.readLine()).thenReturn("Request");
 
-        mockClient.handleServerCommunication();
+        MockedStatic<Screen> mockScreen = mockStatic(Screen.class);
+        client.handleServerCommunication();
 
-        verify(mockScreen);
-        Screen.printMailBoxMenu();
+        mockScreen.verify(() -> Screen.printMailBoxMenu());
+        mockScreen.close();
     }
+
     @Test
-    @DisplayName("Should test handle communication when user NOT CONNECTED")
+    @DisplayName("Should test communication handling when user is NOT CONNECTED")
     void testHandleServerCommunication_NotConnected() throws IOException {
-        when(mockConnection.isConnected()).thenReturn(false);
+        when(!mockConnection.isConnected()).thenReturn(false);
 
-        mockClient.handleServerCommunication();
+        client.handleServerCommunication();
 
-        verify(mockLogger).error("Error in handling server communication: Connection error");
+        verify(mockConnection, never()).isLoggedIn();
+        verify(mockUserInput, never()).readLine();
+    }
+
+    @Test
+    @DisplayName("Should test request handling")
+    void testHandleRequest() {
+        Assertions.fail("Not implemented");
     }
 }
-

@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 import com.google.gson.Gson;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
 import request.*;
 import utils.Screen;
@@ -16,6 +18,8 @@ import utils.UserInteraction;
   */
 
 @Log4j2
+@Getter
+@Setter
 public class Client {
     private ClientConnection connection;
     private BufferedReader userInput;
@@ -61,7 +65,7 @@ public class Client {
      * Handles user login requests (e.g., REGISTER, LOGIN, HELP)
      * HELP - displays help menu
      */
-    private void handleRequest(String request) throws IOException {
+    public void handleRequest(String request) throws IOException {
         UserInteraction userInteraction = new UserInteraction(userInput);
         RequestFactory factory = new RequestFactory();
 

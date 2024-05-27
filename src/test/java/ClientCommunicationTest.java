@@ -62,7 +62,6 @@ public class ClientCommunicationTest {
         verify(mockInFromServer, times(3)).readLine();
     }
 
-
     @Test
     @DisplayName("Should check response status")
     public void testCheckResponseStatus() {
@@ -89,7 +88,5 @@ public class ClientCommunicationTest {
         response = OperationResponses.OPERATION_FAILED.getResponse();
         clientConnection.checkResponseStatus(response);
         Assertions.assertFalse(clientConnection.isAuthorized());
-
     }
-
 }

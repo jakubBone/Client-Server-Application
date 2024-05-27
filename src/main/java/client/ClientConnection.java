@@ -30,9 +30,7 @@ public class ClientConnection {
     private boolean isAuthorized = false;
     private static int connectionAttempts = 0;
     private boolean connected = false;
-
     private static OperationResponses response;
-
 
     /*
      * The ClientConnection class is responsible for managing connections
@@ -80,7 +78,6 @@ public class ClientConnection {
         log.info("Sent request to server: {}", request);
     }
 
-
     public void readResponse() throws IOException {
         String jsonResponse = null;
         while (!(jsonResponse = inFromServer.readLine()).equals("<<END>>")) {
@@ -89,7 +86,6 @@ public class ClientConnection {
             System.out.println(JsonConverter.deserializeMessage(jsonResponse));
         }
     }
-
 
     // Checks the login update and role authorization
     public void checkResponseStatus(String response) {
