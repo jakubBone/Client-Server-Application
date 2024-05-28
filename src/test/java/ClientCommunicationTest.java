@@ -29,14 +29,13 @@ class ClientCommunicationTest {
     }
 
     @AfterAll
-    @Test
-    static void closeDown() throws IOException {
+    static void closeDown()  {
         clientConnection.disconnect();
     }
 
     @Test
     @DisplayName("Should connect to server")
-    void testConnectToServer() throws IOException {
+    void testConnectToServer()  {
         Assertions.assertTrue(clientConnection.isConnected());
     }
 

@@ -14,7 +14,7 @@ import static org.mockito.Mockito.*;
 class ClientTest {
 
     private Client client;
-    private ClientConnection mockConnection;
+    private static ClientConnection mockConnection;
     private BufferedReader mockUserInput;
     private UserInteraction mockUserInteraction;
     private RequestFactory mockFactory;
@@ -32,8 +32,8 @@ class ClientTest {
         mockRequestType = mock(Request.class);
     }
 
-    @AfterEach
-    void closeDown() throws IOException {
+    @AfterAll
+    static void closeDown() throws IOException {
         mockConnection.disconnect();
     }
 
@@ -53,7 +53,7 @@ class ClientTest {
 
     @Test
     @DisplayName("Should test communication handling when user is NOT LOGGED IN")
-    void testHandleServerCommunication_NotLoggedIn() throws IOException {
+    void testHandleServerCommunication_NotLoggedIn()  {
         when(mockConnection.isConnected()).thenReturn(true);
         when(mockConnection.isLoggedIn()).thenReturn(false);
 
@@ -66,7 +66,7 @@ class ClientTest {
 
     @Test
     @DisplayName("Should test communication handling when user is LOGGED IN")
-    void testHandleServerCommunication_LoggedIn() throws IOException {
+    void testHandleServerCommunication_LoggedIn()  {
         when(mockConnection.isConnected()).thenReturn(true);
         when(mockConnection.isLoggedIn()).thenReturn(true);
 
@@ -91,6 +91,11 @@ class ClientTest {
     @Test
     @DisplayName("Should test request handling")
     void testHandleRequest() {
+        /*
+         * TODO: Implement logic for 'handleRequest()' method test
+         *  */
+
         Assertions.fail("Not implemented");
+
     }
 }

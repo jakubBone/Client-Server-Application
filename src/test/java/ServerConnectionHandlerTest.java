@@ -15,7 +15,7 @@ class ServerConnectionHandlerTest {
     private BufferedReader mockInFromClient;
     private PrintWriter mockOutToClient;
     @BeforeEach
-    void setUp() throws IOException{
+    void setUp()  {
         handler = new ServerConnectionHandler(5000);
         mockServerSocket = mock(ServerSocket.class);
         mockClientSocket = mock(Socket.class);
@@ -26,14 +26,16 @@ class ServerConnectionHandlerTest {
         handler.setOutToClient(mockOutToClient);
         handler.setInFromClient(mockInFromClient);
     }
+
     @AfterEach
-    void closeDown() throws IOException {
+    void closeDown()  {
         handler.closeConnections();
 
     }
+
     @Test
     @DisplayName("Should connect to server")
-    void testConnectWithClient() throws IOException {
+    void testConnectWithClient()  {
         when(mockClientSocket.isConnected()).thenReturn(true);
         handler.startServer();
         Assertions.assertTrue(mockClientSocket.isConnected());

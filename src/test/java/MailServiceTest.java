@@ -1,4 +1,3 @@
-
 import mail.Mail;
 import mail.MailBox;
 import mail.MailService;
@@ -10,7 +9,6 @@ import user.User;
 import user.UserManager;
 
 import java.util.List;
-
 
 public class MailServiceTest {
     private User sender;

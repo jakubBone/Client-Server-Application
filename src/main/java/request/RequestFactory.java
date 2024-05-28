@@ -5,6 +5,7 @@ import utils.UserInteraction;
 import java.io.IOException;
 
 public class RequestFactory {
+
     public Request createRequest(String requestName, UserInteraction userInteraction) throws IOException {
         switch (requestName.toUpperCase()) {
             case "REGISTER":
@@ -23,7 +24,7 @@ public class RequestFactory {
                 String mailbox = userInteraction.chooseMailBox();
                 return new MailBoxRequest(requestName, boxOperation, mailbox);
             case "UPDATE":
-                    return new UpdateRequest(requestName);
+                    return new AccountUpdateRequest(requestName);
             case "LOGOUT":
                 return new LogoutRequest(requestName);
             default:
@@ -31,13 +32,17 @@ public class RequestFactory {
         }
     }
 
-    public Request extendUpdateRequest(UserInteraction userInteraction) throws IOException{
-        String updateOperation = userInteraction.chooseAccountUpdate();
+    public Request createAccountUpdateRequest(UserInteraction userInteraction) throws IOException{
+        String updateOperation = userInteraction.chooseAccountUpdateOperation();
         String userToUpdate = userInteraction.chooseUserToUpdate();
         String newPassword = null;
         if (updateOperation.equals("PASSWORD")) {
             newPassword = userInteraction.getNewPassword();
         }
-        return new UpdateRequest(updateOperation, userToUpdate, newPassword);
+
+        /*
+        * TODO: Implement additional logic for 'DELETE' request
+        */
+        return new AccountUpdateRequest(updateOperation, userToUpdate, newPassword);
     }
 }

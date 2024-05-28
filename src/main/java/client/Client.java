@@ -77,7 +77,7 @@ public class Client {
             log.info("User attempted to {}", request);
             connection.readResponse();
             if(connection.isAuthorized()) {
-                requestType = factory.extendUpdateRequest(userInteraction);
+                requestType = factory.createAccountUpdateRequest(userInteraction);
                 jsonRequest = gson.toJson(requestType);
                 connection.sendRequest(jsonRequest);
                 log.info("User updated {} for {}", requestType.getUpdateOperation(), requestType.getUserToUpdate());

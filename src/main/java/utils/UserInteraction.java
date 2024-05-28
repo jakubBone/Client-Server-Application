@@ -68,7 +68,7 @@ public class UserInteraction {
         }
     }
 
-    public String chooseAccountUpdate() throws IOException {
+    public String chooseAccountUpdateOperation() throws IOException {
         while (true) {
             System.out.println("Choose an account setting to update: PASSWORD / DELETE");;
             String input = reader.readLine();
