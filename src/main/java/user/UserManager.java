@@ -1,5 +1,7 @@
 package user;
 
+import lombok.Getter;
+import lombok.Setter;
 import utils.JsonConverter;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,11 +14,12 @@ import lombok.extern.log4j.Log4j2;
   */
 
 @Log4j2
+@Getter
+@Setter
 public class UserManager {
     public static List<User> usersList;
     public static User currentLoggedInUser;
     public Admin admin;
-
     JsonConverter jsonConverter;
 
     public UserManager() {

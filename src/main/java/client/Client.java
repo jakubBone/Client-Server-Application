@@ -27,12 +27,12 @@ public class Client {
 
     public static void main(String[] args) {
         Client client = new Client();
-        gson = new Gson();
         client.handleServerCommunication();
     }
 
     public Client() {
         connection = new ClientConnection();
+        gson = new Gson();
         userInput = new BufferedReader(new InputStreamReader(System.in));
     }
 

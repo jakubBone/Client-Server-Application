@@ -41,22 +41,6 @@ public class JsonConverter {
         }
     }
 
-    /*
-     * Reads a User object from the specified file path in JSON format
-     * Needs to be improved and implement in appropriate place
-     */
-    public User readUserFromPath(String filePath){
-        Gson gson = new Gson();
-        try(FileReader reader = new FileReader(filePath)) {
-            User user = gson.fromJson(reader, User.class);
-            log.info("Successfully deserialized user data from file: {}", filePath);
-            return gson.fromJson(reader, User.class);
-        } catch(IOException ex) {
-            log.error("Error - failed to deserialize data to JSON", ex);
-        }
-        return null;
-    }
-
 
     // Converts the server response to JSON format on the Server side
     public String serializeMessage() {
@@ -78,28 +62,6 @@ public class JsonConverter {
             return gson.fromJson(json, JsonConverter.class).toString();
         } catch (JsonSyntaxException e) {
             throw new IllegalArgumentException("Error deserializing JSON. Please check syntax", e);
-        }
-    }
-    public static Request deserializeObject(String json) {
-        if (json == null) {
-            throw new IllegalArgumentException("Input JSON is null or empty");
-        }
-        try {
-            Gson gson = new Gson();
-            return gson.fromJson(json, Request.class);
-        } catch (JsonSyntaxException e) {
-            throw new IllegalArgumentException("Error deserializing JSON. Please check syntax", e);
-        }
-    }
-    public static String serializeObject(Object obj) {
-        if (obj == null) {
-            throw new IllegalArgumentException("Object is null or empty");
-        }
-        try {
-            Gson gson = new Gson();
-            return gson.toJson(obj, JsonConverter.class);
-        } catch (JsonSyntaxException e) {
-            throw new IllegalArgumentException("Error serializing JSON. Please check syntax", e);
         }
     }
 
