@@ -11,18 +11,17 @@ import java.io.*;
 
 import static org.mockito.Mockito.*;
 
-public class ClientTest {
+class ClientTest {
 
     private Client client;
     private ClientConnection mockConnection;
     private BufferedReader mockUserInput;
     private UserInteraction mockUserInteraction;
     private RequestFactory mockFactory;
-
     private Request mockRequestType;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         client = new Client();
         mockConnection = mock(ClientConnection.class);
         mockUserInput = mock(BufferedReader.class);
@@ -34,7 +33,7 @@ public class ClientTest {
     }
 
     @AfterEach
-    public void closeDown() throws IOException {
+    void closeDown() throws IOException {
         mockConnection.disconnect();
     }
 

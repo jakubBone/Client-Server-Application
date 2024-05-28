@@ -23,10 +23,10 @@ import java.util.Date;
 public class ServerConnectionHandler {
     private int port;
     public static Date serverTimeCreation;
-    public  ServerSocket serverSocket;
-    public  Socket clientSocket;
-    public BufferedReader inFromClient;
-    public PrintWriter outToClient;
+    private ServerSocket serverSocket;
+    private Socket clientSocket;
+    private BufferedReader inFromClient;
+    private PrintWriter outToClient;
 
     public ServerConnectionHandler(int port) {
         this.port = port;

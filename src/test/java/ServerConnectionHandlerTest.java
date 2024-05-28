@@ -8,14 +8,14 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 import static org.mockito.Mockito.*;
-public class ServerConnectionHandlerTest {
-    public ServerConnectionHandler handler;
-    public ServerSocket mockServerSocket;
-    public  Socket mockClientSocket;
-    public BufferedReader mockInFromClient;
-    public PrintWriter mockOutToClient;
+class ServerConnectionHandlerTest {
+    private ServerConnectionHandler handler;
+    private ServerSocket mockServerSocket;
+    private Socket mockClientSocket;
+    private BufferedReader mockInFromClient;
+    private PrintWriter mockOutToClient;
     @BeforeEach
-    public void setUp() throws IOException{
+    void setUp() throws IOException{
         handler = new ServerConnectionHandler(5000);
         mockServerSocket = mock(ServerSocket.class);
         mockClientSocket = mock(Socket.class);
@@ -27,13 +27,13 @@ public class ServerConnectionHandlerTest {
         handler.setInFromClient(mockInFromClient);
     }
     @AfterEach
-    public void closeDown() throws IOException {
+    void closeDown() throws IOException {
         handler.closeConnections();
 
     }
     @Test
     @DisplayName("Should connect to server")
-    public void testConnectWithClient() throws IOException {
+    void testConnectWithClient() throws IOException {
         when(mockClientSocket.isConnected()).thenReturn(true);
         handler.startServer();
         Assertions.assertTrue(mockClientSocket.isConnected());

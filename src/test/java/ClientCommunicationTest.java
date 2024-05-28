@@ -9,16 +9,16 @@ import java.net.Socket;
 
 import static org.mockito.Mockito.*;
 
-public class ClientCommunicationTest {
+class ClientCommunicationTest {
 
     private static ClientConnection clientConnection;
-    private static Socket mockSocket;
-    private static PrintWriter mockOutToServer;
-    private static BufferedReader mockInFromServer;
+    private Socket mockSocket;
+    private PrintWriter mockOutToServer;
+    private BufferedReader mockInFromServer;
 
 
     @BeforeEach
-    public void setUp(){
+    void setUp(){
         mockSocket = mock(Socket.class);
         mockOutToServer = mock(PrintWriter.class);
         mockInFromServer = mock(BufferedReader.class);
@@ -30,19 +30,19 @@ public class ClientCommunicationTest {
 
     @AfterAll
     @Test
-    public static void closeDown() throws IOException {
+    static void closeDown() throws IOException {
         clientConnection.disconnect();
     }
 
     @Test
     @DisplayName("Should connect to server")
-    public void testConnectToServer() throws IOException {
+    void testConnectToServer() throws IOException {
         Assertions.assertTrue(clientConnection.isConnected());
     }
 
     @Test
     @DisplayName("Should send request")
-    public void testSendRequest() {
+    void testSendRequest() {
         String request = "exampleRequest";
         clientConnection.sendRequest(request);
         verify(mockOutToServer).println(request);
@@ -64,7 +64,7 @@ public class ClientCommunicationTest {
 
     @Test
     @DisplayName("Should check response status")
-    public void testCheckResponseStatus() {
+    void testCheckResponseStatus() {
         String response = OperationResponses.LOGIN_SUCCESSFUL.getResponse();
         clientConnection.checkResponseStatus(response);
         Assertions.assertTrue(clientConnection.isLoggedIn());
