@@ -53,7 +53,6 @@ public class UserManager {
             registerStatus = "User does not exist";
             User newUser = new User(typedUsername, typedPassword, User.Role.USER);
             jsonConverter.saveUserData(newUser);
-            //jsonConverter.writeUserToPath(newUser, "C:\\Users\\Jakub Bone\\Desktop\\Z2J\\projects\\Client-Server\\" + newUser.getUsername() + ".json");
             usersList.add(newUser);
             currentLoggedInUser = newUser;
             log.info("New user registered: {}", typedUsername);
@@ -68,6 +67,7 @@ public class UserManager {
             if (typedUsername.equals(existingUser.getUsername())) {
                 if (existingUser.checkPassword(typedPassword)) {
                     log.info("User logged in successfully: {}", typedUsername);
+                    currentLoggedInUser = existingUser;
                     return existingUser;
                 } else {
                     log.info("Incorrect password attempt for user: {}", typedUsername);
@@ -98,28 +98,24 @@ public class UserManager {
 
     // Finds a user by the username
     public User findUserByUsername(String username){
-        User searchedUser = null;
+        User foundUser = null;
         for (User user : usersList) {
             if (username.equals(user.getUsername())) {
-                searchedUser = user;
+                foundUser = user;
                 break;
             }
         }
-        if (searchedUser != null) {
+        if (foundUser != null) {
             log.info("User found on the list: {}", username);
         } else {
             log.warn("User not found on the list: {}", username);
         }
-        return searchedUser;
+        return foundUser;
     }
 
     public void changePassword(User user, String newPassword){
-        System.out.println("X");
         user.setPassword(newPassword);
-        System.out.println("y");
         user.hashNewPassword();
-        System.out.println("Z");
-        //jsonConverter.saveUserData(user); // update old password after change
     }
 
     public void deleteUser(User user){
