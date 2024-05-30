@@ -14,7 +14,7 @@ public class WriteHandler {
         User recipientUser = userManager.getRecipientByUsername(recipient);
         String response = null;
         if (recipientUser != null) {
-            if(recipientUser.getMailBox().ifBoxFull()){
+            if(recipientUser.getMailBox().ifUnreadBoxFull()){
                 log.warn("Mail sending failed, recipient's mailbox is full: {}", recipient);
                 response = "Sending failed: Recipient's mailbox is full";
             } else {

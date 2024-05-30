@@ -9,18 +9,18 @@ import lombok.Setter;
 @Getter
 @Setter
 public class MailBox {
-    private List<Mail> openedMails;
-    private List<Mail> unreadMails;
-    private List<Mail> sentMails;
+    private List<Mail> openedBox;
+    private List<Mail> unreadBox;
+    private List<Mail> sentBox;
     private final int BOXLIMIT = 5;
 
     public MailBox() {
-        openedMails = new ArrayList<>();
-        unreadMails = new ArrayList<>();
-        sentMails = new ArrayList<>();
+        openedBox = new ArrayList<>();
+        unreadBox = new ArrayList<>();
+        sentBox = new ArrayList<>();
     }
 
-    public boolean ifBoxFull(){
-        return unreadMails.size() == BOXLIMIT;
+    public boolean ifUnreadBoxFull(){
+        return unreadBox.size() >= BOXLIMIT;
     }
 }

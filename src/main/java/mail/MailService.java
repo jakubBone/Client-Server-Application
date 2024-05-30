@@ -12,8 +12,8 @@ import java.util.List;
 @Log4j2
 public class MailService {
     public void sendMail(Mail mail) {
-        mail.getRecipient().getMailBox().getUnreadMails().add(mail);
-        mail.getSender().getMailBox().getSentMails().add(mail);
+        mail.getRecipient().getMailBox().getUnreadBox().add(mail);
+        mail.getSender().getMailBox().getSentBox().add(mail);
         log.info("Mail successfully sent to {}", mail.getRecipient().getUsername());
     }
 
@@ -43,11 +43,11 @@ public class MailService {
         MailBox mailBox = UserManager.currentLoggedInUser.getMailBox();
         switch (type.toUpperCase()) {
             case "OPENED":
-                return mailBox.getOpenedMails();
+                return mailBox.getOpenedBox();
             case "UNREAD":
-                return mailBox.getUnreadMails();
+                return mailBox.getUnreadBox();
             case "SENT":
-                return mailBox.getSentMails();
+                return mailBox.getSentBox();
             default:
                 log.error("Unknown mail list type requested: {}", type);
                 return null;
@@ -57,11 +57,11 @@ public class MailService {
     // Marks all unread mails as read by moving them to the OPENED mail list and clearing the UNREAD list
     public void markMailsAsRead(String boxType){
         if(!boxType.equals("SENT")){
-            List<Mail> unreadMails = UserManager.currentLoggedInUser.getMailBox().getUnreadMails();
+            List<Mail> unreadMails = UserManager.currentLoggedInUser.getMailBox().getUnreadBox();
             for(Mail mail: unreadMails){
-                UserManager.currentLoggedInUser.getMailBox().getOpenedMails().add(mail);
+                UserManager.currentLoggedInUser.getMailBox().getOpenedBox().add(mail);
             }
-            UserManager.currentLoggedInUser.getMailBox().getUnreadMails().clear();
+            UserManager.currentLoggedInUser.getMailBox().getUnreadBox().clear();
             log.info("Marked all unread mails as read for user {}", UserManager.currentLoggedInUser.getUsername());
         } else {
         log.warn("Attempted to mark 'sent' mails as read, operation not allowed");

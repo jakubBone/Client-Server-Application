@@ -33,8 +33,8 @@ public class MailServiceTest {
     void testSendMail() {
         mailService.sendMail(mail);
 
-        Assertions.assertTrue(sender.getMailBox().getSentMails().contains(mail));
-        Assertions.assertTrue(recipient.getMailBox().getUnreadMails().contains(mail));
+        Assertions.assertTrue(sender.getMailBox().getSentBox().contains(mail));
+        Assertions.assertTrue(recipient.getMailBox().getUnreadBox().contains(mail));
     }
 
     @Test
@@ -44,7 +44,7 @@ public class MailServiceTest {
 
         List<Mail> mailList = mailService.getMailsToRead(requestedMailBox);
 
-        Assertions.assertTrue(mailBox.getUnreadMails().equals(mailList));
+        Assertions.assertTrue(mailBox.getUnreadBox().equals(mailList));
     }
 
     @Test
@@ -54,7 +54,7 @@ public class MailServiceTest {
 
         mailService.emptyMailbox(requestedMailBox);
 
-        Assertions.assertTrue(mailBox.getOpenedMails().isEmpty());
+        Assertions.assertTrue(mailBox.getOpenedBox().isEmpty());
     }
 
     @Test
@@ -62,10 +62,10 @@ public class MailServiceTest {
     void testMarkMailsAsRead() {
         String requestedMailBox = "UNREAD";
         List<Mail> mailList = List.of(mail);
-        mailBox.setUnreadMails(mailList);
+        mailBox.setUnreadBox(mailList);
 
-        Assertions.assertFalse(mailBox.getUnreadMails().isEmpty());
+        Assertions.assertFalse(mailBox.getUnreadBox().isEmpty());
         mailService.markMailsAsRead(requestedMailBox);
-        Assertions.assertTrue(mailBox.getSentMails().isEmpty());
+        Assertions.assertTrue(mailBox.getSentBox().isEmpty());
     }
 }
