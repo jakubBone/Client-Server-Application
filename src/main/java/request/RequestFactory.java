@@ -43,6 +43,10 @@ public class RequestFactory {
         /*
         * TODO: Implement additional logic for 'DELETE' request
         */
+
+        /*
+        * TODO: Isolate AccountUpdateRequest to ChangePasswordRequest and DeleteAccountRequest
+        */
         return new AccountUpdateRequest(updateOperation, userToUpdate, newPassword);
     }
 }

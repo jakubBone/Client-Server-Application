@@ -49,6 +49,11 @@ public class AccountUpdateHandler {
             response = "Update failed: " + reqFromJson.getUsername() + " not found";
             log.warn("Failed to find user for update: {}", reqFromJson.getUsername());
         }
+
+        /*
+         * TODO: Logic refactoring for 'DELETE' request
+         */
+
         return response;
     }
 }
