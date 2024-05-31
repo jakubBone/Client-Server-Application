@@ -10,9 +10,9 @@ import utils.UserInteraction;
 import java.io.*;
 
 import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 class ClientTest {
-
     private Client client;
     private static ClientConnection mockConnection;
     private BufferedReader mockUserInput;
@@ -46,8 +46,8 @@ class ClientTest {
 
         client.handleServerCommunication();
 
-        Assertions.assertTrue(mockConnection.isConnected());
-        Assertions.assertTrue(mockConnection.isLoggedIn());
+        assertTrue(mockConnection.isConnected());
+        assertTrue(mockConnection.isLoggedIn());
         verify(mockConnection, times(1)).disconnect();
     }
 
@@ -90,12 +90,13 @@ class ClientTest {
 
     @Test
     @DisplayName("Should test request handling")
-    void testHandleRequest() {
-        /*
-         * TODO: Implement logic for 'handleRequest()' method test
-         *  */
+    void testHandleRequest() throws IOException {
+        when(mockUserInput.readLine()).thenReturn("LOGIN");
+        when(mockFactory.createRequest("LOGIN", mockUserInteraction)).thenReturn(mockRequestType);
 
-        Assertions.fail("Not implemented");
+        client.handleRequest("LOGIN");
 
+        verify(mockConnection).sendRequest(anyString());
+        verify(mockConnection).readResponse();
     }
 }

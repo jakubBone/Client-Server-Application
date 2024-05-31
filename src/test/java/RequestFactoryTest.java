@@ -1,4 +1,3 @@
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,8 +14,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringReader;
 
-public class RequestFactoryTest {
+import static org.junit.jupiter.api.Assertions.*;
 
+public class RequestFactoryTest {
     private RequestFactory factory;
     private UserInteraction userInteraction;
     private BufferedReader reader;
@@ -40,8 +40,8 @@ public class RequestFactoryTest {
 
         Request requestType = factory.createRequest(request, userInteraction);
 
-        Assertions.assertNotNull(requestType);
-        Assertions.assertEquals(expectedType.getClass(), requestType.getClass());
+        assertNotNull(requestType);
+        assertEquals(expectedType.getClass(), requestType.getClass());
     }
 
     @Test
@@ -55,8 +55,8 @@ public class RequestFactoryTest {
         Request expectedRequest = new AccountUpdateRequest("PASSWORD",
                 "exampleUser", "newPassword");
 
-       Assertions.assertEquals(expectedRequest.getUpdateOperation(), reguest.getUpdateOperation());
-       Assertions.assertEquals(expectedRequest.getUserToUpdate(), reguest.getUserToUpdate());
-       Assertions.assertEquals(expectedRequest.getNewPassword(), reguest.getNewPassword());
+       assertEquals(expectedRequest.getUpdateOperation(), reguest.getUpdateOperation());
+       assertEquals(expectedRequest.getUserToUpdate(), reguest.getUserToUpdate());
+       assertEquals(expectedRequest.getNewPassword(), reguest.getNewPassword());
     }
 }

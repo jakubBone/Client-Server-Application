@@ -11,9 +11,9 @@ import java.io.IOException;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class AccountUpdateHandlerTest {
-    
     private AccountUpdateHandler updateHandler;
     private UserManager userManager;
+
     @BeforeEach
     void setUp() {
         updateHandler = new AccountUpdateHandler();
@@ -50,6 +50,7 @@ public class AccountUpdateHandlerTest {
         assertEquals(expectedStatus, status);
         assertNotEquals(unexpectedStatus, status);
     }
+
     @Test
     @DisplayName("Should test getUpdateResponse for password changing")
     void testGetsUpdateResponsePassword() throws IOException {
@@ -81,9 +82,5 @@ public class AccountUpdateHandlerTest {
 
         assertEquals(expectedResponse, updateResponse);
     }
-
-    /*
-     * TODO: Change testGetUpdateResponseDelete to  ChangePasswordResponseDelete and DeleteAccountRequest
-     */
 
 }

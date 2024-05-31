@@ -1,7 +1,6 @@
 import mail.Mail;
 import mail.MailBox;
 import mail.MailService;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -9,6 +8,7 @@ import user.User;
 import user.UserManager;
 
 import java.util.List;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class MailServiceTest {
     private User sender;
@@ -33,8 +33,8 @@ public class MailServiceTest {
     void testSendMail() {
         mailService.sendMail(mail);
 
-        Assertions.assertTrue(sender.getMailBox().getSentBox().contains(mail));
-        Assertions.assertTrue(recipient.getMailBox().getUnreadBox().contains(mail));
+        assertTrue(sender.getMailBox().getSentBox().contains(mail));
+        assertTrue(recipient.getMailBox().getUnreadBox().contains(mail));
     }
 
     @Test
@@ -44,7 +44,7 @@ public class MailServiceTest {
 
         List<Mail> mailList = mailService.getMailsToRead(requestedMailBox);
 
-        Assertions.assertTrue(mailBox.getUnreadBox().equals(mailList));
+        assertTrue(mailBox.getUnreadBox().equals(mailList));
     }
 
     @Test
@@ -54,7 +54,7 @@ public class MailServiceTest {
 
         mailService.emptyMailbox(requestedMailBox);
 
-        Assertions.assertTrue(mailBox.getOpenedBox().isEmpty());
+        assertTrue(mailBox.getOpenedBox().isEmpty());
     }
 
     @Test
@@ -64,8 +64,8 @@ public class MailServiceTest {
         List<Mail> mailList = List.of(mail);
         mailBox.setUnreadBox(mailList);
 
-        Assertions.assertFalse(mailBox.getUnreadBox().isEmpty());
+        assertFalse(mailBox.getUnreadBox().isEmpty());
         mailService.markMailsAsRead(requestedMailBox);
-        Assertions.assertTrue(mailBox.getSentBox().isEmpty());
+        assertTrue(mailBox.getSentBox().isEmpty());
     }
 }

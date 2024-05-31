@@ -8,6 +8,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 
 import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 class ClientCommunicationTest {
 
@@ -22,7 +23,7 @@ class ClientCommunicationTest {
         mockSocket = mock(Socket.class);
         mockOutToServer = mock(PrintWriter.class);
         mockInFromServer = mock(BufferedReader.class);
-        clientConnection = new ClientConnection();
+        clientConnection = spy(new ClientConnection());
         clientConnection.setClientSocket(mockSocket);
         clientConnection.setOutToServer(mockOutToServer);
         clientConnection.setInFromServer(mockInFromServer);
@@ -66,26 +67,26 @@ class ClientCommunicationTest {
     void testCheckResponseStatus() {
         String response = OperationResponses.LOGIN_SUCCESSFUL.getResponse();
         clientConnection.checkResponseStatus(response);
-        Assertions.assertTrue(clientConnection.isLoggedIn());
+        assertTrue(clientConnection.isLoggedIn());
 
         response = OperationResponses.REGISTRATION_SUCCESSFUL.getResponse();
         clientConnection.checkResponseStatus(response);
-        Assertions.assertTrue(clientConnection.isLoggedIn());
+        assertTrue(clientConnection.isLoggedIn());
 
         response = OperationResponses.SUCCESSFULLY_LOGGED_OUT.getResponse();
         clientConnection.checkResponseStatus(response);
-        Assertions.assertFalse(clientConnection.isLoggedIn());
+        assertFalse(clientConnection.isLoggedIn());
 
         response = OperationResponses.REGISTRATION_FAILED.getResponse();
         clientConnection.checkResponseStatus(response);
-        Assertions.assertFalse(clientConnection.isLoggedIn());
+        assertFalse(clientConnection.isLoggedIn());
 
         response = OperationResponses.OPERATION_SUCCEEDED.getResponse();
         clientConnection.checkResponseStatus(response);
-        Assertions.assertTrue(clientConnection.isAuthorized());
+        assertTrue(clientConnection.isAuthorized());
 
         response = OperationResponses.OPERATION_FAILED.getResponse();
         clientConnection.checkResponseStatus(response);
-        Assertions.assertFalse(clientConnection.isAuthorized());
+        assertFalse(clientConnection.isAuthorized());
     }
 }

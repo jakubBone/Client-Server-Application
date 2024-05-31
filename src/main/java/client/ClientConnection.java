@@ -28,7 +28,7 @@ public class ClientConnection {
     private BufferedReader inFromServer;
     private static boolean loggedIn = false;
     private boolean isAuthorized = false;
-    private static int connectionAttempts = 0;
+    public static int connectionAttempts = 0;
     private boolean connected = false;
     private static OperationResponses response;
 

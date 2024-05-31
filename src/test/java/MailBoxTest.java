@@ -7,6 +7,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import user.User;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 public class MailBoxTest {
 
     private MailBox mailBox;
@@ -26,7 +28,7 @@ public class MailBoxTest {
     @DisplayName("Should test if unread box is not full when it contains less than 5 messages")
     void testIfUnreadBoxNotFull() {
         recipient.getMailBox().getUnreadBox().add(mail);
-        Assertions.assertFalse(recipient.getMailBox().ifUnreadBoxFull());
+        assertFalse(recipient.getMailBox().ifUnreadBoxFull());
     }
 
     @Test
@@ -35,7 +37,8 @@ public class MailBoxTest {
         for (int i = 0; i < 5; i++) {
             recipient.getMailBox().getUnreadBox().add(mail);
         }
-        Assertions.assertTrue(recipient.getMailBox().ifUnreadBoxFull());
+
+        assertTrue(recipient.getMailBox().ifUnreadBoxFull());
     }
 
     @Test
@@ -44,6 +47,7 @@ public class MailBoxTest {
         for (int i = 0; i < 8; i++) {
             recipient.getMailBox().getUnreadBox().add(mail);
         }
-        Assertions.assertTrue(recipient.getMailBox().ifUnreadBoxFull());
+
+        assertTrue(recipient.getMailBox().ifUnreadBoxFull());
     }
 }
