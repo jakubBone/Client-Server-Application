@@ -12,6 +12,10 @@ import java.net.Socket;
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Unit tests for ServerConnectionHandler class.
+ * This class tests the server's ability to start, accept client connections, and handle communication streams.
+ */
 class ServerConnectionHandlerTest {
     private ServerConnectionHandler handler;
     private ServerSocket mockServerSocket;
@@ -42,6 +46,8 @@ class ServerConnectionHandlerTest {
     void testConnectWithClient()  {
         when(mockClientSocket.isConnected()).thenReturn(true);
         handler.startServer();
+
+        // Verify that the client is connected
         assertTrue(mockClientSocket.isConnected());
     }
 }

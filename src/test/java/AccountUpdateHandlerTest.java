@@ -10,6 +10,10 @@ import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Unit tests for AccountUpdateHandler class.
+ * This class tests the handling of user account updates, ensuring authorization and correct processing of requests.
+ */
 public class AccountUpdateHandlerTest {
     private AccountUpdateHandler updateHandler;
     private UserManager userManager;
@@ -28,6 +32,7 @@ public class AccountUpdateHandlerTest {
         String expectedStatus = "Operation succeeded: Authorized";
         String unexpectedStatus = "Operation failed: Not authorized";
 
+        // Simulate admin login
         userManager.login(userName, password);
         String status = updateHandler.getUpdateStatus(userManager);
 
@@ -43,6 +48,7 @@ public class AccountUpdateHandlerTest {
         String expectedStatus = "Operation failed: Not authorized";
         String unexpectedStatus = "Operation succeeded: Authorized";
 
+        // Register and log in a non-admin user
         userManager.register(userName, password);
         userManager.login(userName, password);
         String status = updateHandler.getUpdateStatus(userManager);
@@ -60,6 +66,7 @@ public class AccountUpdateHandlerTest {
         Request passwordChange = new AccountUpdateRequest("PASSWORD",
                 userName, "newPassword");
 
+        // Register and log in a user, then test password change request
         userManager.register(userName, password);
         userManager.login(userName, password);
         String updateResponse = updateHandler.getUpdateResponse(passwordChange, userManager);
@@ -76,6 +83,7 @@ public class AccountUpdateHandlerTest {
         Request passwordChange = new AccountUpdateRequest("DELETE",
                 userName, "newPassword");
 
+        // Register and log in a user, then test account deletion request
         userManager.register(userName, password);
         userManager.login(userName, password);
         String updateResponse = updateHandler.getUpdateResponse(passwordChange, userManager);

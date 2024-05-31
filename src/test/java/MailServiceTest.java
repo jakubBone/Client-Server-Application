@@ -10,6 +10,10 @@ import user.UserManager;
 import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Unit tests for MailService class.
+ * This class tests operations related to sending and managing emails.
+ */
 public class MailServiceTest {
     private User sender;
     private User recipient;
@@ -42,16 +46,18 @@ public class MailServiceTest {
     void testGetMailsToRead() {
         String requestedMailBox = "UNREAD";
 
+        // Test returning unread mails
         List<Mail> mailList = mailService.getMailsToRead(requestedMailBox);
 
         assertTrue(mailBox.getUnreadBox().equals(mailList));
     }
 
     @Test
-    @DisplayName("Should test empty mailbox")
+    @DisplayName("Should test emptying mailbox")
     void testEmptyMailbox() {
         String requestedMailBox = "OPEN";
 
+        // Test emptying the opened mailbox
         mailService.emptyMailbox(requestedMailBox);
 
         assertTrue(mailBox.getOpenedBox().isEmpty());
@@ -65,6 +71,7 @@ public class MailServiceTest {
         mailBox.setUnreadBox(mailList);
 
         assertFalse(mailBox.getUnreadBox().isEmpty());
+        // Test marking mails as read
         mailService.markMailsAsRead(requestedMailBox);
         assertTrue(mailBox.getSentBox().isEmpty());
     }

@@ -5,6 +5,10 @@ import utils.JsonConverter;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Unit tests for JsonConverter class.
+ * This class tests the conversion of objects to and from JSON format, ensuring correct serialization and deserialization.
+ */
 public class JsonConverterTest {
 
     @Test
@@ -14,6 +18,7 @@ public class JsonConverterTest {
         JsonConverter converter = new JsonConverter(message);
         String expectedFormat = "{\"message\":\"exampleMessage\"}\n<<END>>";
 
+        // Test JSON serialization
         String serializedMessage = converter.serializeMessage();
 
         assertNotNull(serializedMessage);
@@ -23,7 +28,6 @@ public class JsonConverterTest {
     @Test
     @DisplayName("Should test message deserializing from JSon")
     void testDeserializeMessage() {
-        Gson gson = new Gson();
         String message = "exampleMessage";
         JsonConverter converter = new JsonConverter(message);
 
@@ -32,6 +36,7 @@ public class JsonConverterTest {
         // Removing "\n<<END>>" from the end of JSon message
         String jsonWithoutEndTag = serializedMessage.replace("\n<<END>>", "");
 
+        // Test JSON deserialization
         String deserializedMessage = converter.deserializeMessage(jsonWithoutEndTag);
 
         assertNotNull(deserializedMessage);

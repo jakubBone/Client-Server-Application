@@ -16,6 +16,10 @@ import java.io.StringReader;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Unit tests for RequestFactory class.
+ * This class tests the creation of various request objects based on user input.
+ */
 public class RequestFactoryTest {
     private RequestFactory factory;
     private UserInteraction userInteraction;
@@ -38,6 +42,7 @@ public class RequestFactoryTest {
         Request expectedType = new LoginRegisterRequest(request,
                 "exampleUser", "examplePassword");
 
+        // Test creating a request
         Request requestType = factory.createRequest(request, userInteraction);
 
         assertNotNull(requestType);
@@ -51,6 +56,7 @@ public class RequestFactoryTest {
         reader = new BufferedReader(new StringReader(simulatedInput));
         userInteraction = new UserInteraction(reader);
 
+        // Test creating an account update request
         Request reguest = factory.createAccountUpdateRequest(userInteraction);
         Request expectedRequest = new AccountUpdateRequest("PASSWORD",
                 "exampleUser", "newPassword");

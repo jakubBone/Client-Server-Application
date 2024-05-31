@@ -12,6 +12,10 @@ import java.io.*;
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Unit tests for Client class.
+ * This class tests the client's interaction methods, including handling server communication and user input.
+ */
 class ClientTest {
     private Client client;
     private static ClientConnection mockConnection;
@@ -46,6 +50,7 @@ class ClientTest {
 
         client.handleServerCommunication();
 
+        // Verify that the client disconnects from the server when "EXIT" is entered
         assertTrue(mockConnection.isConnected());
         assertTrue(mockConnection.isLoggedIn());
         verify(mockConnection, times(1)).disconnect();
@@ -57,9 +62,11 @@ class ClientTest {
         when(mockConnection.isConnected()).thenReturn(true);
         when(mockConnection.isLoggedIn()).thenReturn(false);
 
+        // Mocking the static methods of the Screen class
         MockedStatic<Screen> mockScreen = mockStatic(Screen.class);
         client.handleServerCommunication();
 
+        // Verify that the login menu is displayed when the user is not logged in
         mockScreen.verify(() -> Screen.printLoginMenu());
         mockScreen.close();
     }
@@ -70,9 +77,11 @@ class ClientTest {
         when(mockConnection.isConnected()).thenReturn(true);
         when(mockConnection.isLoggedIn()).thenReturn(true);
 
+        // Mocking the static methods of the Screen class
         MockedStatic<Screen> mockScreen = mockStatic(Screen.class);
         client.handleServerCommunication();
 
+        // Verify that the mailbox menu is displayed when the user is logged in
         mockScreen.verify(() -> Screen.printMailBoxMenu());
         mockScreen.close();
     }
@@ -84,6 +93,7 @@ class ClientTest {
 
         client.handleServerCommunication();
 
+        // Verify that no actions are taken when the client is not connected
         verify(mockConnection, never()).isLoggedIn();
         verify(mockUserInput, never()).readLine();
     }
@@ -96,6 +106,7 @@ class ClientTest {
 
         client.handleRequest("LOGIN");
 
+        // Verify that the request is handled properly
         verify(mockConnection).sendRequest(anyString());
         verify(mockConnection).readResponse();
     }

@@ -6,6 +6,10 @@ import user.UserManager;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Unit tests for UserManager class.
+ * This class tests user management operations, including registration, login, logout, and user searches.
+ */
 public class UserMangerTest {
 
     private UserManager userManager;
@@ -15,11 +19,12 @@ public class UserMangerTest {
         userManager = new UserManager();
     }
     @Test
-    @DisplayName("Should test user registration")
+    @DisplayName("Should test user registration for the first time")
     void testRegister() {
         String userName = "exampleUsername";
         String password = "examplePassword";
 
+        // Test user registration with a new username
         String registrationStatus = userManager.register(userName, password);
 
         assertEquals("User does not exist", registrationStatus);
@@ -31,6 +36,10 @@ public class UserMangerTest {
         String userName = "exampleUsername";
         String password = "examplePassword";
 
+        // Register the user for the first time
+        userManager.register(userName, password);
+
+        // Attempt to register the same user again
         String registrationStatus = userManager.register(userName, password);
 
         assertEquals("User exist", registrationStatus);
@@ -42,7 +51,10 @@ public class UserMangerTest {
         String userName = "exampleUsername";
         String password = "examplePassword";
 
+        // Register the user first
         userManager.register(userName, password);
+
+        // Attempt to log in with correct credentials
         User loggedUser = userManager.login(userName, password);
 
 
@@ -57,7 +69,10 @@ public class UserMangerTest {
         String userName = "exampleUsername";
         String password = "examplePassword";
 
+        // Register the user first
         userManager.register(userName, password);
+
+        // Attempt to log in with incorrect password
         User loggedUser = userManager.login(userName, "wrongPassword");
 
         assertNull(loggedUser);
@@ -69,8 +84,11 @@ public class UserMangerTest {
         String userName = "exampleUsername";
         String password = "examplePassword";
 
+        // Register and log in the user first
         userManager.register(userName, password);
         userManager.login(userName, password);
+
+        // Log out the current user
         userManager.logoutCurrentUser();
 
         assertNull(UserManager.currentLoggedInUser);
@@ -82,7 +100,10 @@ public class UserMangerTest {
         String userName = "exampleUsername";
         String password = "examplePassword";
 
+        // Register the user first
         userManager.register(userName, password);
+
+        // Find the recipient by username
         User recipient = userManager.getRecipientByUsername(userName);
 
         assertNotNull(recipient);
@@ -95,7 +116,10 @@ public class UserMangerTest {
         String userName = "exampleUsername";
         String password = "examplePassword";
 
+        // Register the user first
         userManager.register(userName, password);
+
+        // Find the user by username
         User foundUser = userManager.findUserByUsername(userName);
 
         assertNotNull(foundUser);
@@ -108,7 +132,10 @@ public class UserMangerTest {
         String userName = "exampleUsername";
         String password = "examplePassword";
 
+        // Register the user first
         userManager.register(userName, password);
+
+        // Find the user and change their password
         User user = userManager.findUserByUsername(userName);
         userManager.changePassword(user, "newPassword");
 
@@ -122,7 +149,10 @@ public class UserMangerTest {
         String userName = "exampleUsername";
         String password = "examplePassword";
 
+        // Register the user first
         userManager.register(userName, password);
+
+        // Find the user and delete them
         User user = userManager.findUserByUsername(userName);
         userManager.deleteUser(user);
 
@@ -135,7 +165,9 @@ public class UserMangerTest {
         String userName = "admin";
         String password = "java10";
 
+        // Log in as the admin user
         userManager.login(userName, password);
+
         assertTrue(userManager.isAdmin());
     }
 }
