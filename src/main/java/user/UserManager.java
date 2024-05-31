@@ -115,7 +115,7 @@ public class UserManager {
 
     public void changePassword(User user, String newPassword){
         user.setPassword(newPassword);
-        user.hashNewPassword();
+        user.hashPassword();
     }
 
     public void deleteUser(User user){

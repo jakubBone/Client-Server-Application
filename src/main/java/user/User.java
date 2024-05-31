@@ -37,12 +37,11 @@ public class User {
         return BCrypt.checkpw(typedPassword, hashedPassword);
     }
 
-    public void hashNewPassword(){
+    public void hashPassword(){
         hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
     }
+
     public String toString() {
         return username;
     }
-
-
 }
