@@ -39,13 +39,13 @@ class ClientCommunicationTest {
     }
 
     @Test
-    @DisplayName("Should connect to server")
+    @DisplayName("Should test connecting to server")
     void testConnectToServer()  {
         Assertions.assertTrue(clientConnection.isConnected());
     }
 
     @Test
-    @DisplayName("Should send request")
+    @DisplayName("Should test sending request")
     void testSendRequest() {
         String request = "exampleRequest";
 
@@ -56,7 +56,7 @@ class ClientCommunicationTest {
     }
 
     @Test
-    @DisplayName("Should read response")
+    @DisplayName("Should test checking response status")
     void testReadResponse() throws IOException {
         String jsonResponse1 = "{\"message\":\"response1\"}";
         String jsonResponse2 = "{\"message\":\"response2\"}";

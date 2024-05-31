@@ -25,7 +25,7 @@ public class AccountUpdateHandlerTest {
     }
 
     @Test
-    @DisplayName("Should test getUpdateStatus for admin user")
+    @DisplayName("Should test getting update status for admin user")
     void testGetUpdateStatusAdmin() throws IOException {
         String userName = "admin";
         String password = "java10";
@@ -41,7 +41,7 @@ public class AccountUpdateHandlerTest {
     }
 
     @Test
-    @DisplayName("Should test getUpdateStatus for non-admin user")
+    @DisplayName("Should test getting update status for non-admin user")
     void testGetsUpdateStatusNonAdmin() throws IOException {
         String userName = "exampleUsername";
         String password = "examplePassword";
@@ -58,7 +58,7 @@ public class AccountUpdateHandlerTest {
     }
 
     @Test
-    @DisplayName("Should test getUpdateResponse for password changing")
+    @DisplayName("Should test getting update response for password change")
     void testGetsUpdateResponsePassword() throws IOException {
         String userName = "exampleUsername";
         String password = "examplePassword";
@@ -75,7 +75,7 @@ public class AccountUpdateHandlerTest {
     }
 
     @Test
-    @DisplayName("Should test getUpdateResponse for password changing")
+    @DisplayName("Should test getting update response for account deletion")
     void testGetsUpdateResponseDELETE() throws IOException {
         String userName = "exampleUsername";
         String password = "examplePassword";

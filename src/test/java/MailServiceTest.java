@@ -64,7 +64,7 @@ public class MailServiceTest {
     }
 
     @Test
-    @DisplayName("Should test specific mail list returning")
+    @DisplayName("Should test marking mails as read")
     void testMarkMailsAsRead() {
         String requestedMailBox = "UNREAD";
         List<Mail> mailList = List.of(mail);

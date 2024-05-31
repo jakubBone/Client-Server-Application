@@ -42,7 +42,7 @@ class ServerConnectionHandlerTest {
     }
 
     @Test
-    @DisplayName("Should connect to server")
+    @DisplayName("Should test connecting to server")
     void testConnectWithClient()  {
         when(mockClientSocket.isConnected()).thenReturn(true);
         handler.startServer();
