@@ -79,7 +79,7 @@ public class AccountUpdateHandlerTest {
     void testGetsUpdateResponseDELETE() throws IOException {
         String userName = "exampleUsername";
         String password = "examplePassword";
-        String expectedResponse = "exampleUsername password change successful";
+        String expectedResponse = "exampleUsername account deletion successful";
         Request passwordChange = new AccountUpdateRequest("DELETE",
                 userName, "newPassword");
 
