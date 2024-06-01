@@ -11,7 +11,6 @@ import static org.junit.jupiter.api.Assertions.*;
  * This class tests user management operations, including registration, login, logout, and user searches.
  */
 public class UserMangerTest {
-
     private UserManager userManager;
 
     @BeforeEach
@@ -139,8 +138,8 @@ public class UserMangerTest {
         User user = userManager.findUserByUsername(userName);
         userManager.changePassword(user, "newPassword");
 
-        assertFalse(user.getPassword().equals(password));
-        assertTrue(user.getPassword().equals("newPassword"));
+        assertNotEquals(user.getPassword(), password);
+        assertEquals(user.getPassword(), "newPassword");
     }
 
     @Test

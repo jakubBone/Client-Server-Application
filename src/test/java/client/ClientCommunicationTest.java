@@ -15,15 +15,13 @@ import static org.junit.jupiter.api.Assertions.*;
  * This class tests the client's ability to connect to the server,s end requests, read responses, and handle connection status.
  */
 class ClientCommunicationTest {
-
     private static ClientConnection clientConnection;
     private Socket mockSocket;
     private PrintWriter mockOutToServer;
     private BufferedReader mockInFromServer;
 
-
     @BeforeEach
-    void setUp(){
+    void setUp() {
         mockSocket = mock(Socket.class);
         mockOutToServer = mock(PrintWriter.class);
         mockInFromServer = mock(BufferedReader.class);

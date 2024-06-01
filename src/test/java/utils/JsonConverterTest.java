@@ -9,7 +9,6 @@ import static org.junit.jupiter.api.Assertions.*;
  * This class tests the conversion of objects to and from JSON format, ensuring correct serialization and deserialization.
  */
 public class JsonConverterTest {
-
     @Test
     @DisplayName("Should test message serializing to JSon")
     void testSerializeMessage() {

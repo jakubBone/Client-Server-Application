@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test;
 import user.User;
 import user.UserManager;
 import utils.UserInteraction;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;

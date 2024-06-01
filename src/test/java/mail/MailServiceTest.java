@@ -20,7 +20,6 @@ public class MailServiceTest {
     private MailService mailService;
     private MailBox mailBox;
 
-
     @BeforeEach
     void setUp() {
         sender = new User("senderName", "examplePassword", User.Role.USER);

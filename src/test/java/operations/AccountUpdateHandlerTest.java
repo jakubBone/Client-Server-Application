@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test;
 import request.AccountUpdateRequest;
 import request.Request;
 import user.UserManager;
-
 import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -91,5 +90,4 @@ public class AccountUpdateHandlerTest {
 
         assertEquals(expectedResponse, updateResponse);
     }
-
 }
