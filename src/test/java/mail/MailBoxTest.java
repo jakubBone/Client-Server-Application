@@ -1,3 +1,5 @@
+package mail;
+
 import mail.Mail;
 import mail.MailBox;
 

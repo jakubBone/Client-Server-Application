@@ -1,3 +1,5 @@
+package client;
+
 import client.ClientConnection;
 import operations.OperationResponses;
 import org.junit.jupiter.api.*;
