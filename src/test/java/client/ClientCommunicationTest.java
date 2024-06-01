@@ -1,6 +1,4 @@
 package client;
-
-import client.ClientConnection;
 import operations.OperationResponses;
 import org.junit.jupiter.api.*;
 
@@ -29,7 +27,7 @@ class ClientCommunicationTest {
         mockSocket = mock(Socket.class);
         mockOutToServer = mock(PrintWriter.class);
         mockInFromServer = mock(BufferedReader.class);
-        clientConnection = spy(new ClientConnection());
+        clientConnection = new ClientConnection();
         clientConnection.setClientSocket(mockSocket);
         clientConnection.setOutToServer(mockOutToServer);
         clientConnection.setInFromServer(mockInFromServer);

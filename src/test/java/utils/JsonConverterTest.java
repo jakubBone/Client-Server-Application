@@ -1,9 +1,6 @@
 package utils;
-
-import com.google.gson.Gson;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import utils.JsonConverter;
 
 import static org.junit.jupiter.api.Assertions.*;
 

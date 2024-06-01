@@ -1,7 +1,4 @@
 package client;
-
-import client.Client;
-import client.ClientConnection;
 import org.junit.jupiter.api.*;
 import org.mockito.MockedStatic;
 import request.Request;
