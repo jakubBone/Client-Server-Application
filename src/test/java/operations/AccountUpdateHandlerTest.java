@@ -42,7 +42,7 @@ public class AccountUpdateHandlerTest {
 
     @Test
     @DisplayName("Should test getting update status for non-admin user")
-    void testGetsUpdateStatusNonAdmin() throws IOException {
+    void testGetUpdateStatusNonAdmin() throws IOException {
         String userName = "exampleUsername";
         String password = "examplePassword";
         String expectedStatus = "Operation failed: Not authorized";
@@ -59,7 +59,7 @@ public class AccountUpdateHandlerTest {
 
     @Test
     @DisplayName("Should test getting update response for password change")
-    void testGetsUpdateResponsePassword() throws IOException {
+    void testGetUpdateResponsePassword() throws IOException {
         String userName = "exampleUsername";
         String password = "examplePassword";
         String expectedResponse = "exampleUsername password change successful";
@@ -76,7 +76,7 @@ public class AccountUpdateHandlerTest {
 
     @Test
     @DisplayName("Should test getting update response for account deletion")
-    void testGetsUpdateResponseDELETE() throws IOException {
+    void testGetUpdateResponseDELETE() throws IOException {
         String userName = "exampleUsername";
         String password = "examplePassword";
         String expectedResponse = "exampleUsername account deletion successful";

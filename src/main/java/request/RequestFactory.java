@@ -40,13 +40,6 @@ public class RequestFactory {
             newPassword = userInteraction.getNewPassword();
         }
 
-        /*
-        * TODO: Implement additional logic for 'DELETE' request
-        */
-
-        /*
-        * TODO: Isolate AccountUpdateRequest to ChangePasswordRequest and DeleteAccountRequest
-        */
         return new AccountUpdateRequest(updateOperation, userToUpdate, newPassword);
     }
 }

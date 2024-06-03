@@ -103,7 +103,7 @@ public class UserMangerTest {
         userManager.register(userName, password);
 
         // Find the recipient by username
-        User recipient = userManager.getRecipientByUsername(userName);
+        User recipient = userManager.findUserByUsername(userName);
 
         assertNotNull(recipient);
         assertEquals(userName, recipient.getUsername());
@@ -167,6 +167,6 @@ public class UserMangerTest {
         // Log in as the admin user
         userManager.login(userName, password);
 
-        assertTrue(userManager.isAdmin());
+        assertTrue(userManager.isCurrentUserAdmin());
     }
 }

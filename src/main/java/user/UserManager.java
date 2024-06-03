@@ -84,33 +84,16 @@ public class UserManager {
         currentLoggedInUser = null;
     }
 
-    // Finds a recipient by the username
-    public User getRecipientByUsername(String username){
-        for(User recipient: usersList){
-            if(username.equals(recipient.getUsername())){
-                log.info("Recipient found: {}", username);
-                return recipient;
-            }
-        }
-        log.info("Recipient not found: {}", username);
-        return null;
-    }
-
     // Finds a user by the username
     public User findUserByUsername(String username){
-        User foundUser = null;
         for (User user : usersList) {
             if (username.equals(user.getUsername())) {
-                foundUser = user;
-                break;
+                log.info("User found on the list: {}", username);
+                return user;
             }
         }
-        if (foundUser != null) {
-            log.info("User found on the list: {}", username);
-        } else {
-            log.warn("User not found on the list: {}", username);
-        }
-        return foundUser;
+        log.warn("User not found on the list: {}", username);
+        return null;
     }
 
     public void changePassword(User user, String newPassword){
@@ -122,7 +105,7 @@ public class UserManager {
         UserManager.usersList.remove(user);
     }
 
-    public boolean isAdmin(){
+    public boolean isCurrentUserAdmin(){
         log.info("Admin checking for user: {}", currentLoggedInUser.getUsername());
         return currentLoggedInUser.role.equals(User.Role.ADMIN);
     }

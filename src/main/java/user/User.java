@@ -41,6 +41,7 @@ public class User {
         hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
     }
 
+
     public String toString() {
         return username;
     }

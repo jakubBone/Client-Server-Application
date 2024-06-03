@@ -14,7 +14,7 @@ public class AccountUpdateHandler {
     // Handles UPDATE request for updating user data. It checks for authorization before proceeding
     public String getUpdateStatus(UserManager userManager) throws IOException {
         String status;
-        if (userManager.isAdmin()){
+        if (userManager.isCurrentUserAdmin()){
             log.info("Authorized update attempt by admin user");
             ServerRequestHandler.isAuthorized = true;
             status = OperationResponses.OPERATION_SUCCEEDED.getResponse();
