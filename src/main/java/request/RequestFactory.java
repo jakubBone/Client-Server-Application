@@ -14,7 +14,9 @@ public class RequestFactory {
                 String password = userInteraction.getPassword();
                 return new LoginRegisterRequest(requestName, username, password);
             case "HELP":
-                return new HelpRequest(requestName);
+            case "UPTIME":
+            case "INFO":
+                return new ServerInfoRequest(requestName);
             case "WRITE":
                 String recipient = userInteraction.getRecipient();
                 String message = userInteraction.getMessage();

@@ -25,7 +25,7 @@ public class ServerRequestHandler {
     public static boolean isAuthorized;
     private JsonConverter jsonResponse;
     private CredentialHandler credentialHandler;
-    private HelpHandler helpHandler;
+    private ServerInfoHandler serverInfoHandler;
     private MailboxHandler mailboxHandler;
     private AccountUpdateHandler accountUpdateHandler;
     private WriteHandler writeHandler;
@@ -36,7 +36,7 @@ public class ServerRequestHandler {
         this.userManager = new UserManager();
         this.gson = new Gson();
         this.credentialHandler= new CredentialHandler();
-        this.helpHandler = new HelpHandler();
+        this.serverInfoHandler = new ServerInfoHandler();
         this.mailboxHandler = new MailboxHandler();
         this.accountUpdateHandler = new AccountUpdateHandler();
         this.writeHandler = new WriteHandler();
@@ -57,7 +57,9 @@ public class ServerRequestHandler {
                         response = credentialHandler.getAuthResponse(command, reqFromJson.getUsername(), reqFromJson.getPassword(), userManager);
                         break;
                     case "HELP":
-                        response = helpHandler.getHelpRequest(command);
+                    case "UPTIME":
+                    case "INFO":
+                        response = serverInfoHandler.getServerInfoRequest(command);
                         break;
                     case "WRITE":
                         response = writeHandler.getWriteResponse(reqFromJson.getRecipient(), reqFromJson.getMessage(), userManager);

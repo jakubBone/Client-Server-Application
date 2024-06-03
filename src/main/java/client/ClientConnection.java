@@ -117,9 +117,6 @@ public class ClientConnection {
                 isAuthorized = false;
                 log.info("User not authorized for operations");
                 break;
-            default:
-                log.warn("Unknown response");
-                break;
         }
     }
 
