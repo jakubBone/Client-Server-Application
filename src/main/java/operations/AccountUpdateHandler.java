@@ -25,7 +25,7 @@ public class AccountUpdateHandler {
     }
 
     public String getUpdateResponse(Request reqFromJson, UserManager userManager) throws IOException {
-        User userToUpdate = userManager.findUserByUsername(reqFromJson.getUserToUpdate());
+        User userToUpdate = userManager.getUserByUsername(reqFromJson.getUserToUpdate());
         String response = null;
         if(userToUpdate != null ) {
             switch (reqFromJson.getUpdateOperation().toUpperCase()) {
@@ -49,10 +49,6 @@ public class AccountUpdateHandler {
             response = "Update failed: " + reqFromJson.getUsername() + " not found";
             log.warn("Failed to find user for update: {}", reqFromJson.getUsername());
         }
-
-        /*
-         * TODO: Logic refactoring for 'DELETE' request
-         */
 
         return response;
     }

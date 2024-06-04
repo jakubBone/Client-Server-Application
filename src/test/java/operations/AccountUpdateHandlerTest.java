@@ -5,6 +5,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import request.AccountUpdateRequest;
 import request.Request;
+import user.User;
 import user.UserManager;
 import java.io.IOException;
 
@@ -31,9 +32,10 @@ public class AccountUpdateHandlerTest {
         String password = "java10";
         String expectedStatus = "Operation succeeded: Authorized";
         String unexpectedStatus = "Operation failed: Not authorized";
+        User admin = new User("admin", "java10", User.Role.ADMIN);
 
         // Simulate admin login
-        userManager.login(userName, password);
+        userManager.login(admin);
         String status = updateHandler.getUpdateStatus(userManager);
 
         assertEquals(expectedStatus, status);
@@ -50,7 +52,6 @@ public class AccountUpdateHandlerTest {
 
         // Register and log in a non-admin user
         userManager.register(userName, password);
-        userManager.login(userName, password);
         String status = updateHandler.getUpdateStatus(userManager);
 
         assertEquals(expectedStatus, status);
@@ -68,7 +69,6 @@ public class AccountUpdateHandlerTest {
 
         // Register and log in a user, then test password change request
         userManager.register(userName, password);
-        userManager.login(userName, password);
         String updateResponse = updateHandler.getUpdateResponse(passwordChange, userManager);
 
         assertEquals(expectedResponse, updateResponse);
@@ -85,7 +85,6 @@ public class AccountUpdateHandlerTest {
 
         // Register and log in a user, then test account deletion request
         userManager.register(userName, password);
-        userManager.login(userName, password);
         String updateResponse = updateHandler.getUpdateResponse(passwordChange, userManager);
 
         assertEquals(expectedResponse, updateResponse);

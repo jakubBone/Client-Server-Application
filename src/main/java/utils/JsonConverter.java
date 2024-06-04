@@ -27,7 +27,6 @@ public class JsonConverter {
 
     // Writes a user object to the specified file path in JSON format
     public void writeUserToPath(User user, String filePath){
-        System.out.println("JSON");
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         try(FileWriter writer = new FileWriter(filePath)) {
             gson.toJson(user, writer);

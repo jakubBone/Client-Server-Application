@@ -87,8 +87,8 @@ class ClientCommunicationTest {
         clientConnection.checkResponseStatus(response);
         assertFalse(clientConnection.isLoggedIn());
 
-        // Test registration failed response
-        response = OperationResponses.REGISTRATION_FAILED.getResponse();
+        // Test registration failed response when user does not exist
+        response = OperationResponses.REGISTRATION_FAILED_USER_EXISTS.getResponse();
         clientConnection.checkResponseStatus(response);
         assertFalse(clientConnection.isLoggedIn());
 

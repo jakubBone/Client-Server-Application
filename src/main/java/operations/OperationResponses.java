@@ -4,8 +4,9 @@ public enum OperationResponses {
     LOGIN_SUCCESSFUL("Login successful"),
     REGISTRATION_SUCCESSFUL("Registration successful"),
     SUCCESSFULLY_LOGGED_OUT("Successfully logged out"),
-    LOGIN_FAILED("Login failed: Incorrect username or password"),
-    REGISTRATION_FAILED("Registration failed"),
+    LOGIN_FAILED_INCORRECT_PASSWORD("Login failed: Incorrect password"),
+    LOGIN_FAILED_USER_NOT_FOUND("Login failed: User does not exist"),
+    REGISTRATION_FAILED_USER_EXISTS("Registration failed: User already exists"),
     OPERATION_SUCCEEDED("Operation succeeded: Authorized"),
     OPERATION_FAILED("Operation failed: Not authorized"),
     UNKNOWN_RESPONSE("Unknown response");

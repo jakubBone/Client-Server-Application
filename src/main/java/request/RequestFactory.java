@@ -12,7 +12,7 @@ public class RequestFactory {
             case "LOGIN":
                 String username = userInteraction.getUsername();
                 String password = userInteraction.getPassword();
-                return new LoginRegisterRequest(requestName, username, password);
+                return new CredentialRequest(requestName, username, password);
             case "HELP":
             case "UPTIME":
             case "INFO":
@@ -28,7 +28,7 @@ public class RequestFactory {
             case "UPDATE":
                     return new AccountUpdateRequest(requestName);
             case "LOGOUT":
-                return new LogoutRequest(requestName);
+                return new CredentialRequest(requestName);
             default:
                 return null;
         }

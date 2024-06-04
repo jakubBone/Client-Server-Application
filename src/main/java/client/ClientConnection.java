@@ -101,11 +101,11 @@ public class ClientConnection {
                 loggedIn = false;
                 log.info("User logged out successfully");
                 break;
-            case LOGIN_FAILED:
+            case LOGIN_FAILED_INCORRECT_PASSWORD:
                 loggedIn = false;
-                log.info("Login failed: Incorrect username or password");
+                log.info("Login failed: Incorrect password");
                 break;
-            case REGISTRATION_FAILED:
+            case REGISTRATION_FAILED_USER_EXISTS:
                 loggedIn = false;
                 log.info("Registration failed");
                 break;

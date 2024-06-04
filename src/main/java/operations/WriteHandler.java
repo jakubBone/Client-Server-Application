@@ -11,7 +11,7 @@ import java.io.IOException;
 public class WriteHandler {
     private MailService mailService = new MailService();
     public String getWriteResponse(String recipient, String message, UserManager userManager) throws IOException {
-        User recipientUser = userManager.findUserByUsername(recipient);
+        User recipientUser = userManager.getUserByUsername(recipient);
         String response = null;
         if (recipientUser != null) {
             if(recipientUser.getMailBox().ifUnreadBoxFull()){

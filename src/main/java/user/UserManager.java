@@ -2,6 +2,7 @@ package user;
 
 import lombok.Getter;
 import lombok.Setter;
+import operations.OperationResponses;
 import utils.JsonConverter;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,47 +37,77 @@ public class UserManager {
       * Otherwise, successful registration
       */
 
-    public String register(String typedUsername, String typedPassword) throws IllegalArgumentException {
-        boolean userExists = false;
-        String registerStatus = null;
 
-        for (User existingUser : usersList) {
-            if (typedUsername.equals(existingUser.getUsername())) {
-                userExists = true;
-                break;
-            }
-        }
-        if (userExists) {
-            registerStatus = "User exist";
-            log.info("Registration attempt failed - user already exists: {}", typedUsername);
-        } else {
-            registerStatus = "User does not exist";
-            User newUser = new User(typedUsername, typedPassword, User.Role.USER);
-            jsonConverter.saveUserData(newUser);
-            usersList.add(newUser);
-            currentLoggedInUser = newUser;
-            log.info("New user registered: {}", typedUsername);
-        }
-        return registerStatus;
+     public String getRegisterResponse(String typedUsername, String typedPassword){
+         log.info("Registration attempted for user: {}", typedPassword);
+         if(ifUserExists(typedUsername)){
+             log.info("Registration attempt failed - user already exists: {}", typedUsername);
+             return OperationResponses.REGISTRATION_FAILED_USER_EXISTS.getResponse();
+         } else {
+             register(typedUsername, typedPassword);
+             log.info("Registration successful for new user: {}", typedUsername);
+             return OperationResponses.REGISTRATION_SUCCESSFUL.getResponse();
+         }
+     }
+
+    public void register(String typedUsername, String typedPassword) throws IllegalArgumentException {
+        User newUser = new User(typedUsername, typedPassword, User.Role.USER);
+        jsonConverter.saveUserData(newUser);
+        usersList.add(newUser);
+        currentLoggedInUser = newUser;
     }
 
-
-    // Attempts to log in a user with the specified username and password
-    public User login(String typedUsername, String typedPassword){
-        for (User existingUser : usersList) {
-            if (typedUsername.equals(existingUser.getUsername())) {
-                if (existingUser.checkPassword(typedPassword)) {
-                    log.info("User logged in successfully: {}", typedUsername);
-                    currentLoggedInUser = existingUser;
-                    return existingUser;
-                } else {
-                    log.info("Incorrect password attempt for user: {}", typedUsername);
-                }
-            } else{
-                log.info("Login attempt failed - username not found: {}", typedUsername);
+    ///////////////////////////////////////////////////////////////////////
+    public String getLoginResponse(String typedUsername, String typedPassword) {
+        if (ifUserExists(typedUsername)) {
+            User existingUser = getExistingUser(typedUsername);
+            if(ifPasswordCorrect(typedPassword, existingUser)){
+                log.info("User password correct: {}", existingUser.getUsername());
+                login(existingUser);
+                log.info("User logged in successfully: {}", existingUser.getUsername());
+                return OperationResponses.LOGIN_SUCCESSFUL.getResponse();
+            } else {
+                log.info("Incorrect password attempt for user: {}", existingUser.getUsername());
+                return OperationResponses.LOGIN_FAILED_INCORRECT_PASSWORD.getResponse();
             }
+        } else {
+            log.info("Login attempt failed - user does not exist: {}", typedUsername);
+            return OperationResponses.LOGIN_FAILED_USER_NOT_FOUND.getResponse();
         }
-        return null;
+    }
+    public void login(User existingUser) {
+        currentLoggedInUser = existingUser;
+    }
+
+    public User getExistingUser(String username) {
+        User existingUser = getUserByUsername(username);
+        if (existingUser == null) {
+            return null;
+        } else {
+            return existingUser;
+        }
+    }
+
+    public boolean ifUserExists(String username) {
+        User existingUser = getUserByUsername(username);
+        if (existingUser == null) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    public boolean ifPasswordCorrect(String typedPassword, User existingUser) {
+        if (existingUser.checkPassword(typedPassword)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public String getLogoutResponse() {
+        logoutCurrentUser();
+        return OperationResponses.SUCCESSFULLY_LOGGED_OUT.getResponse();
     }
 
     public void logoutCurrentUser() {
@@ -84,8 +115,9 @@ public class UserManager {
         currentLoggedInUser = null;
     }
 
+
     // Finds a user by the username
-    public User findUserByUsername(String username){
+    public User getUserByUsername(String username){
         for (User user : usersList) {
             if (username.equals(user.getUsername())) {
                 log.info("User found on the list: {}", username);
