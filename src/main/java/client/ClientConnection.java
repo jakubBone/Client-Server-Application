@@ -92,10 +92,18 @@ public class ClientConnection {
         OperationResponses operationResponse = OperationResponses.fromString(response);
 
         switch (operationResponse) {
-            case LOGIN_SUCCESSFUL:
-            case REGISTRATION_SUCCESSFUL:
+            case LOGIN_SUCCESSFUL_ADMIN:
+                loggedIn = true;
+                isAuthorized = true;
+                log.info("Admin logged in successfully");
+                break;
+            case LOGIN_SUCCESSFUL_USER:
                 loggedIn = true;
                 log.info("User logged in successfully");
+                break;
+            case REGISTRATION_SUCCESSFUL:
+                loggedIn = true;
+                log.info("User registered successfully");
                 break;
             case SUCCESSFULLY_LOGGED_OUT:
                 loggedIn = false;

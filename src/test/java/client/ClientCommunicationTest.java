@@ -73,7 +73,7 @@ class ClientCommunicationTest {
     @DisplayName("Should check response status")
     void testCheckResponseStatus() {
         // Test login successful response
-        String response = OperationResponses.LOGIN_SUCCESSFUL.getResponse();
+        String response = OperationResponses.LOGIN_SUCCESSFUL_USER.getResponse();
         clientConnection.checkResponseStatus(response);
         assertTrue(clientConnection.isLoggedIn());
 

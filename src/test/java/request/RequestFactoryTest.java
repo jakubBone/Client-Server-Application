@@ -54,7 +54,7 @@ public class RequestFactoryTest {
         userInteraction = new UserInteraction(reader);
 
         // Test creating an account update request
-        Request reguest = factory.createAccountUpdateRequest(userInteraction);
+        Request reguest = factory.getAccountUpdateRequest(userInteraction);
         Request expectedRequest = new AccountUpdateRequest("PASSWORD",
                 "exampleUser", "newPassword");
 

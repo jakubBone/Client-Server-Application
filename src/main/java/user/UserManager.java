@@ -40,7 +40,7 @@ public class UserManager {
 
      public String getRegisterResponse(String typedUsername, String typedPassword){
          log.info("Registration attempted for user: {}", typedPassword);
-         if(ifUserExists(typedUsername)){
+         if(isUserExists(typedUsername)){
              log.info("Registration attempt failed - user already exists: {}", typedUsername);
              return OperationResponses.REGISTRATION_FAILED_USER_EXISTS.getResponse();
          } else {
@@ -59,13 +59,18 @@ public class UserManager {
 
     ///////////////////////////////////////////////////////////////////////
     public String getLoginResponse(String typedUsername, String typedPassword) {
-        if (ifUserExists(typedUsername)) {
+        if (isUserExists(typedUsername)) {
             User existingUser = getExistingUser(typedUsername);
             if(ifPasswordCorrect(typedPassword, existingUser)){
                 log.info("User password correct: {}", existingUser.getUsername());
                 login(existingUser);
                 log.info("User logged in successfully: {}", existingUser.getUsername());
-                return OperationResponses.LOGIN_SUCCESSFUL.getResponse();
+                    if(ifCurrentUserAdmin()){
+                        return OperationResponses.LOGIN_SUCCESSFUL_ADMIN.getResponse();
+                    } else {
+                        return OperationResponses.LOGIN_SUCCESSFUL_USER.getResponse();
+                    }
+
             } else {
                 log.info("Incorrect password attempt for user: {}", existingUser.getUsername());
                 return OperationResponses.LOGIN_FAILED_INCORRECT_PASSWORD.getResponse();
@@ -88,7 +93,7 @@ public class UserManager {
         }
     }
 
-    public boolean ifUserExists(String username) {
+    public boolean isUserExists(String username) {
         User existingUser = getUserByUsername(username);
         if (existingUser == null) {
             return false;
@@ -137,8 +142,8 @@ public class UserManager {
         UserManager.usersList.remove(user);
     }
 
-    public boolean isCurrentUserAdmin(){
-        log.info("Admin checking for user: {}", currentLoggedInUser.getUsername());
+    public boolean ifCurrentUserAdmin(){
+        log.info("Admin role checking for user: {}", currentLoggedInUser.getUsername());
         return currentLoggedInUser.role.equals(User.Role.ADMIN);
     }
 }

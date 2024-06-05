@@ -27,7 +27,7 @@ public class AccountUpdateHandlerTest {
 
     @Test
     @DisplayName("Should test getting update status for admin user")
-    void testGetUpdateStatusAdmin() throws IOException {
+    void testGetUpdateResponse() throws IOException {
         String userName = "admin";
         String password = "java10";
         String expectedStatus = "Operation succeeded: Authorized";
@@ -36,10 +36,24 @@ public class AccountUpdateHandlerTest {
 
         // Simulate admin login
         userManager.login(admin);
-        String status = updateHandler.getUpdateStatus(userManager);
+        String status = updateHandler.getPasswordChangeResponse(admin.getUsername(), );
 
         assertEquals(expectedStatus, status);
         assertNotEquals(unexpectedStatus, status);
+    }
+
+    public String getUpdateResponse(String updateOperation, String userToUpdate, String newPassword)
+            throws IOException {
+        String response = null;
+        switch (updateOperation) {
+            case "PASSWORD":
+                response = getPasswordChangeResponse(userToUpdate, newPassword);
+                break;
+            case "DELETE":
+                response = getDeleteAccountResponse(userToUpdate);
+                break;
+        }
+        return response;
     }
 
     @Test
@@ -52,7 +66,7 @@ public class AccountUpdateHandlerTest {
 
         // Register and log in a non-admin user
         userManager.register(userName, password);
-        String status = updateHandler.getUpdateStatus(userManager);
+        String status = updateHandler.getPasswordChangeResponse(userManager);
 
         assertEquals(expectedStatus, status);
         assertNotEquals(unexpectedStatus, status);
@@ -69,7 +83,7 @@ public class AccountUpdateHandlerTest {
 
         // Register and log in a user, then test password change request
         userManager.register(userName, password);
-        String updateResponse = updateHandler.getUpdateResponse(passwordChange, userManager);
+        String updateResponse = updateHandler.getPasswordChangeResponse(passwordChange, userManager);
 
         assertEquals(expectedResponse, updateResponse);
     }
@@ -85,7 +99,7 @@ public class AccountUpdateHandlerTest {
 
         // Register and log in a user, then test account deletion request
         userManager.register(userName, password);
-        String updateResponse = updateHandler.getUpdateResponse(passwordChange, userManager);
+        String updateResponse = updateHandler.getPasswordChangeResponse(passwordChange, userManager);
 
         assertEquals(expectedResponse, updateResponse);
     }

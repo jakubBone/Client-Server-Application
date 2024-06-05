@@ -11,27 +11,30 @@ public class MailboxHandler {
     private MailService mailService = new MailService();
 
     public String getMailboxResponse(String mailOperation, String boxType) throws IOException {
-        String response = null;
         if(mailOperation.equals("READ")){
-            response = getReadResposne(boxType);
+            return getReadResposne(boxType);
         } else if(mailOperation.equals("EMPTY")){
-            response = getEmptyMailboxResponse(boxType);
+            return getEmptyMailboxResponse(boxType);
+        } else {
+            throw new IllegalArgumentException("Unknown mail operation: " + mailOperation);
         }
-        return response;
     }
 
     private String getReadResposne(String boxType){
-        String response = null;
         List<Mail> mailsToRead = mailService.getMailsToRead(boxType);
         if(mailsToRead.isEmpty()){
-            response = "Mailbox is empty";
-        } else{
+            return "Mailbox is empty";
+        } else {
+            StringBuilder response = new StringBuilder();
             for (Mail mail : mailsToRead) {
-                response = "From: " + mail.getSender().getUsername() + "\n Message: " + mail.getMessage();
+                response.append("From ")
+                        .append(mail.getSender().getUsername())
+                        .append("\n Message: ")
+                        .append(mail.getMessage());
             }
             mailService.markMailsAsRead(boxType);
+            return response.toString();
         }
-        return response;
     }
 
     private String getEmptyMailboxResponse(String boxType){

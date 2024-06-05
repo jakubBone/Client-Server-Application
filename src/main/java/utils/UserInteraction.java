@@ -68,9 +68,9 @@ public class UserInteraction {
         }
     }
 
-    public String chooseAccountUpdateOperation() throws IOException {
+    public String chooseUpdateOperation() throws IOException {
         while (true) {
-            System.out.println("Choose an account setting to update: PASSWORD / DELETE");;
+            System.out.println("Choose an account update: PASSWORD / DELETE");;
             String input = reader.readLine();
             switch (input.toUpperCase()) {
                 case "PASSWORD":
@@ -85,7 +85,7 @@ public class UserInteraction {
     }
 
     public String chooseUserToUpdate() throws IOException {
-        System.out.println("Please enter an username of the account to update:");
+        System.out.println("Please enter an username to update:");
         return reader.readLine();
     }
 }

@@ -14,13 +14,15 @@ public class Screen {
                 "|                                             |\n" +
                 "| Register                                    |\n" +
                 "| Login                                       |\n" +
+                "| Uptime                                      |\n" +
+                "| Info                                        |\n" +
                 "| Help                                        |\n" +
                 "| Exit                                        |\n" +
                 "+---------------------------------------------+");
         System.out.println("Select an option:");
     }
 
-    public static void printMailBoxMenu() {
+    public static void printAdminMailBoxMenu() {
         System.out.println("+---------------------------------------------+\n" +
                 "|              You are logged in              |\n" +
                 "|                                             |\n" +
@@ -29,6 +31,19 @@ public class Screen {
                 "| Write mail                                  |\n" +
                 "| Mailbox                                     |\n" +
                 "| Update                                      |\n" +
+                "| Logout                                      |\n" +
+                "+---------------------------------------------+");
+        System.out.println("Select an option:");
+    }
+
+    public static void printUserMailBoxMenu() {
+        System.out.println("+---------------------------------------------+\n" +
+                "|              You are logged in              |\n" +
+                "|                                             |\n" +
+                "| Select:                                     |\n" +
+                "|                                             |\n" +
+                "| Write mail                                  |\n" +
+                "| Mailbox                                     |\n" +
                 "| Logout                                      |\n" +
                 "+---------------------------------------------+");
         System.out.println("Select an option:");

@@ -1,7 +1,7 @@
 {
   "username": "admin",
   "password": "java10",
-  "hashedPassword": "$2a$10$6ZRY.2DIg14ZHsFFnGS7Ne123ghfeS/3bs9EBaNl.9s6YY3hB8eGi",
+  "hashedPassword": "$2a$10$iAUt5IS9DIYNCiHd4GSloeZbQWT5INaTI69pLaNrPh9wPmaOzGHKK",
   "role": "ADMIN",
   "mailBox": {
     "openedBox": [],

@@ -30,7 +30,7 @@ public class ServerInfoHandler {
             case "HELP":
                 builder.append("Available Commands:\n");
                 serverInfo.getCommands().forEach((key, value) -> builder.append(key).append(" - ").append(value).append("\n"));
-                return builder.toString(); // For HELP, return immediately to avoid removing the last comma
+                return builder.toString();
         }
         return builder.toString();
     }

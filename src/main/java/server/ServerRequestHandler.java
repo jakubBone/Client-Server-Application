@@ -22,7 +22,6 @@ public class ServerRequestHandler {
     private final BufferedReader inFromClient;
     private final UserManager userManager;
     private Gson gson;
-    public static boolean isAuthorized;
     private JsonConverter jsonResponse;
     private CredentialHandler credentialHandler;
     private ServerInfoHandler serverInfoHandler;
@@ -48,37 +47,36 @@ public class ServerRequestHandler {
         try {
             while ((request = inFromClient.readLine()) != null) {
                 Request reqFromJson = gson.fromJson(request, Request.class);
-
                 String command = reqFromJson.getRequestCommand().toUpperCase();
                 log.info("Handling command: {}", command);
                 switch (command) {
                     case "REGISTER":
                     case "LOGIN":
-                    case "LOGOUT":
-                        response = credentialHandler.getCredentialResponse(command, reqFromJson.getUsername(), reqFromJson.getPassword(), userManager);
+                        response = credentialHandler.getCredentialResponse(command, reqFromJson.getUsername(),
+                                reqFromJson.getPassword(), userManager);
                         break;
                     case "HELP":
-                    case "UPTIME":
                     case "INFO":
+                    case "UPTIME":
                         response = serverInfoHandler.getServerInfoResponse(command);
                         break;
                     case "WRITE":
-                        response = writeHandler.getWriteResponse(reqFromJson.getRecipient(), reqFromJson.getMessage(), userManager);
+                        response = writeHandler.getWriteResponse(reqFromJson.getRecipient(),
+                                reqFromJson.getMessage(), userManager);
                         break;
                     case "MAILBOX":
-                        response = mailboxHandler.getMailboxResponse(reqFromJson.getBoxOperation(), reqFromJson.getMailbox());
+                        response = mailboxHandler.getMailboxResponse(reqFromJson.getBoxOperation(),
+                                reqFromJson.getMailbox());
                         break;
                     case "UPDATE":
-                        response = accountUpdateHandler.getUpdateStatus(userManager);
-                        sendResponse(response);
-                        if(isAuthorized) {
-                            request = inFromClient.readLine();
-                            reqFromJson = gson.fromJson(request, Request.class);
-                            response = accountUpdateHandler.getUpdateResponse(reqFromJson, userManager);
-                            isAuthorized = false;
-                        }
+                        response = accountUpdateHandler.getUpdateResponse(reqFromJson.getUpdateOperation(),
+                                reqFromJson.getUserToUpdate(), reqFromJson.getNewPassword());
+                        break;
+                    case "LOGOUT":
+                        response = credentialHandler.getLogoutResponse(userManager);
                         break;
                 }
+
                 sendResponse(response);
                 log.info("Completed authentication command: {}", command);
             }
@@ -86,53 +84,6 @@ public class ServerRequestHandler {
             log.error("IOException occurred while processing the request: {}. Error: ", request, ex);
         }
     }
-    /*public void handleClientRequest() {
-        String request = null;
-        String response = null;
-        try {
-            while ((request = inFromClient.readLine()) != null) {
-                Request reqFromJson = gson.fromJson(request, Request.class);
-
-                String command = reqFromJson.getRequestCommand().toUpperCase();
-                log.info("Handling command: {}", command);
-                switch (command) {
-                    case "REGISTER":
-                    case "LOGIN":
-                    case "LOGOUT"
-                        response = credentialHandler.getCredentialResponse(command, reqFromJson.getUsername(), reqFromJson.getPassword(), userManager);
-                        break;
-                    case "HELP":
-                    case "UPTIME":
-                    case "INFO":
-                        response = serverInfoHandler.getServerInfoResponse(command);
-                        break;
-                    case "WRITE":
-                        response = writeHandler.getWriteResponse(reqFromJson.getRecipient(), reqFromJson.getMessage(), userManager);
-                        break;
-                    case "MAILBOX":
-                        response = mailboxHandler.getMailboxResponse(reqFromJson.getBoxOperation(), reqFromJson.getMailbox());
-                        break;
-                    case "UPDATE":
-                        response = accountUpdateHandler.getUpdateStatus(userManager);
-                        sendResponse(response);
-                        if(isAuthorized) {
-                            request = inFromClient.readLine();
-                            reqFromJson = gson.fromJson(request, Request.class);
-                            response = accountUpdateHandler.getUpdateResponse(reqFromJson, userManager);
-                            isAuthorized = false;
-                        }
-                        break;
-                    case "LOGOUT":
-                        response = credentialHandler.getLogoutResponse(userManager);
-                        break;
-                }
-                sendResponse(response);
-                log.info("Completed authentication command: {}", command);
-            }
-        } catch (IOException ex) {
-            log.error("IOException occurred while processing the request: {}. Error: ", request, ex);
-        }
-    }*/
 
     public void sendResponse(String response){
         jsonResponse = new JsonConverter(response);

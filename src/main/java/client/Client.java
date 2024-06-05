@@ -10,7 +10,6 @@ import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
 import request.*;
 import utils.Screen;
-import utils.UserInteraction;
 
  /*
   * This class represents a simple client application for server communication.
@@ -43,18 +42,14 @@ public class Client {
     public void handleServerCommunication() {
         try {
             while(connection.isConnected()){
-                if(!connection.isLoggedIn()) {
-                    Screen.printLoginMenu();
-                } else {
-                    Screen.printMailBoxMenu();
-                }
+                printClientUI();
                 String request = userInput.readLine();
                 if (request == null || request.equalsIgnoreCase("EXIT")) {
                     connection.disconnect();
                     log.info("User exited the application");
                     return;
                 }
-                    handleRequest(request); // Handle login-related requests
+                    handleRequest(request);
             }
         } catch (IOException ex) {
             log.error("Error in handling server communication: {}", ex.getMessage());
@@ -66,27 +61,29 @@ public class Client {
      * HELP - displays help menu
      */
     public void handleRequest(String request) throws IOException {
-        UserInteraction userInteraction = new UserInteraction(userInput);
-        RequestFactory factory = new RequestFactory();
-
-        Request requestType = factory.createRequest(request, userInteraction);
+        RequestFactory factory = new RequestFactory(connection);
+        Request requestType = factory.createRequest(request);
 
         if (requestType != null) {
             String jsonRequest = gson.toJson(requestType);
             connection.sendRequest(jsonRequest);
             log.info("User attempted to {}", request);
             connection.readResponse();
-            if(connection.isAuthorized()) {
-                requestType = factory.createAccountUpdateRequest(userInteraction);
-                jsonRequest = gson.toJson(requestType);
-                connection.sendRequest(jsonRequest);
-                log.info("User updated {} for {}", requestType.getUpdateOperation(), requestType.getUserToUpdate());
-                connection.readResponse();
-                connection.setAuthorized(false);
-            }
         } else {
             log.warn("Incorrect input from user: {}", request);
             System.out.println("Incorrect input. Please, try again");
+        }
+    }
+
+    public void printClientUI(){
+        if(!connection.isLoggedIn()) {
+            Screen.printLoginMenu();
+        } else {
+            if(connection.isAuthorized()){
+                Screen.printAdminMailBoxMenu();
+            } else{
+                Screen.printUserMailBoxMenu();
+            }
         }
     }
 }

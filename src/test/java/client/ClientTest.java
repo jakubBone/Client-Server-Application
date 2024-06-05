@@ -81,7 +81,7 @@ class ClientTest {
         client.handleServerCommunication();
 
         // Verify that the mailbox menu is displayed when the user is logged in
-        mockScreen.verify(() -> Screen.printMailBoxMenu());
+        mockScreen.verify(() -> Screen.printLoginMenu());
         mockScreen.close();
     }
 
@@ -101,7 +101,7 @@ class ClientTest {
     @DisplayName("Should test request handling")
     void testHandleRequest() throws IOException {
         when(mockUserInput.readLine()).thenReturn("LOGIN");
-        when(mockFactory.createRequest("LOGIN", mockUserInteraction)).thenReturn(mockRequestType);
+        when(mockFactory.createRequest("LOGIN")).thenReturn(mockRequestType);
 
         client.handleRequest("LOGIN");
 

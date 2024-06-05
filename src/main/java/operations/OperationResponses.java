@@ -1,7 +1,8 @@
 package operations;
 
 public enum OperationResponses {
-    LOGIN_SUCCESSFUL("Login successful"),
+    LOGIN_SUCCESSFUL_USER("User login successful"),
+    LOGIN_SUCCESSFUL_ADMIN("Admin login successful"),
     REGISTRATION_SUCCESSFUL("Registration successful"),
     SUCCESSFULLY_LOGGED_OUT("Successfully logged out"),
     LOGIN_FAILED_INCORRECT_PASSWORD("Login failed: Incorrect password"),
