@@ -11,26 +11,25 @@ public class AccountUpdateHandler {
 
     UserManager userManager = new UserManager();
 
-
     public String getUpdateResponse(String updateOperation, String userToUpdate, String newPassword)
             throws IOException {
         String response = null;
             switch (updateOperation) {
                 case "PASSWORD":
-                    response = getPasswordChangeResponse(userToUpdate, newPassword);
+                    response = changePassworAndGetResponse(userToUpdate, newPassword);
                     break;
                 case "DELETE":
-                    response = getDeleteAccountResponse(userToUpdate);
+                    response = deleteAccountAndGetResponse(userToUpdate);
                     break;
             }
         return response;
     }
 
 
-    public String getPasswordChangeResponse(String username, String newPassword)  {
+    public String changePassworAndGetResponse(String username, String newPassword)  {
         User userToUpdate = userManager.getUserByUsername(username);
         if (userToUpdate != null) {
-            userManager.changePassword(userToUpdate, newPassword);
+            userManager.getAdmin().changePassword(userToUpdate, newPassword);
             log.info("Password changed successfully for user: {}", userToUpdate.getUsername());
             return userToUpdate.getUsername() + " password change successful";
         } else {
@@ -39,14 +38,14 @@ public class AccountUpdateHandler {
         }
     }
 
-    public String getDeleteAccountResponse(String username) {
+    public String deleteAccountAndGetResponse(String username) {
         if(userManager.ifCurrentUserAdmin()){
             log.info("Update failed: Cannot delete admin account");
             return "Update failed: Cannot delete admin account";
         } else {
             User userToUpdate = userManager.getUserByUsername(username);
             if (userToUpdate != null) {
-                userManager.deleteUser(userToUpdate);
+                userManager.getAdmin().deleteUser(userToUpdate);
                 log.info("User account deleted successfully: {}", userToUpdate.getUsername());
                 return userToUpdate.getUsername() + " account deletion successful";
             } else {

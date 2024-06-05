@@ -36,7 +36,7 @@ public class AccountUpdateHandlerTest {
 
         // Simulate admin login
         userManager.login(admin);
-        String status = updateHandler.getPasswordChangeResponse(admin.getUsername(), );
+        String status = updateHandler.changePassworAndGetResponse(admin.getUsername(), );
 
         assertEquals(expectedStatus, status);
         assertNotEquals(unexpectedStatus, status);
@@ -52,7 +52,7 @@ public class AccountUpdateHandlerTest {
 
         // Register and log in a non-admin user
         userManager.register(userName, password);
-        String status = updateHandler.getPasswordChangeResponse(userManager);
+        String status = updateHandler.changePassworAndGetResponse(userManager);
 
         assertEquals(expectedStatus, status);
         assertNotEquals(unexpectedStatus, status);
@@ -69,7 +69,7 @@ public class AccountUpdateHandlerTest {
 
         // Register and log in a user, then test password change request
         userManager.register(userName, password);
-        String updateResponse = updateHandler.getPasswordChangeResponse(passwordChange, userManager);
+        String updateResponse = updateHandler.changePassworAndGetResponse(passwordChange, userManager);
 
         assertEquals(expectedResponse, updateResponse);
     }
@@ -85,7 +85,7 @@ public class AccountUpdateHandlerTest {
 
         // Register and log in a user, then test account deletion request
         userManager.register(userName, password);
-        String updateResponse = updateHandler.getPasswordChangeResponse(passwordChange, userManager);
+        String updateResponse = updateHandler.changePassworAndGetResponse(passwordChange, userManager);
 
         assertEquals(expectedResponse, updateResponse);
     }

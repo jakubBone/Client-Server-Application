@@ -120,7 +120,6 @@ public class UserManager {
         currentLoggedInUser = null;
     }
 
-
     // Finds a user by the username
     public User getUserByUsername(String username){
         for (User user : usersList) {
@@ -131,18 +130,6 @@ public class UserManager {
         }
         log.warn("User not found on the list: {}", username);
         return null;
-    }
-
-    public void changePassword(User user, String newPassword){
-        user.setPassword(newPassword);
-        user.hashPassword();
-        jsonConverter.saveUserData(user);
-    }
-
-    public void deleteUser(User user){
-        if(!ifCurrentUserAdmin()) {
-            UserManager.usersList.remove(user);
-        }
     }
 
     public boolean ifCurrentUserAdmin(){
