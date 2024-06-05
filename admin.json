@@ -1,8 +1,8 @@
 {
   "jsonConverter": {},
   "username": "admin",
-  "password": "xxx",
-  "hashedPassword": "$2a$10$jgJRMvRsY4J2A7qWrtl6suGPd39zNE9EjKLvg6wAuKoYQCywpP4N6",
+  "password": "java10",
+  "hashedPassword": "$2a$10$ZaSiSb9hc6dhiFx/YjjF4.M1xrIEryBkLYX3EZTBfgnX/xlafvu8S",
   "role": "ADMIN",
   "mailBox": {
     "openedBox": [],

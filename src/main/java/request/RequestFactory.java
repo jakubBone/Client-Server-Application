@@ -14,14 +14,12 @@ public class RequestFactory {
 
     private BufferedReader userInput;
     UserInteraction userInteraction;
-    UserManager userManager;
     ClientConnection connection;
 
     public RequestFactory(ClientConnection clientConnection) {
         this.connection = clientConnection;
         this.userInput = new BufferedReader(new InputStreamReader(System.in));
         this.userInteraction = new UserInteraction(userInput);
-        this.userManager = new UserManager();
     }
 
     public Request createRequest(String requestCommand) throws IOException {

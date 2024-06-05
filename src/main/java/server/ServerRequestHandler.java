@@ -53,7 +53,7 @@ public class ServerRequestHandler {
                     case "REGISTER":
                     case "LOGIN":
                         response = credentialHandler.getCredentialResponse(requestCommand,
-                                reqFromJson.getUsername(), reqFromJson.getPassword());
+                                reqFromJson.getUsername(), reqFromJson.getPassword(), userManager);
                         break;
                     case "HELP":
                     case "INFO":
@@ -62,7 +62,7 @@ public class ServerRequestHandler {
                         break;
                     case "WRITE":
                         response = writeHandler.getWriteResponse(reqFromJson.getRecipient(),
-                                reqFromJson.getMessage());
+                                reqFromJson.getMessage(), userManager);
                         break;
                     case "MAILBOX":
                         response = mailboxHandler.getMailboxResponse(reqFromJson.getBoxOperation(),
@@ -70,10 +70,10 @@ public class ServerRequestHandler {
                         break;
                     case "UPDATE":
                         response = accountUpdateHandler.getUpdateResponse(reqFromJson.getUpdateOperation(),
-                                reqFromJson.getUserToUpdate(), reqFromJson.getNewPassword());
+                                reqFromJson.getUserToUpdate(), reqFromJson.getNewPassword(), userManager);
                         break;
                     case "LOGOUT":
-                        response = credentialHandler.getLogoutResponse();
+                        response = credentialHandler.getLogoutResponse(userManager);
                         break;
                 }
 

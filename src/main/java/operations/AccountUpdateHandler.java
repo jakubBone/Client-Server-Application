@@ -9,24 +9,24 @@ import java.io.IOException;
 @Log4j2
 public class AccountUpdateHandler {
 
-    UserManager userManager = new UserManager();
 
-    public String getUpdateResponse(String updateOperation, String userToUpdate, String newPassword)
+    public String getUpdateResponse(String updateOperation, String userToUpdate, String newPassword,
+                                    UserManager userManager)
             throws IOException {
         String response = null;
             switch (updateOperation) {
                 case "PASSWORD":
-                    response = changePassworAndGetResponse(userToUpdate, newPassword);
+                    response = changePassworAndGetResponse(userToUpdate, newPassword, userManager);
                     break;
                 case "DELETE":
-                    response = deleteAccountAndGetResponse(userToUpdate);
+                    response = deleteAccountAndGetResponse(userToUpdate, userManager);
                     break;
             }
         return response;
     }
 
 
-    public String changePassworAndGetResponse(String username, String newPassword)  {
+    public String changePassworAndGetResponse(String username, String newPassword,UserManager userManager)  {
         User userToUpdate = userManager.getUserByUsername(username);
         if (userToUpdate != null) {
             userManager.getAdmin().changePassword(userToUpdate, newPassword);
@@ -38,7 +38,7 @@ public class AccountUpdateHandler {
         }
     }
 
-    public String deleteAccountAndGetResponse(String username) {
+    public String deleteAccountAndGetResponse(String username, UserManager userManager) {
         if(userManager.ifCurrentUserAdmin()){
             log.info("Update failed: Cannot delete admin account");
             return "Update failed: Cannot delete admin account";
