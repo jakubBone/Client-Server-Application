@@ -42,20 +42,6 @@ public class AccountUpdateHandlerTest {
         assertNotEquals(unexpectedStatus, status);
     }
 
-    public String getUpdateResponse(String updateOperation, String userToUpdate, String newPassword)
-            throws IOException {
-        String response = null;
-        switch (updateOperation) {
-            case "PASSWORD":
-                response = getPasswordChangeResponse(userToUpdate, newPassword);
-                break;
-            case "DELETE":
-                response = getDeleteAccountResponse(userToUpdate);
-                break;
-        }
-        return response;
-    }
-
     @Test
     @DisplayName("Should test getting update status for non-admin user")
     void testGetUpdateStatusNonAdmin() throws IOException {

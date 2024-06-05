@@ -54,7 +54,6 @@ public class ClientConnection {
         }
     }
 
-
     public void retryConnection() {
         if (connectionAttempts >= 2) {
             log.error("Max reconnection attempts reached. Giving up");

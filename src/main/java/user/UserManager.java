@@ -136,10 +136,13 @@ public class UserManager {
     public void changePassword(User user, String newPassword){
         user.setPassword(newPassword);
         user.hashPassword();
+        jsonConverter.saveUserData(user);
     }
 
     public void deleteUser(User user){
-        UserManager.usersList.remove(user);
+        if(!ifCurrentUserAdmin()) {
+            UserManager.usersList.remove(user);
+        }
     }
 
     public boolean ifCurrentUserAdmin(){

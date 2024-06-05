@@ -40,14 +40,19 @@ public class AccountUpdateHandler {
     }
 
     public String getDeleteAccountResponse(String username) {
-        User userToUpdate = userManager.getUserByUsername(username);
-        if (userToUpdate != null) {
-            userManager.deleteUser(userToUpdate);
-            log.info("User account deleted successfully: {}", userToUpdate.getUsername());
-            return userToUpdate.getUsername() + " account deletion successful";
+        if(userManager.ifCurrentUserAdmin()){
+            log.info("Update failed: Cannot delete admin account");
+            return "Update failed: Cannot delete admin account";
         } else {
-            log.warn("Failed to find user for update: {}", username);
-            return "Update failed: " + username + " not found";
+            User userToUpdate = userManager.getUserByUsername(username);
+            if (userToUpdate != null) {
+                userManager.deleteUser(userToUpdate);
+                log.info("User account deleted successfully: {}", userToUpdate.getUsername());
+                return userToUpdate.getUsername() + " account deletion successful";
+            } else {
+                log.warn("Failed to find user for update: {}", username);
+                return "Update failed: " + username + " not found";
+            }
         }
     }
 }
