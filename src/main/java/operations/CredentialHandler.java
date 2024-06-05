@@ -6,9 +6,11 @@ import user.UserManager;
 @Log4j2
 public class CredentialHandler {
 
-     public String getCredentialResponse(String command, String username, String password, UserManager userManager)  {
+    private UserManager userManager = new UserManager();
+
+     public String getCredentialResponse(String requestCommand, String username, String password)  {
         String response = null;
-        switch (command) {
+        switch (requestCommand) {
             case "REGISTER":
                 response = userManager.getRegisterResponse(username, password);
                 break;
@@ -19,7 +21,7 @@ public class CredentialHandler {
         return response;
     }
 
-    public String getLogoutResponse(UserManager userManager)  {
+    public String getLogoutResponse()  {
         return userManager.getLogoutResponse();
     }
 }

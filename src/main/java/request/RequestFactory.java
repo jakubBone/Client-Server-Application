@@ -24,52 +24,52 @@ public class RequestFactory {
         this.userManager = new UserManager();
     }
 
-    public Request createRequest(String request) throws IOException {
+    public Request createRequest(String requestCommand) throws IOException {
             if(!connection.isLoggedIn()){
-                return getLoginMenuRequest(request);
+                return getLoginMenuRequest(requestCommand);
             } else {
-                return getMailboxMenuRequest(request);
+                return getMailboxMenuRequest(requestCommand);
             }
     }
 
-    public Request getLoginMenuRequest(String request) throws IOException {
-        switch (request.toUpperCase()) {
+    public Request getLoginMenuRequest(String requestCommand) throws IOException {
+        switch (requestCommand.toUpperCase()) {
             case "REGISTER":
             case "LOGIN":
                 String username = userInteraction.getUsername();
                 String password = userInteraction.getPassword();
-                return new CredentialRequest(request, username, password);
+                return new CredentialRequest(requestCommand, username, password);
             case "HELP":
             case "INFO":
             case "UPTIME":
-                return new ServerInfoRequest(request);
+                return new ServerInfoRequest(requestCommand);
             case "LOGOUT":
-                return new CredentialRequest(request);
+                return new CredentialRequest(requestCommand);
             default:
                 return null;
         }
     }
 
-    public Request getMailboxMenuRequest(String request) throws IOException {
-        switch (request.toUpperCase()){
+    public Request getMailboxMenuRequest(String requestCommand) throws IOException {
+        switch (requestCommand.toUpperCase()){
             case "WRITE":
                 String recipient = userInteraction.getRecipient();
                 String message = userInteraction.getMessage();
-                return new WriteRequest(request, recipient, message);
+                return new WriteRequest(requestCommand, recipient, message);
             case "MAILBOX":
                 String boxOperation = userInteraction.chooseBoxOperation();
                 String mailbox = userInteraction.chooseMailBox();
-                return new MailBoxRequest(request, boxOperation, mailbox);
+                return new MailBoxRequest(requestCommand, boxOperation, mailbox);
             case "UPDATE":
-                return getAccountUpdateRequest(request);
+                return getAccountUpdateRequest(requestCommand);
             case "LOGOUT":
-                return new CredentialRequest(request);
+                return new CredentialRequest(requestCommand);
             default:
                 return null;
         }
     }
 
-    public Request getAccountUpdateRequest(String request) throws IOException {
+    public Request getAccountUpdateRequest(String requestCommand) throws IOException {
         if (connection.isAuthorized()) {
             log.info("Authorization success for admin");
             String updateOperation = userInteraction.chooseUpdateOperation();
@@ -77,9 +77,9 @@ public class RequestFactory {
             switch (updateOperation) {
                 case "PASSWORD":
                     String newPassword = userInteraction.getNewPassword();
-                    return new AccountUpdateRequest(request, updateOperation, userToUpdate, newPassword);
+                    return new AccountUpdateRequest(requestCommand, updateOperation, userToUpdate, newPassword);
                 case "DELETE":
-                    return new AccountUpdateRequest(request, updateOperation, userToUpdate);
+                    return new AccountUpdateRequest(requestCommand, updateOperation, userToUpdate);
                 default:
                     return null;
             }

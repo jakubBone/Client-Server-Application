@@ -1,8 +1,8 @@
 package request;
 
 public class MailBoxRequest extends Request {
-    public MailBoxRequest(String request, String boxOperation, String mailbox) {
-        super(request);
+    public MailBoxRequest(String requestCommand, String boxOperation, String mailbox) {
+        super(requestCommand);
         this.boxOperation = boxOperation;
         this.mailbox = mailbox;
     }

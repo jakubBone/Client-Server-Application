@@ -1,8 +1,8 @@
 package request;
 
 public class WriteRequest extends Request {
-    public WriteRequest(String request, String recipient, String message) {
-        super(request);
+    public WriteRequest(String requestCommand, String recipient, String message) {
+        super(requestCommand);
         this.recipient = recipient;
         this.message = message;
     }

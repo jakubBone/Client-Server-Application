@@ -10,7 +10,9 @@ import java.io.IOException;
 @Log4j2
 public class WriteHandler {
     private MailService mailService = new MailService();
-    public String getWriteResponse(String recipient, String message, UserManager userManager) throws IOException {
+    private UserManager userManager = new UserManager();
+
+    public String getWriteResponse(String recipient, String message) throws IOException {
         User recipientUser = userManager.getUserByUsername(recipient);
         String response = null;
         if (recipientUser != null) {

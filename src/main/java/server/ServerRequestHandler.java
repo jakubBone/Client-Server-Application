@@ -47,22 +47,22 @@ public class ServerRequestHandler {
         try {
             while ((request = inFromClient.readLine()) != null) {
                 Request reqFromJson = gson.fromJson(request, Request.class);
-                String command = reqFromJson.getRequestCommand().toUpperCase();
-                log.info("Handling command: {}", command);
-                switch (command) {
+                String requestCommand = reqFromJson.getRequestCommand().toUpperCase();
+                log.info("Handling request request command: {}", requestCommand);
+                switch (requestCommand) {
                     case "REGISTER":
                     case "LOGIN":
-                        response = credentialHandler.getCredentialResponse(command, reqFromJson.getUsername(),
-                                reqFromJson.getPassword(), userManager);
+                        response = credentialHandler.getCredentialResponse(requestCommand,
+                                reqFromJson.getUsername(), reqFromJson.getPassword());
                         break;
                     case "HELP":
                     case "INFO":
                     case "UPTIME":
-                        response = serverInfoHandler.getServerInfoResponse(command);
+                        response = serverInfoHandler.getServerInfoResponse(requestCommand);
                         break;
                     case "WRITE":
                         response = writeHandler.getWriteResponse(reqFromJson.getRecipient(),
-                                reqFromJson.getMessage(), userManager);
+                                reqFromJson.getMessage());
                         break;
                     case "MAILBOX":
                         response = mailboxHandler.getMailboxResponse(reqFromJson.getBoxOperation(),
@@ -73,12 +73,12 @@ public class ServerRequestHandler {
                                 reqFromJson.getUserToUpdate(), reqFromJson.getNewPassword());
                         break;
                     case "LOGOUT":
-                        response = credentialHandler.getLogoutResponse(userManager);
+                        response = credentialHandler.getLogoutResponse();
                         break;
                 }
 
                 sendResponse(response);
-                log.info("Completed authentication command: {}", command);
+                log.info("Completed authentication requestCommand: {}", requestCommand);
             }
         } catch (IOException ex) {
             log.error("IOException occurred while processing the request: {}. Error: ", request, ex);
