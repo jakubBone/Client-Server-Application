@@ -29,6 +29,7 @@ public class ServerRequestHandler {
     private AccountUpdateHandler accountUpdateHandler;
     private WriteHandler writeHandler;
 
+    private AdminSwitchUserHandler adminSwitchUserHandler;
     public ServerRequestHandler(PrintWriter outToClient, BufferedReader inFromClient) {
         this.outToClient = outToClient;
         this.inFromClient = inFromClient;
@@ -39,6 +40,7 @@ public class ServerRequestHandler {
         this.mailboxHandler = new MailboxHandler();
         this.accountUpdateHandler = new AccountUpdateHandler();
         this.writeHandler = new WriteHandler();
+        this.adminSwitchUserHandler = new AdminSwitchUserHandler();
     }
 
     public void handleClientRequest() {
@@ -71,6 +73,10 @@ public class ServerRequestHandler {
                     case "UPDATE":
                         response = accountUpdateHandler.getUpdateResponse(reqFromJson.getUpdateOperation(),
                                 reqFromJson.getUserToUpdate(), reqFromJson.getNewPassword(), userManager);
+                        break;
+                    case "SWITCH":
+                        response = adminSwitchUserHandler.getSwitchResponse(reqFromJson.getUserToSwitch(),
+                                userManager);
                         break;
                     case "LOGOUT":
                         response = credentialHandler.getLogoutResponse(userManager);

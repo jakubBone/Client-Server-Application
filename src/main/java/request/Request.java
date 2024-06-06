@@ -16,6 +16,7 @@ public class Request {
     String updateOperation;
     String userToUpdate;
     String newPassword;
+    String userToSwitch;
 
 
     public Request(String requestCommand) {

@@ -9,7 +9,7 @@ public class CredentialRequest extends Request {
         this.password = password;
     }
 
-    // Creates logout request
+    // Creates logout and request
     public CredentialRequest(String requestCommand) {
         super(requestCommand);
     }

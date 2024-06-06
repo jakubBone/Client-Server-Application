@@ -38,6 +38,11 @@ public class UserInteraction {
         return reader.readLine();
     }
 
+     public String getUserToSwitch() throws IOException {
+         System.out.println("Please enter a username to switch:");
+         return reader.readLine();
+     }
+
     public String chooseBoxOperation() throws IOException {
         while (true) {
             System.out.println("Select an operation for the mailbox: READ / EMPTY");
@@ -88,4 +93,6 @@ public class UserInteraction {
         System.out.println("Please enter an username to update:");
         return reader.readLine();
     }
+
+
 }

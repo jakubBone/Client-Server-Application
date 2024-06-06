@@ -1,7 +1,6 @@
 package request;
 
 import client.ClientConnection;
-import user.UserManager;
 import utils.UserInteraction;
 
 import lombok.extern.log4j.Log4j2;
@@ -60,6 +59,9 @@ public class RequestFactory {
                 return new MailBoxRequest(requestCommand, boxOperation, mailbox);
             case "UPDATE":
                 return getAccountUpdateRequest(requestCommand);
+            case "SWITCH":
+                String userToSwitch = userInteraction.getUserToSwitch();
+                return new AdminSwitchUserRequest(requestCommand, userToSwitch);
             case "LOGOUT":
                 return new CredentialRequest(requestCommand);
             default:

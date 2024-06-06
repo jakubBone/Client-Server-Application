@@ -28,6 +28,7 @@ public class ClientConnection {
     private BufferedReader inFromServer;
     private static boolean loggedIn = false;
     private boolean isAuthorized = false;
+    private boolean  isAdminSwitchedAndAuthorized = false;
     public static int connectionAttempts = 0;
     private boolean connected = false;
     private static OperationResponses response;
@@ -106,6 +107,8 @@ public class ClientConnection {
                 break;
             case SUCCESSFULLY_LOGGED_OUT:
                 loggedIn = false;
+                isAuthorized = false;
+                isAdminSwitchedAndAuthorized = false;
                 log.info("User logged out successfully");
                 break;
             case LOGIN_FAILED_INCORRECT_PASSWORD:
@@ -123,6 +126,14 @@ public class ClientConnection {
             case OPERATION_FAILED:
                 isAuthorized = false;
                 log.info("User not authorized for operations");
+                break;
+            case SWITCH_SUCCEEDED:
+                isAuthorized = false;
+                isAdminSwitchedAndAuthorized = true;
+                log.info("User authorized for account switch");
+                break;
+            case SWITCH_FAILED:
+                log.info("User not authorized for account switch");
                 break;
         }
     }

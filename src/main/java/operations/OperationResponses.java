@@ -10,6 +10,8 @@ public enum OperationResponses {
     REGISTRATION_FAILED_USER_EXISTS("Registration failed: User already exists"),
     OPERATION_SUCCEEDED("Operation succeeded: Authorized"),
     OPERATION_FAILED("Operation failed: Not authorized"),
+    SWITCH_SUCCEEDED("Switch operation succeeded: Authorized"),
+    SWITCH_FAILED("Switch operation failed: Not authorized"),
     UNKNOWN_RESPONSE("Unknown response");
     private final String RESPONSE;
 

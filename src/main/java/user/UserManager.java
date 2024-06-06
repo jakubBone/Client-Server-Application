@@ -23,6 +23,8 @@ public class UserManager {
     public Admin admin;
     JsonConverter jsonConverter;
 
+    public boolean ifAdminSwitched;
+
     public UserManager() {
         this.admin = new Admin();
         jsonConverter = new JsonConverter();
@@ -117,6 +119,7 @@ public class UserManager {
 
     public void logoutCurrentUser() {
         log.info("User successfully logged out: {}", currentLoggedInUser.getUsername());
+        ifAdminSwitched = false;
         currentLoggedInUser = null;
     }
 
@@ -132,8 +135,21 @@ public class UserManager {
         return null;
     }
 
+
+    public void switchUser(String username) {
+            User user = getUserByUsername(username);
+            if (user != null) {
+                currentLoggedInUser = user;
+                ifAdminSwitched = true;
+                log.info("Admin switched to user: {}", username);
+            } else {
+                log.info("Admin failed to switch to user: {}", username);
+            }
+    }
+
     public boolean ifCurrentUserAdmin(){
         log.info("Admin role checking for user: {}", currentLoggedInUser.getUsername());
-        return currentLoggedInUser.role.equals(User.Role.ADMIN);
+        return currentLoggedInUser != null && currentLoggedInUser.getRole().equals(User.Role.ADMIN);
     }
+
 }

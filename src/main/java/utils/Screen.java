@@ -32,6 +32,7 @@ public class Screen {
                 "| Write mail                                  |\n" +
                 "| Mailbox                                     |\n" +
                 "| Update                                      |\n" +
+                "| Switch                                      |\n" +
                 "| Logout                                      |\n" +
                 "+---------------------------------------------+");
         System.out.println("Select an option:");
