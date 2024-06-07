@@ -55,7 +55,7 @@ public class RequestFactoryTest {
 
         // Test creating an account update request
         Request reguest = factory.getAccountUpdateRequest(userInteraction);
-        Request expectedRequest = new AccountUpdateRequest("PASSWORD",
+        Request expectedRequest = new AdminChangePasswordRequest("PASSWORD",
                 "exampleUser", "newPassword");
 
        assertEquals(expectedRequest.getUpdateOperation(), reguest.getUpdateOperation());

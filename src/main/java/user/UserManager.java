@@ -22,8 +22,7 @@ public class UserManager {
     public static User currentLoggedInUser;
     public Admin admin;
     JsonConverter jsonConverter;
-
-    public boolean ifAdminSwitched;
+    public static boolean ifAdminSwitched;
 
     public UserManager() {
         this.admin = new Admin();
@@ -40,7 +39,7 @@ public class UserManager {
       */
 
 
-     public String getRegisterResponse(String typedUsername, String typedPassword){
+     public String registerAndGetResponse(String typedUsername, String typedPassword){
          log.info("Registration attempted for user: {}", typedPassword);
          if(isUserExists(typedUsername)){
              log.info("Registration attempt failed - user already exists: {}", typedUsername);
@@ -59,8 +58,7 @@ public class UserManager {
         currentLoggedInUser = newUser;
     }
 
-    ///////////////////////////////////////////////////////////////////////
-    public String getLoginResponse(String typedUsername, String typedPassword) {
+    public String loginAndGetResponse(String typedUsername, String typedPassword) {
         if (isUserExists(typedUsername)) {
             User existingUser = getExistingUser(typedUsername);
             if(ifPasswordCorrect(typedPassword, existingUser)){
@@ -68,9 +66,9 @@ public class UserManager {
                 login(existingUser);
                 log.info("User logged in successfully: {}", existingUser.getUsername());
                     if(ifCurrentUserAdmin()){
-                        return OperationResponses.LOGIN_SUCCESSFUL_ADMIN.getResponse();
+                        return OperationResponses.ADMIN_LOGIN_SUCCEEDED.getResponse();
                     } else {
-                        return OperationResponses.LOGIN_SUCCESSFUL_USER.getResponse();
+                        return OperationResponses.USER_LOGIN_SUCCEEDED.getResponse();
                     }
 
             } else {
@@ -79,7 +77,7 @@ public class UserManager {
             }
         } else {
             log.info("Login attempt failed - user does not exist: {}", typedUsername);
-            return OperationResponses.LOGIN_FAILED_USER_NOT_FOUND.getResponse();
+            return OperationResponses.FAILED_TO_FIND_USER.getResponse();
         }
     }
     public void login(User existingUser) {
@@ -114,7 +112,7 @@ public class UserManager {
 
     public String getLogoutResponse() {
         logoutCurrentUser();
-        return OperationResponses.SUCCESSFULLY_LOGGED_OUT.getResponse();
+        return OperationResponses.LOGOUT_SUCCEEDED.getResponse();
     }
 
     public void logoutCurrentUser() {
@@ -124,7 +122,7 @@ public class UserManager {
     }
 
     // Finds a user by the username
-    public User getUserByUsername(String username){
+    public User getUserByUsername(String username) {
         for (User user : usersList) {
             if (username.equals(user.getUsername())) {
                 log.info("User found on the list: {}", username);
@@ -133,18 +131,6 @@ public class UserManager {
         }
         log.warn("User not found on the list: {}", username);
         return null;
-    }
-
-
-    public void switchUser(String username) {
-            User user = getUserByUsername(username);
-            if (user != null) {
-                currentLoggedInUser = user;
-                ifAdminSwitched = true;
-                log.info("Admin switched to user: {}", username);
-            } else {
-                log.info("Admin failed to switch to user: {}", username);
-            }
     }
 
     public boolean ifCurrentUserAdmin(){

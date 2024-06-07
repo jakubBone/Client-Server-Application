@@ -10,7 +10,7 @@ import java.util.List;
 public class MailboxHandler {
     private MailService mailService = new MailService();
 
-    public String getMailboxResponse(String mailOperation, String boxType) throws IOException {
+    public String getResponse(String mailOperation, String boxType) throws IOException {
         if(mailOperation.equals("READ")){
             return getReadResposne(boxType);
         } else if(mailOperation.equals("EMPTY")){
@@ -38,7 +38,7 @@ public class MailboxHandler {
     }
 
     private String getEmptyMailboxResponse(String boxType){
-        mailService.emptyMailbox(boxType);
-        return "Mails deleted successfully";
+        mailService.deleteEmails(boxType);
+        return "Mails deletion succeeded";
     }
 }

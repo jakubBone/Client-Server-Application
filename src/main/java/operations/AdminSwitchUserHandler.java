@@ -1,18 +1,22 @@
 package operations;
 
+import user.User;
 import user.UserManager;
 
 public class AdminSwitchUserHandler {
-    public String getSwitchResponse(String username, UserManager userManager) {
-        if (userManager.ifCurrentUserAdmin()) {
-            userManager.switchUser(username);
-            if (userManager.ifAdminSwitched) {
-                return "Switch operation succeeded: Authorized";
-            } else {
-                return "Switch operation failed: User not found";
+
+    public String getResponse(String username, UserManager userManager) {
+        User user = userManager.getUserByUsername(username);
+        if (user != null) {
+            if (userManager.ifCurrentUserAdmin()) {
+                userManager.getAdmin().switchUser(user);
+                if (UserManager.ifAdminSwitched) {
+                    return OperationResponses.SWITCH_SUCCEEDED.getResponse();
+                } else {
+                    return OperationResponses.SWITCH_FAILED.getResponse() + ": non-admin user";
+                }
             }
-        } else {
-            return "Switch operation failed: Not authorized";
         }
+        return OperationResponses.SWITCH_FAILED.getResponse() + ": user not found";
     }
 }

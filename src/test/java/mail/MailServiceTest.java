@@ -56,7 +56,7 @@ public class MailServiceTest {
         String requestedMailBox = "OPEN";
 
         // Test emptying the opened mailbox
-        mailService.emptyMailbox(requestedMailBox);
+        mailService.deleteEmails(requestedMailBox);
 
         assertTrue(mailBox.getOpenedBox().isEmpty());
     }

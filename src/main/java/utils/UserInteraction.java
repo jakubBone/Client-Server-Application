@@ -1,9 +1,13 @@
 package utils;
 
+import user.User;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 
- /*
+import static user.User.Role;
+
+/*
   * The UserInteraction class is responsible for interaction with users through the console
   * The methods used to obtain user input for various purposes, such as usernames, passwords, and mailbox operations
   */
@@ -75,13 +79,15 @@ public class UserInteraction {
 
     public String chooseUpdateOperation() throws IOException {
         while (true) {
-            System.out.println("Choose an account update: PASSWORD / DELETE");;
+            System.out.println("Choose an account update: PASSWORD / DELETE / ROLE");;
             String input = reader.readLine();
             switch (input.toUpperCase()) {
                 case "PASSWORD":
                     return "PASSWORD";
                 case "DELETE":
                     return "DELETE";
+                case "ROLE":
+                    return "ROLE";
                 default:
                     System.out.println("Invalid input. Please enter either 'PASSWORD' or 'DELETE'");
                     break;
@@ -93,6 +99,22 @@ public class UserInteraction {
         System.out.println("Please enter an username to update:");
         return reader.readLine();
     }
+    /*public String chooseUserToRoleChange() throws IOException {
+        System.out.println("Please enter an username to assign admin role:");
+        return reader.readLine();
+    }*/
+
+    public Role chooseRole() throws IOException {
+        System.out.println("Please enter the new role (ADMIN / USER):");
+        String newRole = reader.readLine();
+        if(newRole.equals("ADMIN")){
+            return Role.ADMIN;
+        } else {
+            return Role.USER;
+        }
+    }
+
+
 
 
 }

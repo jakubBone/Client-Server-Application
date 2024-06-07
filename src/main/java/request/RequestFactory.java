@@ -1,6 +1,8 @@
 package request;
 
 import client.ClientConnection;
+import operations.LogoutHandler;
+import user.User;
 import utils.UserInteraction;
 
 import lombok.extern.log4j.Log4j2;
@@ -41,7 +43,7 @@ public class RequestFactory {
             case "UPTIME":
                 return new ServerInfoRequest(requestCommand);
             case "LOGOUT":
-                return new CredentialRequest(requestCommand);
+                return new LogoutRequest(requestCommand);
             default:
                 return null;
         }
@@ -58,34 +60,35 @@ public class RequestFactory {
                 String mailbox = userInteraction.chooseMailBox();
                 return new MailBoxRequest(requestCommand, boxOperation, mailbox);
             case "UPDATE":
-                return getAccountUpdateRequest(requestCommand);
+                return getAccountUpdateRequest();
             case "SWITCH":
                 String userToSwitch = userInteraction.getUserToSwitch();
                 return new AdminSwitchUserRequest(requestCommand, userToSwitch);
             case "LOGOUT":
-                return new CredentialRequest(requestCommand);
+                return new LogoutRequest(requestCommand);
             default:
                 return null;
         }
     }
 
-    public Request getAccountUpdateRequest(String requestCommand) throws IOException {
+    public Request getAccountUpdateRequest() throws IOException {
         if (connection.isAuthorized()) {
-            log.info("Authorization success for admin");
+            log.info("Authorization success");
             String updateOperation = userInteraction.chooseUpdateOperation();
             String userToUpdate = userInteraction.chooseUserToUpdate();
             switch (updateOperation) {
                 case "PASSWORD":
                     String newPassword = userInteraction.getNewPassword();
-                    return new AccountUpdateRequest(requestCommand, updateOperation, userToUpdate, newPassword);
+                    return new AdminChangePasswordRequest(updateOperation, userToUpdate, newPassword);
                 case "DELETE":
-                    return new AccountUpdateRequest(requestCommand, updateOperation, userToUpdate);
-                default:
-                    return null;
+                    return new AdminDeleteUserRequest(updateOperation, userToUpdate);
+                case "ROLE":
+                    User.Role newRole = userInteraction.chooseRole();
+                    return new AdminChangeRoleRequest(updateOperation, userToUpdate, newRole);
             }
         } else {
-            log.info("Authorization failed: no admin permission");
-            return null;
+            log.info("Authorization failed");
         }
+        return null;
     }
 }

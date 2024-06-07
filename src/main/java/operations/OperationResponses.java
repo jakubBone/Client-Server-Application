@@ -1,18 +1,45 @@
 package operations;
 
 public enum OperationResponses {
-    LOGIN_SUCCESSFUL_USER("User login successful"),
-    LOGIN_SUCCESSFUL_ADMIN("Admin login successful"),
+
+    // General responses
+    OPERATION_SUCCEEDED("Operation succeeded"),
+    OPERATION_FAILED("Operation failed"),
+    FAILED_TO_FIND_USER("Failed to find user"),
+
+    // Register responses
     REGISTRATION_SUCCESSFUL("Registration successful"),
-    SUCCESSFULLY_LOGGED_OUT("Successfully logged out"),
-    LOGIN_FAILED_INCORRECT_PASSWORD("Login failed: Incorrect password"),
-    LOGIN_FAILED_USER_NOT_FOUND("Login failed: User does not exist"),
     REGISTRATION_FAILED_USER_EXISTS("Registration failed: User already exists"),
-    OPERATION_SUCCEEDED("Operation succeeded: Authorized"),
-    OPERATION_FAILED("Operation failed: Not authorized"),
-    SWITCH_SUCCEEDED("Switch operation succeeded: Authorized"),
-    SWITCH_FAILED("Switch operation failed: Not authorized"),
+
+    // Login responses
+    USER_LOGIN_SUCCEEDED("User login successful"),
+    ADMIN_LOGIN_SUCCEEDED("Admin login successful"),
+    LOGIN_FAILED_INCORRECT_PASSWORD("Login failed: Incorrect password"),
+
+    // Logout response
+    LOGOUT_SUCCEEDED("Logout succeeded"),
+
+    // Authorization responses
+    AUTHORIZATION_SUCCEEDED("Authorization succeeded"),
+    AUTHORIZATION_FAILED("Authorization failed"),
+
+    // Account switch responses
+    SWITCH_SUCCEEDED("Switch succeeded"),
+    SWITCH_FAILED("Switch failed"),
+
+    // Role change responses
+    ROLE_CHANGE_SUCCEEDED("Role change succeeded"),
+    ROLE_CHANGE_FAILED("Role change failed"),
+
+    // Mail responses
+    SENDING_SUCCEEDED("Sending succeeded"),
+    SENDING_FAILED_BOX_FULL("Sending failed: Recipient's mailbox is full"),
+    SENDING_FAILED_TO_LONG_MESSAGE("Sending failed: Message too long (maximum 255 characters)"),
+    SENDING_FAILED_RECIPIENT_NOT_FOUND("Sending failed: Recipient not found"),
+
+    // Unknown Response
     UNKNOWN_RESPONSE("Unknown response");
+
     private final String RESPONSE;
 
     OperationResponses(String response){
@@ -31,6 +58,5 @@ public enum OperationResponses {
         }
         return UNKNOWN_RESPONSE;
     }
-
 }
 

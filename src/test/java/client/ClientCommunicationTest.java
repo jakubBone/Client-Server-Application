@@ -73,7 +73,7 @@ class ClientCommunicationTest {
     @DisplayName("Should check response status")
     void testCheckResponseStatus() {
         // Test login successful response
-        String response = OperationResponses.LOGIN_SUCCESSFUL_USER.getResponse();
+        String response = OperationResponses.USER_LOGIN_SUCCEEDED.getResponse();
         clientConnection.checkResponseStatus(response);
         assertTrue(clientConnection.isLoggedIn());
 
@@ -83,7 +83,7 @@ class ClientCommunicationTest {
         assertTrue(clientConnection.isLoggedIn());
 
         // Test successfully logged out response
-        response = OperationResponses.SUCCESSFULLY_LOGGED_OUT.getResponse();
+        response = OperationResponses.LOGOUT_SUCCEEDED.getResponse();
         clientConnection.checkResponseStatus(response);
         assertFalse(clientConnection.isLoggedIn());
 
@@ -93,12 +93,12 @@ class ClientCommunicationTest {
         assertFalse(clientConnection.isLoggedIn());
 
         // Test operation succeeded response
-        response = OperationResponses.OPERATION_SUCCEEDED.getResponse();
+        response = OperationResponses.AUTHORIZATION_SUCCEEDED.getResponse();
         clientConnection.checkResponseStatus(response);
         assertTrue(clientConnection.isAuthorized());
 
         // Test operation failed response
-        response = OperationResponses.OPERATION_FAILED.getResponse();
+        response = OperationResponses.AUTHORIZATION_FAILED.getResponse();
         clientConnection.checkResponseStatus(response);
         assertFalse(clientConnection.isAuthorized());
     }

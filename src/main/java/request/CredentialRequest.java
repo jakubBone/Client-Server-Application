@@ -8,9 +8,4 @@ public class CredentialRequest extends Request {
         this.username = username;
         this.password = password;
     }
-
-    // Creates logout and request
-    public CredentialRequest(String requestCommand) {
-        super(requestCommand);
-    }
 }

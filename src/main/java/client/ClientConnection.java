@@ -92,48 +92,41 @@ public class ClientConnection {
         OperationResponses operationResponse = OperationResponses.fromString(response);
 
         switch (operationResponse) {
-            case LOGIN_SUCCESSFUL_ADMIN:
+            case ADMIN_LOGIN_SUCCEEDED:
                 loggedIn = true;
                 isAuthorized = true;
-                log.info("Admin logged in successfully");
+                log.info("Admin login succeeded");
                 break;
-            case LOGIN_SUCCESSFUL_USER:
+            case USER_LOGIN_SUCCEEDED:
                 loggedIn = true;
-                log.info("User logged in successfully");
+                log.info("User login succeeded");
                 break;
             case REGISTRATION_SUCCESSFUL:
                 loggedIn = true;
-                log.info("User registered successfully");
+                log.info("User registered succeeded");
                 break;
-            case SUCCESSFULLY_LOGGED_OUT:
+            case LOGOUT_SUCCEEDED:
                 loggedIn = false;
                 isAuthorized = false;
                 isAdminSwitchedAndAuthorized = false;
                 log.info("User logged out successfully");
                 break;
-            case LOGIN_FAILED_INCORRECT_PASSWORD:
+            /*case LOGIN_FAILED_INCORRECT_PASSWORD:
                 loggedIn = false;
                 log.info("Login failed: Incorrect password");
-                break;
-            case REGISTRATION_FAILED_USER_EXISTS:
+                break;*/
+            /*case REGISTRATION_FAILED_USER_EXISTS:
                 loggedIn = false;
                 log.info("Registration failed");
-                break;
-            case OPERATION_SUCCEEDED:
+                break;*/
+            case AUTHORIZATION_SUCCEEDED:
                 isAuthorized = true;
                 log.info("User authorized for operations");
-                break;
-            case OPERATION_FAILED:
-                isAuthorized = false;
-                log.info("User not authorized for operations");
                 break;
             case SWITCH_SUCCEEDED:
                 isAuthorized = false;
                 isAdminSwitchedAndAuthorized = true;
-                log.info("User authorized for account switch");
-                break;
-            case SWITCH_FAILED:
-                log.info("User not authorized for account switch");
+                log.info("Switch succeeded");
                 break;
         }
     }

@@ -28,20 +28,20 @@ public class MailService {
         return mailsToRead;
     }
 
-    public void emptyMailbox(String requestedMailList) {
-        List<Mail> mailList = getMailListByType(requestedMailList);
+    public void deleteEmails(String mailBox) {
+        List<Mail> mailList = getMailListByType(mailBox);
         if (mailList != null) {
             mailList.clear();
-            log.info("{} mails deleted successfully for user {}", requestedMailList, UserManager.currentLoggedInUser.getUsername());
+            log.info("{} mails deleted successfully for user {}", mailBox, UserManager.currentLoggedInUser.getUsername());
         } else {
-            log.warn("Attempted to empty non-existent mail list type: {}", requestedMailList);
+            log.warn("Attempted to empty non-existent mail list type: {}", mailBox);
         }
     }
 
     // Returns the list of mails based on the specified type
-    private List<Mail> getMailListByType(String type) {
+    private List<Mail> getMailListByType(String boxType) {
         MailBox mailBox = UserManager.currentLoggedInUser.getMailBox();
-        switch (type.toUpperCase()) {
+        switch (boxType.toUpperCase()) {
             case "OPENED":
                 return mailBox.getOpenedBox();
             case "UNREAD":
@@ -49,7 +49,7 @@ public class MailService {
             case "SENT":
                 return mailBox.getSentBox();
             default:
-                log.error("Unknown mail list type requested: {}", type);
+                log.error("Unknown mail list type requested: {}", boxType);
                 return null;
         }
     }

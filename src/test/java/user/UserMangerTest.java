@@ -42,7 +42,7 @@ public class UserMangerTest {
 
         // Attempt to register the same user again
         userManager.register(userName, password);
-        String registrationStatus = userManager.getRegisterResponse(userName, password);
+        String registrationStatus = userManager.registerAndGetResponse(userName, password);
 
         assertEquals("Registration failed: User already exists", registrationStatus);
     }
@@ -78,7 +78,7 @@ public class UserMangerTest {
 
         // Attempt to log in with incorrect password
         userManager.login(anotherUser);
-        String loginStatus = userManager.getLoginResponse(username, "wrongPassword");
+        String loginStatus = userManager.loginAndGetResponse(username, "wrongPassword");
         assertEquals("Login failed: Incorrect password", loginStatus);
     }
 

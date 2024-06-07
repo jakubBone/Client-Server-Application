@@ -1856,7 +1856,7 @@ package operations;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import request.AccountUpdateRequest;
+import request.AdminChangePasswordRequest;
 import request.Request;
 import user.UserManager;
 import java.io.IOException;

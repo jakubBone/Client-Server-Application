@@ -7,7 +7,7 @@ import server.ServerInfo;
 public class ServerInfoHandler {
     private final ServerInfo serverInfo = new ServerInfo();
 
-    public String getServerInfoResponse(String requestCommand) {
+    public String getResponse(String requestCommand) {
         log.info("Received info request command: {}", requestCommand);
         return getFormattedServerInfo(requestCommand);
     }

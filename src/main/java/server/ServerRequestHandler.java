@@ -26,10 +26,10 @@ public class ServerRequestHandler {
     private CredentialHandler credentialHandler;
     private ServerInfoHandler serverInfoHandler;
     private MailboxHandler mailboxHandler;
-    private AccountUpdateHandler accountUpdateHandler;
+    private AccountUpdateHandler updateHandler;
     private WriteHandler writeHandler;
-
-    private AdminSwitchUserHandler adminSwitchUserHandler;
+    private LogoutHandler logoutHandler;
+    private AdminSwitchUserHandler switchHandler;
     public ServerRequestHandler(PrintWriter outToClient, BufferedReader inFromClient) {
         this.outToClient = outToClient;
         this.inFromClient = inFromClient;
@@ -38,9 +38,10 @@ public class ServerRequestHandler {
         this.credentialHandler= new CredentialHandler();
         this.serverInfoHandler = new ServerInfoHandler();
         this.mailboxHandler = new MailboxHandler();
-        this.accountUpdateHandler = new AccountUpdateHandler();
+        this.updateHandler = new AccountUpdateHandler();
         this.writeHandler = new WriteHandler();
-        this.adminSwitchUserHandler = new AdminSwitchUserHandler();
+        this.switchHandler = new AdminSwitchUserHandler();
+        this.logoutHandler = new LogoutHandler();
     }
 
     public void handleClientRequest() {
@@ -48,41 +49,41 @@ public class ServerRequestHandler {
         String response = null;
         try {
             while ((request = inFromClient.readLine()) != null) {
-                Request reqFromJson = gson.fromJson(request, Request.class);
-                String requestCommand = reqFromJson.getRequestCommand().toUpperCase();
+                Request req = getParseRequest(request);
+                String requestCommand = req.getRequestCommand().toUpperCase();
                 log.info("Handling request request command: {}", requestCommand);
                 switch (requestCommand) {
                     case "REGISTER":
                     case "LOGIN":
-                        response = credentialHandler.getCredentialResponse(requestCommand,
-                                reqFromJson.getUsername(), reqFromJson.getPassword(), userManager);
+                        response = credentialHandler.getResponse(requestCommand, req.getUsername(), req.getPassword(), userManager);
                         break;
                     case "HELP":
                     case "INFO":
                     case "UPTIME":
-                        response = serverInfoHandler.getServerInfoResponse(requestCommand);
+                        response = serverInfoHandler.getResponse(requestCommand);
                         break;
                     case "WRITE":
-                        response = writeHandler.getWriteResponse(reqFromJson.getRecipient(),
-                                reqFromJson.getMessage(), userManager);
+                        response = writeHandler.getResponse(req.getRecipient(), req.getMessage(), userManager);
                         break;
                     case "MAILBOX":
-                        response = mailboxHandler.getMailboxResponse(reqFromJson.getBoxOperation(),
-                                reqFromJson.getMailbox());
+                        response = mailboxHandler.getResponse(req.getBoxOperation(),req.getMailbox());
                         break;
-                    case "UPDATE":
-                        response = accountUpdateHandler.getUpdateResponse(reqFromJson.getUpdateOperation(),
-                                reqFromJson.getUserToUpdate(), reqFromJson.getNewPassword(), userManager);
+                    case "PASSWORD":
+                        response = updateHandler.getChangePasswordResponse(req.getUserToUpdate(), req.getNewPassword(), userManager);
+                        break;
+                    case "DELETE":
+                        response = updateHandler.getUserDeleteResponse(req.getUserToUpdate(), userManager);
+                        break;
+                    case "ROLE":
+                        response = updateHandler.getChangeRoleResponse(req.getUserToUpdate(), req.getNewRole(), userManager);
                         break;
                     case "SWITCH":
-                        response = adminSwitchUserHandler.getSwitchResponse(reqFromJson.getUserToSwitch(),
-                                userManager);
+                        response = switchHandler.getResponse(req.getUserToSwitch(), userManager);
                         break;
                     case "LOGOUT":
-                        response = credentialHandler.getLogoutResponse(userManager);
+                        response = logoutHandler.getResponse(userManager);
                         break;
                 }
-
                 sendResponse(response);
                 log.info("Completed authentication requestCommand: {}", requestCommand);
             }
@@ -91,6 +92,9 @@ public class ServerRequestHandler {
         }
     }
 
+    public Request getParseRequest(String request){
+        return gson.fromJson(request, Request.class);
+    }
     public void sendResponse(String response){
         jsonResponse = new JsonConverter(response);
         String json = jsonResponse.serializeMessage();

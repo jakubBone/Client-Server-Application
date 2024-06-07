@@ -3,7 +3,7 @@ package operations;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import request.AccountUpdateRequest;
+import request.AdminChangePasswordRequest;
 import request.Request;
 import user.User;
 import user.UserManager;
@@ -64,7 +64,7 @@ public class AccountUpdateHandlerTest {
         String userName = "exampleUsername";
         String password = "examplePassword";
         String expectedResponse = "exampleUsername password change successful";
-        Request passwordChange = new AccountUpdateRequest("PASSWORD",
+        Request passwordChange = new AdminChangePasswordRequest("PASSWORD",
                 userName, "newPassword");
 
         // Register and log in a user, then test password change request
@@ -80,7 +80,7 @@ public class AccountUpdateHandlerTest {
         String userName = "exampleUsername";
         String password = "examplePassword";
         String expectedResponse = "exampleUsername account deletion successful";
-        Request passwordChange = new AccountUpdateRequest("DELETE",
+        Request passwordChange = new AdminChangePasswordRequest("DELETE",
                 userName, "newPassword");
 
         // Register and log in a user, then test account deletion request

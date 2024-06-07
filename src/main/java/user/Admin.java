@@ -20,6 +20,14 @@ public class Admin extends User {
         UserManager.usersList.remove(user);
     }
 
+    public void changeUserRole(User user, User.Role role){
+        user.setRole(User.Role.ADMIN);
+    }
+
+    public void switchUser(User user) {
+            UserManager.currentLoggedInUser = user;
+            UserManager.ifAdminSwitched = true;
+        }
 }
 
 

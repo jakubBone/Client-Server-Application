@@ -11,18 +11,18 @@ import java.io.IOException;
 public class WriteHandler {
     private MailService mailService = new MailService();
 
-    public String getWriteResponse(String recipient, String message, UserManager userManager) throws IOException {
+    public String getResponse(String recipient, String message, UserManager userManager) throws IOException {
         User recipientUser = userManager.getUserByUsername(recipient);
         String response = null;
         if (recipientUser != null) {
             if(recipientUser.getMailBox().ifUnreadBoxFull()){
                 log.warn("Mail sending failed, recipient's mailbox is full: {}", recipient);
-                response = "Sending failed: Recipient's mailbox is full";
+                response = OperationResponses.SENDING_FAILED_BOX_FULL.getResponse();
             } else {
                 if(message.length() <= 255){
                     mailService.sendMail(new Mail(UserManager.currentLoggedInUser, recipientUser, message));
                     log.info("Mail sent successfully to: {}", recipient);
-                    response = "Mail sent successfully";
+                    response = OperationResponses.SENDING_SUCCEEDED.getResponse();
                 } else {
                     log.warn("Mail sending failed, message too long for recipient: {}", recipient);
                     response = "Sending failed: Message too long (maximum 255 characters)";
