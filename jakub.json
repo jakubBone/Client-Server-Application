@@ -1,0 +1,12 @@
+{
+  "username": "jakub",
+  "password": "xxx",
+  "hashedPassword": "$2a$10$a.cKCEjXvZFDt5lCNmyJLelZJdUUaPXcs1FfdUOpXUUg6hBOMsQjW",
+  "role": "USER",
+  "mailBox": {
+    "openedBox": [],
+    "unreadBox": [],
+    "sentBox": [],
+    "BOXLIMIT": 5
+  }
+}

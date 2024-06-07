@@ -10,8 +10,8 @@ import java.net.Socket;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
-import operations.OperationResponses;
-import utils.JsonConverter;
+import shared.OperationResponses;
+import shared.JsonConverter;
 
  /*
   * The ClientConnection class manages the client's connection to the server, allowing sending and receiving of data
@@ -111,14 +111,6 @@ public class ClientConnection {
                 isAdminSwitchedAndAuthorized = false;
                 log.info("User logged out successfully");
                 break;
-            /*case LOGIN_FAILED_INCORRECT_PASSWORD:
-                loggedIn = false;
-                log.info("Login failed: Incorrect password");
-                break;*/
-            /*case REGISTRATION_FAILED_USER_EXISTS:
-                loggedIn = false;
-                log.info("Registration failed");
-                break;*/
             case AUTHORIZATION_SUCCEEDED:
                 isAuthorized = true;
                 log.info("User authorized for operations");

@@ -20,7 +20,7 @@ import java.util.Date;
 @Log4j2
 @Getter
 @Setter
-public class ServerConnectionHandler {
+public class ServerConnection {
     private int port;
     public static Date serverTimeCreation;
     private ServerSocket serverSocket;
@@ -28,7 +28,7 @@ public class ServerConnectionHandler {
     private BufferedReader inFromClient;
     private PrintWriter outToClient;
 
-    public ServerConnectionHandler(int port) {
+    public ServerConnection(int port) {
         this.port = port;
     }
 

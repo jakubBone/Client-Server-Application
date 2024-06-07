@@ -1,4 +1,4 @@
-package operations;
+package handler;
 
 import user.UserManager;
 public class LogoutHandler {

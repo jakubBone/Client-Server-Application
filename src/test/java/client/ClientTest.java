@@ -3,8 +3,8 @@ import org.junit.jupiter.api.*;
 import org.mockito.MockedStatic;
 import request.Request;
 import request.RequestFactory;
-import utils.Screen;
-import utils.UserInteraction;
+import shared.Screen;
+import shared.UserInteraction;
 
 import java.io.*;
 

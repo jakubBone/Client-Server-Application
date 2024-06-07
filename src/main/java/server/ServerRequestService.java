@@ -2,10 +2,10 @@ package server;
 
 import com.google.gson.Gson;
 import lombok.extern.log4j.Log4j2;
-import operations.*;
+import handler.*;
 import request.Request;
 import user.UserManager;
-import utils.JsonConverter;
+import shared.JsonConverter;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -17,30 +17,30 @@ import java.io.PrintWriter;
   */
 
 @Log4j2
-public class ServerRequestHandler {
+public class ServerRequestService {
     private final PrintWriter outToClient;
     private final BufferedReader inFromClient;
     private final UserManager userManager;
     private Gson gson;
     private JsonConverter jsonResponse;
-    private CredentialHandler credentialHandler;
-    private ServerInfoHandler serverInfoHandler;
+    private AuthHandler credentialHandler;
+    private ServerDetailsHandler serverInfoHandler;
     private MailboxHandler mailboxHandler;
     private AccountUpdateHandler updateHandler;
     private WriteHandler writeHandler;
     private LogoutHandler logoutHandler;
-    private AdminSwitchUserHandler switchHandler;
-    public ServerRequestHandler(PrintWriter outToClient, BufferedReader inFromClient) {
+    private AdminSwitchHandler switchHandler;
+    public ServerRequestService(PrintWriter outToClient, BufferedReader inFromClient) {
         this.outToClient = outToClient;
         this.inFromClient = inFromClient;
         this.userManager = new UserManager();
         this.gson = new Gson();
-        this.credentialHandler= new CredentialHandler();
-        this.serverInfoHandler = new ServerInfoHandler();
+        this.credentialHandler= new AuthHandler();
+        this.serverInfoHandler = new ServerDetailsHandler();
         this.mailboxHandler = new MailboxHandler();
         this.updateHandler = new AccountUpdateHandler();
         this.writeHandler = new WriteHandler();
-        this.switchHandler = new AdminSwitchUserHandler();
+        this.switchHandler = new AdminSwitchHandler();
         this.logoutHandler = new LogoutHandler();
     }
 

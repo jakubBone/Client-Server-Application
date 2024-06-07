@@ -1,6 +1,4 @@
-package utils;
-
-import user.User;
+package shared;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -99,10 +97,6 @@ public class UserInteraction {
         System.out.println("Please enter an username to update:");
         return reader.readLine();
     }
-    /*public String chooseUserToRoleChange() throws IOException {
-        System.out.println("Please enter an username to assign admin role:");
-        return reader.readLine();
-    }*/
 
     public Role chooseRole() throws IOException {
         System.out.println("Please enter the new role (ADMIN / USER):");
@@ -113,8 +107,5 @@ public class UserInteraction {
             return Role.USER;
         }
     }
-
-
-
 
 }

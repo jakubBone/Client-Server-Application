@@ -2,8 +2,8 @@ package user;
 
 import lombok.Getter;
 import lombok.Setter;
-import operations.OperationResponses;
-import utils.JsonConverter;
+import shared.OperationResponses;
+import shared.JsonConverter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,17 +39,18 @@ public class UserManager {
       */
 
 
-     public String registerAndGetResponse(String typedUsername, String typedPassword){
-         log.info("Registration attempted for user: {}", typedPassword);
-         if(isUserExists(typedUsername)){
-             log.info("Registration attempt failed - user already exists: {}", typedUsername);
-             return OperationResponses.REGISTRATION_FAILED_USER_EXISTS.getResponse();
-         } else {
-             register(typedUsername, typedPassword);
-             log.info("Registration successful for new user: {}", typedUsername);
-             return OperationResponses.REGISTRATION_SUCCESSFUL.getResponse();
-         }
-     }
+    public String registerAndGetResponse(String typedUsername, String typedPassword) {
+        log.info("Registration attempted for user: {}", typedUsername);
+
+        if (isUserExists(typedUsername)) {
+            log.info("Registration attempt failed - user already exists: {}", typedUsername);
+            return OperationResponses.REGISTRATION_FAILED_USER_EXISTS.getResponse();
+        }
+
+        register(typedUsername, typedPassword);
+        log.info("Registration successful for new user: {}", typedUsername);
+        return OperationResponses.REGISTRATION_SUCCESSFUL.getResponse();
+    }
 
     public void register(String typedUsername, String typedPassword) throws IllegalArgumentException {
         User newUser = new User(typedUsername, typedPassword, User.Role.USER);
@@ -58,56 +59,41 @@ public class UserManager {
         currentLoggedInUser = newUser;
     }
 
-    public String loginAndGetResponse(String typedUsername, String typedPassword) {
-        if (isUserExists(typedUsername)) {
-            User existingUser = getExistingUser(typedUsername);
-            if(ifPasswordCorrect(typedPassword, existingUser)){
-                log.info("User password correct: {}", existingUser.getUsername());
-                login(existingUser);
-                log.info("User logged in successfully: {}", existingUser.getUsername());
-                    if(ifCurrentUserAdmin()){
-                        return OperationResponses.ADMIN_LOGIN_SUCCEEDED.getResponse();
-                    } else {
-                        return OperationResponses.USER_LOGIN_SUCCEEDED.getResponse();
-                    }
 
-            } else {
-                log.info("Incorrect password attempt for user: {}", existingUser.getUsername());
-                return OperationResponses.LOGIN_FAILED_INCORRECT_PASSWORD.getResponse();
-            }
-        } else {
-            log.info("Login attempt failed - user does not exist: {}", typedUsername);
+    public String loginAndGetResponse(String username, String typedPassword) {
+        User user = getUserByUsername(username);
+
+        if (user == null) {
+            log.info("Login attempt failed - user does not exist: {}", username);
             return OperationResponses.FAILED_TO_FIND_USER.getResponse();
         }
+
+        if (!ifPasswordCorrect(typedPassword, user)) {
+            log.info("Incorrect password attempt for user: {}", user.getUsername());
+            return OperationResponses.LOGIN_FAILED_INCORRECT_PASSWORD.getResponse();
+        }
+
+        log.info("User password correct: {}", user.getUsername());
+        login(user);
+        log.info("User logged in successfully: {}", user.getUsername());
+
+        if (ifCurrentUserAdmin()) {
+            return OperationResponses.ADMIN_LOGIN_SUCCEEDED.getResponse();
+        } else {
+            return OperationResponses.USER_LOGIN_SUCCEEDED.getResponse();
+        }
     }
+
     public void login(User existingUser) {
         currentLoggedInUser = existingUser;
     }
 
-    public User getExistingUser(String username) {
-        User existingUser = getUserByUsername(username);
-        if (existingUser == null) {
-            return null;
-        } else {
-            return existingUser;
-        }
-    }
-
     public boolean isUserExists(String username) {
-        User existingUser = getUserByUsername(username);
-        if (existingUser == null) {
-            return false;
-        } else {
-            return true;
-        }
+        return getUserByUsername(username) != null;
     }
 
     public boolean ifPasswordCorrect(String typedPassword, User existingUser) {
-        if (existingUser.checkPassword(typedPassword)) {
-            return true;
-        } else {
-            return false;
-        }
+        return existingUser.checkPassword(typedPassword);
     }
 
     public String getLogoutResponse() {

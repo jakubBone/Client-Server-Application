@@ -1,5 +1,5 @@
 package client;
-import operations.OperationResponses;
+import shared.OperationResponses;
 import org.junit.jupiter.api.*;
 
 import java.io.BufferedReader;

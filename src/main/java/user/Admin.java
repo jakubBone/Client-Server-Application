@@ -1,6 +1,6 @@
 package user;
 
-import utils.JsonConverter;
+import shared.JsonConverter;
 
 public class Admin extends User {
 

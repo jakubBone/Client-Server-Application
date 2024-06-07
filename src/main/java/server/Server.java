@@ -3,10 +3,10 @@ package server;
 public class Server {
     private static final int PORT = 5000;
     public static void main(String[] args) {
-        ServerConnectionHandler connectionHandler = new ServerConnectionHandler(PORT);
+        ServerConnection connectionHandler = new ServerConnection(PORT);
         connectionHandler.startServer();
 
-        ServerRequestHandler logicHandler = new ServerRequestHandler(
+        ServerRequestService logicHandler = new ServerRequestService(
                 connectionHandler.getOutToClient(),
                 connectionHandler.getInFromClient());
 

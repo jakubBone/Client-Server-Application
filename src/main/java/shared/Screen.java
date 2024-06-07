@@ -1,4 +1,4 @@
-package utils;
+package shared;
 
 public class Screen {
 

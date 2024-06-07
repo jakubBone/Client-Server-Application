@@ -1,9 +1,8 @@
 package request;
 
 import client.ClientConnection;
-import operations.LogoutHandler;
 import user.User;
-import utils.UserInteraction;
+import shared.UserInteraction;
 
 import lombok.extern.log4j.Log4j2;
 import java.io.BufferedReader;
@@ -41,7 +40,7 @@ public class RequestFactory {
             case "HELP":
             case "INFO":
             case "UPTIME":
-                return new ServerInfoRequest(requestCommand);
+                return new ServerDetailsRequest(requestCommand);
             case "LOGOUT":
                 return new LogoutRequest(requestCommand);
             default:

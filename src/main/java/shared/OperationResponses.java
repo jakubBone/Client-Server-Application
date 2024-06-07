@@ -1,4 +1,4 @@
-package operations;
+package shared;
 
 public enum OperationResponses {
 

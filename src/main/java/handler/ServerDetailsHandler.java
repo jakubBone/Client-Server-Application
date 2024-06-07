@@ -1,11 +1,11 @@
-package operations;
+package handler;
 
 import lombok.extern.log4j.Log4j2;
-import server.ServerInfo;
+import server.ServerDetails;
 
 @Log4j2
-public class ServerInfoHandler {
-    private final ServerInfo serverInfo = new ServerInfo();
+public class ServerDetailsHandler {
+    private final ServerDetails serverInfo = new ServerDetails();
 
     public String getResponse(String requestCommand) {
         log.info("Received info request command: {}", requestCommand);

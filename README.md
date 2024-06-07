@@ -10,15 +10,15 @@ The project is divided into several key components:
 
 Client: The client-side application that establishes a connection with the server, sends requests, and receives responses
 Server: The server-side application that handles incoming client connections, processes requests, and sends back responses
-Utils: Various utility classes for operations like JSON conversion, user interaction, and screen displaying
-User Management: Contains classes and functionality related to users, including user data, admin operations, and user management
+Utils: Various utility classes for handler like JSON conversion, user interaction, and screen displaying
+User Management: Contains classes and functionality related to users, including user data, admin handler, and user management
 Mail System: Contain the mail-related features, with classes that manage mail details and individual mailboxes
 
 ## Project Overview
 The application allows the client to send various requests to the server, which processes them and responds accordingly. Here are the main features:
 
 Authentication: The client can register, log in, and log out. The server handles authentication and authorization
-Mailbox Operations: The client can send messages, read from the mailbox, and perform other related operations
+Mailbox Operations: The client can send messages, read from the mailbox, and perform other related handler
 Admin Functions: The server includes admin capabilities for updating user data and other administrative tasks
 
 ## How to Run

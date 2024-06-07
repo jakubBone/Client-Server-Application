@@ -18,14 +18,14 @@ import static org.junit.jupiter.api.Assertions.*;
  * This class tests the server's ability to start, accept client connections, and handle communication streams.
  */
 class ServerConnectionHandlerTest {
-    private ServerConnectionHandler handler;
+    private ServerConnection handler;
     private ServerSocket mockServerSocket;
     private Socket mockClientSocket;
     private BufferedReader mockInFromClient;
     private PrintWriter mockOutToClient;
     @BeforeEach
     void setUp()  {
-        handler = new ServerConnectionHandler(5000);
+        handler = new ServerConnection(5000);
         mockServerSocket = mock(ServerSocket.class);
         mockClientSocket = mock(Socket.class);
         mockInFromClient = mock(BufferedReader.class);

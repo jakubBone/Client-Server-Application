@@ -16,13 +16,13 @@ import lombok.Setter;
   */
 @Getter
 @Setter
-public class ServerInfo {
+public class ServerDetails {
     private final String VERSION = "1.0.0";
     private Map<String, String> commands = new LinkedHashMap<>();
     private Map<String, String> serverDetails = new LinkedHashMap<>();
     private Map<String, Long> uptime = new LinkedHashMap<>();
 
-    public ServerInfo() {
+    public ServerDetails() {
         setCommands();
         setServerDetails();
         setUptime();
@@ -30,7 +30,7 @@ public class ServerInfo {
 
    public void setUptime(){
        Date currentTime = new Date();
-       long uptimeInMillis = currentTime.getTime() - ServerConnectionHandler.serverTimeCreation.getTime();
+       long uptimeInMillis = currentTime.getTime() - ServerConnection.serverTimeCreation.getTime();
 
        long days = TimeUnit.MILLISECONDS.toDays(uptimeInMillis);
        long hours = TimeUnit.MILLISECONDS.toHours(uptimeInMillis) % 24;
@@ -54,7 +54,7 @@ public class ServerInfo {
 
     public void setServerDetails() {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
-        String setupTimeFormatted = dateFormat.format(ServerConnectionHandler.serverTimeCreation);
+        String setupTimeFormatted = dateFormat.format(ServerConnection.serverTimeCreation);
         serverDetails.put("Version", VERSION);
         serverDetails.put("Setup time", setupTimeFormatted);
     }

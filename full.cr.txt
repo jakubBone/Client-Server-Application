@@ -12,8 +12,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
 import request.*;
-import utils.Screen;
-import utils.UserInteraction;
+import shared.Screen;
+import shared.UserInteraction;
 
  /*
   * This class represents a simple client application for server communication.
@@ -109,8 +109,8 @@ import java.net.Socket;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
-import operations.OperationResponses;
-import utils.JsonConverter;
+import shared.OperationResponses;
+import shared.JsonConverter;
 
  /*
   * The ClientConnection class manages the client's connection to the server, allowing sending and receiving of data
@@ -210,11 +210,11 @@ public class ClientConnection {
                 break;
             case OPERATION_SUCCEEDED:
                 isAuthorized = true;
-                log.info("User authorized for operations");
+                log.info("User authorized for handler");
                 break;
             case OPERATION_FAILED:
                 isAuthorized = false;
-                log.info("User not authorized for operations");
+                log.info("User not authorized for handler");
                 break;
             default:
                 log.warn("Unknown response");
@@ -316,7 +316,7 @@ import user.UserManager;
 import java.util.List;
 
  /*
-  * The MailService class provides various operations related to email management,
+  * The MailService class provides various handler related to email management,
   * including sending mail, returning mail lists, emptying mailboxes, and marking mails as read
   */
 
@@ -383,11 +383,11 @@ public class MailService {
 ====================
 FILE: AccountUpdateHandler.java
 
-package operations;
+package handler;
 
 import lombok.extern.log4j.Log4j2;
 import request.Request;
-import server.ServerRequestHandler;
+import server.ServerRequestService;
 import user.User;
 import user.UserManager;
 
@@ -446,7 +446,7 @@ public class AccountUpdateHandler {
 ====================
 FILE: CredentialHandler.java
 
-package operations;
+package handler;
 
 import lombok.extern.log4j.Log4j2;
 import user.User;
@@ -493,10 +493,10 @@ public class CredentialHandler {
 ====================
 FILE: HelpHandler.java
 
-package operations;
+package handler;
 
 import lombok.extern.log4j.Log4j2;
-import server.ServerInfo;
+import server.ServerDetails;
 
 @Log4j2
 public class HelpHandler {
@@ -526,7 +526,7 @@ public class HelpHandler {
 ====================
 FILE: MailboxHandler.java
 
-package operations;
+package handler;
 
 import lombok.extern.log4j.Log4j2;
 import mail.Mail;
@@ -571,7 +571,7 @@ public class MailboxHandler {
 ====================
 FILE: OperationResponses.java
 
-package operations;
+package handler;
 
 public enum OperationResponses {
     LOGIN_SUCCESSFUL("Login successful"),
@@ -607,7 +607,7 @@ public enum OperationResponses {
 ====================
 FILE: WriteHandler.java
 
-package operations;
+package handler;
 
 import lombok.extern.log4j.Log4j2;
 import mail.Mail;
@@ -746,7 +746,7 @@ FILE: RequestFactory.java
 
 package request;
 
-import utils.UserInteraction;
+import shared.UserInteraction;
 
 import java.io.IOException;
 
@@ -979,10 +979,10 @@ package server;
 
 import com.google.gson.Gson;
 import lombok.extern.log4j.Log4j2;
-import operations.*;
+import handler.*;
 import request.Request;
 import user.UserManager;
-import utils.JsonConverter;
+import shared.JsonConverter;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -990,7 +990,7 @@ import java.io.PrintWriter;
 
  /*
   * The ServerLogicHandler class is responsible for handling various client requests and processing server-side logic
-  * It manages user authentication, mail operations, and server information
+  * It manages user authentication, mail handler, and server information
   */
 
 @Log4j2
@@ -1145,14 +1145,14 @@ package user;
 
 import lombok.Getter;
 import lombok.Setter;
-import utils.JsonConverter;
+import shared.JsonConverter;
 import java.util.ArrayList;
 import java.util.List;
 
 import lombok.extern.log4j.Log4j2;
 
  /*
-  * The UserManager class manages user-related operations, including registration, login, logout
+  * The UserManager class manages user-related handler, including registration, login, logout
   * It maintains a list of users and tracks the currently logged-in user
   */
 
@@ -1274,7 +1274,7 @@ public class UserManager {
 ====================
 FILE: JsonConverter.java
 
-package utils;
+package shared;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -1352,7 +1352,7 @@ public class JsonConverter {
 ====================
 FILE: Screen.java
 
-package utils;
+package shared;
 
 public class Screen {
 
@@ -1392,14 +1392,14 @@ public class Screen {
 ====================
 FILE: UserInteraction.java
 
-package utils;
+package shared;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 
  /*
   * The UserInteraction class is responsible for interaction with users through the console
-  * The methods used to obtain user input for various purposes, such as usernames, passwords, and mailbox operations
+  * The methods used to obtain user input for various purposes, such as usernames, passwords, and mailbox handler
   */
 public class UserInteraction {
     private BufferedReader reader;
@@ -1488,7 +1488,7 @@ public class UserInteraction {
 FILE: ClientCommunicationTest.java
 
 package client;
-import operations.OperationResponses;
+import shared.OperationResponses;
 import org.junit.jupiter.api.*;
 
 import java.io.BufferedReader;
@@ -1601,8 +1601,8 @@ import org.junit.jupiter.api.*;
 import org.mockito.MockedStatic;
 import request.Request;
 import request.RequestFactory;
-import utils.Screen;
-import utils.UserInteraction;
+import shared.Screen;
+import shared.UserInteraction;
 
 import java.io.*;
 
@@ -1723,7 +1723,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests for MailBox class.
- * This class tests the operations on the mailbox, including checking if the unread box is full.
+ * This class tests the handler on the mailbox, including checking if the unread box is full.
  */
 public class MailBoxTest {
     private MailBox mailBox;
@@ -1784,7 +1784,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests for MailService class.
- * This class tests operations related to sending and managing emails.
+ * This class tests handler related to sending and managing emails.
  */
 public class MailServiceTest {
     private User sender;
@@ -1851,7 +1851,7 @@ public class MailServiceTest {
 ====================
 FILE: AccountUpdateHandlerTest.java
 
-package operations;
+package handler;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -1955,7 +1955,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import user.User;
 import user.UserManager;
-import utils.UserInteraction;
+import shared.UserInteraction;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -2084,7 +2084,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests for UserManager class.
- * This class tests user management operations, including registration, login, logout, and user searches.
+ * This class tests user management handler, including registration, login, logout, and user searches.
  */
 public class UserMangerTest {
     private UserManager userManager;
@@ -2300,7 +2300,7 @@ public class UserTest {
 ====================
 FILE: JsonConverterTest.java
 
-package utils;
+package shared;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

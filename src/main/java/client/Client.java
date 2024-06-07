@@ -9,7 +9,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
 import request.*;
-import utils.Screen;
+import shared.Screen;
 
  /*
   * This class represents a simple client application for server communication.
