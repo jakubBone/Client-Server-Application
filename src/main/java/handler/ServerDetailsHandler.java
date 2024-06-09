@@ -32,6 +32,7 @@ public class ServerDetailsHandler {
                 serverInfo.getCommands().forEach((key, value) -> builder.append(key).append(" - ").append(value).append("\n"));
                 return builder.toString();
         }
+        log.warn("Unknown server info request: {}", request);
         return builder.toString();
     }
 

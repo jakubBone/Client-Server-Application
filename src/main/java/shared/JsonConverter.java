@@ -27,11 +27,12 @@ public class JsonConverter {
 
     // Writes a user object to the specified file path in JSON format
     public void writeUserToPath(User user, String filePath){
+        log.info("Serializing user data for {} to file: {}", user.getUsername(), filePath);
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         try(FileWriter writer = new FileWriter(filePath)) {
             gson.toJson(user, writer);
             writer.flush();
-            log.info("Successfully serialized user data for {} to file: {}", user.getUsername(), filePath);
+            log.info("Serialized user data for {} to file: {}", user.getUsername(), filePath);
         } catch(IOException ex) {
             log.error("Error - failed to serialize data for {} to JSON at {}: ", user.getUsername(), filePath, ex);
         }
@@ -40,6 +41,7 @@ public class JsonConverter {
 
     // Converts the server response to JSON format on the Server side
     public String serializeMessage() {
+        log.info("Serializing message");
         try {
             Gson gson = new Gson();
             return gson.toJson(this) + "\n<<END>>";
@@ -50,12 +52,15 @@ public class JsonConverter {
 
     // Converts a JSON string to a JsonConverter object on the Client side
     public static String deserializeMessage(String json) {
+        log.info("Deserializing message");
         if (json == null || json.trim().isEmpty()) {
             throw new IllegalArgumentException("Input JSON is null or empty");
         }
         try {
             Gson gson = new Gson();
-            return gson.fromJson(json, JsonConverter.class).toString();
+            JsonConverter jsonConverter = gson.fromJson(json, JsonConverter.class);
+            log.info("Deserialized message: {}", json);
+            return jsonConverter.toString();
         } catch (JsonSyntaxException e) {
             throw new IllegalArgumentException("Error deserializing JSON. Please check syntax", e);
         }

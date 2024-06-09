@@ -10,17 +10,21 @@ import java.util.List;
 public class MailboxHandler {
     private MailService mailService = new MailService();
 
-    public String getResponse(String mailOperation, String boxType) throws IOException {
-        if (mailOperation.equals("READ")) {
-            return getReadResposne(boxType);
-        } else if (mailOperation.equals("EMPTY")) {
-            return getEmptyMailboxResponse(boxType);
-        } else {
-            throw new IllegalArgumentException("Unknown mail operation: " + mailOperation);
+    public String getResponse(String mailboxOperation, String boxType) throws IOException {
+        log.info("Processing mailbox operation: {}", mailboxOperation);
+        switch (mailboxOperation) {
+            case "READ":
+                return getReadResponse(boxType);
+            case "EMPTY":
+                return getEmptyMailboxResponse(boxType);
+            default:
+                log.warn("Unknown mail operation: {}", mailboxOperation);
+                throw new IllegalArgumentException("Unknown mail operation: " + mailboxOperation);
         }
     }
 
-    private String getReadResposne(String boxType) {
+    private String getReadResponse(String boxType) {
+        log.info("Reading mails from box: {}", boxType);
         List<Mail> mailsToRead = mailService.getMailsToRead(boxType);
 
         if (mailsToRead.isEmpty()) {
@@ -40,6 +44,7 @@ public class MailboxHandler {
     }
 
     private String getEmptyMailboxResponse(String boxType){
+        log.info("Emptying mails from box: {}", boxType);
         mailService.deleteEmails(boxType);
         return "Mails deletion succeeded";
     }

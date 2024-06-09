@@ -34,9 +34,10 @@ public class ServerConnection {
 
     public void startServer(){
             try{
+                log.info("Starting server on port {}", port);
                 serverTimeCreation = new Date();
                 serverSocket = new ServerSocket(port);
-                log.info("Server started on port {}", port);
+                log.info("Server socket created on port {}", port);
                 clientSocket = serverSocket.accept();
                 log.info("Connection with client established");
                 inFromClient = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
@@ -56,6 +57,7 @@ public class ServerConnection {
 
     public void closeConnections() {
         try {
+            log.info("Closing server and client connections");
             if (inFromClient != null) {
                 inFromClient.close();
             }

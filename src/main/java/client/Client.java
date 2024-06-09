@@ -33,6 +33,7 @@ public class Client {
         connection = new ClientConnection();
         gson = new Gson();
         userInput = new BufferedReader(new InputStreamReader(System.in));
+        log.info("Client instance created");
     }
 
     /*
@@ -41,6 +42,7 @@ public class Client {
      */
     public void handleServerCommunication() {
         try {
+            log.info("Starting server communication");
             while(connection.isConnected()){
                 printClientUI();
                 String request = userInput.readLine();
@@ -61,6 +63,7 @@ public class Client {
      * HELP - displays help menu
      */
     public void handleRequest(String request) throws IOException {
+        log.info("Handling user request: {}", request);
         RequestFactory factory = new RequestFactory(connection);
         Request requestType = factory.createRequest(request);
 

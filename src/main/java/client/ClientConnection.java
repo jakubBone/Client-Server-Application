@@ -40,6 +40,7 @@ public class ClientConnection {
 
     public ClientConnection() {
         connectToServer();
+        log.info("ClientConnection instance created");
     }
 
     public void connectToServer() {
@@ -80,6 +81,7 @@ public class ClientConnection {
 
     public void readResponse() throws IOException {
         String jsonResponse = null;
+        log.info("Reading response from server");
         while (!(jsonResponse = inFromServer.readLine()).equals("<<END>>")) {
             String response = JsonConverter.deserializeMessage(jsonResponse);
             checkResponseStatus(response);
@@ -109,11 +111,11 @@ public class ClientConnection {
                 loggedIn = false;
                 isAuthorized = false;
                 isAdminSwitchedAndAuthorized = false;
-                log.info("User logged out successfully");
+                log.info("User logout succeeded");
                 break;
             case AUTHORIZATION_SUCCEEDED:
                 isAuthorized = true;
-                log.info("User authorized for operations");
+                log.info("User authorization succeeded");
                 break;
             case SWITCH_SUCCEEDED:
                 isAuthorized = false;

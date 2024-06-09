@@ -18,23 +18,25 @@ public class MailService {
     }
 
     // Returns a list of mails to read based on the requested mail list type (e.g. OPENED, UNREAD, SENT)
-    public List<Mail> getMailsToRead(String requestedMailList) {
-        List<Mail> mailsToRead = getMailListByType(requestedMailList);
+    public List<Mail> getMailsToRead(String boxType) {
+        log.info("Getting mails to read for mailbox: {}", boxType)
+        List<Mail> mailsToRead = getMailListByType(boxType);
         if (mailsToRead != null) {
-            log.info("{} mails returned for user {}", requestedMailList, UserManager.currentLoggedInUser.getUsername());
+            log.info("{} mails returned for mailbox {}", boxType, UserManager.currentLoggedInUser.getUsername());
         } else {
-            log.warn("Invalid mail list type requested: {}", requestedMailList);
+            log.warn("Invalid mailbox type requested: {}", boxType);
         }
         return mailsToRead;
     }
 
-    public void deleteEmails(String mailBox) {
-        List<Mail> mailList = getMailListByType(mailBox);
+    public void deleteEmails(String boxType) {
+        log.info("Deleting mails from box: {}", boxType);
+        List<Mail> mailList = getMailListByType(boxType);
         if (mailList != null) {
             mailList.clear();
-            log.info("{} mails deleted successfully for user {}", mailBox, UserManager.currentLoggedInUser.getUsername());
+            log.info("{} mails deleted successfully for user {}", boxType, UserManager.currentLoggedInUser.getUsername());
         } else {
-            log.warn("Attempted to empty non-existent mail list type: {}", mailBox);
+            log.warn("Attempted to empty non-existent mailbox type: {}", boxType);
         }
     }
 
@@ -48,14 +50,14 @@ public class MailService {
                 return mailBox.getUnreadBox();
             case "SENT":
                 return mailBox.getSentBox();
-            default:
-                log.error("Unknown mail list type requested: {}", boxType);
-                return null;
         }
+        log.error("Unknown mailbox type requested: {}", boxType);
+        return null;
     }
 
     // Marks all unread mails as read by moving them to the OPENED mail list and clearing the UNREAD list
     public void markMailsAsRead(String boxType){
+        log.info("Marking mails as read for mailbox: {}", boxType);
         if(!boxType.equals("SENT")){
             List<Mail> unreadMails = UserManager.currentLoggedInUser.getMailBox().getUnreadBox();
             for(Mail mail: unreadMails){

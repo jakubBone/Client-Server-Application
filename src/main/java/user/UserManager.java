@@ -30,6 +30,7 @@ public class UserManager {
         jsonConverter.saveUserData(admin);
         usersList = new ArrayList<>();
         usersList.add(admin);
+        log.info("UserManager instance created");
     }
 
      /*
@@ -57,10 +58,12 @@ public class UserManager {
         jsonConverter.saveUserData(newUser);
         usersList.add(newUser);
         currentLoggedInUser = newUser;
+        log.info("User registered: {}", typedUsername);
     }
 
 
     public String loginAndGetResponse(String username, String typedPassword) {
+        log.info("Login attempted for user: {}", username);
         User user = getUserByUsername(username);
 
         if (user == null) {
@@ -75,7 +78,7 @@ public class UserManager {
 
         log.info("User password correct: {}", user.getUsername());
         login(user);
-        log.info("User logged in successfully: {}", user.getUsername());
+        log.info("User login succeeded: {}", user.getUsername());
 
         if (ifCurrentUserAdmin()) {
             return OperationResponses.ADMIN_LOGIN_SUCCEEDED.getResponse();
@@ -86,6 +89,7 @@ public class UserManager {
 
     public void login(User existingUser) {
         currentLoggedInUser = existingUser;
+        log.info("User logged in: {}", existingUser.getUsername());
     }
 
     public boolean isUserExists(String username) {
@@ -97,12 +101,13 @@ public class UserManager {
     }
 
     public String getLogoutResponse() {
+        log.info("User logout requested");
         logoutCurrentUser();
         return OperationResponses.LOGOUT_SUCCEEDED.getResponse();
     }
 
     public void logoutCurrentUser() {
-        log.info("User successfully logged out: {}", currentLoggedInUser.getUsername());
+        log.info("User logout succeeded: {}", currentLoggedInUser.getUsername());
         ifAdminSwitched = false;
         currentLoggedInUser = null;
     }

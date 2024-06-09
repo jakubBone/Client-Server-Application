@@ -51,7 +51,7 @@ public class ServerRequestService {
             while ((request = inFromClient.readLine()) != null) {
                 Request req = getParseRequest(request);
                 String requestCommand = req.getRequestCommand().toUpperCase();
-                log.info("Handling request request command: {}", requestCommand);
+                log.info("Handling request command: {}", requestCommand);
                 switch (requestCommand) {
                     case "REGISTER":
                     case "LOGIN":
@@ -83,9 +83,13 @@ public class ServerRequestService {
                     case "LOGOUT":
                         response = logoutHandler.getResponse(userManager);
                         break;
+                    default:
+                        log.warn("Unknown request command: {}", requestCommand);
+                        response = "Unknown request command";
+                        break;
                 }
                 sendResponse(response);
-                log.info("Completed authentication requestCommand: {}", requestCommand);
+                log.info("Completed processing request command: {}", requestCommand);
             }
         } catch (IOException ex) {
             log.error("IOException occurred while processing the request: {}. Error: ", request, ex);
@@ -93,6 +97,7 @@ public class ServerRequestService {
     }
 
     public Request getParseRequest(String request){
+        log.info("Parsing request: {}", request);
         return gson.fromJson(request, Request.class);
     }
     public void sendResponse(String response){

@@ -1,5 +1,8 @@
 package shared;
 
+import lombok.extern.log4j.Log4j2;
+
+@Log4j2
 public enum OperationResponses {
 
     // General responses
@@ -50,12 +53,15 @@ public enum OperationResponses {
         return RESPONSE;
     }
 
-    public static OperationResponses fromString(String response) {
+    public static OperationResponses fromString(String text) {
+        log.info("Converting text to OperationResponses: {}", text);
         for (OperationResponses opResponse : OperationResponses.values()) {
-            if (opResponse.getResponse().equals(response)) {
+            if (opResponse.getResponse().equals(text)) {
+                log.info("Match found for text: {}", text);
                 return opResponse;
             }
         }
+        log.warn("No match found for text: {}", text);
         return UNKNOWN_RESPONSE;
     }
 }

@@ -4,10 +4,12 @@ import mail.MailBox;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.log4j.Log4j2;
 import org.mindrot.jbcrypt.BCrypt;
 
 @Getter
 @Setter
+@Log4j2
 public class User {
     public static User.Role Role;
 
@@ -27,6 +29,7 @@ public class User {
         this.role = role;
         this.mailBox = new MailBox();
         this.hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
+        log.info("User instance created: {}", username);
     }
 
     /*
@@ -34,11 +37,20 @@ public class User {
     Bcrypt uses salt and protects against attacks, ensuring unique hashes even for identical passwords is
     */
     public boolean checkPassword(String typedPassword) {
+        log.info("Checking password for user: {}", username);
         return BCrypt.checkpw(typedPassword, hashedPassword);
     }
 
     public void hashPassword(){
         hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
+        log.info("Password hashed for user: {}", username);
+    }
+
+    public void setPassword(String newPassword) {
+        log.info("Setting new password for user: {}", username);
+        this.password = newPassword;
+        hashPassword();
+        log.info("New password set for user: {}", username);
     }
 
     public String toString() {

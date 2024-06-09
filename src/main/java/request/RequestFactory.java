@@ -20,14 +20,16 @@ public class RequestFactory {
         this.connection = clientConnection;
         this.userInput = new BufferedReader(new InputStreamReader(System.in));
         this.userInteraction = new UserInteraction(userInput);
+        log.info("RequestFactory instance created");
     }
 
     public Request createRequest(String requestCommand) throws IOException {
-            if(!connection.isLoggedIn()){
-                return getLoginMenuRequest(requestCommand);
-            } else {
-                return getMailboxMenuRequest(requestCommand);
-            }
+        log.info("Creating request for command: {}", requestCommand);
+        if(!connection.isLoggedIn()){
+            return getLoginMenuRequest(requestCommand);
+        } else {
+            return getMailboxMenuRequest(requestCommand);
+        }
     }
 
     public Request getLoginMenuRequest(String requestCommand) throws IOException {
@@ -43,9 +45,9 @@ public class RequestFactory {
                 return new ServerDetailsRequest(requestCommand);
             case "LOGOUT":
                 return new LogoutRequest(requestCommand);
-            default:
-                return null;
         }
+        log.warn("Unknown login menu request: {}", requestCommand);
+        return null;
     }
 
     public Request getMailboxMenuRequest(String requestCommand) throws IOException {
@@ -65,14 +67,15 @@ public class RequestFactory {
                 return new AdminSwitchUserRequest(requestCommand, userToSwitch);
             case "LOGOUT":
                 return new LogoutRequest(requestCommand);
-            default:
-                return null;
         }
+        log.warn("Unknown mailbox menu request: {}", requestCommand);
+        return null;
     }
 
     public Request getAccountUpdateRequest() throws IOException {
+        log.info("Creating account update request")
         if (connection.isAuthorized()) {
-            log.info("Authorization success");
+            log.info("Authorization succeeded");
             String updateOperation = userInteraction.chooseUpdateOperation();
             String userToUpdate = userInteraction.chooseUserToUpdate();
             switch (updateOperation) {
@@ -85,8 +88,11 @@ public class RequestFactory {
                     User.Role newRole = userInteraction.chooseRole();
                     return new AdminChangeRoleRequest(updateOperation, userToUpdate, newRole);
             }
+            log.warn("Unknown update operation: {}", updateOperation);
+            return null;
         } else {
             log.info("Authorization failed");
+            return null;
         }
         return null;
     }
