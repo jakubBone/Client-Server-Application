@@ -80,13 +80,18 @@ public class ClientConnection {
     }
 
     public void readResponse() throws IOException {
-        String jsonResponse = null;
-        log.info("Reading response from server");
-        while (!(jsonResponse = inFromServer.readLine()).equals("<<END>>")) {
-            String response = JsonConverter.deserializeMessage(jsonResponse);
-            checkResponseStatus(response);
-            System.out.println(JsonConverter.deserializeMessage(jsonResponse));
+        try{
+            String jsonResponse;
+            log.info("Reading response from server");
+            while (!(jsonResponse = inFromServer.readLine()).equals("<<END>>")) {
+                String response = JsonConverter.deserializeMessage(jsonResponse);
+                checkResponseStatus(response);
+                System.out.println(JsonConverter.deserializeMessage(jsonResponse));
+            }
+        } catch (IOException ex){
+            log.error("Error reading response: {}", ex.getMessage());
         }
+
     }
 
     // Checks the login update and role authorization

@@ -64,18 +64,23 @@ public class Client {
      */
     public void handleRequest(String request) throws IOException {
         log.info("Handling user request: {}", request);
-        RequestFactory factory = new RequestFactory(connection);
-        Request requestType = factory.createRequest(request);
+        try{
+            RequestFactory factory = new RequestFactory(connection);
+            Request requestType = factory.createRequest(request);
 
-        if (requestType != null) {
-            String jsonRequest = gson.toJson(requestType);
-            connection.sendRequest(jsonRequest);
-            log.info("User attempted to {}", request);
-            connection.readResponse();
-        } else {
-            log.warn("Incorrect input from user: {}", request);
-            System.out.println("Incorrect input. Please, try again");
+            if (requestType != null) {
+                String jsonRequest = gson.toJson(requestType);
+                connection.sendRequest(jsonRequest);
+                log.info("User attempted to {}", request);
+                connection.readResponse();
+            } else {
+                log.warn("Incorrect input from user: {}", request);
+                System.out.println("Incorrect input. Please, try again");
+            }
+        } catch (IOException ex){
+            log.error("Error handling request: {}", ex.getMessage());
         }
+
     }
 
     public void printClientUI(){

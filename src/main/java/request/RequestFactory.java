@@ -38,7 +38,7 @@ public class RequestFactory {
             case "LOGIN":
                 String username = userInteraction.getUsername();
                 String password = userInteraction.getPassword();
-                return new CredentialRequest(requestCommand, username, password);
+                return new AuthRequest(requestCommand, username, password);
             case "HELP":
             case "INFO":
             case "UPTIME":

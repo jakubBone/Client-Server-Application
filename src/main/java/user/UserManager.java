@@ -40,29 +40,29 @@ public class UserManager {
       */
 
 
-    public String registerAndGetResponse(String typedUsername, String typedPassword) {
-        log.info("Registration attempted for user: {}", typedUsername);
+    public String registerAndGetResponse(String username, String password) {
+        log.info("Registration attempted for user: {}", username);
 
-        if (isUserExists(typedUsername)) {
-            log.info("Registration attempt failed - user already exists: {}", typedUsername);
+        if (isUserExistsInSystem(username)) {
+            log.info("Registration attempt failed - user already exists: {}", username);
             return OperationResponses.REGISTRATION_FAILED_USER_EXISTS.getResponse();
         }
 
-        register(typedUsername, typedPassword);
-        log.info("Registration successful for new user: {}", typedUsername);
+        register(username, password);
+        log.info("Registration successful for new user: {}", username);
         return OperationResponses.REGISTRATION_SUCCESSFUL.getResponse();
     }
 
-    public void register(String typedUsername, String typedPassword) throws IllegalArgumentException {
-        User newUser = new User(typedUsername, typedPassword, User.Role.USER);
+    public void register(String username, String password) throws IllegalArgumentException {
+        User newUser = new User(username, password, User.Role.USER);
         jsonConverter.saveUserData(newUser);
         usersList.add(newUser);
         currentLoggedInUser = newUser;
-        log.info("User registered: {}", typedUsername);
+        log.info("User registered: {}", username);
     }
 
 
-    public String loginAndGetResponse(String username, String typedPassword) {
+    public String loginAndGetResponse(String username, String password) {
         log.info("Login attempted for user: {}", username);
         User user = getUserByUsername(username);
 
@@ -71,7 +71,7 @@ public class UserManager {
             return OperationResponses.FAILED_TO_FIND_USER.getResponse();
         }
 
-        if (!ifPasswordCorrect(typedPassword, user)) {
+        if (!ifPasswordCorrect(password, user)) {
             log.info("Incorrect password attempt for user: {}", user.getUsername());
             return OperationResponses.LOGIN_FAILED_INCORRECT_PASSWORD.getResponse();
         }
@@ -92,12 +92,12 @@ public class UserManager {
         log.info("User logged in: {}", existingUser.getUsername());
     }
 
-    public boolean isUserExists(String username) {
+    public boolean isUserExistsInSystem(String username) {
         return getUserByUsername(username) != null;
     }
 
-    public boolean ifPasswordCorrect(String typedPassword, User existingUser) {
-        return existingUser.checkPassword(typedPassword);
+    public boolean ifPasswordCorrect(String password, User existingUser) {
+        return existingUser.checkPassword(password);
     }
 
     public String getLogoutResponse() {

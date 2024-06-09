@@ -36,7 +36,7 @@ public class RequestFactoryTest {
     @DisplayName("Should test request creating")
     void testCreateRequest() throws IOException {
         String request = "REGISTER";
-        Request expectedType = new CredentialRequest(request,
+        Request expectedType = new AuthRequest(request,
                 "exampleUser", "examplePassword");
 
         // Test creating a request
