@@ -45,8 +45,8 @@ public class ServerRequestService {
     }
 
     public void handleClientRequest() {
-        String request = null;
-        String response = null;
+        String request;
+        String response;
         try {
             while ((request = inFromClient.readLine()) != null) {
                 Request req = getParseRequest(request);

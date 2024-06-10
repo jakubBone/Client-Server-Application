@@ -64,8 +64,6 @@ public class AccountUpdateHandler {
         log.info("Role change succeeded: {}", username);
         return OperationResponses.ROLE_CHANGE_SUCCEEDED.getResponse();
     }
-
-
 }
 
 

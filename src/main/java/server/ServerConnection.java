@@ -33,18 +33,18 @@ public class ServerConnection {
     }
 
     public void startServer(){
-            try{
-                log.info("Starting server on port {}", port);
-                serverTimeCreation = new Date();
-                serverSocket = new ServerSocket(port);
-                log.info("Server socket created on port {}", port);
-                clientSocket = serverSocket.accept();
-                log.info("Connection with client established");
-                inFromClient = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-                outToClient = new PrintWriter(clientSocket.getOutputStream(), true);
-            } catch (IOException ex){
-                log.error("Error starting server on port {}: {}", port, ex.getMessage());
-            }
+        try{
+            log.info("Starting server on port {}", port);
+            serverTimeCreation = new Date();
+            serverSocket = new ServerSocket(port);
+            log.info("Server socket created on port {}", port);
+            clientSocket = serverSocket.accept();
+            log.info("Connection with client established");
+            inFromClient = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            outToClient = new PrintWriter(clientSocket.getOutputStream(), true);
+        } catch (IOException ex){
+            log.error("Error starting server on port {}: {}", port, ex.getMessage());
+        }
     }
 
     public BufferedReader getInFromClient() {
