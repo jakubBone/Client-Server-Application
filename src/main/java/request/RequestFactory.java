@@ -1,97 +1,78 @@
 package request;
-
-import client.ClientConnection;
-import user.User;
-import shared.UserInteraction;
-
 import lombok.extern.log4j.Log4j2;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import user.User;
 
 @Log4j2
 public class RequestFactory {
+    Request request;
 
-    private BufferedReader userInput;
-    UserInteraction userInteraction;
-    ClientConnection connection;
-
-    public RequestFactory(ClientConnection clientConnection) {
-        this.connection = clientConnection;
-        this.userInput = new BufferedReader(new InputStreamReader(System.in));
-        this.userInteraction = new UserInteraction(userInput);
-        log.info("RequestFactory instance created");
+    public RequestFactory() {
+        this.request = new Request();
     }
 
-    public Request createRequest(String requestCommand) throws IOException {
-        log.info("Creating request for command: {}", requestCommand);
-        if(!connection.isLoggedIn()){
-            return getLoginMenuRequest(requestCommand);
-        } else {
-            return getMailboxMenuRequest(requestCommand);
-        }
+    public Request createAuthRequest(String requestCommand, String username, String password) {
+        request.requestCommand = requestCommand;
+        request.username = username;
+        request.password = password;
+        log.info("AuthRequest created for user: {}", username);
+        return request;
     }
 
-    public Request getLoginMenuRequest(String requestCommand) throws IOException {
-        switch (requestCommand.toUpperCase()) {
-            case "REGISTER":
-            case "LOGIN":
-                String username = userInteraction.getUsername();
-                String password = userInteraction.getPassword();
-                return new AuthRequest(requestCommand, username, password);
-            case "HELP":
-            case "INFO":
-            case "UPTIME":
-                return new ServerDetailsRequest(requestCommand);
-            case "LOGOUT":
-                return new LogoutRequest(requestCommand);
-        }
-        log.warn("Unknown login menu request: {}", requestCommand);
-        return null;
+    public Request createServerDetailsRequest(String requestCommand) {
+        request.requestCommand = requestCommand;
+        log.info("ServerDetailsRequest created with command: {}", requestCommand);
+        return request;
     }
 
-    public Request getMailboxMenuRequest(String requestCommand) throws IOException {
-        switch (requestCommand.toUpperCase()){
-            case "WRITE":
-                String recipient = userInteraction.getRecipient();
-                String message = userInteraction.getMessage();
-                return new WriteRequest(requestCommand, recipient, message);
-            case "MAILBOX":
-                String boxOperation = userInteraction.chooseBoxOperation();
-                String mailbox = userInteraction.chooseMailBox();
-                return new MailBoxRequest(requestCommand, boxOperation, mailbox);
-            case "UPDATE":
-                return getAccountUpdateRequest();
-            case "SWITCH":
-                String userToSwitch = userInteraction.getUserToSwitch();
-                return new AdminSwitchUserRequest(requestCommand, userToSwitch);
-            case "LOGOUT":
-                return new LogoutRequest(requestCommand);
-        }
-        log.warn("Unknown mailbox menu request: {}", requestCommand);
-        return null;
+    public Request createLogoutRequest(String requestCommand) {
+        request.requestCommand = requestCommand;
+        log.info("LogoutRequest created with command: {}", requestCommand);
+        return request;
     }
 
-    public Request getAccountUpdateRequest() throws IOException {
-        log.info("Creating account update request");
-        if (connection.isAuthorized()) {
-            log.info("Authorization succeeded");
-            String updateOperation = userInteraction.chooseUpdateOperation();
-            String userToUpdate = userInteraction.chooseUserToUpdate();
-            switch (updateOperation) {
-                case "PASSWORD":
-                    String newPassword = userInteraction.getNewPassword();
-                    return new AdminChangePasswordRequest(updateOperation, userToUpdate, newPassword);
-                case "DELETE":
-                    return new AdminDeleteUserRequest(updateOperation, userToUpdate);
-                case "ROLE":
-                    User.Role newRole = userInteraction.chooseRole();
-                    return new AdminChangeRoleRequest(updateOperation, userToUpdate, newRole);
-            }
-            log.warn("Unknown update operation: {}", updateOperation);
-            return null;
-        }
-        log.info("Authorization failed");
-        return null;
+    public Request createWriteRequest(String requestCommand, String recipient, String message) {
+        request.requestCommand = requestCommand;
+        request.recipient = recipient;
+        request.message = message;
+        log.info("WriteRequest created for recipient: {}", recipient);
+        return request;
+    }
+
+    public Request createMailBoxRequest(String requestCommand, String boxOperation, String mailbox) {
+        request.requestCommand = requestCommand;
+        request.boxOperation = boxOperation;
+        request.mailbox = mailbox;
+        log.info("MailBoxRequest created with operation: {} for mailbox: {}", boxOperation, mailbox);
+        return request;
+    }
+
+    public Request createAdminChangePasswordRequest(String updateOperation, String userToUpdate, String newPassword) {
+        request.requestCommand = updateOperation;
+        request.userToUpdate = userToUpdate;
+        request.newPassword = newPassword;
+        log.info("AdminChangePasswordRequest created for user: {}", userToUpdate);
+        return request;
+    }
+
+    public Request createAdminDeleteUserRequest(String updateOperation, String userToDelete) {
+        request.requestCommand = updateOperation;
+        request.userToUpdate = userToDelete;
+        log.info("AdminDeleteUserRequest created for user: {}", userToDelete);
+        return request;
+    }
+
+    public Request createAdminChangeRoleRequest(String updateOperation, String userToUpdate, User.Role role) {
+        request.requestCommand = updateOperation;
+        request.userToUpdate = userToUpdate;
+        request.newRole = role;
+        log.info("AdminChangeRoleRequest created for user: {} with new role: {}", userToUpdate, role);
+        return request;
+    }
+
+    public Request createAdminSwitchUserRequest(String requestCommand, String username) {
+        request.requestCommand = requestCommand;
+        request.userToSwitch = username;
+        log.info("AdminSwitchUserRequest created for user: {}", username);
+        return request;
     }
 }

@@ -17,7 +17,8 @@ import static org.junit.jupiter.api.Assertions.*;
  * Unit tests for RequestFactory class.
  * This class tests the creation of various request objects based on user input.
  */
-public class RequestFactoryTest {
+public class RequestServiceTest {
+    private RequestService requestService;
     private RequestFactory factory;
     private UserInteraction userInteraction;
     private BufferedReader reader;
@@ -30,7 +31,8 @@ public class RequestFactoryTest {
         exampleUser = new User("exampleName", "examplePassword", User.Role.USER);
         UserManager.currentLoggedInUser = exampleUser;
         clientConnection = new ClientConnection();
-        factory = new RequestFactory(clientConnection);
+        requestService = new RequestService(clientConnection);
+        factory = new RequestFactory();
         reader = new BufferedReader(new InputStreamReader(System.in));
         userManager = new UserManager();
         userInteraction = new UserInteraction(reader);
@@ -38,14 +40,14 @@ public class RequestFactoryTest {
 
     @Test
     @DisplayName("Should test request creating for logged user")
-    void testCreateRequest_Client_LoggedIn() throws IOException {
+    void testGetRequest_Client_LoggedIn() throws IOException {
         String request = "REGISTER";
-        Request expectedType = new AuthRequest(request,
+        Request expectedType = factory.createAuthRequest(request,
                 exampleUser.getUsername(), "examplePassword");
         ClientConnection.loggedIn = false;
 
         // Test AuthRequest creating
-        Request requestType = factory.createRequest(request);
+        Request requestType = requestService.getRequest(request);
 
         assertNotNull(requestType);
         assertEquals(expectedType.getClass(), requestType.getClass());
@@ -55,12 +57,12 @@ public class RequestFactoryTest {
     @DisplayName("Should test request creating for not logged user")
     void testCreateRequest_Client_LoggedOut() throws IOException {
         String request = "WRITE";
-        Request expectedType = new WriteRequest(request,
+        Request expectedType = factory.createWriteRequest(request,
                 "exampleUsername", "exampleMessage");
         ClientConnection.loggedIn = true;
 
         // Test WriteRequest creating
-        Request requestType = factory.createRequest(request);
+        Request requestType = requestService.getRequest(request);
 
         assertNotNull(requestType);
         assertEquals(expectedType.getClass(), requestType.getClass());
@@ -72,7 +74,7 @@ public class RequestFactoryTest {
         clientConnection.setAuthorized(false);
 
         // // Test AccountUpdateRequest getting
-        Request requestType = factory.getAccountUpdateRequest();
+        Request requestType = requestService.getAccountUpdateRequest();
 
         assertNull(requestType);
     }

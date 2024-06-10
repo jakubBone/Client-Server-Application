@@ -65,8 +65,8 @@ public class Client {
     public void handleRequest(String request) throws IOException {
         log.info("Handling user request: {}", request);
         try{
-            RequestFactory factory = new RequestFactory(connection);
-            Request requestType = factory.createRequest(request);
+            RequestService requestService = new RequestService(connection);
+            Request requestType = requestService.getRequest(request);
 
             if (requestType != null) {
                 String jsonRequest = gson.toJson(requestType);

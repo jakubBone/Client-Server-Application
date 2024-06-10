@@ -2,7 +2,7 @@ package client;
 import org.junit.jupiter.api.*;
 import org.mockito.MockedStatic;
 import request.Request;
-import request.RequestFactory;
+import request.RequestService;
 import shared.Screen;
 import shared.UserInteraction;
 
@@ -21,7 +21,7 @@ class ClientTest {
     private static ClientConnection mockConnection;
     private BufferedReader mockUserInput;
     private UserInteraction mockUserInteraction;
-    private RequestFactory mockFactory;
+    private RequestService mockRequestService;
     private Request mockRequestType;
 
     @BeforeEach
@@ -32,7 +32,7 @@ class ClientTest {
         client.setConnection(mockConnection);
         client.setUserInput(mockUserInput);
         mockUserInteraction = mock(UserInteraction.class);
-        mockFactory = mock(RequestFactory.class);
+        mockRequestService = mock(RequestService.class);
         mockRequestType = mock(Request.class);
     }
 
@@ -118,7 +118,7 @@ class ClientTest {
     @DisplayName("Should test request handling")
     void testHandleRequest() throws IOException {
         when(mockUserInput.readLine()).thenReturn("LOGIN");
-        when(mockFactory.createRequest("LOGIN")).thenReturn(mockRequestType);
+        when(mockRequestService.getRequest("LOGIN")).thenReturn(mockRequestType);
 
         client.handleRequest("LOGIN");
 
