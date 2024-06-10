@@ -3,11 +3,10 @@ package handler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import request.AdminChangePasswordRequest;
-import request.Request;
+import shared.OperationResponses;
+import user.Admin;
 import user.User;
 import user.UserManager;
-import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -26,67 +25,51 @@ public class AccountUpdateHandlerTest {
     }
 
     @Test
-    @DisplayName("Should test getting update status for admin user")
-    void testGetUpdateResponse() throws IOException {
-        String userName = "admin";
-        String password = "java10";
-        String expectedStatus = "Operation succeeded: Authorized";
-        String unexpectedStatus = "Operation failed: Not authorized";
-        User admin = new User("admin", "java10", User.Role.ADMIN);
-
-        // Simulate admin login
-        userManager.login(admin);
-        String status = updateHandler.changePassworAndGetResponse(admin.getUsername(), );
-
-        assertEquals(expectedStatus, status);
-        assertNotEquals(unexpectedStatus, status);
-    }
-
-    @Test
-    @DisplayName("Should test getting update status for non-admin user")
-    void testGetUpdateStatusNonAdmin() throws IOException {
-        String userName = "exampleUsername";
-        String password = "examplePassword";
-        String expectedStatus = "Operation failed: Not authorized";
-        String unexpectedStatus = "Operation succeeded: Authorized";
-
-        // Register and log in a non-admin user
-        userManager.register(userName, password);
-        String status = updateHandler.changePassworAndGetResponse(userManager);
-
-        assertEquals(expectedStatus, status);
-        assertNotEquals(unexpectedStatus, status);
-    }
-
-    @Test
     @DisplayName("Should test getting update response for password change")
-    void testGetUpdateResponsePassword() throws IOException {
-        String userName = "exampleUsername";
-        String password = "examplePassword";
-        String expectedResponse = "exampleUsername password change successful";
-        Request passwordChange = new AdminChangePasswordRequest("PASSWORD",
-                userName, "newPassword");
+    void testGetPasswordChangeResponse() {
+        Admin admin = new Admin();
 
-        // Register and log in a user, then test password change request
-        userManager.register(userName, password);
-        String updateResponse = updateHandler.changePassworAndGetResponse(passwordChange, userManager);
+        // Admin login
+        userManager.login(admin);
+        // Password changing
+        String response = updateHandler.getChangePasswordResponse(admin.getUsername(), "newPasswod", userManager);
 
-        assertEquals(expectedResponse, updateResponse);
+        assertNotEquals(OperationResponses.AUTHORIZATION_FAILED.getResponse(), response);
+        assertNotEquals(OperationResponses.FAILED_TO_FIND_USER.getResponse(), response);
+        assertEquals(OperationResponses.OPERATION_SUCCEEDED.getResponse(), response);
     }
 
     @Test
-    @DisplayName("Should test getting update response for account deletion")
-    void testGetUpdateResponseDELETE() throws IOException {
+    @DisplayName("Should test getting update status for user account deletion")
+    void testGetUserDeleteResponse() {
         String userName = "exampleUsername";
         String password = "examplePassword";
-        String expectedResponse = "exampleUsername account deletion successful";
-        Request passwordChange = new AdminChangePasswordRequest("DELETE",
-                userName, "newPassword");
+        Admin admin = new Admin();
 
-        // Register and log in a user, then test account deletion request
+        // User register
         userManager.register(userName, password);
-        String updateResponse = updateHandler.changePassworAndGetResponse(passwordChange, userManager);
+        // Admin login
+        userManager.login(admin);
+        // User account deletion
+        String response = updateHandler.getUserDeleteResponse(userName, userManager);
 
-        assertEquals(expectedResponse, updateResponse);
+        assertNotEquals(OperationResponses.AUTHORIZATION_FAILED.getResponse(), response);
+        assertNotEquals(OperationResponses.FAILED_TO_FIND_USER.getResponse(), response);
+        assertEquals(OperationResponses.OPERATION_SUCCEEDED.getResponse(), response);
+    }
+
+    @Test
+    @DisplayName("Should test getting update response for user role change")
+    void testGetChangeRoleResponse() {
+        Admin admin = new Admin();
+
+        // Admin login
+        userManager.login(admin);
+        // Role changing
+        String response = updateHandler.getChangeRoleResponse(admin.getUsername(), User.Role.USER, userManager);
+
+        assertNotEquals(OperationResponses.AUTHORIZATION_FAILED.getResponse(), response);
+        assertNotEquals(OperationResponses.FAILED_TO_FIND_USER.getResponse(), response);
+        assertEquals(OperationResponses.ROLE_CHANGE_SUCCEEDED.getResponse(), response);
     }
 }

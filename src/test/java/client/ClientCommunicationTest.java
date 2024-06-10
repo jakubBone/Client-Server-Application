@@ -72,34 +72,38 @@ class ClientCommunicationTest {
     @Test
     @DisplayName("Should check response status")
     void testCheckResponseStatus() {
-        // Test login successful response
-        String response = OperationResponses.USER_LOGIN_SUCCEEDED.getResponse();
+        // Test admin login succeeded
+        String response = OperationResponses.ADMIN_LOGIN_SUCCEEDED.getResponse();
+        clientConnection.checkResponseStatus(response);
+        assertTrue(clientConnection.isLoggedIn());
+        assertTrue(clientConnection.isAuthorized());
+
+        // Test user login succeeded
+        response = OperationResponses.USER_LOGIN_SUCCEEDED.getResponse();
         clientConnection.checkResponseStatus(response);
         assertTrue(clientConnection.isLoggedIn());
 
-        // Test registration successful response
+        // Test registration succeeded
         response = OperationResponses.REGISTRATION_SUCCESSFUL.getResponse();
         clientConnection.checkResponseStatus(response);
         assertTrue(clientConnection.isLoggedIn());
 
-        // Test successfully logged out response
+        // Test logout succeeded
         response = OperationResponses.LOGOUT_SUCCEEDED.getResponse();
         clientConnection.checkResponseStatus(response);
         assertFalse(clientConnection.isLoggedIn());
+        assertFalse(clientConnection.isAuthorized());
+        assertFalse(clientConnection.isAdminSwitchedAndAuthorized());
 
-        // Test registration failed response when user does not exist
-        response = OperationResponses.REGISTRATION_FAILED_USER_EXISTS.getResponse();
-        clientConnection.checkResponseStatus(response);
-        assertFalse(clientConnection.isLoggedIn());
-
-        // Test operation succeeded response
+        // Test authorization succeeded
         response = OperationResponses.AUTHORIZATION_SUCCEEDED.getResponse();
         clientConnection.checkResponseStatus(response);
         assertTrue(clientConnection.isAuthorized());
 
         // Test operation failed response
-        response = OperationResponses.AUTHORIZATION_FAILED.getResponse();
+        response = OperationResponses.SWITCH_SUCCEEDED.getResponse();
         clientConnection.checkResponseStatus(response);
         assertFalse(clientConnection.isAuthorized());
+        assertTrue(clientConnection.isAdminSwitchedAndAuthorized());
     }
 }

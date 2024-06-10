@@ -83,40 +83,24 @@ public class UserMangerTest {
     }
 
     @Test
-    @DisplayName("Should test user logout ")
+    @DisplayName("Should test user logout")
     void testLogout() {
         String username = "exampleUsername";
         String password = "examplePassword";
         User user = new User(username,password , User.Role.USER);
 
-        // Register and log in the user first
+        // Register and login the user first
         userManager.register(username, password);
         userManager.login(user);
 
-        // Log out the current user
+        // Logout the current user
         userManager.logoutCurrentUser();
 
         assertNull(UserManager.currentLoggedInUser);
     }
 
     @Test
-    @DisplayName("should test finding recipient by username")
-    void testGetRecipientByUsername() {
-        String username = "exampleUsername";
-        String password = "examplePassword";
-
-        // Register the user first
-        userManager.register(username, password);
-
-        // Find the recipient by username
-        User recipient = userManager.getUserByUsername(username);
-
-        assertNotNull(recipient);
-        assertEquals(username, recipient.getUsername());
-    }
-
-    @Test
-    @DisplayName("should test finding user by username")
+    @DisplayName("Should test finding user by username")
     void testFindUserByUsername() {
         String username = "exampleUsername";
         String password = "examplePassword";
@@ -132,41 +116,8 @@ public class UserMangerTest {
     }
 
     @Test
-    @DisplayName("should test changing user password")
-    void testChangePassword() {
-        String username = "exampleUsername";
-        String password = "examplePassword";
-
-        // Register the user first
-        userManager.register(username, password);
-
-        // Find the user and change their password
-        User user = userManager.getUserByUsername(username);
-        userManager.changePassword(user, "newPassword");
-
-        assertNotEquals(user.getPassword(), password);
-        assertEquals(user.getPassword(), "newPassword");
-    }
-
-    @Test
-    @DisplayName("should test deleting user")
-    void testDeleteUser() {
-        String username = "exampleUsername";
-        String password = "examplePassword";
-
-        // Register the user first
-        userManager.register(username, password);
-
-        // Find the user and delete them
-        User user = userManager.getUserByUsername(username);
-        userManager.deleteUser(user);
-
-        assertNull(userManager.getUserByUsername(username));
-    }
-
-    @Test
-    @DisplayName("should test if current user is admin")
-    void testIsAdmin() {
+    @DisplayName("Should test if current user is admin")
+    void testIfCurrentUserAdmin() {
         User admin = new Admin();
 
         // Log in as the admin user

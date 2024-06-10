@@ -19,7 +19,7 @@ public class MailService {
 
     // Returns a list of mails to read based on the requested mail list type (e.g. OPENED, UNREAD, SENT)
     public List<Mail> getMailsToRead(String boxType) {
-        log.info("Getting mails to read for mailbox: {}", boxType)
+        log.info("Getting mails to read for mailbox: {}", boxType);
         List<Mail> mailsToRead = getMailListByType(boxType);
         if (mailsToRead != null) {
             log.info("{} mails returned for mailbox {}", boxType, UserManager.currentLoggedInUser.getUsername());

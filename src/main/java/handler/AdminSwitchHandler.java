@@ -9,7 +9,7 @@ import lombok.extern.log4j.Log4j2;
 public class AdminSwitchHandler {
 
     public String getResponse(String username, UserManager userManager) {
-        log.info("Attempting to switch admin to user: {}", user);
+        log.info("Attempting to switch admin to user: {}", username);
         User user = userManager.getUserByUsername(username);
 
         if (user == null) {

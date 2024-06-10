@@ -26,7 +26,7 @@ public class ClientConnection {
     private Socket clientSocket;
     private PrintWriter outToServer;
     private BufferedReader inFromServer;
-    private static boolean loggedIn = false;
+    public static boolean loggedIn = false;
     private boolean isAuthorized = false;
     private boolean  isAdminSwitchedAndAuthorized = false;
     public static int connectionAttempts = 0;

@@ -1,5 +1,6 @@
 package request;
 
+import client.ClientConnection;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -9,7 +10,6 @@ import shared.UserInteraction;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.StringReader;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -22,44 +22,58 @@ public class RequestFactoryTest {
     private UserInteraction userInteraction;
     private BufferedReader reader;
     private User exampleUser;
+    private UserManager userManager;
+    ClientConnection clientConnection;
 
     @BeforeEach
     void setUp() {
         exampleUser = new User("exampleName", "examplePassword", User.Role.USER);
         UserManager.currentLoggedInUser = exampleUser;
-        factory = new RequestFactory();
+        clientConnection = new ClientConnection();
+        factory = new RequestFactory(clientConnection);
         reader = new BufferedReader(new InputStreamReader(System.in));
+        userManager = new UserManager();
         userInteraction = new UserInteraction(reader);
     }
 
     @Test
-    @DisplayName("Should test request creating")
-    void testCreateRequest() throws IOException {
+    @DisplayName("Should test request creating for logged user")
+    void testCreateRequest_Client_LoggedIn() throws IOException {
         String request = "REGISTER";
         Request expectedType = new AuthRequest(request,
-                "exampleUser", "examplePassword");
+                exampleUser.getUsername(), "examplePassword");
+        ClientConnection.loggedIn = false;
 
-        // Test creating a request
-        Request requestType = factory.createRequest(request, userInteraction);
+        // Test AuthRequest creating
+        Request requestType = factory.createRequest(request);
 
         assertNotNull(requestType);
         assertEquals(expectedType.getClass(), requestType.getClass());
     }
 
     @Test
-    @DisplayName("Should test account update request creating")
-    void testAccountUpdateRequest() throws IOException {
-        String simulatedInput = "PASSWORD\nexampleUser\nnewPassword";
-        reader = new BufferedReader(new StringReader(simulatedInput));
-        userInteraction = new UserInteraction(reader);
+    @DisplayName("Should test request creating for not logged user")
+    void testCreateRequest_Client_LoggedOut() throws IOException {
+        String request = "WRITE";
+        Request expectedType = new WriteRequest(request,
+                "exampleUsername", "exampleMessage");
+        ClientConnection.loggedIn = true;
 
-        // Test creating an account update request
-        Request reguest = factory.getAccountUpdateRequest(userInteraction);
-        Request expectedRequest = new AdminChangePasswordRequest("PASSWORD",
-                "exampleUser", "newPassword");
+        // Test WriteRequest creating
+        Request requestType = factory.createRequest(request);
 
-       assertEquals(expectedRequest.getUpdateOperation(), reguest.getUpdateOperation());
-       assertEquals(expectedRequest.getUserToUpdate(), reguest.getUserToUpdate());
-       assertEquals(expectedRequest.getNewPassword(), reguest.getNewPassword());
+        assertNotNull(requestType);
+        assertEquals(expectedType.getClass(), requestType.getClass());
+    }
+
+    @Test
+    @DisplayName("Should test account update request creating for non-admin user")
+    void testGetAccountUpdateRequest_Not_Authorized() throws IOException {
+        clientConnection.setAuthorized(false);
+
+        // // Test AccountUpdateRequest getting
+        Request requestType = factory.getAccountUpdateRequest();
+
+        assertNull(requestType);
     }
 }

@@ -92,7 +92,7 @@ public class ServerRequestService {
                 log.info("Completed processing request command: {}", requestCommand);
             }
         } catch (IOException ex) {
-            log.error("IOException occurred while processing the request: {}. Error: ", request, ex);
+            log.error("IOException occurred while processing the request: {}. Error: ", ex.getMessage());
         }
     }
 

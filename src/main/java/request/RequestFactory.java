@@ -73,7 +73,7 @@ public class RequestFactory {
     }
 
     public Request getAccountUpdateRequest() throws IOException {
-        log.info("Creating account update request")
+        log.info("Creating account update request");
         if (connection.isAuthorized()) {
             log.info("Authorization succeeded");
             String updateOperation = userInteraction.chooseUpdateOperation();
@@ -90,10 +90,8 @@ public class RequestFactory {
             }
             log.warn("Unknown update operation: {}", updateOperation);
             return null;
-        } else {
-            log.info("Authorization failed");
-            return null;
         }
+        log.info("Authorization failed");
         return null;
     }
 }

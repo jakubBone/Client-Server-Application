@@ -10,6 +10,7 @@ import java.io.*;
 
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static shared.Screen.printAdminMailBoxMenu;
 
 /**
  * Unit tests for Client class.
@@ -56,6 +57,37 @@ class ClientTest {
     }
 
     @Test
+    @DisplayName("Should test communication handling when admin user is LOGGED IN")
+    void testHandleServerCommunication_LoggedIn_Authorized()  {
+        when(mockConnection.isConnected()).thenReturn(true);
+        when(mockConnection.isLoggedIn()).thenReturn(true);
+        when(mockConnection.isAuthorized()).thenReturn(true);
+
+        // Mocking the static methods of the Screen class
+        MockedStatic<Screen> mockScreen = mockStatic(Screen.class);
+        client.handleServerCommunication();
+
+        // Verify that the mailbox menu is displayed when the user is logged in
+        mockScreen.verify(() -> printAdminMailBoxMenu());
+        mockScreen.close();
+    }
+
+    @Test
+    @DisplayName("Should test communication handling when non-admin user is LOGGED IN")
+    void testHandleServerCommunication_LoggedIn_Not_Authorized()  {
+        when(mockConnection.isConnected()).thenReturn(true);
+        when(mockConnection.isLoggedIn()).thenReturn(true);
+
+        // Mocking the static methods of the Screen class
+        MockedStatic<Screen> mockScreen = mockStatic(Screen.class);
+        client.handleServerCommunication();
+
+        // Verify that the mailbox menu is displayed when the user is logged in
+        mockScreen.verify(() -> Screen.printUserMailBoxMenu());
+        mockScreen.close();
+    }
+
+    @Test
     @DisplayName("Should test communication handling when user is NOT LOGGED IN")
     void testHandleServerCommunication_NotLoggedIn()  {
         when(mockConnection.isConnected()).thenReturn(true);
@@ -66,21 +98,6 @@ class ClientTest {
         client.handleServerCommunication();
 
         // Verify that the login menu is displayed when the user is not logged in
-        mockScreen.verify(() -> Screen.printLoginMenu());
-        mockScreen.close();
-    }
-
-    @Test
-    @DisplayName("Should test communication handling when user is LOGGED IN")
-    void testHandleServerCommunication_LoggedIn()  {
-        when(mockConnection.isConnected()).thenReturn(true);
-        when(mockConnection.isLoggedIn()).thenReturn(true);
-
-        // Mocking the static methods of the Screen class
-        MockedStatic<Screen> mockScreen = mockStatic(Screen.class);
-        client.handleServerCommunication();
-
-        // Verify that the mailbox menu is displayed when the user is logged in
         mockScreen.verify(() -> Screen.printLoginMenu());
         mockScreen.close();
     }
