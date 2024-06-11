@@ -3,6 +3,7 @@ package handler.mail;
 import lombok.extern.log4j.Log4j2;
 import mail.Mail;
 import mail.MailService;
+import shared.ResponseMessage;
 
 import java.io.IOException;
 import java.util.List;
@@ -19,7 +20,7 @@ public class MailboxHandler {
                 return getEmptyMailboxResponse(boxType);
             default:
                 log.warn("Unknown mail operation: {}", mailboxOperation);
-                throw new IllegalArgumentException("Unknown mail operation: " + mailboxOperation);
+                return ResponseMessage.UNKNOWN_REQUEST.getResponse();
         }
     }
 
@@ -28,7 +29,7 @@ public class MailboxHandler {
         List<Mail> mailsToRead = mailService.getMailsToRead(boxType);
 
         if (mailsToRead.isEmpty()) {
-            return "Mailbox is empty";
+            return ResponseMessage.MAILBOX_EMPTY.getResponse();
         }
 
         StringBuilder response = new StringBuilder();
@@ -46,6 +47,6 @@ public class MailboxHandler {
     private String getEmptyMailboxResponse(String boxType){
         log.info("Emptying mails from box: {}", boxType);
         mailService.deleteEmails(boxType);
-        return "Mails deletion succeeded";
+        return ResponseMessage.MAIL_DELETION_SUCCEEDED.getResponse();
     }
 }

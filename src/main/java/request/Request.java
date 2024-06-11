@@ -20,11 +20,5 @@ public class Request {
     String userToSwitch;
     User.Role newRole;
 
-    public Request(String requestCommand) {
-        this.requestCommand = requestCommand;
-    }
-
-    public Request() {
-    }
 }
 

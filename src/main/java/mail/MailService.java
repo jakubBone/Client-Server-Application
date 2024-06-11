@@ -1,6 +1,7 @@
 package mail;
 
 import lombok.extern.log4j.Log4j2;
+import shared.ResponseMessage;
 import user.UserManager;
 import java.util.List;
 
@@ -50,9 +51,10 @@ public class MailService {
                 return mailBox.getUnreadBox();
             case "SENT":
                 return mailBox.getSentBox();
+            default:
+                log.error("Unknown mailbox type requested: {}", boxType);
+                return null;
         }
-        log.error("Unknown mailbox type requested: {}", boxType);
-        return null;
     }
 
     // Marks all unread mails as read by moving them to the OPENED mail list and clearing the UNREAD list

@@ -1,6 +1,7 @@
 package request;
 
 import client.ClientConnection;
+import shared.ResponseMessage;
 import user.User;
 import shared.UserInteraction;
 
@@ -46,10 +47,12 @@ public class RequestService {
                 return factory.createServerDetailsRequest(requestCommand);
             case "LOGOUT":
                 return factory.createLogoutRequest(requestCommand);
+            default:
+                log.warn("Unknown login menu request: {}", requestCommand);
+                return null;
         }
-        log.warn("Unknown login menu request: {}", requestCommand);
-        return null;
     }
+
 
     public Request getMailboxMenuRequest(String requestCommand) throws IOException {
         switch (requestCommand.toUpperCase()){
@@ -60,7 +63,7 @@ public class RequestService {
             case "MAILBOX":
                 String boxOperation = userInteraction.chooseBoxOperation();
                 String mailbox = userInteraction.chooseMailBox();
-                return factory.createWriteRequest(requestCommand, boxOperation, mailbox);
+                return factory.createMailBoxRequest(requestCommand, boxOperation, mailbox);
             case "UPDATE":
                 return getAccountUpdateRequest();
             case "SWITCH":
@@ -68,9 +71,10 @@ public class RequestService {
                 return factory.createAdminSwitchUserRequest(requestCommand, userToSwitch);
             case "LOGOUT":
                 return factory.createLogoutRequest(requestCommand);
+            default:
+                log.warn("Unknown mailbox menu request: {}", requestCommand);
+                return null;
         }
-        log.warn("Unknown mailbox menu request: {}", requestCommand);
-        return null;
     }
 
     public Request getAccountUpdateRequest() throws IOException {
@@ -88,9 +92,11 @@ public class RequestService {
                 case "ROLE":
                     User.Role newRole = userInteraction.chooseRole();
                     return factory.createAdminChangeRoleRequest(updateOperation, userToUpdate, newRole);
+                default:
+                    log.warn("Unknown update operation: {}", updateOperation);
+                    return null;
             }
-            log.warn("Unknown update operation: {}", updateOperation);
-            return null;
+
         }
         log.info("Authorization failed");
         return null;

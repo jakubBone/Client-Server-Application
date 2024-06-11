@@ -54,8 +54,7 @@ public class UserInteraction {
                 case "EMPTY":
                     return operation;
                 default:
-                    System.out.println("Invalid operation entered. Please try again");;
-                    break;
+                    System.out.println("Invalid operation. Please try again!");;
             }
         }
     }
@@ -69,8 +68,7 @@ public class UserInteraction {
                     case "SENT":
                         return mailbox;
                     default:
-                        System.out.println("Invalid mailbox type entered. Please try again");
-                        break;
+                        System.out.println("Invalid mailbox type. Please try again!");
                 }
         }
     }
@@ -87,8 +85,7 @@ public class UserInteraction {
                 case "ROLE":
                     return "ROLE";
                 default:
-                    System.out.println("Invalid input. Please enter either 'PASSWORD' or 'DELETE'");
-                    break;
+                    System.out.println("Invalid operation type. Please try again!");
             }
         }
     }
@@ -107,5 +104,4 @@ public class UserInteraction {
             return Role.USER;
         }
     }
-
 }

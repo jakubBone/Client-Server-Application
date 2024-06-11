@@ -39,8 +39,11 @@ public enum ResponseMessage {
     SENDING_FAILED_BOX_FULL("Sending failed: Recipient's mailbox is full"),
     SENDING_FAILED_TO_LONG_MESSAGE("Sending failed: Message too long (maximum 255 characters)"),
     SENDING_FAILED_RECIPIENT_NOT_FOUND("Sending failed: Recipient not found"),
+    MAIL_DELETION_SUCCEEDED("Mails deletion succeeded"),
+    MAILBOX_EMPTY("Mailbox is empty"),
 
-    // Unknown Response
+    // Unknown Message
+    UNKNOWN_REQUEST("Unknown request"),
     UNKNOWN_RESPONSE("Unknown response");
 
     private final String RESPONSE;

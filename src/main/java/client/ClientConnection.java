@@ -96,9 +96,9 @@ public class ClientConnection {
 
     // Checks the login update and role authorization
     public void checkResponseStatus(String response) {
-        ResponseMessage operationResponse = ResponseMessage.fromString(response);
-
-        switch (operationResponse) {
+        ResponseMessage operationMessage = ResponseMessage.fromString(response);
+        System.out.println(operationMessage);
+        switch (operationMessage) {
             case ADMIN_LOGIN_SUCCEEDED:
                 loggedIn = true;
                 isAuthorized = true;
@@ -127,6 +127,8 @@ public class ClientConnection {
                 isAdminSwitchedAndAuthorized = true;
                 log.info("Switch succeeded");
                 break;
+            default:
+                log.info("No response required to action");
         }
     }
 
