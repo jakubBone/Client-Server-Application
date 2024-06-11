@@ -2,14 +2,14 @@ package user;
 
 import lombok.Getter;
 import lombok.Setter;
-import shared.OperationResponses;
+import shared.ResponseMessage;
 import shared.JsonConverter;
 import java.util.ArrayList;
 import java.util.List;
 
 import lombok.extern.log4j.Log4j2;
 
- /*
+/*
   * The UserManager class manages user-related operations, including registration, login, logout
   * It maintains a list of users and tracks the currently logged-in user
   */
@@ -45,12 +45,12 @@ public class UserManager {
 
         if (isUserExistsInSystem(username)) {
             log.info("Registration attempt failed - user already exists: {}", username);
-            return OperationResponses.REGISTRATION_FAILED_USER_EXISTS.getResponse();
+            return ResponseMessage.REGISTRATION_FAILED_USER_EXISTS.getResponse();
         }
 
         register(username, password);
         log.info("Registration successful for new user: {}", username);
-        return OperationResponses.REGISTRATION_SUCCESSFUL.getResponse();
+        return ResponseMessage.REGISTRATION_SUCCESSFUL.getResponse();
     }
 
     public void register(String username, String password) throws IllegalArgumentException {
@@ -68,12 +68,12 @@ public class UserManager {
 
         if (user == null) {
             log.info("Login attempt failed - user does not exist: {}", username);
-            return OperationResponses.FAILED_TO_FIND_USER.getResponse();
+            return ResponseMessage.FAILED_TO_FIND_USER.getResponse();
         }
 
         if (!ifPasswordCorrect(password, user)) {
             log.info("Incorrect password attempt for user: {}", user.getUsername());
-            return OperationResponses.LOGIN_FAILED_INCORRECT_PASSWORD.getResponse();
+            return ResponseMessage.LOGIN_FAILED_INCORRECT_PASSWORD.getResponse();
         }
 
         log.info("User password correct: {}", user.getUsername());
@@ -81,9 +81,9 @@ public class UserManager {
         log.info("User login succeeded: {}", user.getUsername());
 
         if (ifCurrentUserAdmin()) {
-            return OperationResponses.ADMIN_LOGIN_SUCCEEDED.getResponse();
+            return ResponseMessage.ADMIN_LOGIN_SUCCEEDED.getResponse();
         } else {
-            return OperationResponses.USER_LOGIN_SUCCEEDED.getResponse();
+            return ResponseMessage.USER_LOGIN_SUCCEEDED.getResponse();
         }
     }
 
@@ -103,7 +103,7 @@ public class UserManager {
     public String getLogoutResponse() {
         log.info("User logout requested");
         logoutCurrentUser();
-        return OperationResponses.LOGOUT_SUCCEEDED.getResponse();
+        return ResponseMessage.LOGOUT_SUCCEEDED.getResponse();
     }
 
     public void logoutCurrentUser() {

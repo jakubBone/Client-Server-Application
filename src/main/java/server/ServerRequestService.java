@@ -1,8 +1,14 @@
 package server;
 
 import com.google.gson.Gson;
+import handler.auth.AuthHandler;
+import handler.auth.LogoutHandler;
+import handler.mail.MailboxHandler;
+import handler.mail.WriteHandler;
+import handler.server.ServerDetailsHandler;
+import handler.user.AccountUpdateHandler;
+import handler.user.AdminSwitchHandler;
 import lombok.extern.log4j.Log4j2;
-import handler.*;
 import request.Request;
 import user.UserManager;
 import shared.JsonConverter;
@@ -23,7 +29,7 @@ public class ServerRequestService {
     private final UserManager userManager;
     private Gson gson;
     private JsonConverter jsonResponse;
-    private AuthHandler credentialHandler;
+    private AuthHandler authHandler;
     private ServerDetailsHandler serverInfoHandler;
     private MailboxHandler mailboxHandler;
     private AccountUpdateHandler updateHandler;
@@ -35,7 +41,7 @@ public class ServerRequestService {
         this.inFromClient = inFromClient;
         this.userManager = new UserManager();
         this.gson = new Gson();
-        this.credentialHandler= new AuthHandler();
+        this.authHandler = new AuthHandler();
         this.serverInfoHandler = new ServerDetailsHandler();
         this.mailboxHandler = new MailboxHandler();
         this.updateHandler = new AccountUpdateHandler();
@@ -55,7 +61,7 @@ public class ServerRequestService {
                 switch (requestCommand) {
                     case "REGISTER":
                     case "LOGIN":
-                        response = credentialHandler.getResponse(requestCommand, req.getUsername(), req.getPassword(), userManager);
+                        response = authHandler.getResponse(requestCommand, req.getUsername(), req.getPassword(), userManager);
                         break;
                     case "HELP":
                     case "INFO":

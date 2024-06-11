@@ -1,5 +1,5 @@
 package client;
-import shared.OperationResponses;
+import shared.ResponseMessage;
 import org.junit.jupiter.api.*;
 
 import java.io.BufferedReader;
@@ -73,35 +73,35 @@ class ClientCommunicationTest {
     @DisplayName("Should check response status")
     void testCheckResponseStatus() {
         // Test admin login succeeded
-        String response = OperationResponses.ADMIN_LOGIN_SUCCEEDED.getResponse();
+        String response = ResponseMessage.ADMIN_LOGIN_SUCCEEDED.getResponse();
         clientConnection.checkResponseStatus(response);
         assertTrue(clientConnection.isLoggedIn());
         assertTrue(clientConnection.isAuthorized());
 
         // Test user login succeeded
-        response = OperationResponses.USER_LOGIN_SUCCEEDED.getResponse();
+        response = ResponseMessage.USER_LOGIN_SUCCEEDED.getResponse();
         clientConnection.checkResponseStatus(response);
         assertTrue(clientConnection.isLoggedIn());
 
         // Test registration succeeded
-        response = OperationResponses.REGISTRATION_SUCCESSFUL.getResponse();
+        response = ResponseMessage.REGISTRATION_SUCCESSFUL.getResponse();
         clientConnection.checkResponseStatus(response);
         assertTrue(clientConnection.isLoggedIn());
 
         // Test logout succeeded
-        response = OperationResponses.LOGOUT_SUCCEEDED.getResponse();
+        response = ResponseMessage.LOGOUT_SUCCEEDED.getResponse();
         clientConnection.checkResponseStatus(response);
         assertFalse(clientConnection.isLoggedIn());
         assertFalse(clientConnection.isAuthorized());
         assertFalse(clientConnection.isAdminSwitchedAndAuthorized());
 
         // Test authorization succeeded
-        response = OperationResponses.AUTHORIZATION_SUCCEEDED.getResponse();
+        response = ResponseMessage.AUTHORIZATION_SUCCEEDED.getResponse();
         clientConnection.checkResponseStatus(response);
         assertTrue(clientConnection.isAuthorized());
 
         // Test operation failed response
-        response = OperationResponses.SWITCH_SUCCEEDED.getResponse();
+        response = ResponseMessage.SWITCH_SUCCEEDED.getResponse();
         clientConnection.checkResponseStatus(response);
         assertFalse(clientConnection.isAuthorized());
         assertTrue(clientConnection.isAdminSwitchedAndAuthorized());

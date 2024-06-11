@@ -1,9 +1,10 @@
 package handler;
 
+import handler.user.AccountUpdateHandler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import shared.OperationResponses;
+import shared.ResponseMessage;
 import user.Admin;
 import user.User;
 import user.UserManager;
@@ -34,9 +35,9 @@ public class AccountUpdateHandlerTest {
         // Password changing
         String response = updateHandler.getChangePasswordResponse(admin.getUsername(), "newPasswod", userManager);
 
-        assertNotEquals(OperationResponses.AUTHORIZATION_FAILED.getResponse(), response);
-        assertNotEquals(OperationResponses.FAILED_TO_FIND_USER.getResponse(), response);
-        assertEquals(OperationResponses.OPERATION_SUCCEEDED.getResponse(), response);
+        assertNotEquals(ResponseMessage.AUTHORIZATION_FAILED.getResponse(), response);
+        assertNotEquals(ResponseMessage.FAILED_TO_FIND_USER.getResponse(), response);
+        assertEquals(ResponseMessage.OPERATION_SUCCEEDED.getResponse(), response);
     }
 
     @Test
@@ -53,9 +54,9 @@ public class AccountUpdateHandlerTest {
         // User account deletion
         String response = updateHandler.getUserDeleteResponse(userName, userManager);
 
-        assertNotEquals(OperationResponses.AUTHORIZATION_FAILED.getResponse(), response);
-        assertNotEquals(OperationResponses.FAILED_TO_FIND_USER.getResponse(), response);
-        assertEquals(OperationResponses.OPERATION_SUCCEEDED.getResponse(), response);
+        assertNotEquals(ResponseMessage.AUTHORIZATION_FAILED.getResponse(), response);
+        assertNotEquals(ResponseMessage.FAILED_TO_FIND_USER.getResponse(), response);
+        assertEquals(ResponseMessage.OPERATION_SUCCEEDED.getResponse(), response);
     }
 
     @Test
@@ -68,8 +69,8 @@ public class AccountUpdateHandlerTest {
         // Role changing
         String response = updateHandler.getChangeRoleResponse(admin.getUsername(), User.Role.USER, userManager);
 
-        assertNotEquals(OperationResponses.AUTHORIZATION_FAILED.getResponse(), response);
-        assertNotEquals(OperationResponses.FAILED_TO_FIND_USER.getResponse(), response);
-        assertEquals(OperationResponses.ROLE_CHANGE_SUCCEEDED.getResponse(), response);
+        assertNotEquals(ResponseMessage.AUTHORIZATION_FAILED.getResponse(), response);
+        assertNotEquals(ResponseMessage.FAILED_TO_FIND_USER.getResponse(), response);
+        assertEquals(ResponseMessage.ROLE_CHANGE_SUCCEEDED.getResponse(), response);
     }
 }

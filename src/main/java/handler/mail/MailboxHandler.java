@@ -1,4 +1,4 @@
-package handler;
+package handler.mail;
 
 import lombok.extern.log4j.Log4j2;
 import mail.Mail;

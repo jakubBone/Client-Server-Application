@@ -109,7 +109,7 @@ import java.net.Socket;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
-import shared.OperationResponses;
+import shared.ResponseMessage;
 import shared.JsonConverter;
 
  /*
@@ -1488,7 +1488,7 @@ public class UserInteraction {
 FILE: ClientCommunicationTest.java
 
 package client;
-import shared.OperationResponses;
+import shared.ResponseMessage;
 import org.junit.jupiter.api.*;
 
 import java.io.BufferedReader;

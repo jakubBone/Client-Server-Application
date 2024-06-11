@@ -1,4 +1,4 @@
-package handler;
+package handler.auth;
 
 import lombok.extern.log4j.Log4j2;
 import user.UserManager;

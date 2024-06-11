@@ -1,6 +1,6 @@
-package handler;
+package handler.user;
 
-import shared.OperationResponses;
+import shared.ResponseMessage;
 import user.User;
 import user.UserManager;
 import lombok.extern.log4j.Log4j2;
@@ -14,22 +14,22 @@ public class AdminSwitchHandler {
 
         if (user == null) {
             log.warn("User not found: {}", username);
-            return OperationResponses.SWITCH_FAILED.getResponse() + ": user not found";
+            return ResponseMessage.SWITCH_FAILED.getResponse() + ": user not found";
         }
 
         if (!userManager.ifCurrentUserAdmin()) {
             log.warn("Non-admin user attempted switch: {}", username);
-            return OperationResponses.SWITCH_FAILED.getResponse() + ": non-admin user";
+            return ResponseMessage.SWITCH_FAILED.getResponse() + ": non-admin user";
         }
 
         userManager.getAdmin().switchUser(user);
 
         if (UserManager.ifAdminSwitched) {
             log.info("Switch succeeded: {}", username);
-            return OperationResponses.SWITCH_SUCCEEDED.getResponse();
+            return ResponseMessage.SWITCH_SUCCEEDED.getResponse();
         } else {
             log.warn("Switch failed: {}", username);
-            return OperationResponses.SWITCH_FAILED.getResponse();
+            return ResponseMessage.SWITCH_FAILED.getResponse();
         }
     }
 }

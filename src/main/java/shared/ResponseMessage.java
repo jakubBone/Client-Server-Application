@@ -3,7 +3,7 @@ package shared;
 import lombok.extern.log4j.Log4j2;
 
 @Log4j2
-public enum OperationResponses {
+public enum ResponseMessage {
 
     // General responses
     OPERATION_SUCCEEDED("Operation succeeded"),
@@ -45,7 +45,7 @@ public enum OperationResponses {
 
     private final String RESPONSE;
 
-    OperationResponses(String response){
+    ResponseMessage(String response){
         this.RESPONSE = response;
     }
 
@@ -53,12 +53,12 @@ public enum OperationResponses {
         return RESPONSE;
     }
 
-    public static OperationResponses fromString(String text) {
+    public static ResponseMessage fromString(String text) {
         log.info("Converting text to OperationResponses: {}", text);
-        for (OperationResponses opResponse : OperationResponses.values()) {
-            if (opResponse.getResponse().equals(text)) {
+        for (ResponseMessage message : ResponseMessage.values()) {
+            if (message.getResponse().equals(text)) {
                 log.info("Match found for text: {}", text);
-                return opResponse;
+                return message;
             }
         }
         log.warn("No match found for text: {}", text);

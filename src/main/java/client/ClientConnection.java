@@ -10,10 +10,10 @@ import java.net.Socket;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
-import shared.OperationResponses;
+import shared.ResponseMessage;
 import shared.JsonConverter;
 
- /*
+/*
   * The ClientConnection class manages the client's connection to the server, allowing sending and receiving of data
   * It handles establishing a connection, sending requests, reading responses, and disconnecting
   */
@@ -31,7 +31,7 @@ public class ClientConnection {
     private boolean  isAdminSwitchedAndAuthorized = false;
     public static int connectionAttempts = 0;
     private boolean connected = false;
-    private static OperationResponses response;
+    private static ResponseMessage responseMsg;
 
     /*
      * The ClientConnection class is responsible for managing connections
@@ -96,7 +96,7 @@ public class ClientConnection {
 
     // Checks the login update and role authorization
     public void checkResponseStatus(String response) {
-        OperationResponses operationResponse = OperationResponses.fromString(response);
+        ResponseMessage operationResponse = ResponseMessage.fromString(response);
 
         switch (operationResponse) {
             case ADMIN_LOGIN_SUCCEEDED:
