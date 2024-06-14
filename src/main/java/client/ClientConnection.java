@@ -1,4 +1,3 @@
-
 package client;
 
 import java.io.BufferedReader;
@@ -14,9 +13,10 @@ import shared.ResponseMessage;
 import shared.JsonConverter;
 
 /*
-  * The ClientConnection class manages the client's connection to the server, allowing sending and receiving of data
-  * It handles establishing a connection, sending requests, reading responses, and disconnecting
-  */
+ * The ClientConnection class manages the connection between the client and server.
+ * It establishes, maintains, and handles communication through sockets.
+ * Additionally, it manages login status and authorization checks.
+ */
 
 @Log4j2
 @Getter
@@ -91,7 +91,6 @@ public class ClientConnection {
         } catch (IOException ex){
             log.error("Error reading response: {}", ex.getMessage());
         }
-
     }
 
     // Checks the login update and role authorization

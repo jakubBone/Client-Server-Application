@@ -1,14 +1,11 @@
 package shared;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * Unit tests for JsonConverter class.
- * This class tests the conversion of objects to and from JSON format, ensuring correct serialization and deserialization.
- */
-public class JsonConverterTest {
+class JsonConverterTest {
     @Test
     @DisplayName("Should test message serializing to JSon")
     void testSerializeMessage() {

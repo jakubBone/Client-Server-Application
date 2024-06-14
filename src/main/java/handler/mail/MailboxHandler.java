@@ -1,12 +1,17 @@
 package handler.mail;
 
+import java.io.IOException;
+import java.util.List;
+
 import lombok.extern.log4j.Log4j2;
 import mail.Mail;
 import mail.MailService;
 import shared.ResponseMessage;
 
-import java.io.IOException;
-import java.util.List;
+/*
+ * The MailboxHandler class handles mailbox operations such as reading and emptying mailboxes.
+ * It uses the MailService to perform these operations and generate appropriate responses.
+ */
 @Log4j2
 public class MailboxHandler {
     private MailService mailService = new MailService();

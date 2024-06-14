@@ -1,5 +1,7 @@
 package handler.mail;
 
+import java.io.IOException;
+
 import lombok.extern.log4j.Log4j2;
 import mail.Mail;
 import mail.MailService;
@@ -7,11 +9,14 @@ import shared.ResponseMessage;
 import user.User;
 import user.UserManager;
 
-import java.io.IOException;
+/*
+ * The WriteHandler class processes requests to send mail.
+ * It interacts with the MailService and UserManager to send emails and handle related validations.
+ */
+
 @Log4j2
 public class WriteHandler {
     private MailService mailService = new MailService();
-
     public String getResponse(String username, String message, UserManager userManager) throws IOException {
         log.info("Attempting to send mail to user: {}", username);
         User recipient = userManager.getUserByUsername(username);

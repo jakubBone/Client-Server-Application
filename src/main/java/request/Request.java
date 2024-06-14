@@ -19,6 +19,5 @@ public class Request {
     String newPassword;
     String userToSwitch;
     User.Role newRole;
-
 }
 

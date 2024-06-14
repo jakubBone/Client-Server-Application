@@ -1,5 +1,9 @@
 package server;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.PrintWriter;
+
 import com.google.gson.Gson;
 import handler.auth.AuthHandler;
 import handler.auth.LogoutHandler;
@@ -10,16 +14,12 @@ import handler.user.AccountUpdateHandler;
 import handler.user.AdminSwitchHandler;
 import lombok.extern.log4j.Log4j2;
 import request.Request;
-import user.UserManager;
 import shared.JsonConverter;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.PrintWriter;
+import user.UserManager;
 
  /*
-  * The ServerLogicHandler class is responsible for handling various client requests and processing server-side logic
-  * It manages user authentication, mail operations, and server information
+  * The ServerRequestService class is responsible for handling various client requests and processing server-side logic
+  * It manages user authentication, mail operations, user account updates, account switch, and server information
   */
 
 @Log4j2

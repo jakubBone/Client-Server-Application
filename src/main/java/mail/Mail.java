@@ -1,9 +1,8 @@
 package mail;
 
-import user.User;
 import lombok.Getter;
 import lombok.Setter;
-
+import user.User;
 @Getter
 @Setter
 public class Mail {

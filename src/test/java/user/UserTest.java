@@ -5,11 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * Unit tests for User class.
- * This class tests user-related functionalities such as password matching, hashing, and role management.
- */
-public class UserTest {
+class UserTest {
     @Test
     @DisplayName("Should test password matching functionality with correct password")
     void testCheckPasswordCorrect() {

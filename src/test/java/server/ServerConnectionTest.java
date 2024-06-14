@@ -1,30 +1,27 @@
 package server;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-
 import java.io.BufferedReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-import static org.mockito.Mockito.*;
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
-/**
- * Unit tests for ServerConnectionHandler class.
- * This class tests the server's ability to start, accept client connections, and handle communication streams.
- */
-class ServerConnectionHandlerTest {
-    private ServerConnection handler;
-    private ServerSocket mockServerSocket;
-    private Socket mockClientSocket;
-    private BufferedReader mockInFromClient;
-    private PrintWriter mockOutToClient;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+class ServerConnectionTest {
+    ServerConnection handler;
+    ServerSocket mockServerSocket;
+    Socket mockClientSocket;
+    BufferedReader mockInFromClient;
+    PrintWriter mockOutToClient;
+
     @BeforeEach
-    void setUp()  {
+    void setUp() {
         handler = new ServerConnection(5000);
         mockServerSocket = mock(ServerSocket.class);
         mockClientSocket = mock(Socket.class);

@@ -1,4 +1,8 @@
 package client;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+
 import org.junit.jupiter.api.*;
 import org.mockito.MockedStatic;
 import request.Request;
@@ -6,23 +10,17 @@ import request.RequestService;
 import shared.Screen;
 import shared.UserInteraction;
 
-import java.io.*;
-
-import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 import static shared.Screen.printAdminMailBoxMenu;
 
-/**
- * Unit tests for Client class.
- * This class tests the client's interaction methods, including handling server communication and user input.
- */
 class ClientTest {
-    private Client client;
-    private static ClientConnection mockConnection;
-    private BufferedReader mockUserInput;
-    private UserInteraction mockUserInteraction;
-    private RequestService mockRequestService;
-    private Request mockRequestType;
+    Client client;
+    static ClientConnection mockConnection;
+    BufferedReader mockUserInput;
+    UserInteraction mockUserInteraction;
+    RequestService mockRequestService;
+    Request mockRequestType;
 
     @BeforeEach
     void setUp() {
@@ -37,7 +35,7 @@ class ClientTest {
     }
 
     @AfterAll
-    static void closeDown() throws IOException {
+    static void closeDown() {
         mockConnection.disconnect();
     }
 
@@ -58,7 +56,7 @@ class ClientTest {
 
     @Test
     @DisplayName("Should test communication handling when admin user is LOGGED IN")
-    void testHandleServerCommunication_LoggedIn_Authorized()  {
+    void testHandleServerCommunication_LoggedIn_Authorized() {
         when(mockConnection.isConnected()).thenReturn(true);
         when(mockConnection.isLoggedIn()).thenReturn(true);
         when(mockConnection.isAuthorized()).thenReturn(true);
@@ -74,7 +72,7 @@ class ClientTest {
 
     @Test
     @DisplayName("Should test communication handling when non-admin user is LOGGED IN")
-    void testHandleServerCommunication_LoggedIn_Not_Authorized()  {
+    void testHandleServerCommunication_LoggedIn_Not_Authorized() {
         when(mockConnection.isConnected()).thenReturn(true);
         when(mockConnection.isLoggedIn()).thenReturn(true);
 
@@ -89,7 +87,7 @@ class ClientTest {
 
     @Test
     @DisplayName("Should test communication handling when user is NOT LOGGED IN")
-    void testHandleServerCommunication_NotLoggedIn()  {
+    void testHandleServerCommunication_NotLoggedIn() {
         when(mockConnection.isConnected()).thenReturn(true);
         when(mockConnection.isLoggedIn()).thenReturn(false);
 

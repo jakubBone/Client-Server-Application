@@ -3,7 +3,7 @@ package shared;
 import java.io.BufferedReader;
 import java.io.IOException;
 
-import static user.User.Role;
+import user.User.Role;
 
 /*
   * The UserInteraction class is responsible for interaction with users through the console
@@ -16,38 +16,39 @@ public class UserInteraction {
     }
 
     public String getUsername() throws IOException {
-        System.out.println("Please enter your username:");
+        System.out.print("Please type your username: ");
         return reader.readLine();
     }
 
     public String getPassword() throws IOException {
-        System.out.println("Please enter your password:");
+        System.out.print("Please type your password: ");
         return reader.readLine();
     }
 
     public String getNewPassword() throws IOException{
-        System.out.println("Please enter a new password:");
+        System.out.print("Please type a new password: ");
         return reader.readLine();
     }
 
     public String getRecipient() throws IOException {
-        System.out.println("Please enter a recipient's username:");
+        System.out.print("Please type a recipient's username: ");
         return reader.readLine();
     }
 
     public String getMessage() throws IOException {
-        System.out.println("Please type your message (max 255 characters):");
+        System.out.println("Please type your message (max 255 characters): ");
         return reader.readLine();
     }
 
      public String getUserToSwitch() throws IOException {
-         System.out.println("Please enter a username to switch:");
+         System.out.print("Please type a username to switch: ");
          return reader.readLine();
      }
 
     public String chooseBoxOperation() throws IOException {
         while (true) {
-            System.out.println("Select an operation for the mailbox: READ / EMPTY");
+            System.out.println("Mailbox operation: READ / EMPTY: ");
+            System.out.print("Select: ");
             String operation = reader.readLine().toUpperCase();
             switch (operation) {
                 case "READ":
@@ -60,7 +61,8 @@ public class UserInteraction {
     }
     public String chooseMailBox() throws IOException {
         while (true) {
-                System.out.println("Select a mailbox type: OPENED / UNREAD / SENT");
+                System.out.println("Mailbox: OPENED / UNREAD / SENT");
+                System.out.print("Select: ");
                 String mailbox = reader.readLine().toUpperCase();
                 switch (mailbox) {
                     case "OPENED":
@@ -75,7 +77,8 @@ public class UserInteraction {
 
     public String chooseUpdateOperation() throws IOException {
         while (true) {
-            System.out.println("Choose an account update: PASSWORD / DELETE / ROLE");;
+            System.out.println("Update operations: PASSWORD / DELETE / ROLE");;
+            System.out.print("Select: ");;
             String input = reader.readLine();
             switch (input.toUpperCase()) {
                 case "PASSWORD":
@@ -91,12 +94,12 @@ public class UserInteraction {
     }
 
     public String chooseUserToUpdate() throws IOException {
-        System.out.println("Please enter an username to update:");
+        System.out.print("Please type an username to update: ");
         return reader.readLine();
     }
 
     public Role chooseRole() throws IOException {
-        System.out.println("Please enter the new role (ADMIN / USER):");
+        System.out.print("Please type the new role (ADMIN / USER): ");
         String newRole = reader.readLine();
         if(newRole.equals("ADMIN")){
             return Role.ADMIN;

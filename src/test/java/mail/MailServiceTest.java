@@ -1,24 +1,21 @@
 package mail;
 
+import java.util.List;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import user.User;
 import user.UserManager;
 
-import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * Unit tests for MailService class.
- * This class tests operations related to sending and managing emails.
- */
-public class MailServiceTest {
-    private User sender;
-    private User recipient;
-    private Mail mail;
-    private MailService mailService;
-    private MailBox mailBox;
+class MailServiceTest {
+    User sender;
+    User recipient;
+    Mail mail;
+    MailService mailService;
+    MailBox mailBox;
 
     @BeforeEach
     void setUp() {

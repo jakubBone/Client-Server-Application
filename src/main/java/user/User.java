@@ -1,17 +1,16 @@
 package user;
 
 import mail.MailBox;
+import org.mindrot.jbcrypt.BCrypt;
 
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
-import org.mindrot.jbcrypt.BCrypt;
 
 @Getter
 @Setter
 @Log4j2
 public class User {
-    public static User.Role Role;
 
     public enum Role {
         ADMIN,

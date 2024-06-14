@@ -1,7 +1,7 @@
 package user;
 
-import shared.JsonConverter;
 import lombok.extern.log4j.Log4j2;
+import shared.JsonConverter;
 
 @Log4j2
 public class Admin extends User {

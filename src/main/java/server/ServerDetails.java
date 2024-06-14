@@ -6,15 +6,16 @@ import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import lombok.extern.log4j.Log4j2;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.log4j.Log4j2;
 
- /*
-  * The ServerInfo class provides information about the server
-  * Include server version, available commands and server uptime
-  */
+/*
+ * The ServerDetails class provides information about the server.
+ * It includes server version, available commands, and server uptime.
+ */
+
 @Getter
 @Setter
 @Log4j2

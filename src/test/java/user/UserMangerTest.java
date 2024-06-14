@@ -6,12 +6,8 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * Unit tests for UserManager class.
- * This class tests user management operations, including registration, login, logout, and user searches.
- */
-public class UserMangerTest {
-    private UserManager userManager;
+class UserMangerTest {
+    UserManager userManager;
 
     @BeforeEach
     void setUp() {

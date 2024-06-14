@@ -1,29 +1,26 @@
 package request;
 
-import client.ClientConnection;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import user.User;
-import user.UserManager;
-import shared.UserInteraction;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import shared.UserInteraction;
+import user.User;
+import user.UserManager;
+import client.ClientConnection;
+
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * Unit tests for RequestFactory class.
- * This class tests the creation of various request objects based on user input.
- */
-public class RequestServiceTest {
-    private RequestService requestService;
-    private RequestFactory factory;
-    private UserInteraction userInteraction;
-    private BufferedReader reader;
-    private User exampleUser;
-    private UserManager userManager;
+class RequestServiceTest {
+    RequestService requestService;
+    RequestFactory factory;
+    UserInteraction userInteraction;
+    BufferedReader reader;
+    User exampleUser;
+    UserManager userManager;
     ClientConnection clientConnection;
 
     @BeforeEach

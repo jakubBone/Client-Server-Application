@@ -7,15 +7,11 @@ import user.User;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * Unit tests for MailBox class.
- * This class tests the operations on the mailbox, including checking if the unread box is full.
- */
-public class MailBoxTest {
-    private MailBox mailBox;
-    private User sender;
-    private User recipient;
-    private Mail mail;
+class MailBoxTest {
+    MailBox mailBox;
+    User sender;
+    User recipient;
+    Mail mail;
 
     @BeforeEach
     void setUp() {

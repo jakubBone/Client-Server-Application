@@ -5,9 +5,18 @@ import shared.ResponseMessage;
 import user.User;
 import user.UserManager;
 
+/*
+ * The AccountUpdateHandler class handles account update requests such as changing passwords, deleting users, and changing user roles.
+ * It ensures the current user is authorized to perform these operations.
+ */
+
 @Log4j2
 public class AccountUpdateHandler {
 
+    /*
+     * Attempts to change the password for the specified user.
+     * Ensures the current user is an admin and the target user exists.
+     */
     public String getChangePasswordResponse(String username, String newPassword, UserManager userManager) {
         log.info("Attempting to change password for user: {}", username);
         if (!userManager.ifCurrentUserAdmin()) {
@@ -27,6 +36,10 @@ public class AccountUpdateHandler {
         return ResponseMessage.OPERATION_SUCCEEDED.getResponse();
     }
 
+    /*
+     * Attempts to delete the specified user account.
+     * Ensures the current user is an admin and the target user exists.
+     */
     public String getUserDeleteResponse(String username, UserManager userManager) {
         log.info("Attempting to delete user: {}", username);
         if (!userManager.ifCurrentUserAdmin()) {
@@ -46,6 +59,10 @@ public class AccountUpdateHandler {
         return ResponseMessage.OPERATION_SUCCEEDED.getResponse();
     }
 
+    /*
+     * Attempts to change the role for the specified user.
+     * Ensures the current user is an admin and the target user exists.
+     */
     public String getChangeRoleResponse(String username, User.Role role, UserManager userManager) {
         log.info("Attempting to change role for user: {}", username);
         if (!userManager.ifCurrentUserAdmin()) {
@@ -65,5 +82,3 @@ public class AccountUpdateHandler {
         return ResponseMessage.ROLE_CHANGE_SUCCEEDED.getResponse();
     }
 }
-
-

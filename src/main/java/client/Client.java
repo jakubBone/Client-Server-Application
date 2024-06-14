@@ -11,10 +11,10 @@ import lombok.extern.log4j.Log4j2;
 import request.*;
 import shared.Screen;
 
- /*
-  * This class represents a simple client application for server communication.
-  * It allows users to log in, send requests, and interact with a mailbox
-  */
+/*
+ * This class represents a client application for server communication.
+ * It handles user login, sending requests, and interacting with a mailbox.
+ */
 
 @Log4j2
 @Getter
@@ -36,10 +36,6 @@ public class Client {
         log.info("Client instance created");
     }
 
-    /*
-     * Handles communication with the server.
-     * Includes user login, mailbox interaction, and handling other requests
-     */
     public void handleServerCommunication() {
         try {
             log.info("Starting server communication");
@@ -58,10 +54,6 @@ public class Client {
         }
     }
 
-    /*
-     * Handles user login requests (e.g., REGISTER, LOGIN, HELP)
-     * HELP - displays help menu
-     */
     public void handleRequest(String request) throws IOException {
         log.info("Handling user request: {}", request);
         try{
@@ -80,7 +72,6 @@ public class Client {
         } catch (IOException ex){
             log.error("Error handling request: {}", ex.getMessage());
         }
-
     }
 
     public void printClientUI(){

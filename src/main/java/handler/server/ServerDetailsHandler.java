@@ -4,6 +4,11 @@ import lombok.extern.log4j.Log4j2;
 import server.ServerDetails;
 import shared.ResponseMessage;
 
+/*
+ * The ServerDetailsHandler class provides responses for server information requests.
+ * It can return server uptime, version, and available commands.
+ */
+
 @Log4j2
 public class ServerDetailsHandler {
     private final ServerDetails serverInfo = new ServerDetails();

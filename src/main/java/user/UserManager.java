@@ -1,18 +1,18 @@
 package user;
 
-import lombok.Getter;
-import lombok.Setter;
-import shared.ResponseMessage;
-import shared.JsonConverter;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
+import shared.JsonConverter;
+import shared.ResponseMessage;
 
 /*
-  * The UserManager class manages user-related operations, including registration, login, logout
-  * It maintains a list of users and tracks the currently logged-in user
-  */
+ * The UserManager class manages user-related operations such as registration, login, and logout.
+ * It maintains a list of users and tracks the currently logged-in user.
+ */
 
 @Log4j2
 @Getter
@@ -20,9 +20,9 @@ import lombok.extern.log4j.Log4j2;
 public class UserManager {
     public static List<User> usersList;
     public static User currentLoggedInUser;
-    public Admin admin;
     JsonConverter jsonConverter;
     public static boolean ifAdminSwitched;
+    public Admin admin;
 
     public UserManager() {
         this.admin = new Admin();

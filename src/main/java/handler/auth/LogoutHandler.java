@@ -1,7 +1,7 @@
 package handler.auth;
 
-import user.UserManager;
 import lombok.extern.log4j.Log4j2;
+import user.UserManager;
 
 @Log4j2
 public class LogoutHandler {

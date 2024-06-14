@@ -11,13 +11,9 @@ import user.UserManager;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * Unit tests for AccountUpdateHandler class.
- * This class tests the handling of user account updates, ensuring authorization and correct processing of requests.
- */
-public class AccountUpdateHandlerTest {
-    private AccountUpdateHandler updateHandler;
-    private UserManager userManager;
+class AccountUpdateHandlerTest {
+    AccountUpdateHandler updateHandler;
+    UserManager userManager;
 
     @BeforeEach
     void setUp() {

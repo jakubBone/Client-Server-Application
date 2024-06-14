@@ -6,14 +6,8 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * Unit tests for Admin class.
- * This class tests the operations performed by an admin on users, including changing passwords,
- * deleting users, changing user roles, and switching the current logged-in user.
- */
-public class AdminTest {
-
-    private UserManager userManager;
+class AdminTest {
+    UserManager userManager;
 
     @BeforeEach
     void setUp() {

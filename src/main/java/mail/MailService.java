@@ -1,14 +1,8 @@
 package mail;
 
 import lombok.extern.log4j.Log4j2;
-import shared.ResponseMessage;
 import user.UserManager;
 import java.util.List;
-
- /*
-  * The MailService class provides various operations related to email management,
-  * including sending mail, returning mail lists, emptying mailboxes, and marking mails as read
-  */
 
 @Log4j2
 public class MailService {
@@ -18,7 +12,10 @@ public class MailService {
         log.info("Mail successfully sent to {}", mail.getRecipient().getUsername());
     }
 
-    // Returns a list of mails to read based on the requested mail list type (e.g. OPENED, UNREAD, SENT)
+    /*
+     * Retrieves a list of mails based on the specified mailbox type (e.g., OPENED, UNREAD, SENT).
+     * Logs the retrieval operation and handles invalid mailbox types.
+     */
     public List<Mail> getMailsToRead(String boxType) {
         log.info("Getting mails to read for mailbox: {}", boxType);
         List<Mail> mailsToRead = getMailListByType(boxType);
@@ -30,6 +27,10 @@ public class MailService {
         return mailsToRead;
     }
 
+    /*
+     * Deletes all emails from the specified mailbox type.
+     * Logs the deletion operation and handles invalid mailbox types.
+     */
     public void deleteEmails(String boxType) {
         log.info("Deleting mails from box: {}", boxType);
         List<Mail> mailList = getMailListByType(boxType);
@@ -41,7 +42,10 @@ public class MailService {
         }
     }
 
-    // Returns the list of mails based on the specified type
+    /*
+     * Retrieves the list of mails
+     * Handles the different mailbox types: OPENED, UNREAD, SENT.
+     */
     private List<Mail> getMailListByType(String boxType) {
         MailBox mailBox = UserManager.currentLoggedInUser.getMailBox();
         switch (boxType.toUpperCase()) {
@@ -57,7 +61,10 @@ public class MailService {
         }
     }
 
-    // Marks all unread mails as read by moving them to the OPENED mail list and clearing the UNREAD list
+    /*
+     * Marks all unread mails as read by moving them to the opened box and clearing the unread box.
+     * Logs the operation and ensures the 'sent' mails are not marked as read.
+     */
     public void markMailsAsRead(String boxType){
         log.info("Marking mails as read for mailbox: {}", boxType);
         if(!boxType.equals("SENT")){

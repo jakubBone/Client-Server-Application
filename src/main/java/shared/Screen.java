@@ -2,11 +2,6 @@ package shared;
 
 public class Screen {
 
-    /*
-     * The Screen class is used to display various menu screens to the console
-     * It provides static methods for printing different menu options
-     */
-
     public static void printLoginMenu() {
         System.out.println("+---------------------------------------------+\n" +
                 "|              Welcome in MailBox!            |\n" +
@@ -20,7 +15,7 @@ public class Screen {
                 "| Help                                        |\n" +
                 "| Exit                                        |\n" +
                 "+---------------------------------------------+");
-        System.out.println("Select an option:");
+        System.out.print("Select an option: ");
     }
 
     public static void printAdminMailBoxMenu() {
@@ -35,7 +30,7 @@ public class Screen {
                 "| Switch                                      |\n" +
                 "| Logout                                      |\n" +
                 "+---------------------------------------------+");
-        System.out.println("Select an option:");
+        System.out.print("Select an option: ");
     }
 
     public static void printUserMailBoxMenu() {
@@ -48,6 +43,6 @@ public class Screen {
                 "| Mailbox                                     |\n" +
                 "| Logout                                      |\n" +
                 "+---------------------------------------------+");
-        System.out.println("Select an option:");
+        System.out.print("Select an option: ");
     }
 }

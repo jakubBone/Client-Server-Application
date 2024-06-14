@@ -1,14 +1,13 @@
 package request;
 
-import client.ClientConnection;
-import shared.ResponseMessage;
-import user.User;
-import shared.UserInteraction;
-
-import lombok.extern.log4j.Log4j2;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+
+import client.ClientConnection;
+import lombok.extern.log4j.Log4j2;
+import shared.UserInteraction;
+import user.User;
 
 @Log4j2
 public class RequestService {
@@ -25,6 +24,10 @@ public class RequestService {
         log.info("RequestFactory instance created");
     }
 
+    /*
+     * Creates a request based on the current connection state (logged in or not).
+     * Delegates to the appropriate menu request handler.
+     */
     public Request getRequest(String requestCommand) throws IOException {
         log.info("Creating request for command: {}", requestCommand);
         if(!connection.isLoggedIn()){
@@ -34,6 +37,10 @@ public class RequestService {
         }
     }
 
+    /*
+     * Handles requests from the login menu.
+     * Prompts the user for necessary information and creates the appropriate request.
+     */
     public Request getLoginMenuRequest(String requestCommand) throws IOException {
         switch (requestCommand.toUpperCase()) {
             case "REGISTER":
@@ -53,7 +60,10 @@ public class RequestService {
         }
     }
 
-
+    /*
+     * Handles requests from the mailbox menu.
+     * Prompts the user for necessary information and creates the appropriate request.
+     */
     public Request getMailboxMenuRequest(String requestCommand) throws IOException {
         switch (requestCommand.toUpperCase()){
             case "WRITE":
@@ -77,6 +87,11 @@ public class RequestService {
         }
     }
 
+    /*
+     * Creates an account update request (password change, delete user, change role).
+     * Ensures the current user is authorized to perform the update.
+     * Prompts the user for necessary information and creates the appropriate request.
+     */
     public Request getAccountUpdateRequest() throws IOException {
         log.info("Creating account update request");
         if (connection.isAuthorized()) {

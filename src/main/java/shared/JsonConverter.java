@@ -3,11 +3,12 @@ package shared;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
-import lombok.extern.log4j.Log4j2;
-import user.User;
 
 import java.io.FileWriter;
 import java.io.IOException;
+
+import lombok.extern.log4j.Log4j2;
+import user.User;
 
 /*
   * The JsonConverter class provides utilities for converting objects to and from JSON
@@ -25,8 +26,7 @@ public class JsonConverter {
 
     }
 
-    // Writes a user object to the specified file path in JSON format
-    public void writeUserToPath(User user, String filePath){
+    public void writeUserToPath(User user, String filePath) {
         log.info("Serializing user data for {} to file: {}", user.getUsername(), filePath);
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         try(FileWriter writer = new FileWriter(filePath)) {
@@ -38,8 +38,6 @@ public class JsonConverter {
         }
     }
 
-
-    // Converts the server response to JSON format on the Server side
     public String serializeMessage() {
         log.info("Serializing message");
         try {
@@ -50,7 +48,6 @@ public class JsonConverter {
         }
     }
 
-    // Converts a JSON string to a JsonConverter object on the Client side
     public static String deserializeMessage(String json) {
         log.info("Deserializing message");
         if (json == null || json.trim().isEmpty()) {
@@ -69,7 +66,6 @@ public class JsonConverter {
     public void saveUserData(User newUser){
         writeUserToPath(newUser, "C:\\Users\\Jakub Bone\\Desktop\\Z2J\\projects\\Client-Server\\" + newUser.getUsername() + ".json");
     }
-
 
     @Override
     public String toString() {

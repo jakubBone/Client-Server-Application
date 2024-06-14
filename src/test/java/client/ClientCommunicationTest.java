@@ -1,24 +1,21 @@
 package client;
-import shared.ResponseMessage;
-import org.junit.jupiter.api.*;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
 
-import static org.mockito.Mockito.*;
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.*;
+import shared.ResponseMessage;
 
-/**
- * Unit tests for ClientConnection class.
- * This class tests the client's ability to connect to the server,s end requests, read responses, and handle connection status.
- */
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
 class ClientCommunicationTest {
-    private static ClientConnection clientConnection;
-    private Socket mockSocket;
-    private PrintWriter mockOutToServer;
-    private BufferedReader mockInFromServer;
+    static ClientConnection clientConnection;
+    Socket mockSocket;
+    PrintWriter mockOutToServer;
+    BufferedReader mockInFromServer;
 
     @BeforeEach
     void setUp() {
@@ -32,7 +29,7 @@ class ClientCommunicationTest {
     }
 
     @AfterAll
-    static void closeDown()  {
+    static void closeDown() {
         clientConnection.disconnect();
     }
 

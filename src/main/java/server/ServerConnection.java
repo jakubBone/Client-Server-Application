@@ -1,9 +1,5 @@
 package server;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.extern.log4j.Log4j2;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -12,10 +8,14 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Date;
 
- /*
-  * The ServerConnectionHandler class is responsible for managing server connections, including starting the server
-  * Establishes connections with client, and handle the communication
-  */
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.log4j.Log4j2;
+
+/*
+ * The ServerConnection class is responsible for managing server connections.
+ * It starts the server, establishes connections with clients, and handles communication streams.
+ */
 
 @Log4j2
 @Getter

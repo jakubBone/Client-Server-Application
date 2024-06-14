@@ -1,13 +1,17 @@
 package handler.user;
 
+import lombok.extern.log4j.Log4j2;
 import shared.ResponseMessage;
 import user.User;
 import user.UserManager;
-import lombok.extern.log4j.Log4j2;
+
+/*
+ * The AdminSwitchHandler class handles requests to switch the current user to an admin user.
+ * It verifies the current user is authorized to perform the switch and updates the UserManager accordingly.
+ */
 
 @Log4j2
 public class AdminSwitchHandler {
-
     public String getResponse(String username, UserManager userManager) {
         log.info("Attempting to switch admin to user: {}", username);
         User user = userManager.getUserByUsername(username);
@@ -33,4 +37,3 @@ public class AdminSwitchHandler {
         }
     }
 }
-
