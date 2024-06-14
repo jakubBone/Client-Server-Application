@@ -13,12 +13,11 @@ import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
 import request.*;
 import shared.Screen;
-import shared.UserInteraction;
 
- /*
-  * This class represents a simple client application for server communication.
-  * It allows users to log in, send requests, and interact with a mailbox
-  */
+/*
+ * This class represents a client application for server communication.
+ * It handles user login, sending requests, and interacting with a mailbox.
+ */
 
 @Log4j2
 @Getter
@@ -37,66 +36,62 @@ public class Client {
         connection = new ClientConnection();
         gson = new Gson();
         userInput = new BufferedReader(new InputStreamReader(System.in));
+        log.info("Client instance created");
     }
 
-    /*
-     * Handles communication with the server.
-     * Includes user login, mailbox interaction, and handling other requests
-     */
     public void handleServerCommunication() {
         try {
+            log.info("Starting server communication");
             while(connection.isConnected()){
-                if(!connection.isLoggedIn()) {
-                    Screen.printLoginMenu();
-                } else {
-                    Screen.printMailBoxMenu();
-                }
+                printClientUI();
                 String request = userInput.readLine();
                 if (request == null || request.equalsIgnoreCase("EXIT")) {
                     connection.disconnect();
                     log.info("User exited the application");
                     return;
                 }
-                    handleRequest(request); // Handle login-related requests
+                    handleRequest(request);
             }
         } catch (IOException ex) {
             log.error("Error in handling server communication: {}", ex.getMessage());
         }
     }
 
-    /*
-     * Handles user login requests (e.g., REGISTER, LOGIN, HELP)
-     * HELP - displays help menu
-     */
     public void handleRequest(String request) throws IOException {
-        UserInteraction userInteraction = new UserInteraction(userInput);
-        RequestFactory factory = new RequestFactory();
+        log.info("Handling user request: {}", request);
+        try{
+            RequestService requestService = new RequestService(connection);
+            Request requestType = requestService.getRequest(request);
 
-        Request requestType = factory.createRequest(request, userInteraction);
-
-        if (requestType != null) {
-            String jsonRequest = gson.toJson(requestType);
-            connection.sendRequest(jsonRequest);
-            log.info("User attempted to {}", request);
-            connection.readResponse();
-            if(connection.isAuthorized()) {
-                requestType = factory.createAccountUpdateRequest(userInteraction);
-                jsonRequest = gson.toJson(requestType);
+            if (requestType != null) {
+                String jsonRequest = gson.toJson(requestType);
                 connection.sendRequest(jsonRequest);
-                log.info("User updated {} for {}", requestType.getUpdateOperation(), requestType.getUserToUpdate());
+                log.info("User attempted to {}", request);
                 connection.readResponse();
-                connection.setAuthorized(false);
+            } else {
+                log.warn("Incorrect input from user: {}", request);
+                System.out.println("Incorrect input. Please, try again");
             }
+        } catch (IOException ex){
+            log.error("Error handling request: {}", ex.getMessage());
+        }
+    }
+
+    public void printClientUI(){
+        if(!connection.isLoggedIn()) {
+            Screen.printLoginMenu();
         } else {
-            log.warn("Incorrect input from user: {}", request);
-            System.out.println("Incorrect input. Please, try again");
+            if(connection.isAuthorized()){
+                Screen.printAdminMailBoxMenu();
+            } else{
+                Screen.printUserMailBoxMenu();
+            }
         }
     }
 }
 
 ====================
 FILE: ClientConnection.java
-
 
 package client;
 
@@ -112,10 +107,11 @@ import lombok.extern.log4j.Log4j2;
 import shared.ResponseMessage;
 import shared.JsonConverter;
 
- /*
-  * The ClientConnection class manages the client's connection to the server, allowing sending and receiving of data
-  * It handles establishing a connection, sending requests, reading responses, and disconnecting
-  */
+/*
+ * The ClientConnection class manages the connection between the client and server.
+ * It establishes, maintains, and handles communication through sockets.
+ * Additionally, it manages login status and authorization checks.
+ */
 
 @Log4j2
 @Getter
@@ -125,11 +121,12 @@ public class ClientConnection {
     private Socket clientSocket;
     private PrintWriter outToServer;
     private BufferedReader inFromServer;
-    private static boolean loggedIn = false;
+    public static boolean loggedIn = false;
     private boolean isAuthorized = false;
+    private boolean  isAdminSwitchedAndAuthorized = false;
     public static int connectionAttempts = 0;
     private boolean connected = false;
-    private static OperationResponses response;
+    private static ResponseMessage responseMsg;
 
     /*
      * The ClientConnection class is responsible for managing connections
@@ -138,6 +135,7 @@ public class ClientConnection {
 
     public ClientConnection() {
         connectToServer();
+        log.info("ClientConnection instance created");
     }
 
     public void connectToServer() {
@@ -152,7 +150,6 @@ public class ClientConnection {
             retryConnection();
         }
     }
-
 
     public void retryConnection() {
         if (connectionAttempts >= 2) {
@@ -178,47 +175,54 @@ public class ClientConnection {
     }
 
     public void readResponse() throws IOException {
-        String jsonResponse = null;
-        while (!(jsonResponse = inFromServer.readLine()).equals("<<END>>")) {
-            String response = JsonConverter.deserializeMessage(jsonResponse);
-            checkResponseStatus(response);
-            System.out.println(JsonConverter.deserializeMessage(jsonResponse));
+        try{
+            String jsonResponse;
+            log.info("Reading response from server");
+            while (!(jsonResponse = inFromServer.readLine()).equals("<<END>>")) {
+                String response = JsonConverter.deserializeMessage(jsonResponse);
+                checkResponseStatus(response);
+                System.out.println(JsonConverter.deserializeMessage(jsonResponse));
+            }
+        } catch (IOException ex){
+            log.error("Error reading response: {}", ex.getMessage());
         }
     }
 
     // Checks the login update and role authorization
     public void checkResponseStatus(String response) {
-        OperationResponses operationResponse = OperationResponses.fromString(response);
-
-        switch (operationResponse) {
-            case LOGIN_SUCCESSFUL:
+        ResponseMessage operationMessage = ResponseMessage.fromString(response);
+        System.out.println(operationMessage);
+        switch (operationMessage) {
+            case ADMIN_LOGIN_SUCCEEDED:
+                loggedIn = true;
+                isAuthorized = true;
+                log.info("Admin login succeeded");
+                break;
+            case USER_LOGIN_SUCCEEDED:
+                loggedIn = true;
+                log.info("User login succeeded");
+                break;
             case REGISTRATION_SUCCESSFUL:
                 loggedIn = true;
-                log.info("User logged in successfully");
+                log.info("User registered succeeded");
                 break;
-            case SUCCESSFULLY_LOGGED_OUT:
+            case LOGOUT_SUCCEEDED:
                 loggedIn = false;
-                log.info("User logged out successfully");
-                break;
-            case LOGIN_FAILED:
-                loggedIn = false;
-                log.info("Login failed: Incorrect username or password");
-                break;
-            case REGISTRATION_FAILED:
-                loggedIn = false;
-                log.info("Registration failed");
-                break;
-            case OPERATION_SUCCEEDED:
-                isAuthorized = true;
-                log.info("User authorized for handler");
-                break;
-            case OPERATION_FAILED:
                 isAuthorized = false;
-                log.info("User not authorized for handler");
+                isAdminSwitchedAndAuthorized = false;
+                log.info("User logout succeeded");
+                break;
+            case AUTHORIZATION_SUCCEEDED:
+                isAuthorized = true;
+                log.info("User authorization succeeded");
+                break;
+            case SWITCH_SUCCEEDED:
+                isAuthorized = false;
+                isAdminSwitchedAndAuthorized = true;
+                log.info("Switch succeeded");
                 break;
             default:
-                log.warn("Unknown response");
-                break;
+                log.info("No response required to action");
         }
     }
 
@@ -252,14 +256,347 @@ public class ClientConnection {
 }
 
 ====================
+FILE: AuthHandler.java
+
+package handler.auth;
+
+import lombok.extern.log4j.Log4j2;
+import shared.ResponseMessage;
+import user.UserManager;
+
+/*
+ * The AuthHandler class processes authentication requests such as REGISTER and LOGIN.
+ * It interacts with the UserManager to handle these operations and generate appropriate responses.
+ */
+
+@Log4j2
+public class AuthHandler {
+     public String getResponse(String requestCommand, String username, String password, UserManager userManager)  {
+         log.info("Processing authentication request: {}", requestCommand);
+         switch (requestCommand) {
+            case "REGISTER":
+                return userManager.registerAndGetResponse(username, password);
+            case "LOGIN":
+                return userManager.loginAndGetResponse(username, password);
+             default:
+                 log.warn("Unknown request: {}", requestCommand);
+                 return ResponseMessage.UNKNOWN_REQUEST.getResponse();
+        }
+    }
+}
+
+====================
+FILE: LogoutHandler.java
+
+package handler.auth;
+
+import lombok.extern.log4j.Log4j2;
+import user.UserManager;
+
+@Log4j2
+public class LogoutHandler {
+    public String getResponse(UserManager userManager)  {
+        log.info("Attempting to log out user: {}", UserManager.currentLoggedInUser.getUsername());
+        return userManager.getLogoutResponse();
+    }
+}
+
+====================
+FILE: MailboxHandler.java
+
+package handler.mail;
+
+import java.io.IOException;
+import java.util.List;
+
+import lombok.extern.log4j.Log4j2;
+import mail.Mail;
+import mail.MailService;
+import shared.ResponseMessage;
+
+/*
+ * The MailboxHandler class handles mailbox operations such as reading and emptying mailboxes.
+ * It uses the MailService to perform these operations and generate appropriate responses.
+ */
+@Log4j2
+public class MailboxHandler {
+    private MailService mailService = new MailService();
+
+    public String getResponse(String mailboxOperation, String boxType) throws IOException {
+        log.info("Processing mailbox operation: {}", mailboxOperation);
+        switch (mailboxOperation) {
+            case "READ":
+                return getReadResponse(boxType);
+            case "EMPTY":
+                return getEmptyMailboxResponse(boxType);
+            default:
+                log.warn("Unknown mail operation: {}", mailboxOperation);
+                return ResponseMessage.UNKNOWN_REQUEST.getResponse();
+        }
+    }
+
+    private String getReadResponse(String boxType) {
+        log.info("Reading mails from box: {}", boxType);
+        List<Mail> mailsToRead = mailService.getMailsToRead(boxType);
+
+        if (mailsToRead.isEmpty()) {
+            return ResponseMessage.MAILBOX_EMPTY.getResponse();
+        }
+
+        StringBuilder response = new StringBuilder();
+        for (Mail mail : mailsToRead) {
+            response.append("From ")
+                    .append(mail.getSender().getUsername())
+                    .append("\n Message: ")
+                    .append(mail.getMessage());
+        }
+
+        mailService.markMailsAsRead(boxType);
+        return response.toString();
+    }
+
+    private String getEmptyMailboxResponse(String boxType){
+        log.info("Emptying mails from box: {}", boxType);
+        mailService.deleteEmails(boxType);
+        return ResponseMessage.MAIL_DELETION_SUCCEEDED.getResponse();
+    }
+}
+
+====================
+FILE: WriteHandler.java
+
+package handler.mail;
+
+import java.io.IOException;
+
+import lombok.extern.log4j.Log4j2;
+import mail.Mail;
+import mail.MailService;
+import shared.ResponseMessage;
+import user.User;
+import user.UserManager;
+
+/*
+ * The WriteHandler class processes requests to send mail.
+ * It interacts with the MailService and UserManager to send emails and handle related validations.
+ */
+
+@Log4j2
+public class WriteHandler {
+    private MailService mailService = new MailService();
+    public String getResponse(String username, String message, UserManager userManager) throws IOException {
+        log.info("Attempting to send mail to user: {}", username);
+        User recipient = userManager.getUserByUsername(username);
+
+        if (recipient != null) {
+            log.warn("Mail sending failed, recipient not found: {}", username);
+            return ResponseMessage.SENDING_FAILED_RECIPIENT_NOT_FOUND.getResponse();
+        }
+
+        if(recipient.getMailBox().ifUnreadBoxFull()) {
+            log.warn("Mail sending failed, recipient's {} mailbox is full: ", username);
+            return ResponseMessage.SENDING_FAILED_BOX_FULL.getResponse();
+        }
+
+        if(message.length() >= 255) {
+            log.warn("Mail sending failed, message too long for recipient: {}", username);
+            return ResponseMessage.SENDING_FAILED_TO_LONG_MESSAGE.getResponse();
+        }
+
+        mailService.sendMail(new Mail(UserManager.currentLoggedInUser, recipient, message));
+        log.info("Mail sent successfully to: {}", username);
+        return ResponseMessage.SENDING_SUCCEEDED.getResponse();
+    }
+}
+
+====================
+FILE: ServerDetailsHandler.java
+
+package handler.server;
+
+import lombok.extern.log4j.Log4j2;
+import server.ServerDetails;
+import shared.ResponseMessage;
+
+/*
+ * The ServerDetailsHandler class provides responses for server information requests.
+ * It can return server uptime, version, and available commands.
+ */
+
+@Log4j2
+public class ServerDetailsHandler {
+    private final ServerDetails serverInfo = new ServerDetails();
+
+    public String getResponse(String requestCommand) {
+        log.info("Received info request command: {}", requestCommand);
+        return getFormattedServerInfo(requestCommand);
+    }
+
+    private String getFormattedServerInfo(String request) {
+        StringBuilder builder = new StringBuilder();
+        switch (request.toUpperCase()) {
+            case "UPTIME":
+                builder.append("Uptime:\n");
+                builder.append(String.format("%d days, %d hours, %d minutes, %d seconds",
+                        serverInfo.getUptime().get("Days"),
+                        serverInfo.getUptime().get("Hours"),
+                        serverInfo.getUptime().get("Minutes"),
+                        serverInfo.getUptime().get("Seconds")));
+                builder.toString();
+            case "INFO":
+                builder.append("Server Info:\n");
+                serverInfo.getServerDetails().forEach((key, value) -> builder.append(key).append(" = ").append(value).append("\n"));
+                builder.toString();
+            case "HELP":
+                builder.append("Available Commands:\n");
+                serverInfo.getCommands().forEach((key, value) -> builder.append(key).append(" - ").append(value).append("\n"));
+                return builder.toString();
+            default:
+                log.warn("Unknown server info request: {}", request);
+                return ResponseMessage.UNKNOWN_REQUEST.getResponse();
+        }
+    }
+}
+
+====================
+FILE: AccountUpdateHandler.java
+
+package handler.user;
+
+import lombok.extern.log4j.Log4j2;
+import shared.ResponseMessage;
+import user.User;
+import user.UserManager;
+
+/*
+ * The AccountUpdateHandler class handles account update requests such as changing passwords, deleting users, and changing user roles.
+ * It ensures the current user is authorized to perform these operations.
+ */
+
+@Log4j2
+public class AccountUpdateHandler {
+
+    /*
+     * Attempts to change the password for the specified user.
+     * Ensures the current user is an admin and the target user exists.
+     */
+    public String getChangePasswordResponse(String username, String newPassword, UserManager userManager) {
+        log.info("Attempting to change password for user: {}", username);
+        if (!userManager.ifCurrentUserAdmin()) {
+            log.warn("Authorization failed for password change for user: {}", username);
+            return ResponseMessage.AUTHORIZATION_FAILED.getResponse();
+        }
+
+        User user = userManager.getUserByUsername(username);
+
+        if (user == null) {
+            log.warn("Failed to find user: {}", username);
+            return ResponseMessage.FAILED_TO_FIND_USER.getResponse();
+        }
+
+        userManager.getAdmin().changePassword(user, newPassword);
+        log.info("Password changed successfully for user: {}", username);
+        return ResponseMessage.OPERATION_SUCCEEDED.getResponse();
+    }
+
+    /*
+     * Attempts to delete the specified user account.
+     * Ensures the current user is an admin and the target user exists.
+     */
+    public String getUserDeleteResponse(String username, UserManager userManager) {
+        log.info("Attempting to delete user: {}", username);
+        if (!userManager.ifCurrentUserAdmin()) {
+            log.warn("Authorization failed for deleting user: {}", username);
+            return ResponseMessage.AUTHORIZATION_FAILED.getResponse();
+        }
+
+        User user = userManager.getUserByUsername(username);
+
+        if (user == null) {
+            log.warn("Failed to find user: {}", username);
+            return ResponseMessage.FAILED_TO_FIND_USER.getResponse();
+        }
+
+        userManager.getAdmin().deleteUser(user);
+        log.info("User account deletion succeeded: {}", username);
+        return ResponseMessage.OPERATION_SUCCEEDED.getResponse();
+    }
+
+    /*
+     * Attempts to change the role for the specified user.
+     * Ensures the current user is an admin and the target user exists.
+     */
+    public String getChangeRoleResponse(String username, User.Role role, UserManager userManager) {
+        log.info("Attempting to change role for user: {}", username);
+        if (!userManager.ifCurrentUserAdmin()) {
+            log.warn("Authorization failed for changing role for user: {}", username);
+            return ResponseMessage.AUTHORIZATION_FAILED.getResponse();
+        }
+
+        User user = userManager.getUserByUsername(username);
+
+        if (user == null) {
+            log.warn("Failed to find user: {}", username);
+            return ResponseMessage.FAILED_TO_FIND_USER.getResponse();
+        }
+
+        userManager.getAdmin().changeUserRole(user, role);
+        log.info("Role change succeeded: {}", username);
+        return ResponseMessage.ROLE_CHANGE_SUCCEEDED.getResponse();
+    }
+}
+
+====================
+FILE: AdminSwitchHandler.java
+
+package handler.user;
+
+import lombok.extern.log4j.Log4j2;
+import shared.ResponseMessage;
+import user.User;
+import user.UserManager;
+
+/*
+ * The AdminSwitchHandler class handles requests to switch the current user to an admin user.
+ * It verifies the current user is authorized to perform the switch and updates the UserManager accordingly.
+ */
+
+@Log4j2
+public class AdminSwitchHandler {
+    public String getResponse(String username, UserManager userManager) {
+        log.info("Attempting to switch admin to user: {}", username);
+        User user = userManager.getUserByUsername(username);
+
+        if (user == null) {
+            log.warn("User not found: {}", username);
+            return ResponseMessage.SWITCH_FAILED.getResponse() + ": user not found";
+        }
+
+        if (!userManager.ifCurrentUserAdmin()) {
+            log.warn("Non-admin user attempted switch: {}", username);
+            return ResponseMessage.SWITCH_FAILED.getResponse() + ": non-admin user";
+        }
+
+        userManager.getAdmin().switchUser(user);
+
+        if (UserManager.ifAdminSwitched) {
+            log.info("Switch succeeded: {}", username);
+            return ResponseMessage.SWITCH_SUCCEEDED.getResponse();
+        } else {
+            log.warn("Switch failed: {}", username);
+            return ResponseMessage.SWITCH_FAILED.getResponse();
+        }
+    }
+}
+
+====================
 FILE: Mail.java
 
 package mail;
 
-import user.User;
 import lombok.Getter;
 import lombok.Setter;
-
+import user.User;
 @Getter
 @Setter
 public class Mail {
@@ -315,11 +652,6 @@ import lombok.extern.log4j.Log4j2;
 import user.UserManager;
 import java.util.List;
 
- /*
-  * The MailService class provides various handler related to email management,
-  * including sending mail, returning mail lists, emptying mailboxes, and marking mails as read
-  */
-
 @Log4j2
 public class MailService {
     public void sendMail(Mail mail) {
@@ -328,31 +660,43 @@ public class MailService {
         log.info("Mail successfully sent to {}", mail.getRecipient().getUsername());
     }
 
-    // Returns a list of mails to read based on the requested mail list type (e.g. OPENED, UNREAD, SENT)
-    public List<Mail> getMailsToRead(String requestedMailList) {
-        List<Mail> mailsToRead = getMailListByType(requestedMailList);
+    /*
+     * Retrieves a list of mails based on the specified mailbox type (e.g., OPENED, UNREAD, SENT).
+     * Logs the retrieval operation and handles invalid mailbox types.
+     */
+    public List<Mail> getMailsToRead(String boxType) {
+        log.info("Getting mails to read for mailbox: {}", boxType);
+        List<Mail> mailsToRead = getMailListByType(boxType);
         if (mailsToRead != null) {
-            log.info("{} mails returned for user {}", requestedMailList, UserManager.currentLoggedInUser.getUsername());
+            log.info("{} mails returned for mailbox {}", boxType, UserManager.currentLoggedInUser.getUsername());
         } else {
-            log.warn("Invalid mail list type requested: {}", requestedMailList);
+            log.warn("Invalid mailbox type requested: {}", boxType);
         }
         return mailsToRead;
     }
 
-    public void emptyMailbox(String requestedMailList) {
-        List<Mail> mailList = getMailListByType(requestedMailList);
+    /*
+     * Deletes all emails from the specified mailbox type.
+     * Logs the deletion operation and handles invalid mailbox types.
+     */
+    public void deleteEmails(String boxType) {
+        log.info("Deleting mails from box: {}", boxType);
+        List<Mail> mailList = getMailListByType(boxType);
         if (mailList != null) {
             mailList.clear();
-            log.info("{} mails deleted successfully for user {}", requestedMailList, UserManager.currentLoggedInUser.getUsername());
+            log.info("{} mails deleted successfully for user {}", boxType, UserManager.currentLoggedInUser.getUsername());
         } else {
-            log.warn("Attempted to empty non-existent mail list type: {}", requestedMailList);
+            log.warn("Attempted to empty non-existent mailbox type: {}", boxType);
         }
     }
 
-    // Returns the list of mails based on the specified type
-    private List<Mail> getMailListByType(String type) {
+    /*
+     * Retrieves the list of mails
+     * Handles the different mailbox types: OPENED, UNREAD, SENT.
+     */
+    private List<Mail> getMailListByType(String boxType) {
         MailBox mailBox = UserManager.currentLoggedInUser.getMailBox();
-        switch (type.toUpperCase()) {
+        switch (boxType.toUpperCase()) {
             case "OPENED":
                 return mailBox.getOpenedBox();
             case "UNREAD":
@@ -360,13 +704,17 @@ public class MailService {
             case "SENT":
                 return mailBox.getSentBox();
             default:
-                log.error("Unknown mail list type requested: {}", type);
+                log.error("Unknown mailbox type requested: {}", boxType);
                 return null;
         }
     }
 
-    // Marks all unread mails as read by moving them to the OPENED mail list and clearing the UNREAD list
+    /*
+     * Marks all unread mails as read by moving them to the opened box and clearing the unread box.
+     * Logs the operation and ensures the 'sent' mails are not marked as read.
+     */
     public void markMailsAsRead(String boxType){
+        log.info("Marking mails as read for mailbox: {}", boxType);
         if(!boxType.equals("SENT")){
             List<Mail> unreadMails = UserManager.currentLoggedInUser.getMailBox().getUnreadBox();
             for(Mail mail: unreadMails){
@@ -381,341 +729,13 @@ public class MailService {
 }
 
 ====================
-FILE: AccountUpdateHandler.java
-
-package handler;
-
-import lombok.extern.log4j.Log4j2;
-import request.Request;
-import server.ServerRequestService;
-import user.User;
-import user.UserManager;
-
-import java.io.IOException;
-
-@Log4j2
-public class AccountUpdateHandler {
-
-    // Handles UPDATE request for updating user data. It checks for authorization before proceeding
-    public String getUpdateStatus(UserManager userManager) throws IOException {
-        String status;
-        if (userManager.isAdmin()){
-            log.info("Authorized update attempt by admin user");
-            ServerRequestHandler.isAuthorized = true;
-            status = OperationResponses.OPERATION_SUCCEEDED.getResponse();
-        } else {
-            status = OperationResponses.OPERATION_FAILED.getResponse();
-        }
-        return status;
-    }
-
-    public String getUpdateResponse(Request reqFromJson, UserManager userManager) throws IOException {
-        User userToUpdate = userManager.findUserByUsername(reqFromJson.getUserToUpdate());
-        String response = null;
-        if(userToUpdate != null ) {
-            switch (reqFromJson.getUpdateOperation().toUpperCase()) {
-                case "PASSWORD":
-                    userManager.changePassword(userToUpdate, reqFromJson.getNewPassword());
-                    response = userToUpdate.getUsername() + " password change successful";
-                    log.info("Password changed successfully for user: {}", userToUpdate.getUsername());
-                    break;
-                case "DELETE":
-                    if(userToUpdate.getRole().equals(User.Role.ADMIN)){
-                        response = "Operation failed: admin account cannot be deleted";
-                        log.warn("Attempted to impossible delete admin account for user: {}", userToUpdate.getUsername());
-                    } else {
-                        userManager.deleteUser(userToUpdate);
-                        response = userToUpdate.getUsername() + " account deletion successful";
-                        log.info("User account deleted successfully: {}", userToUpdate.getUsername());
-                    }
-                    break;
-            }
-        } else {
-            response = "Update failed: " + reqFromJson.getUsername() + " not found";
-            log.warn("Failed to find user for update: {}", reqFromJson.getUsername());
-        }
-
-        /*
-         * TODO: Logic refactoring for 'DELETE' request
-         */
-
-        return response;
-    }
-}
-
-====================
-FILE: CredentialHandler.java
-
-package handler;
-
-import lombok.extern.log4j.Log4j2;
-import user.User;
-import user.UserManager;
-
-import java.io.IOException;
-
-@Log4j2
-public class CredentialHandler {
-
-     public String getAuthResponse(String command, String username, String password, UserManager userManager) throws IOException {
-        String response = null;
-        switch (command) {
-            case "REGISTER":
-                log.info("Registration attempted for user: {}", username);
-                String registerStatus = userManager.register(username, password);
-                if(registerStatus.equals("User exist")){
-                    response = "Login failed: Existing user";
-                } else {
-                    response = OperationResponses.REGISTRATION_SUCCESSFUL.getResponse();
-                }
-                break;
-            case "LOGIN":
-                User user = userManager.login(username, password);
-                if (user != null) {
-                    log.info("User logged in successfully: {}", username);
-                    UserManager.currentLoggedInUser = user;
-                    response = OperationResponses.LOGIN_SUCCESSFUL.getResponse();
-                } else {
-                    log.warn("Login attempt failed for user: {}", username);
-                    response = OperationResponses.LOGIN_FAILED.getResponse();
-                }
-                break;
-        }
-        return response;
-    }
-
-    public String getLogoutResponse(UserManager userManager) {
-        userManager.logoutCurrentUser();
-        return OperationResponses.SUCCESSFULLY_LOGGED_OUT.toString();
-    }
-}
-
-====================
-FILE: HelpHandler.java
-
-package handler;
-
-import lombok.extern.log4j.Log4j2;
-import server.ServerDetails;
-
-@Log4j2
-public class HelpHandler {
-    private final ServerInfo serverInfo = new ServerInfo();
-
-    public String getHelpRequest(String request) {
-        log.info("Received help request: {}", request);
-        String response = null;
-        switch (request) {
-            case "UPTIME":
-                response = serverInfo.getUptime().toString();
-                log.info("UPTIME requested, response: {}", response);
-                break;
-            case "INFO":
-                response = serverInfo.getServerDetails().toString();
-                log.info("INFO requested, response: {}", response);
-                break;
-            case "HELP":
-                response = serverInfo.getCommands().toString();
-                log.info("HELP requested, response: {}", response);
-                break;
-        }
-        return response;
-    }
-}
-
-====================
-FILE: MailboxHandler.java
-
-package handler;
-
-import lombok.extern.log4j.Log4j2;
-import mail.Mail;
-import mail.MailService;
-
-import java.io.IOException;
-import java.util.List;
-@Log4j2
-public class MailboxHandler {
-    private MailService mailService = new MailService();
-
-    public String getMailboxResponse(String mailOperation, String boxType) throws IOException {
-        String response = null;
-        if(mailOperation.equals("READ")){
-            response = getReadResposne(boxType);
-        } else if(mailOperation.equals("EMPTY")){
-            response = getEmptyMailboxResponse(boxType);
-        }
-        return response;
-    }
-
-    private String getReadResposne(String boxType){
-        String response = null;
-        List<Mail> mailsToRead = mailService.getMailsToRead(boxType);
-        if(mailsToRead.isEmpty()){
-            response = "Mailbox is empty";
-        } else{
-            for (Mail mail : mailsToRead) {
-                response = "From: " + mail.getSender().getUsername() + "\n Message: " + mail.getMessage();
-            }
-            mailService.markMailsAsRead(boxType);
-        }
-        return response;
-    }
-
-    private String getEmptyMailboxResponse(String boxType){
-        mailService.emptyMailbox(boxType);
-        return "Mails deleted successfully";
-    }
-}
-
-====================
-FILE: OperationResponses.java
-
-package handler;
-
-public enum OperationResponses {
-    LOGIN_SUCCESSFUL("Login successful"),
-    REGISTRATION_SUCCESSFUL("Registration successful"),
-    SUCCESSFULLY_LOGGED_OUT("Successfully logged out"),
-    LOGIN_FAILED("Login failed: Incorrect username or password"),
-    REGISTRATION_FAILED("Registration failed"),
-    OPERATION_SUCCEEDED("Operation succeeded: Authorized"),
-    OPERATION_FAILED("Operation failed: Not authorized"),
-    UNKNOWN_RESPONSE("Unknown response");
-    private final String RESPONSE;
-
-    OperationResponses(String response){
-        this.RESPONSE = response;
-    }
-
-    public String getResponse() {
-        return RESPONSE;
-    }
-
-    public static OperationResponses fromString(String response) {
-        for (OperationResponses opResponse : OperationResponses.values()) {
-            if (opResponse.getResponse().equals(response)) {
-                return opResponse;
-            }
-        }
-        return UNKNOWN_RESPONSE;
-    }
-
-}
-
-
-====================
-FILE: WriteHandler.java
-
-package handler;
-
-import lombok.extern.log4j.Log4j2;
-import mail.Mail;
-import mail.MailService;
-import user.User;
-import user.UserManager;
-
-import java.io.IOException;
-@Log4j2
-public class WriteHandler {
-    private MailService mailService = new MailService();
-    public String getWriteResponse(String recipient, String message, UserManager userManager) throws IOException {
-        User recipientUser = userManager.getRecipientByUsername(recipient);
-        String response = null;
-        if (recipientUser != null) {
-            if(recipientUser.getMailBox().ifUnreadBoxFull()){
-                log.warn("Mail sending failed, recipient's mailbox is full: {}", recipient);
-                response = "Sending failed: Recipient's mailbox is full";
-            } else {
-                if(message.length() <= 255){
-                    mailService.sendMail(new Mail(UserManager.currentLoggedInUser, recipientUser, message));
-                    log.info("Mail sent successfully to: {}", recipient);
-                    response = "Mail sent successfully";
-                } else {
-                    log.warn("Mail sending failed, message too long for recipient: {}", recipient);
-                    response = "Sending failed: Message too long (maximum 255 characters)";
-                }
-            }
-        } else {
-            log.warn("Mail sending failed, recipient not found: {}", recipient);
-            response = "Sending failed: Recipient not found";
-        }
-        return response;
-    }
-}
-
-====================
-FILE: AccountUpdateRequest.java
-
-package request;
-
-public class AccountUpdateRequest extends Request{
-    public AccountUpdateRequest(String updateOperation, String userToUpdate, String newPassword) {
-        this.updateOperation = updateOperation;
-        this.userToUpdate = userToUpdate;
-        this.newPassword = newPassword;
-    }
-    public AccountUpdateRequest(String request) {
-        super(request);
-    }
-
-}
-
-====================
-FILE: HelpRequest.java
-
-package request;
-
-public class HelpRequest extends Request{
-    public HelpRequest(String requestCommand) {
-        super(requestCommand);
-    }
-}
-
-====================
-FILE: LoginRegisterRequest.java
-
-package request;
-
-public class LoginRegisterRequest extends Request {
-    public LoginRegisterRequest(String request, String username, String password) {
-        super(request);
-        this.username = username;
-        this.password = password;
-    }
-}
-
-====================
-FILE: LogoutRequest.java
-
-package request;
-
-public class LogoutRequest extends Request {
-    public LogoutRequest(String requestCommand) {
-        super(requestCommand);
-    }
-}
-
-====================
-FILE: MailBoxRequest.java
-
-package request;
-
-public class MailBoxRequest extends Request {
-    public MailBoxRequest(String request, String boxOperation, String mailbox) {
-        super(request);
-        this.boxOperation = boxOperation;
-        this.mailbox = mailbox;
-    }
-}
-
-====================
 FILE: Request.java
 
 package request;
 
 import lombok.Getter;
 import lombok.Setter;
+import user.User;
 
 @Getter
 @Setter
@@ -730,14 +750,8 @@ public class Request {
     String updateOperation;
     String userToUpdate;
     String newPassword;
-
-
-    public Request(String requestCommand) {
-        this.requestCommand = requestCommand;
-    }
-
-    public Request() {
-    }
+    String userToSwitch;
+    User.Role newRole;
 }
 
 
@@ -746,67 +760,209 @@ FILE: RequestFactory.java
 
 package request;
 
-import shared.UserInteraction;
+import lombok.extern.log4j.Log4j2;
+import user.User;
 
-import java.io.IOException;
+/*
+ * The RequestFactory class creates different types of Request objects based on the command and parameters provided.
+ * It includes methods for creating authentication, server details, mailbox, and account update requests.
+ */
 
+@Log4j2
 public class RequestFactory {
+    Request request;
 
-    public Request createRequest(String requestName, UserInteraction userInteraction) throws IOException {
-        switch (requestName.toUpperCase()) {
-            case "REGISTER":
-            case "LOGIN":
-                String username = userInteraction.getUsername();
-                String password = userInteraction.getPassword();
-                return new LoginRegisterRequest(requestName, username, password);
-            case "HELP":
-                return new HelpRequest(requestName);
-            case "WRITE":
-                String recipient = userInteraction.getRecipient();
-                String message = userInteraction.getMessage();
-                return new WriteRequest(requestName, recipient, message);
-            case "MAILBOX":
-                String boxOperation = userInteraction.chooseBoxOperation();
-                String mailbox = userInteraction.chooseMailBox();
-                return new MailBoxRequest(requestName, boxOperation, mailbox);
-            case "UPDATE":
-                    return new AccountUpdateRequest(requestName);
-            case "LOGOUT":
-                return new LogoutRequest(requestName);
-            default:
-                return null;
-        }
+    public RequestFactory() {
+        this.request = new Request();
     }
 
-    public Request createAccountUpdateRequest(UserInteraction userInteraction) throws IOException{
-        String updateOperation = userInteraction.chooseAccountUpdateOperation();
-        String userToUpdate = userInteraction.chooseUserToUpdate();
-        String newPassword = null;
-        if (updateOperation.equals("PASSWORD")) {
-            newPassword = userInteraction.getNewPassword();
-        }
+    public Request createAuthRequest(String requestCommand, String username, String password) {
+        request.requestCommand = requestCommand;
+        request.username = username;
+        request.password = password;
+        log.info("AuthRequest created for user: {}", username);
+        return request;
+    }
 
-        /*
-        * TODO: Implement additional logic for 'DELETE' request
-        */
+    public Request createServerDetailsRequest(String requestCommand) {
+        request.requestCommand = requestCommand;
+        log.info("ServerDetailsRequest created with command: {}", requestCommand);
+        return request;
+    }
 
-        /*
-        * TODO: Isolate AccountUpdateRequest to ChangePasswordRequest and DeleteAccountRequest
-        */
-        return new AccountUpdateRequest(updateOperation, userToUpdate, newPassword);
+    public Request createLogoutRequest(String requestCommand) {
+        request.requestCommand = requestCommand;
+        log.info("LogoutRequest created with command: {}", requestCommand);
+        return request;
+    }
+
+    public Request createWriteRequest(String requestCommand, String recipient, String message) {
+        request.requestCommand = requestCommand;
+        request.recipient = recipient;
+        request.message = message;
+        log.info("WriteRequest created for recipient: {}", recipient);
+        return request;
+    }
+
+    public Request createMailBoxRequest(String requestCommand, String boxOperation, String mailbox) {
+        request.requestCommand = requestCommand;
+        request.boxOperation = boxOperation;
+        request.mailbox = mailbox;
+        log.info("MailBoxRequest created with operation: {} for mailbox: {}", boxOperation, mailbox);
+        return request;
+    }
+
+    public Request createAdminChangePasswordRequest(String updateOperation, String userToUpdate, String newPassword) {
+        request.requestCommand = updateOperation;
+        request.userToUpdate = userToUpdate;
+        request.newPassword = newPassword;
+        log.info("AdminChangePasswordRequest created for user: {}", userToUpdate);
+        return request;
+    }
+
+    public Request createAdminDeleteUserRequest(String updateOperation, String userToDelete) {
+        request.requestCommand = updateOperation;
+        request.userToUpdate = userToDelete;
+        log.info("AdminDeleteUserRequest created for user: {}", userToDelete);
+        return request;
+    }
+
+    public Request createAdminChangeRoleRequest(String updateOperation, String userToUpdate, User.Role role) {
+        request.requestCommand = updateOperation;
+        request.userToUpdate = userToUpdate;
+        request.newRole = role;
+        log.info("AdminChangeRoleRequest created for user: {} with new role: {}", userToUpdate, role);
+        return request;
+    }
+
+    public Request createAdminSwitchUserRequest(String requestCommand, String username) {
+        request.requestCommand = requestCommand;
+        request.userToSwitch = username;
+        log.info("AdminSwitchUserRequest created for user: {}", username);
+        return request;
     }
 }
 
 ====================
-FILE: WriteRequest.java
+FILE: RequestService.java
 
 package request;
 
-public class WriteRequest extends Request {
-    public WriteRequest(String request, String recipient, String message) {
-        super(request);
-        this.recipient = recipient;
-        this.message = message;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
+import client.ClientConnection;
+import lombok.extern.log4j.Log4j2;
+import shared.UserInteraction;
+import user.User;
+
+@Log4j2
+public class RequestService {
+
+    private BufferedReader userInput;
+    UserInteraction userInteraction;
+    ClientConnection connection;
+    RequestFactory factory = new RequestFactory();
+
+    public RequestService(ClientConnection clientConnection) {
+        this.connection = clientConnection;
+        this.userInput = new BufferedReader(new InputStreamReader(System.in));
+        this.userInteraction = new UserInteraction(userInput);
+        log.info("RequestFactory instance created");
+    }
+
+    /*
+     * Creates a request based on the current connection state (logged in or not).
+     * Delegates to the appropriate menu request handler.
+     */
+    public Request getRequest(String requestCommand) throws IOException {
+        log.info("Creating request for command: {}", requestCommand);
+        if(!connection.isLoggedIn()){
+            return getLoginMenuRequest(requestCommand);
+        } else {
+            return getMailboxMenuRequest(requestCommand);
+        }
+    }
+
+    /*
+     * Handles requests from the login menu.
+     * Prompts the user for necessary information and creates the appropriate request.
+     */
+    public Request getLoginMenuRequest(String requestCommand) throws IOException {
+        switch (requestCommand.toUpperCase()) {
+            case "REGISTER":
+            case "LOGIN":
+                String username = userInteraction.getUsername();
+                String password = userInteraction.getPassword();
+                return factory.createAuthRequest(requestCommand, username, password);
+            case "HELP":
+            case "INFO":
+            case "UPTIME":
+                return factory.createServerDetailsRequest(requestCommand);
+            case "LOGOUT":
+                return factory.createLogoutRequest(requestCommand);
+            default:
+                log.warn("Unknown login menu request: {}", requestCommand);
+                return null;
+        }
+    }
+
+    /*
+     * Handles requests from the mailbox menu.
+     * Prompts the user for necessary information and creates the appropriate request.
+     */
+    public Request getMailboxMenuRequest(String requestCommand) throws IOException {
+        switch (requestCommand.toUpperCase()){
+            case "WRITE":
+                String recipient = userInteraction.getRecipient();
+                String message = userInteraction.getMessage();
+                return factory.createWriteRequest(requestCommand, recipient, message);
+            case "MAILBOX":
+                String boxOperation = userInteraction.chooseBoxOperation();
+                String mailbox = userInteraction.chooseMailBox();
+                return factory.createMailBoxRequest(requestCommand, boxOperation, mailbox);
+            case "UPDATE":
+                return getAccountUpdateRequest();
+            case "SWITCH":
+                String userToSwitch = userInteraction.getUserToSwitch();
+                return factory.createAdminSwitchUserRequest(requestCommand, userToSwitch);
+            case "LOGOUT":
+                return factory.createLogoutRequest(requestCommand);
+            default:
+                log.warn("Unknown mailbox menu request: {}", requestCommand);
+                return null;
+        }
+    }
+
+    /*
+     * Creates an account update request (password change, delete user, change role).
+     * Ensures the current user is authorized to perform the update.
+     * Prompts the user for necessary information and creates the appropriate request.
+     */
+    public Request getAccountUpdateRequest() throws IOException {
+        log.info("Creating account update request");
+        if (connection.isAuthorized()) {
+            log.info("Authorization succeeded");
+            String updateOperation = userInteraction.chooseUpdateOperation();
+            String userToUpdate = userInteraction.chooseUserToUpdate();
+            switch (updateOperation) {
+                case "PASSWORD":
+                    String newPassword = userInteraction.getNewPassword();
+                    return factory.createAdminChangePasswordRequest(updateOperation, userToUpdate, newPassword);
+                case "DELETE":
+                    return factory.createAdminDeleteUserRequest(updateOperation, userToUpdate);
+                case "ROLE":
+                    User.Role newRole = userInteraction.chooseRole();
+                    return factory.createAdminChangeRoleRequest(updateOperation, userToUpdate, newRole);
+                default:
+                    log.warn("Unknown update operation: {}", updateOperation);
+                    return null;
+            }
+
+        }
+        log.info("Authorization failed");
+        return null;
     }
 }
 
@@ -815,13 +971,17 @@ FILE: Server.java
 
 package server;
 
+import lombok.extern.log4j.Log4j2;
+
+@Log4j2
 public class Server {
     private static final int PORT = 5000;
     public static void main(String[] args) {
-        ServerConnectionHandler connectionHandler = new ServerConnectionHandler(PORT);
+        log.info("Starting server on port {}", PORT);
+        ServerConnection connectionHandler = new ServerConnection(PORT);
         connectionHandler.startServer();
 
-        ServerRequestHandler logicHandler = new ServerRequestHandler(
+        ServerRequestService logicHandler = new ServerRequestService(
                 connectionHandler.getOutToClient(),
                 connectionHandler.getInFromClient());
 
@@ -832,13 +992,9 @@ public class Server {
 }
 
 ====================
-FILE: ServerConnectionHandler.java
+FILE: ServerConnection.java
 
 package server;
-
-import lombok.Getter;
-import lombok.Setter;
-import lombok.extern.log4j.Log4j2;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -848,15 +1004,19 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Date;
 
- /*
-  * The ServerConnectionHandler class is responsible for managing server connections, including starting the server
-  * Establishes connections with client, and handle the communication
-  */
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.log4j.Log4j2;
+
+/*
+ * The ServerConnection class is responsible for managing server connections.
+ * It starts the server, establishes connections with clients, and handles communication streams.
+ */
 
 @Log4j2
 @Getter
 @Setter
-public class ServerConnectionHandler {
+public class ServerConnection {
     private int port;
     public static Date serverTimeCreation;
     private ServerSocket serverSocket;
@@ -864,22 +1024,23 @@ public class ServerConnectionHandler {
     private BufferedReader inFromClient;
     private PrintWriter outToClient;
 
-    public ServerConnectionHandler(int port) {
+    public ServerConnection(int port) {
         this.port = port;
     }
 
     public void startServer(){
-            try{
-                serverTimeCreation = new Date();
-                serverSocket = new ServerSocket(port);
-                log.info("Server started on port {}", port);
-                clientSocket = serverSocket.accept();
-                log.info("Connection with client established");
-                inFromClient = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-                outToClient = new PrintWriter(clientSocket.getOutputStream(), true);
-            } catch (IOException ex){
-                log.error("Error starting server on port {}: {}", port, ex.getMessage());
-            }
+        try{
+            log.info("Starting server on port {}", port);
+            serverTimeCreation = new Date();
+            serverSocket = new ServerSocket(port);
+            log.info("Server socket created on port {}", port);
+            clientSocket = serverSocket.accept();
+            log.info("Connection with client established");
+            inFromClient = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            outToClient = new PrintWriter(clientSocket.getOutputStream(), true);
+        } catch (IOException ex){
+            log.error("Error starting server on port {}: {}", port, ex.getMessage());
+        }
     }
 
     public BufferedReader getInFromClient() {
@@ -892,6 +1053,7 @@ public class ServerConnectionHandler {
 
     public void closeConnections() {
         try {
+            log.info("Closing server and client connections");
             if (inFromClient != null) {
                 inFromClient.close();
             }
@@ -912,362 +1074,199 @@ public class ServerConnectionHandler {
 }
 
 ====================
-FILE: ServerInfo.java
+FILE: ServerDetails.java
 
 package server;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.log4j.Log4j2;
 
- /*
-  * The ServerInfo class provides information about the server
-  * Include server version, available commands and server uptime
-  */
+/*
+ * The ServerDetails class provides information about the server.
+ * It includes server version, available commands, and server uptime.
+ */
+
 @Getter
 @Setter
-public class ServerInfo {
-
+@Log4j2
+public class ServerDetails {
     private final String VERSION = "1.0.0";
     private Map<String, String> commands = new LinkedHashMap<>();
     private Map<String, String> serverDetails = new LinkedHashMap<>();
     private Map<String, Long> uptime = new LinkedHashMap<>();
-    private String invalidMessage;
-    private Date serverTimeCreation;
 
-    public ServerInfo() {
+    public ServerDetails() {
+        log.info("Initializing server details");
         setCommands();
         setServerDetails();
         setUptime();
     }
 
-    public void setUptime(){
-        Date currentTime = new Date();
-        long uptimeInMillis = currentTime.getTime() - ServerConnectionHandler.serverTimeCreation.getTime();
+   public void setUptime(){
+       log.info("Setting server uptime");
+       Date currentTime = new Date();
+       long uptimeInMillis = currentTime.getTime() - ServerConnection.serverTimeCreation.getTime();
 
-        long days = TimeUnit.MILLISECONDS.toDays(uptimeInMillis);
-        long hours = TimeUnit.MILLISECONDS.toHours(uptimeInMillis) % 24;
-        long minutes = TimeUnit.MILLISECONDS.toMinutes(uptimeInMillis) % 60;
-        long seconds = TimeUnit.MILLISECONDS.toSeconds(uptimeInMillis) % 60;
-        uptime.put("days", days);
-        uptime.put("hours", hours);
-        uptime.put("minutes", minutes);
-        uptime.put("seconds", seconds);
+       long days = TimeUnit.MILLISECONDS.toDays(uptimeInMillis);
+       long hours = TimeUnit.MILLISECONDS.toHours(uptimeInMillis) % 24;
+       long minutes = TimeUnit.MILLISECONDS.toMinutes(uptimeInMillis) % 60;
+       long seconds = TimeUnit.MILLISECONDS.toSeconds(uptimeInMillis) % 60;
+
+       uptime.put("Days", days);
+       uptime.put("Hours", hours);
+       uptime.put("Minutes", minutes);
+       uptime.put("Seconds", seconds);
+
+       log.info("Server uptime set to: {} days, {} hours, {} minutes, {} seconds", days, hours, minutes, seconds);
     }
 
     public void setCommands() {
-        commands.put("uptime", "returns the server uptime");
-        commands.put("info", "returns the server version number and setup date");
-        commands.put("help", "returns a list of available commands with brief descriptions");
-        commands.put("stop", "stops both the server and the client");
+        log.info("Setting server commands");
+        commands.put("Login", "Login to your account");
+        commands.put("Register", "Create a new user account");
+        commands.put("Help", "All commands list");
+        commands.put("Uptime", "Check server uptime");
+        commands.put("Info", "Server version and date");
+        commands.put("Exit", "Stop server and client");
+
+        log.info("Server commands set: {}", commands.keySet());
     }
 
     public void setServerDetails() {
-        serverDetails.put("version", VERSION);
-        serverDetails.put("setup time ", String.valueOf(ServerConnectionHandler.serverTimeCreation.getTime()));
+        log.info("Setting server details");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+        String setupTimeFormatted = dateFormat.format(ServerConnection.serverTimeCreation);
+        serverDetails.put("Version", VERSION);
+        serverDetails.put("Setup time", setupTimeFormatted);
+
+        log.info("Server details set: {}", serverDetails);
     }
 }
 
 ====================
-FILE: ServerRequestHandler.java
+FILE: ServerRequestService.java
 
 package server;
-
-import com.google.gson.Gson;
-import lombok.extern.log4j.Log4j2;
-import handler.*;
-import request.Request;
-import user.UserManager;
-import shared.JsonConverter;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import com.google.gson.Gson;
+import handler.auth.AuthHandler;
+import handler.auth.LogoutHandler;
+import handler.mail.MailboxHandler;
+import handler.mail.WriteHandler;
+import handler.server.ServerDetailsHandler;
+import handler.user.AccountUpdateHandler;
+import handler.user.AdminSwitchHandler;
+import lombok.extern.log4j.Log4j2;
+import request.Request;
+import shared.JsonConverter;
+import user.UserManager;
+
  /*
-  * The ServerLogicHandler class is responsible for handling various client requests and processing server-side logic
-  * It manages user authentication, mail handler, and server information
+  * The ServerRequestService class is responsible for handling various client requests and processing server-side logic
+  * It manages user authentication, mail operations, user account updates, account switch, and server information
   */
 
 @Log4j2
-public class ServerRequestHandler {
+public class ServerRequestService {
     private final PrintWriter outToClient;
     private final BufferedReader inFromClient;
     private final UserManager userManager;
     private Gson gson;
-    public static boolean isAuthorized;
     private JsonConverter jsonResponse;
-    private CredentialHandler credentialHandler;
-    private HelpHandler helpHandler;
+    private AuthHandler authHandler;
+    private ServerDetailsHandler serverInfoHandler;
     private MailboxHandler mailboxHandler;
-    private AccountUpdateHandler accountUpdateHandler;
+    private AccountUpdateHandler updateHandler;
     private WriteHandler writeHandler;
-
-    public ServerRequestHandler(PrintWriter outToClient, BufferedReader inFromClient) {
+    private LogoutHandler logoutHandler;
+    private AdminSwitchHandler switchHandler;
+    public ServerRequestService(PrintWriter outToClient, BufferedReader inFromClient) {
         this.outToClient = outToClient;
         this.inFromClient = inFromClient;
         this.userManager = new UserManager();
         this.gson = new Gson();
-        this.credentialHandler= new CredentialHandler();
-        this.helpHandler = new HelpHandler();
+        this.authHandler = new AuthHandler();
+        this.serverInfoHandler = new ServerDetailsHandler();
         this.mailboxHandler = new MailboxHandler();
-        this.accountUpdateHandler = new AccountUpdateHandler();
+        this.updateHandler = new AccountUpdateHandler();
         this.writeHandler = new WriteHandler();
+        this.switchHandler = new AdminSwitchHandler();
+        this.logoutHandler = new LogoutHandler();
     }
 
     public void handleClientRequest() {
-        String request = null;
-        String response = null;
+        String request;
+        String response;
         try {
             while ((request = inFromClient.readLine()) != null) {
-                Request reqFromJson = gson.fromJson(request, Request.class);
-
-                String command = reqFromJson.getRequestCommand().toUpperCase();
-                log.info("Handling command: {}", command);
-                switch (command) {
+                Request req = getParseRequest(request);
+                String requestCommand = req.getRequestCommand().toUpperCase();
+                log.info("Handling request command: {}", requestCommand);
+                switch (requestCommand) {
                     case "REGISTER":
                     case "LOGIN":
-                        response = credentialHandler.getAuthResponse(command, reqFromJson.getUsername(), reqFromJson.getPassword(), userManager);
+                        response = authHandler.getResponse(requestCommand, req.getUsername(), req.getPassword(), userManager);
                         break;
                     case "HELP":
-                        response = helpHandler.getHelpRequest(command);
+                    case "INFO":
+                    case "UPTIME":
+                        response = serverInfoHandler.getResponse(requestCommand);
                         break;
                     case "WRITE":
-                        response = writeHandler.getWriteResponse(reqFromJson.getRecipient(), reqFromJson.getMessage(), userManager);
+                        response = writeHandler.getResponse(req.getRecipient(), req.getMessage(), userManager);
                         break;
                     case "MAILBOX":
-                        response = mailboxHandler.getMailboxResponse(reqFromJson.getBoxOperation(), reqFromJson.getMailbox());
+                        response = mailboxHandler.getResponse(req.getBoxOperation(),req.getMailbox());
                         break;
-                    case "UPDATE":
-                        response = accountUpdateHandler.getUpdateStatus(userManager);
-                        sendResponse(response);
-                        if(isAuthorized) {
-                            request = inFromClient.readLine();
-                            reqFromJson = gson.fromJson(request, Request.class);
-                            response = accountUpdateHandler.getUpdateResponse(reqFromJson, userManager);
-                            isAuthorized = false;
-                        }
+                    case "PASSWORD":
+                        response = updateHandler.getChangePasswordResponse(req.getUserToUpdate(), req.getNewPassword(), userManager);
+                        break;
+                    case "DELETE":
+                        response = updateHandler.getUserDeleteResponse(req.getUserToUpdate(), userManager);
+                        break;
+                    case "ROLE":
+                        response = updateHandler.getChangeRoleResponse(req.getUserToUpdate(), req.getNewRole(), userManager);
+                        break;
+                    case "SWITCH":
+                        response = switchHandler.getResponse(req.getUserToSwitch(), userManager);
                         break;
                     case "LOGOUT":
-                        response = credentialHandler.getLogoutResponse(userManager);
+                        response = logoutHandler.getResponse(userManager);
+                        break;
+                    default:
+                        log.warn("Unknown request command: {}", requestCommand);
+                        response = "Unknown request command";
                         break;
                 }
                 sendResponse(response);
-                log.info("Completed authentication command: {}", command);
+                log.info("Completed processing request command: {}", requestCommand);
             }
         } catch (IOException ex) {
-            log.error("IOException occurred while processing the request: {}. Error: ", request, ex);
+            log.error("IOException occurred while processing the request: {}. Error: ", ex.getMessage());
         }
     }
 
+    public Request getParseRequest(String request){
+        log.info("Parsing request: {}", request);
+        return gson.fromJson(request, Request.class);
+    }
     public void sendResponse(String response){
         jsonResponse = new JsonConverter(response);
         String json = jsonResponse.serializeMessage();
         outToClient.println(json);
         log.info("Response sent: {}", json);
-    }
-}
-
-====================
-FILE: Admin.java
-
-package user;
-
-public class Admin extends User {
-
-    public Admin() {
-        super("admin", "java10", Role.ADMIN);
-    }
-
-}
-
-
-
-====================
-FILE: User.java
-
-package user;
-
-import mail.MailBox;
-
-import lombok.Getter;
-import lombok.Setter;
-import org.mindrot.jbcrypt.BCrypt;
-
-@Getter
-@Setter
-public class User {
-    public static User.Role Role;
-
-    public enum Role {
-        ADMIN,
-        USER;
-    }
-    protected String username;
-    protected String password;
-    protected String hashedPassword;
-    protected Role role;
-    protected MailBox mailBox;
-
-    public User(String username, String password, Role role) {
-        this.username = username;
-        this.password = password;
-        this.role = role;
-        this.mailBox = new MailBox();
-        this.hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
-    }
-
-    /*
-    BCrypt.checkpw() check whether hashed 'typedPassword' matches with 'hashedPassword'
-    Bcrypt uses salt and protects against attacks, ensuring unique hashes even for identical passwords is
-    */
-    public boolean checkPassword(String typedPassword) {
-        return BCrypt.checkpw(typedPassword, hashedPassword);
-    }
-
-    public void hashPassword(){
-        hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
-    }
-
-    public String toString() {
-        return username;
-    }
-}
-
-====================
-FILE: UserManager.java
-
-package user;
-
-import lombok.Getter;
-import lombok.Setter;
-import shared.JsonConverter;
-import java.util.ArrayList;
-import java.util.List;
-
-import lombok.extern.log4j.Log4j2;
-
- /*
-  * The UserManager class manages user-related handler, including registration, login, logout
-  * It maintains a list of users and tracks the currently logged-in user
-  */
-
-@Log4j2
-@Getter
-@Setter
-public class UserManager {
-    public static List<User> usersList;
-    public static User currentLoggedInUser;
-    public Admin admin;
-    JsonConverter jsonConverter;
-
-    public UserManager() {
-        this.admin = new Admin();
-        jsonConverter = new JsonConverter();
-        jsonConverter.saveUserData(admin);
-        usersList = new ArrayList<>();
-        usersList.add(admin);
-    }
-
-     /*
-      * Registers a new user with the specified username and password
-      * If the username already exists, it's failure
-      * Otherwise, successful registration
-      */
-
-    public String register(String typedUsername, String typedPassword) throws IllegalArgumentException {
-        boolean userExists = false;
-        String registerStatus = null;
-
-        for (User existingUser : usersList) {
-            if (typedUsername.equals(existingUser.getUsername())) {
-                userExists = true;
-                break;
-            }
-        }
-        if (userExists) {
-            registerStatus = "User exist";
-            log.info("Registration attempt failed - user already exists: {}", typedUsername);
-        } else {
-            registerStatus = "User does not exist";
-            User newUser = new User(typedUsername, typedPassword, User.Role.USER);
-            jsonConverter.saveUserData(newUser);
-            usersList.add(newUser);
-            currentLoggedInUser = newUser;
-            log.info("New user registered: {}", typedUsername);
-        }
-        return registerStatus;
-    }
-
-
-    // Attempts to log in a user with the specified username and password
-    public User login(String typedUsername, String typedPassword){
-        for (User existingUser : usersList) {
-            if (typedUsername.equals(existingUser.getUsername())) {
-                if (existingUser.checkPassword(typedPassword)) {
-                    log.info("User logged in successfully: {}", typedUsername);
-                    currentLoggedInUser = existingUser;
-                    return existingUser;
-                } else {
-                    log.info("Incorrect password attempt for user: {}", typedUsername);
-                }
-            } else{
-                log.info("Login attempt failed - username not found: {}", typedUsername);
-            }
-        }
-        return null;
-    }
-
-    public void logoutCurrentUser() {
-        log.info("User successfully logged out: {}", currentLoggedInUser.getUsername());
-        currentLoggedInUser = null;
-    }
-
-    // Finds a recipient by the username
-    public User getRecipientByUsername(String username){
-        for(User recipient: usersList){
-            if(username.equals(recipient.getUsername())){
-                log.info("Recipient found: {}", username);
-                return recipient;
-            }
-        }
-        log.info("Recipient not found: {}", username);
-        return null;
-    }
-
-    // Finds a user by the username
-    public User findUserByUsername(String username){
-        User foundUser = null;
-        for (User user : usersList) {
-            if (username.equals(user.getUsername())) {
-                foundUser = user;
-                break;
-            }
-        }
-        if (foundUser != null) {
-            log.info("User found on the list: {}", username);
-        } else {
-            log.warn("User not found on the list: {}", username);
-        }
-        return foundUser;
-    }
-
-    public void changePassword(User user, String newPassword){
-        user.setPassword(newPassword);
-        user.hashPassword();
-    }
-
-    public void deleteUser(User user){
-        UserManager.usersList.remove(user);
-    }
-
-    public boolean isAdmin(){
-        log.info("Admin checking for user: {}", currentLoggedInUser.getUsername());
-        return currentLoggedInUser.role.equals(User.Role.ADMIN);
     }
 }
 
@@ -1279,11 +1278,12 @@ package shared;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
-import lombok.extern.log4j.Log4j2;
-import user.User;
 
 import java.io.FileWriter;
 import java.io.IOException;
+
+import lombok.extern.log4j.Log4j2;
+import user.User;
 
 /*
   * The JsonConverter class provides utilities for converting objects to and from JSON
@@ -1301,22 +1301,20 @@ public class JsonConverter {
 
     }
 
-    // Writes a user object to the specified file path in JSON format
-    public void writeUserToPath(User user, String filePath){
-        System.out.println("JSON");
+    public void writeUserToPath(User user, String filePath) {
+        log.info("Serializing user data for {} to file: {}", user.getUsername(), filePath);
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         try(FileWriter writer = new FileWriter(filePath)) {
             gson.toJson(user, writer);
             writer.flush();
-            log.info("Successfully serialized user data for {} to file: {}", user.getUsername(), filePath);
+            log.info("Serialized user data for {} to file: {}", user.getUsername(), filePath);
         } catch(IOException ex) {
             log.error("Error - failed to serialize data for {} to JSON at {}: ", user.getUsername(), filePath, ex);
         }
     }
 
-
-    // Converts the server response to JSON format on the Server side
     public String serializeMessage() {
+        log.info("Serializing message");
         try {
             Gson gson = new Gson();
             return gson.toJson(this) + "\n<<END>>";
@@ -1325,14 +1323,16 @@ public class JsonConverter {
         }
     }
 
-    // Converts a JSON string to a JsonConverter object on the Client side
     public static String deserializeMessage(String json) {
+        log.info("Deserializing message");
         if (json == null || json.trim().isEmpty()) {
             throw new IllegalArgumentException("Input JSON is null or empty");
         }
         try {
             Gson gson = new Gson();
-            return gson.fromJson(json, JsonConverter.class).toString();
+            JsonConverter jsonConverter = gson.fromJson(json, JsonConverter.class);
+            log.info("Deserialized message: {}", json);
+            return jsonConverter.toString();
         } catch (JsonSyntaxException e) {
             throw new IllegalArgumentException("Error deserializing JSON. Please check syntax", e);
         }
@@ -1342,12 +1342,86 @@ public class JsonConverter {
         writeUserToPath(newUser, "C:\\Users\\Jakub Bone\\Desktop\\Z2J\\projects\\Client-Server\\" + newUser.getUsername() + ".json");
     }
 
-
     @Override
     public String toString() {
         return message;
     }
 }
+
+====================
+FILE: ResponseMessage.java
+
+package shared;
+
+import lombok.extern.log4j.Log4j2;
+
+@Log4j2
+public enum ResponseMessage {
+
+    // General responses
+    OPERATION_SUCCEEDED("Operation succeeded"),
+    OPERATION_FAILED("Operation failed"),
+    FAILED_TO_FIND_USER("Failed to find user"),
+
+    // Register responses
+    REGISTRATION_SUCCESSFUL("Registration successful"),
+    REGISTRATION_FAILED_USER_EXISTS("Registration failed: User already exists"),
+
+    // Login responses
+    USER_LOGIN_SUCCEEDED("User login successful"),
+    ADMIN_LOGIN_SUCCEEDED("Admin login successful"),
+    LOGIN_FAILED_INCORRECT_PASSWORD("Login failed: Incorrect password"),
+
+    // Logout response
+    LOGOUT_SUCCEEDED("Logout succeeded"),
+
+    // Authorization responses
+    AUTHORIZATION_SUCCEEDED("Authorization succeeded"),
+    AUTHORIZATION_FAILED("Authorization failed"),
+
+    // Account switch responses
+    SWITCH_SUCCEEDED("Switch succeeded"),
+    SWITCH_FAILED("Switch failed"),
+
+    // Role change responses
+    ROLE_CHANGE_SUCCEEDED("Role change succeeded"),
+    ROLE_CHANGE_FAILED("Role change failed"),
+
+    // Mail responses
+    SENDING_SUCCEEDED("Sending succeeded"),
+    SENDING_FAILED_BOX_FULL("Sending failed: Recipient's mailbox is full"),
+    SENDING_FAILED_TO_LONG_MESSAGE("Sending failed: Message too long (maximum 255 characters)"),
+    SENDING_FAILED_RECIPIENT_NOT_FOUND("Sending failed: Recipient not found"),
+    MAIL_DELETION_SUCCEEDED("Mails deletion succeeded"),
+    MAILBOX_EMPTY("Mailbox is empty"),
+
+    // Unknown Message
+    UNKNOWN_REQUEST("Unknown request"),
+    UNKNOWN_RESPONSE("Unknown response");
+
+    private final String RESPONSE;
+
+    ResponseMessage(String response){
+        this.RESPONSE = response;
+    }
+
+    public String getResponse() {
+        return RESPONSE;
+    }
+
+    public static ResponseMessage fromString(String text) {
+        log.info("Converting text to OperationResponses: {}", text);
+        for (ResponseMessage message : ResponseMessage.values()) {
+            if (message.getResponse().equals(text)) {
+                log.info("Match found for text: {}", text);
+                return message;
+            }
+        }
+        log.warn("No match found for text: {}", text);
+        return UNKNOWN_RESPONSE;
+    }
+}
+
 
 ====================
 FILE: Screen.java
@@ -1356,10 +1430,6 @@ package shared;
 
 public class Screen {
 
-    /*
-     * The Screen class is used to display various menu screens to the console
-     * It provides static methods for printing different menu options
-     */
     public static void printLoginMenu() {
         System.out.println("+---------------------------------------------+\n" +
                 "|              Welcome in MailBox!            |\n" +
@@ -1368,13 +1438,15 @@ public class Screen {
                 "|                                             |\n" +
                 "| Register                                    |\n" +
                 "| Login                                       |\n" +
+                "| Uptime                                      |\n" +
+                "| Info                                        |\n" +
                 "| Help                                        |\n" +
                 "| Exit                                        |\n" +
                 "+---------------------------------------------+");
-        System.out.println("Select an option:");
+        System.out.print("Select an option: ");
     }
 
-    public static void printMailBoxMenu() {
+    public static void printAdminMailBoxMenu() {
         System.out.println("+---------------------------------------------+\n" +
                 "|              You are logged in              |\n" +
                 "|                                             |\n" +
@@ -1383,9 +1455,23 @@ public class Screen {
                 "| Write mail                                  |\n" +
                 "| Mailbox                                     |\n" +
                 "| Update                                      |\n" +
+                "| Switch                                      |\n" +
                 "| Logout                                      |\n" +
                 "+---------------------------------------------+");
-        System.out.println("Select an option:");
+        System.out.print("Select an option: ");
+    }
+
+    public static void printUserMailBoxMenu() {
+        System.out.println("+---------------------------------------------+\n" +
+                "|              You are logged in              |\n" +
+                "|                                             |\n" +
+                "| Select:                                     |\n" +
+                "|                                             |\n" +
+                "| Write mail                                  |\n" +
+                "| Mailbox                                     |\n" +
+                "| Logout                                      |\n" +
+                "+---------------------------------------------+");
+        System.out.print("Select an option: ");
     }
 }
 
@@ -1397,9 +1483,11 @@ package shared;
 import java.io.BufferedReader;
 import java.io.IOException;
 
- /*
+import user.User.Role;
+
+/*
   * The UserInteraction class is responsible for interaction with users through the console
-  * The methods used to obtain user input for various purposes, such as usernames, passwords, and mailbox handler
+  * The methods used to obtain user input for various purposes, such as usernames, passwords, and mailbox operations
   */
 public class UserInteraction {
     private BufferedReader reader;
@@ -1408,47 +1496,53 @@ public class UserInteraction {
     }
 
     public String getUsername() throws IOException {
-        System.out.println("Please enter your username:");
+        System.out.print("Please type your username: ");
         return reader.readLine();
     }
 
     public String getPassword() throws IOException {
-        System.out.println("Please enter your password:");
+        System.out.print("Please type your password: ");
         return reader.readLine();
     }
 
     public String getNewPassword() throws IOException{
-        System.out.println("Please enter a new password:");
+        System.out.print("Please type a new password: ");
         return reader.readLine();
     }
 
     public String getRecipient() throws IOException {
-        System.out.println("Please enter a recipient's username:");
+        System.out.print("Please type a recipient's username: ");
         return reader.readLine();
     }
 
     public String getMessage() throws IOException {
-        System.out.println("Please type your message (max 255 characters):");
+        System.out.println("Please type your message (max 255 characters): ");
         return reader.readLine();
     }
 
+     public String getUserToSwitch() throws IOException {
+         System.out.print("Please type a username to switch: ");
+         return reader.readLine();
+     }
+
     public String chooseBoxOperation() throws IOException {
         while (true) {
-            System.out.println("Select an operation for the mailbox: READ / EMPTY");
+            System.out.println("Mailbox operation: READ / EMPTY: ");
+            System.out.print("Select: ");
             String operation = reader.readLine().toUpperCase();
             switch (operation) {
                 case "READ":
                 case "EMPTY":
                     return operation;
                 default:
-                    System.out.println("Invalid operation entered. Please try again");;
-                    break;
+                    System.out.println("Invalid operation. Please try again!");;
             }
         }
     }
     public String chooseMailBox() throws IOException {
         while (true) {
-                System.out.println("Select a mailbox type: OPENED / UNREAD / SENT");
+                System.out.println("Mailbox: OPENED / UNREAD / SENT");
+                System.out.print("Select: ");
                 String mailbox = reader.readLine().toUpperCase();
                 switch (mailbox) {
                     case "OPENED":
@@ -1456,58 +1550,311 @@ public class UserInteraction {
                     case "SENT":
                         return mailbox;
                     default:
-                        System.out.println("Invalid mailbox type entered. Please try again");
-                        break;
+                        System.out.println("Invalid mailbox type. Please try again!");
                 }
         }
     }
 
-    public String chooseAccountUpdateOperation() throws IOException {
+    public String chooseUpdateOperation() throws IOException {
         while (true) {
-            System.out.println("Choose an account setting to update: PASSWORD / DELETE");;
+            System.out.println("Update operations: PASSWORD / DELETE / ROLE");;
+            System.out.print("Select: ");;
             String input = reader.readLine();
             switch (input.toUpperCase()) {
                 case "PASSWORD":
                     return "PASSWORD";
                 case "DELETE":
                     return "DELETE";
+                case "ROLE":
+                    return "ROLE";
                 default:
-                    System.out.println("Invalid input. Please enter either 'PASSWORD' or 'DELETE'");
-                    break;
+                    System.out.println("Invalid operation type. Please try again!");
             }
         }
     }
 
     public String chooseUserToUpdate() throws IOException {
-        System.out.println("Please enter an username of the account to update:");
+        System.out.print("Please type an username to update: ");
         return reader.readLine();
     }
+
+    public Role chooseRole() throws IOException {
+        System.out.print("Please type the new role (ADMIN / USER): ");
+        String newRole = reader.readLine();
+        if(newRole.equals("ADMIN")){
+            return Role.ADMIN;
+        } else {
+            return Role.USER;
+        }
+    }
+}
+
+====================
+FILE: Admin.java
+
+package user;
+
+import lombok.extern.log4j.Log4j2;
+import shared.JsonConverter;
+
+@Log4j2
+public class Admin extends User {
+
+    JsonConverter jsonConverter = new JsonConverter();
+
+    public Admin() {
+        super("admin", "java10", Role.ADMIN);
+        log.info("Admin instance created");
+    }
+
+    public void changePassword(User user, String newPassword){
+        log.info("Changing password for user: {}", user.getUsername());
+        user.setPassword(newPassword);
+        jsonConverter.saveUserData(user);
+        log.info("Password change succeeded for user: {}", user.getUsername());
+    }
+
+    public void deleteUser(User user){
+        log.info("Deleting user: {}", user.getUsername());
+        UserManager.usersList.remove(user);
+        log.info("User deletion succeeded: {}", user.getUsername());
+    }
+
+    public void changeUserRole(User user, User.Role role){
+        log.info("Changing role for user: {}", user.getUsername());
+        user.setRole(User.Role.ADMIN);
+        log.info("Role change succeeded for user: {} to {}", user.getUsername(), role);
+    }
+
+    public void switchUser(User user) {
+        log.info("Switching to user: {}", user.getUsername());
+        UserManager.currentLoggedInUser = user;
+        UserManager.ifAdminSwitched = true;
+        log.info("Switched to user: {}", user.getUsername());
+        }
+}
+
+
+
+====================
+FILE: User.java
+
+package user;
+
+import mail.MailBox;
+import org.mindrot.jbcrypt.BCrypt;
+
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.log4j.Log4j2;
+
+@Getter
+@Setter
+@Log4j2
+public class User {
+
+    public enum Role {
+        ADMIN,
+        USER;
+    }
+    protected String username;
+    protected String password;
+    protected String hashedPassword;
+    protected Role role;
+    protected MailBox mailBox;
+
+    public User(String username, String password, Role role) {
+        this.username = username;
+        this.password = password;
+        this.role = role;
+        this.mailBox = new MailBox();
+        this.hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
+        log.info("User instance created: {}", username);
+    }
+
+    /*
+    BCrypt.checkpw() check whether hashed 'typedPassword' matches with 'hashedPassword'
+    Bcrypt uses salt and protects against attacks, ensuring unique hashes even for identical passwords is
+    */
+    public boolean checkPassword(String typedPassword) {
+        log.info("Checking password for user: {}", username);
+        return BCrypt.checkpw(typedPassword, hashedPassword);
+    }
+
+    public void hashPassword(){
+        hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
+        log.info("Password hashed for user: {}", username);
+    }
+
+    public void setPassword(String newPassword) {
+        log.info("Setting new password for user: {}", username);
+        this.password = newPassword;
+        hashPassword();
+        log.info("New password set for user: {}", username);
+    }
+
+    public String toString() {
+        return username;
+    }
+}
+
+====================
+FILE: UserManager.java
+
+package user;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.log4j.Log4j2;
+import shared.JsonConverter;
+import shared.ResponseMessage;
+
+/*
+ * The UserManager class manages user-related operations such as registration, login, and logout.
+ * It maintains a list of users and tracks the currently logged-in user.
+ */
+
+@Log4j2
+@Getter
+@Setter
+public class UserManager {
+    public static List<User> usersList;
+    public static User currentLoggedInUser;
+    JsonConverter jsonConverter;
+    public static boolean ifAdminSwitched;
+    public Admin admin;
+
+    public UserManager() {
+        this.admin = new Admin();
+        jsonConverter = new JsonConverter();
+        jsonConverter.saveUserData(admin);
+        usersList = new ArrayList<>();
+        usersList.add(admin);
+        log.info("UserManager instance created");
+    }
+
+     /*
+      * Registers a new user with the specified username and password
+      * If the username already exists, it's failure
+      * Otherwise, successful registration
+      */
+
+
+    public String registerAndGetResponse(String username, String password) {
+        log.info("Registration attempted for user: {}", username);
+
+        if (isUserExistsInSystem(username)) {
+            log.info("Registration attempt failed - user already exists: {}", username);
+            return ResponseMessage.REGISTRATION_FAILED_USER_EXISTS.getResponse();
+        }
+
+        register(username, password);
+        log.info("Registration successful for new user: {}", username);
+        return ResponseMessage.REGISTRATION_SUCCESSFUL.getResponse();
+    }
+
+    public void register(String username, String password) throws IllegalArgumentException {
+        User newUser = new User(username, password, User.Role.USER);
+        jsonConverter.saveUserData(newUser);
+        usersList.add(newUser);
+        currentLoggedInUser = newUser;
+        log.info("User registered: {}", username);
+    }
+
+
+    public String loginAndGetResponse(String username, String password) {
+        log.info("Login attempted for user: {}", username);
+        User user = getUserByUsername(username);
+
+        if (user == null) {
+            log.info("Login attempt failed - user does not exist: {}", username);
+            return ResponseMessage.FAILED_TO_FIND_USER.getResponse();
+        }
+
+        if (!ifPasswordCorrect(password, user)) {
+            log.info("Incorrect password attempt for user: {}", user.getUsername());
+            return ResponseMessage.LOGIN_FAILED_INCORRECT_PASSWORD.getResponse();
+        }
+
+        log.info("User password correct: {}", user.getUsername());
+        login(user);
+        log.info("User login succeeded: {}", user.getUsername());
+
+        if (ifCurrentUserAdmin()) {
+            return ResponseMessage.ADMIN_LOGIN_SUCCEEDED.getResponse();
+        } else {
+            return ResponseMessage.USER_LOGIN_SUCCEEDED.getResponse();
+        }
+    }
+
+    public void login(User existingUser) {
+        currentLoggedInUser = existingUser;
+        log.info("User logged in: {}", existingUser.getUsername());
+    }
+
+    public boolean isUserExistsInSystem(String username) {
+        return getUserByUsername(username) != null;
+    }
+
+    public boolean ifPasswordCorrect(String password, User existingUser) {
+        return existingUser.checkPassword(password);
+    }
+
+    public String getLogoutResponse() {
+        log.info("User logout requested");
+        logoutCurrentUser();
+        return ResponseMessage.LOGOUT_SUCCEEDED.getResponse();
+    }
+
+    public void logoutCurrentUser() {
+        log.info("User logout succeeded: {}", currentLoggedInUser.getUsername());
+        ifAdminSwitched = false;
+        currentLoggedInUser = null;
+    }
+
+    // Finds a user by the username
+    public User getUserByUsername(String username) {
+        for (User user : usersList) {
+            if (username.equals(user.getUsername())) {
+                log.info("User found on the list: {}", username);
+                return user;
+            }
+        }
+        log.warn("User not found on the list: {}", username);
+        return null;
+    }
+
+    public boolean ifCurrentUserAdmin(){
+        log.info("Admin role checking for user: {}", currentLoggedInUser.getUsername());
+        return currentLoggedInUser != null && currentLoggedInUser.getRole().equals(User.Role.ADMIN);
+    }
+
 }
 
 ====================
 FILE: ClientCommunicationTest.java
 
 package client;
-import shared.ResponseMessage;
-import org.junit.jupiter.api.*;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
 
-import static org.mockito.Mockito.*;
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.*;
+import shared.ResponseMessage;
 
-/**
- * Unit tests for ClientConnection class.
- * This class tests the client's ability to connect to the server,s end requests, read responses, and handle connection status.
- */
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
 class ClientCommunicationTest {
-    private static ClientConnection clientConnection;
-    private Socket mockSocket;
-    private PrintWriter mockOutToServer;
-    private BufferedReader mockInFromServer;
+    static ClientConnection clientConnection;
+    Socket mockSocket;
+    PrintWriter mockOutToServer;
+    BufferedReader mockInFromServer;
 
     @BeforeEach
     void setUp() {
@@ -1521,7 +1868,7 @@ class ClientCommunicationTest {
     }
 
     @AfterAll
-    static void closeDown()  {
+    static void closeDown() {
         clientConnection.disconnect();
     }
 
@@ -1561,35 +1908,39 @@ class ClientCommunicationTest {
     @Test
     @DisplayName("Should check response status")
     void testCheckResponseStatus() {
-        // Test login successful response
-        String response = OperationResponses.LOGIN_SUCCESSFUL.getResponse();
+        // Test admin login succeeded
+        String response = ResponseMessage.ADMIN_LOGIN_SUCCEEDED.getResponse();
+        clientConnection.checkResponseStatus(response);
+        assertTrue(clientConnection.isLoggedIn());
+        assertTrue(clientConnection.isAuthorized());
+
+        // Test user login succeeded
+        response = ResponseMessage.USER_LOGIN_SUCCEEDED.getResponse();
         clientConnection.checkResponseStatus(response);
         assertTrue(clientConnection.isLoggedIn());
 
-        // Test registration successful response
-        response = OperationResponses.REGISTRATION_SUCCESSFUL.getResponse();
+        // Test registration succeeded
+        response = ResponseMessage.REGISTRATION_SUCCESSFUL.getResponse();
         clientConnection.checkResponseStatus(response);
         assertTrue(clientConnection.isLoggedIn());
 
-        // Test successfully logged out response
-        response = OperationResponses.SUCCESSFULLY_LOGGED_OUT.getResponse();
+        // Test logout succeeded
+        response = ResponseMessage.LOGOUT_SUCCEEDED.getResponse();
         clientConnection.checkResponseStatus(response);
         assertFalse(clientConnection.isLoggedIn());
+        assertFalse(clientConnection.isAuthorized());
+        assertFalse(clientConnection.isAdminSwitchedAndAuthorized());
 
-        // Test registration failed response
-        response = OperationResponses.REGISTRATION_FAILED.getResponse();
-        clientConnection.checkResponseStatus(response);
-        assertFalse(clientConnection.isLoggedIn());
-
-        // Test operation succeeded response
-        response = OperationResponses.OPERATION_SUCCEEDED.getResponse();
+        // Test authorization succeeded
+        response = ResponseMessage.AUTHORIZATION_SUCCEEDED.getResponse();
         clientConnection.checkResponseStatus(response);
         assertTrue(clientConnection.isAuthorized());
 
         // Test operation failed response
-        response = OperationResponses.OPERATION_FAILED.getResponse();
+        response = ResponseMessage.SWITCH_SUCCEEDED.getResponse();
         clientConnection.checkResponseStatus(response);
         assertFalse(clientConnection.isAuthorized());
+        assertTrue(clientConnection.isAdminSwitchedAndAuthorized());
     }
 }
 
@@ -1597,6 +1948,10 @@ class ClientCommunicationTest {
 FILE: ClientTest.java
 
 package client;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+
 import org.junit.jupiter.api.*;
 import org.mockito.MockedStatic;
 import request.Request;
@@ -1604,22 +1959,17 @@ import request.RequestService;
 import shared.Screen;
 import shared.UserInteraction;
 
-import java.io.*;
-
-import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+import static shared.Screen.printAdminMailBoxMenu;
 
-/**
- * Unit tests for Client class.
- * This class tests the client's interaction methods, including handling server communication and user input.
- */
 class ClientTest {
-    private Client client;
-    private static ClientConnection mockConnection;
-    private BufferedReader mockUserInput;
-    private UserInteraction mockUserInteraction;
-    private RequestFactory mockFactory;
-    private Request mockRequestType;
+    Client client;
+    static ClientConnection mockConnection;
+    BufferedReader mockUserInput;
+    UserInteraction mockUserInteraction;
+    RequestService mockRequestService;
+    Request mockRequestType;
 
     @BeforeEach
     void setUp() {
@@ -1629,12 +1979,12 @@ class ClientTest {
         client.setConnection(mockConnection);
         client.setUserInput(mockUserInput);
         mockUserInteraction = mock(UserInteraction.class);
-        mockFactory = mock(RequestFactory.class);
+        mockRequestService = mock(RequestService.class);
         mockRequestType = mock(Request.class);
     }
 
     @AfterAll
-    static void closeDown() throws IOException {
+    static void closeDown() {
         mockConnection.disconnect();
     }
 
@@ -1654,8 +2004,39 @@ class ClientTest {
     }
 
     @Test
+    @DisplayName("Should test communication handling when admin user is LOGGED IN")
+    void testHandleServerCommunication_LoggedIn_Authorized() {
+        when(mockConnection.isConnected()).thenReturn(true);
+        when(mockConnection.isLoggedIn()).thenReturn(true);
+        when(mockConnection.isAuthorized()).thenReturn(true);
+
+        // Mocking the static methods of the Screen class
+        MockedStatic<Screen> mockScreen = mockStatic(Screen.class);
+        client.handleServerCommunication();
+
+        // Verify that the mailbox menu is displayed when the user is logged in
+        mockScreen.verify(() -> printAdminMailBoxMenu());
+        mockScreen.close();
+    }
+
+    @Test
+    @DisplayName("Should test communication handling when non-admin user is LOGGED IN")
+    void testHandleServerCommunication_LoggedIn_Not_Authorized() {
+        when(mockConnection.isConnected()).thenReturn(true);
+        when(mockConnection.isLoggedIn()).thenReturn(true);
+
+        // Mocking the static methods of the Screen class
+        MockedStatic<Screen> mockScreen = mockStatic(Screen.class);
+        client.handleServerCommunication();
+
+        // Verify that the mailbox menu is displayed when the user is logged in
+        mockScreen.verify(() -> Screen.printUserMailBoxMenu());
+        mockScreen.close();
+    }
+
+    @Test
     @DisplayName("Should test communication handling when user is NOT LOGGED IN")
-    void testHandleServerCommunication_NotLoggedIn()  {
+    void testHandleServerCommunication_NotLoggedIn() {
         when(mockConnection.isConnected()).thenReturn(true);
         when(mockConnection.isLoggedIn()).thenReturn(false);
 
@@ -1665,21 +2046,6 @@ class ClientTest {
 
         // Verify that the login menu is displayed when the user is not logged in
         mockScreen.verify(() -> Screen.printLoginMenu());
-        mockScreen.close();
-    }
-
-    @Test
-    @DisplayName("Should test communication handling when user is LOGGED IN")
-    void testHandleServerCommunication_LoggedIn()  {
-        when(mockConnection.isConnected()).thenReturn(true);
-        when(mockConnection.isLoggedIn()).thenReturn(true);
-
-        // Mocking the static methods of the Screen class
-        MockedStatic<Screen> mockScreen = mockStatic(Screen.class);
-        client.handleServerCommunication();
-
-        // Verify that the mailbox menu is displayed when the user is logged in
-        mockScreen.verify(() -> Screen.printMailBoxMenu());
         mockScreen.close();
     }
 
@@ -1699,13 +2065,89 @@ class ClientTest {
     @DisplayName("Should test request handling")
     void testHandleRequest() throws IOException {
         when(mockUserInput.readLine()).thenReturn("LOGIN");
-        when(mockFactory.createRequest("LOGIN", mockUserInteraction)).thenReturn(mockRequestType);
+        when(mockRequestService.getRequest("LOGIN")).thenReturn(mockRequestType);
 
         client.handleRequest("LOGIN");
 
         // Verify that the request is handled properly
         verify(mockConnection).sendRequest(anyString());
         verify(mockConnection).readResponse();
+    }
+}
+
+====================
+FILE: AccountUpdateHandlerTest.java
+
+package handler;
+
+import handler.user.AccountUpdateHandler;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import shared.ResponseMessage;
+import user.Admin;
+import user.User;
+import user.UserManager;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class AccountUpdateHandlerTest {
+    AccountUpdateHandler updateHandler;
+    UserManager userManager;
+
+    @BeforeEach
+    void setUp() {
+        updateHandler = new AccountUpdateHandler();
+        userManager = new UserManager();
+    }
+
+    @Test
+    @DisplayName("Should test getting update response for password change")
+    void testGetPasswordChangeResponse() {
+        Admin admin = new Admin();
+
+        // Admin login
+        userManager.login(admin);
+        // Password changing
+        String response = updateHandler.getChangePasswordResponse(admin.getUsername(), "newPasswod", userManager);
+
+        assertNotEquals(ResponseMessage.AUTHORIZATION_FAILED.getResponse(), response);
+        assertNotEquals(ResponseMessage.FAILED_TO_FIND_USER.getResponse(), response);
+        assertEquals(ResponseMessage.OPERATION_SUCCEEDED.getResponse(), response);
+    }
+
+    @Test
+    @DisplayName("Should test getting update status for user account deletion")
+    void testGetUserDeleteResponse() {
+        String userName = "exampleUsername";
+        String password = "examplePassword";
+        Admin admin = new Admin();
+
+        // User register
+        userManager.register(userName, password);
+        // Admin login
+        userManager.login(admin);
+        // User account deletion
+        String response = updateHandler.getUserDeleteResponse(userName, userManager);
+
+        assertNotEquals(ResponseMessage.AUTHORIZATION_FAILED.getResponse(), response);
+        assertNotEquals(ResponseMessage.FAILED_TO_FIND_USER.getResponse(), response);
+        assertEquals(ResponseMessage.OPERATION_SUCCEEDED.getResponse(), response);
+    }
+
+    @Test
+    @DisplayName("Should test getting update response for user role change")
+    void testGetChangeRoleResponse() {
+        Admin admin = new Admin();
+
+        // Admin login
+        userManager.login(admin);
+        // Role changing
+        String response = updateHandler.getChangeRoleResponse(admin.getUsername(), User.Role.USER, userManager);
+
+        assertNotEquals(ResponseMessage.AUTHORIZATION_FAILED.getResponse(), response);
+        assertNotEquals(ResponseMessage.FAILED_TO_FIND_USER.getResponse(), response);
+        assertEquals(ResponseMessage.ROLE_CHANGE_SUCCEEDED.getResponse(), response);
     }
 }
 
@@ -1721,15 +2163,11 @@ import user.User;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * Unit tests for MailBox class.
- * This class tests the handler on the mailbox, including checking if the unread box is full.
- */
-public class MailBoxTest {
-    private MailBox mailBox;
-    private User sender;
-    private User recipient;
-    private Mail mail;
+class MailBoxTest {
+    MailBox mailBox;
+    User sender;
+    User recipient;
+    Mail mail;
 
     @BeforeEach
     void setUp() {
@@ -1773,25 +2211,22 @@ FILE: MailServiceTest.java
 
 package mail;
 
+import java.util.List;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import user.User;
 import user.UserManager;
 
-import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * Unit tests for MailService class.
- * This class tests handler related to sending and managing emails.
- */
-public class MailServiceTest {
-    private User sender;
-    private User recipient;
-    private Mail mail;
-    private MailService mailService;
-    private MailBox mailBox;
+class MailServiceTest {
+    User sender;
+    User recipient;
+    Mail mail;
+    MailService mailService;
+    MailBox mailBox;
 
     @BeforeEach
     void setUp() {
@@ -1829,7 +2264,7 @@ public class MailServiceTest {
         String requestedMailBox = "OPEN";
 
         // Test emptying the opened mailbox
-        mailService.emptyMailbox(requestedMailBox);
+        mailService.deleteEmails(requestedMailBox);
 
         assertTrue(mailBox.getOpenedBox().isEmpty());
     }
@@ -1849,202 +2284,115 @@ public class MailServiceTest {
 }
 
 ====================
-FILE: AccountUpdateHandlerTest.java
-
-package handler;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import request.AdminChangePasswordRequest;
-import request.Request;
-import user.UserManager;
-import java.io.IOException;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-/**
- * Unit tests for AccountUpdateHandler class.
- * This class tests the handling of user account updates, ensuring authorization and correct processing of requests.
- */
-public class AccountUpdateHandlerTest {
-    private AccountUpdateHandler updateHandler;
-    private UserManager userManager;
-
-    @BeforeEach
-    void setUp() {
-        updateHandler = new AccountUpdateHandler();
-        userManager = new UserManager();
-    }
-
-    @Test
-    @DisplayName("Should test getting update status for admin user")
-    void testGetUpdateStatusAdmin() throws IOException {
-        String userName = "admin";
-        String password = "java10";
-        String expectedStatus = "Operation succeeded: Authorized";
-        String unexpectedStatus = "Operation failed: Not authorized";
-
-        // Simulate admin login
-        userManager.login(userName, password);
-        String status = updateHandler.getUpdateStatus(userManager);
-
-        assertEquals(expectedStatus, status);
-        assertNotEquals(unexpectedStatus, status);
-    }
-
-    @Test
-    @DisplayName("Should test getting update status for non-admin user")
-    void testGetsUpdateStatusNonAdmin() throws IOException {
-        String userName = "exampleUsername";
-        String password = "examplePassword";
-        String expectedStatus = "Operation failed: Not authorized";
-        String unexpectedStatus = "Operation succeeded: Authorized";
-
-        // Register and log in a non-admin user
-        userManager.register(userName, password);
-        userManager.login(userName, password);
-        String status = updateHandler.getUpdateStatus(userManager);
-
-        assertEquals(expectedStatus, status);
-        assertNotEquals(unexpectedStatus, status);
-    }
-
-    @Test
-    @DisplayName("Should test getting update response for password change")
-    void testGetsUpdateResponsePassword() throws IOException {
-        String userName = "exampleUsername";
-        String password = "examplePassword";
-        String expectedResponse = "exampleUsername password change successful";
-        Request passwordChange = new AccountUpdateRequest("PASSWORD",
-                userName, "newPassword");
-
-        // Register and log in a user, then test password change request
-        userManager.register(userName, password);
-        userManager.login(userName, password);
-        String updateResponse = updateHandler.getUpdateResponse(passwordChange, userManager);
-
-        assertEquals(expectedResponse, updateResponse);
-    }
-
-    @Test
-    @DisplayName("Should test getting update response for account deletion")
-    void testGetsUpdateResponseDELETE() throws IOException {
-        String userName = "exampleUsername";
-        String password = "examplePassword";
-        String expectedResponse = "exampleUsername account deletion successful";
-        Request passwordChange = new AccountUpdateRequest("DELETE",
-                userName, "newPassword");
-
-        // Register and log in a user, then test account deletion request
-        userManager.register(userName, password);
-        userManager.login(userName, password);
-        String updateResponse = updateHandler.getUpdateResponse(passwordChange, userManager);
-
-        assertEquals(expectedResponse, updateResponse);
-    }
-}
-
-====================
-FILE: RequestFactoryTest.java
+FILE: RequestServiceTest.java
 
 package request;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import user.User;
-import user.UserManager;
-import shared.UserInteraction;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.StringReader;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import shared.UserInteraction;
+import user.User;
+import user.UserManager;
+import client.ClientConnection;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * Unit tests for RequestFactory class.
- * This class tests the creation of various request objects based on user input.
- */
-public class RequestFactoryTest {
-    private RequestFactory factory;
-    private UserInteraction userInteraction;
-    private BufferedReader reader;
-    private User exampleUser;
+class RequestServiceTest {
+    RequestService requestService;
+    RequestFactory factory;
+    UserInteraction userInteraction;
+    BufferedReader reader;
+    User exampleUser;
+    UserManager userManager;
+    ClientConnection clientConnection;
 
     @BeforeEach
     void setUp() {
         exampleUser = new User("exampleName", "examplePassword", User.Role.USER);
         UserManager.currentLoggedInUser = exampleUser;
+        clientConnection = new ClientConnection();
+        requestService = new RequestService(clientConnection);
         factory = new RequestFactory();
         reader = new BufferedReader(new InputStreamReader(System.in));
+        userManager = new UserManager();
         userInteraction = new UserInteraction(reader);
     }
 
     @Test
-    @DisplayName("Should test request creating")
-    void testCreateRequest() throws IOException {
+    @DisplayName("Should test request creating for logged user")
+    void testGetRequest_Client_LoggedIn() throws IOException {
         String request = "REGISTER";
-        Request expectedType = new LoginRegisterRequest(request,
-                "exampleUser", "examplePassword");
+        Request expectedType = factory.createAuthRequest(request,
+                exampleUser.getUsername(), "examplePassword");
+        ClientConnection.loggedIn = false;
 
-        // Test creating a request
-        Request requestType = factory.createRequest(request, userInteraction);
+        // Test AuthRequest creating
+        Request requestType = requestService.getRequest(request);
 
         assertNotNull(requestType);
         assertEquals(expectedType.getClass(), requestType.getClass());
     }
 
     @Test
-    @DisplayName("Should test account update request creating")
-    void testAccountUpdateRequest() throws IOException {
-        String simulatedInput = "PASSWORD\nexampleUser\nnewPassword";
-        reader = new BufferedReader(new StringReader(simulatedInput));
-        userInteraction = new UserInteraction(reader);
+    @DisplayName("Should test request creating for not logged user")
+    void testCreateRequest_Client_LoggedOut() throws IOException {
+        String request = "WRITE";
+        Request expectedType = factory.createWriteRequest(request,
+                "exampleUsername", "exampleMessage");
+        ClientConnection.loggedIn = true;
 
-        // Test creating an account update request
-        Request reguest = factory.createAccountUpdateRequest(userInteraction);
-        Request expectedRequest = new AccountUpdateRequest("PASSWORD",
-                "exampleUser", "newPassword");
+        // Test WriteRequest creating
+        Request requestType = requestService.getRequest(request);
 
-       assertEquals(expectedRequest.getUpdateOperation(), reguest.getUpdateOperation());
-       assertEquals(expectedRequest.getUserToUpdate(), reguest.getUserToUpdate());
-       assertEquals(expectedRequest.getNewPassword(), reguest.getNewPassword());
+        assertNotNull(requestType);
+        assertEquals(expectedType.getClass(), requestType.getClass());
+    }
+
+    @Test
+    @DisplayName("Should test account update request creating for non-admin user")
+    void testGetAccountUpdateRequest_Not_Authorized() throws IOException {
+        clientConnection.setAuthorized(false);
+
+        // // Test AccountUpdateRequest getting
+        Request requestType = requestService.getAccountUpdateRequest();
+
+        assertNull(requestType);
     }
 }
 
 ====================
-FILE: ServerConnectionHandlerTest.java
+FILE: ServerConnectionTest.java
 
 package server;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
 
 import java.io.BufferedReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-import static org.mockito.Mockito.*;
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
-/**
- * Unit tests for ServerConnectionHandler class.
- * This class tests the server's ability to start, accept client connections, and handle communication streams.
- */
-class ServerConnectionHandlerTest {
-    private ServerConnectionHandler handler;
-    private ServerSocket mockServerSocket;
-    private Socket mockClientSocket;
-    private BufferedReader mockInFromClient;
-    private PrintWriter mockOutToClient;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+class ServerConnectionTest {
+    ServerConnection handler;
+    ServerSocket mockServerSocket;
+    Socket mockClientSocket;
+    BufferedReader mockInFromClient;
+    PrintWriter mockOutToClient;
+
     @BeforeEach
-    void setUp()  {
-        handler = new ServerConnectionHandler(5000);
+    void setUp() {
+        handler = new ServerConnection(5000);
         mockServerSocket = mock(ServerSocket.class);
         mockClientSocket = mock(Socket.class);
         mockInFromClient = mock(BufferedReader.class);
@@ -2072,6 +2420,136 @@ class ServerConnectionHandlerTest {
 }
 
 ====================
+FILE: JsonConverterTest.java
+
+package shared;
+
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class JsonConverterTest {
+    @Test
+    @DisplayName("Should test message serializing to JSon")
+    void testSerializeMessage() {
+        String message = "exampleMessage";
+        JsonConverter converter = new JsonConverter(message);
+        String expectedFormat = "{\"message\":\"exampleMessage\"}\n<<END>>";
+
+        // Test JSON serialization
+        String serializedMessage = converter.serializeMessage();
+
+        assertNotNull(serializedMessage);
+        assertEquals(serializedMessage, expectedFormat);
+    }
+
+    @Test
+    @DisplayName("Should test message deserializing from JSon")
+    void testDeserializeMessage() {
+        String message = "exampleMessage";
+        JsonConverter converter = new JsonConverter(message);
+
+        String serializedMessage = converter.serializeMessage();
+
+        // Removing "\n<<END>>" from the end of JSon message
+        String jsonWithoutEndTag = serializedMessage.replace("\n<<END>>", "");
+
+        // Test JSON deserialization
+        String deserializedMessage = converter.deserializeMessage(jsonWithoutEndTag);
+
+        assertNotNull(deserializedMessage);
+        assertEquals(message, deserializedMessage);
+    }
+}
+
+====================
+FILE: AdminTest.java
+
+package user;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class AdminTest {
+    UserManager userManager;
+
+    @BeforeEach
+    void setUp() {
+        userManager = new UserManager();
+    }
+
+    @Test
+    @DisplayName("Should test changing user password")
+    void testChangePassword() {
+        String username = "exampleUsername";
+        String password = "examplePassword";
+
+        // Register user
+        userManager.register(username, password);
+
+        // Find the user and change the password
+        User user = userManager.getUserByUsername(username);
+        userManager.getAdmin().changePassword(user, "newPassword");
+
+        assertNotEquals(user.getPassword(), password);
+        assertEquals(user.getPassword(), "newPassword");
+    }
+
+    @Test
+    @DisplayName("should test deleting user")
+    void testDeleteUser() {
+        String username = "exampleUsername";
+        String password = "examplePassword";
+
+        // Register user
+        userManager.register(username, password);
+
+        // Find the user and delete
+        User user = userManager.getUserByUsername(username);
+        userManager.getAdmin().deleteUser(user);
+
+        assertNull(userManager.getUserByUsername(username));
+    }
+
+    @Test
+    @DisplayName("should test user role changing")
+    void testChangeUserRole() {
+        String username = "exampleUsername";
+        String password = "examplePassword";
+
+        // Register user
+        userManager.register(username, password);
+
+        // Find the user change the role
+        User user = userManager.getUserByUsername(username);
+        userManager.getAdmin().changeUserRole(user, User.Role.ADMIN);
+
+        assertEquals(Admin.Role, User.Role);
+    }
+
+    @Test
+    @DisplayName("should test user switching")
+    void testSwitchUser() {
+        String username = "exampleUsername";
+        String password = "examplePassword";
+
+        // Register user
+        userManager.register(username, password);
+
+        // Find the user change the role
+        User user = userManager.getUserByUsername(username);
+        userManager.getAdmin().switchUser(user);
+
+        assertTrue(UserManager.currentLoggedInUser.equals(user));
+        assertTrue(UserManager.ifAdminSwitched);
+    }
+}
+
+====================
 FILE: UserMangerTest.java
 
 package user;
@@ -2082,12 +2560,8 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * Unit tests for UserManager class.
- * This class tests user management handler, including registration, login, logout, and user searches.
- */
-public class UserMangerTest {
-    private UserManager userManager;
+class UserMangerTest {
+    UserManager userManager;
 
     @BeforeEach
     void setUp() {
@@ -2098,11 +2572,13 @@ public class UserMangerTest {
     void testRegister() {
         String userName = "exampleUsername";
         String password = "examplePassword";
+        User newUser = new User(userName, password, User.Role.USER);
 
         // Test user registration with a new username
-        String registrationStatus = userManager.register(userName, password);
-
-        assertEquals("User does not exist", registrationStatus);
+        userManager.register(userName, password);
+        assertEquals(UserManager.currentLoggedInUser.getUsername(), userName);
+        assertEquals(UserManager.currentLoggedInUser.getPassword(), password);
+        assertEquals(UserManager.currentLoggedInUser.role, User.Role.USER);
     }
 
     @Test
@@ -2115,135 +2591,89 @@ public class UserMangerTest {
         userManager.register(userName, password);
 
         // Attempt to register the same user again
-        String registrationStatus = userManager.register(userName, password);
+        userManager.register(userName, password);
+        String registrationStatus = userManager.registerAndGetResponse(userName, password);
 
-        assertEquals("User exist", registrationStatus);
+        assertEquals("Registration failed: User already exists", registrationStatus);
     }
 
     @Test
     @DisplayName("Should test user login with correct credentials")
     void testLoginCorrect() {
-        String userName = "exampleUsername";
+        String username = "exampleUsername";
         String password = "examplePassword";
+        User newUser = new User(username, password, User.Role.USER);
 
         // Register the user first
-        userManager.register(userName, password);
+        userManager.register(username, password);
 
         // Attempt to log in with correct credentials
-        User loggedUser = userManager.login(userName, password);
+        userManager.login(newUser);
 
 
-        assertNotNull(loggedUser);
-        assertEquals(userName, loggedUser.getUsername());
-        assertEquals(password, loggedUser.getPassword());
+        assertNotNull(UserManager.currentLoggedInUser);
+        assertEquals(username, UserManager.currentLoggedInUser.getUsername());
+        assertEquals(password, UserManager.currentLoggedInUser.getPassword());
     }
 
     @Test
     @DisplayName("Should test user login with incorrect credentials")
     void testLoginIncorrect() {
-        String userName = "exampleUsername";
+        String username = "exampleUsername";
         String password = "examplePassword";
+        User anotherUser = new User(username,"wrongPassword" , User.Role.USER);
 
         // Register the user first
-        userManager.register(userName, password);
+        userManager.register(username, password);
 
         // Attempt to log in with incorrect password
-        User loggedUser = userManager.login(userName, "wrongPassword");
-
-        assertNull(loggedUser);
+        userManager.login(anotherUser);
+        String loginStatus = userManager.loginAndGetResponse(username, "wrongPassword");
+        assertEquals("Login failed: Incorrect password", loginStatus);
     }
 
     @Test
-    @DisplayName("Should test user logout ")
+    @DisplayName("Should test user logout")
     void testLogout() {
-        String userName = "exampleUsername";
+        String username = "exampleUsername";
         String password = "examplePassword";
+        User user = new User(username,password , User.Role.USER);
 
-        // Register and log in the user first
-        userManager.register(userName, password);
-        userManager.login(userName, password);
+        // Register and login the user first
+        userManager.register(username, password);
+        userManager.login(user);
 
-        // Log out the current user
+        // Logout the current user
         userManager.logoutCurrentUser();
 
         assertNull(UserManager.currentLoggedInUser);
     }
 
     @Test
-    @DisplayName("should test finding recipient by username")
-    void testGetRecipientByUsername() {
-        String userName = "exampleUsername";
-        String password = "examplePassword";
-
-        // Register the user first
-        userManager.register(userName, password);
-
-        // Find the recipient by username
-        User recipient = userManager.getRecipientByUsername(userName);
-
-        assertNotNull(recipient);
-        assertEquals(userName, recipient.getUsername());
-    }
-
-    @Test
-    @DisplayName("should test finding user by username")
+    @DisplayName("Should test finding user by username")
     void testFindUserByUsername() {
-        String userName = "exampleUsername";
+        String username = "exampleUsername";
         String password = "examplePassword";
 
         // Register the user first
-        userManager.register(userName, password);
+        userManager.register(username, password);
 
         // Find the user by username
-        User foundUser = userManager.findUserByUsername(userName);
+        User foundUser = userManager.getUserByUsername(username);
 
         assertNotNull(foundUser);
-        assertEquals(userName, foundUser.getUsername());
+        assertEquals(username, foundUser.getUsername());
     }
 
     @Test
-    @DisplayName("should test changing user password")
-    void testChangePassword() {
-        String userName = "exampleUsername";
-        String password = "examplePassword";
-
-        // Register the user first
-        userManager.register(userName, password);
-
-        // Find the user and change their password
-        User user = userManager.findUserByUsername(userName);
-        userManager.changePassword(user, "newPassword");
-
-        assertNotEquals(user.getPassword(), password);
-        assertEquals(user.getPassword(), "newPassword");
-    }
-
-    @Test
-    @DisplayName("should test deleting user")
-    void testDeleteUser() {
-        String userName = "exampleUsername";
-        String password = "examplePassword";
-
-        // Register the user first
-        userManager.register(userName, password);
-
-        // Find the user and delete them
-        User user = userManager.findUserByUsername(userName);
-        userManager.deleteUser(user);
-
-        assertNull(userManager.findUserByUsername(userName));
-    }
-
-    @Test
-    @DisplayName("should test if current user is admin")
-    void testIsAdmin() {
-        String userName = "admin";
-        String password = "java10";
+    @DisplayName("Should test if current user is admin")
+    void testIfCurrentUserAdmin() {
+        User admin = new Admin();
 
         // Log in as the admin user
-        userManager.login(userName, password);
+        userManager.login(admin);
 
-        assertTrue(userManager.isAdmin());
+        assertTrue(userManager.ifCurrentUserAdmin());
     }
 }
 
@@ -2257,11 +2687,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * Unit tests for User class.
- * This class tests user-related functionalities such as password matching, hashing, and role management.
- */
-public class UserTest {
+class UserTest {
     @Test
     @DisplayName("Should test password matching functionality with correct password")
     void testCheckPasswordCorrect() {
@@ -2294,53 +2720,6 @@ public class UserTest {
 
         assertNotNull(user.getHashedPassword());
         assertTrue(user.checkPassword(typedPassword));
-    }
-}
-
-====================
-FILE: JsonConverterTest.java
-
-package shared;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-/**
- * Unit tests for JsonConverter class.
- * This class tests the conversion of objects to and from JSON format, ensuring correct serialization and deserialization.
- */
-public class JsonConverterTest {
-    @Test
-    @DisplayName("Should test message serializing to JSon")
-    void testSerializeMessage() {
-        String message = "exampleMessage";
-        JsonConverter converter = new JsonConverter(message);
-        String expectedFormat = "{\"message\":\"exampleMessage\"}\n<<END>>";
-
-        // Test JSON serialization
-        String serializedMessage = converter.serializeMessage();
-
-        assertNotNull(serializedMessage);
-        assertEquals(serializedMessage, expectedFormat);
-    }
-
-    @Test
-    @DisplayName("Should test message deserializing from JSon")
-    void testDeserializeMessage() {
-        String message = "exampleMessage";
-        JsonConverter converter = new JsonConverter(message);
-
-        String serializedMessage = converter.serializeMessage();
-
-        // Removing "\n<<END>>" from the end of JSon message
-        String jsonWithoutEndTag = serializedMessage.replace("\n<<END>>", "");
-
-        // Test JSON deserialization
-        String deserializedMessage = converter.deserializeMessage(jsonWithoutEndTag);
-
-        assertNotNull(deserializedMessage);
-        assertEquals(message, deserializedMessage);
     }
 }
 
