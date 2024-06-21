@@ -16,12 +16,19 @@ public class DataBase {
     private Connection connection;
 
     public DataBase() {
-        connection = getNewConnection();
+        startConnection();
         log.info("Connection with {} database established on port {}", USERNAME, PORT_NUMBER);
     }
 
-    private Connection getNewConnection() throws SQLException {
-        return DriverManager.getConnection(URL, USERNAME, PASSWORD);
+    private void startConnection() {
+        try {
+            connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
+        } catch (SQLException ex) {
+            log.error("Error during database connection: {}", ex.getMessage());
+        }
+    }
+    public Connection getConnection(){
+        return connection;
     }
 
     public void disconnect() {

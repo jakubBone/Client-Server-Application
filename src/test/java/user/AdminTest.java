@@ -60,7 +60,9 @@ class AdminTest {
         User user = userManager.getUserByUsername(username);
         userManager.getAdmin().changeUserRole(user, User.Role.ADMIN);
 
-        assertEquals(Admin.Role, User.Role);
+        userManager.login(user);
+        assertTrue(userManager.ifCurrentUserAdmin());
+
     }
 
     @Test
