@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'nu.studer.jooq' version '6.0'  // Plugin do generowania kodu JOOQ
 }
 
 group 'org.example'
@@ -26,7 +27,42 @@ dependencies {
     testImplementation 'org.mockito:mockito-junit-jupiter:5.11.0'
 
     implementation 'org.mindrot:jbcrypt:0.4'
+
+    implementation 'org.jooq:jooq:3.19.10'
+    implementation 'org.jooq:jooq-meta:3.19.10'
+    implementation 'org.jooq:jooq-codegen:3.19.10'
+
 }
+
+jooq {
+    version = '3.19.10'
+    configurations {
+        main {
+            generationTool {
+                jdbc {
+                    driver = 'org.postgresql.Driver'
+                    url = 'jdbc:postgresql://localhost:5432/client_manager'
+                    user = 'client_manager'
+                    password = 'client123'
+                }
+                generator {
+                    name = 'org.jooq.codegen.DefaultGenerator'
+                    database {
+                        name = 'org.jooq.meta.postgres.PostgresDatabase'
+                        includes = '.*'
+                        excludes = ''
+                        inputSchema = 'public'
+                    }
+                    target {
+                        packageName = 'com.yourpackage.jooq'
+                        directory = 'src/main/java'
+                    }
+                }
+            }
+        }
+    }
+}
+
 
 test {
     useJUnitPlatform()
