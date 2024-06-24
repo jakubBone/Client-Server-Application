@@ -32,7 +32,7 @@ public class JsonConverter {
         try(FileWriter writer = new FileWriter(filePath)) {
             gson.toJson(user, writer);
             writer.flush();
-            log.info("Serialized user data for {} to file: {}", user.getUsername(), filePath);
+            log.info("Data serialized u for {} to file: {}", user.getUsername(), filePath);
         } catch(IOException ex) {
             log.error("Error - failed to serialize data for {} to JSON at {}: ", user.getUsername(), filePath, ex);
         }

@@ -30,14 +30,14 @@ dependencies {
 
     implementation 'org.postgresql:postgresql:42.5.0'
 
-    implementation 'org.jooq:jooq:3.19.10'
+    /*implementation 'org.jooq:jooq:3.19.10'
     implementation 'org.jooq:jooq-meta:3.19.10'
     implementation 'org.jooq:jooq-codegen:3.19.10'
-
-    jooqGenerator 'org.postgresql:postgresql:42.2.24'
+    implementation 'org.postgresql:postgresql:42.2.24'
+    jooqGenerator 'org.postgresql:postgresql:42.2.24'*/
 }
 
-jooq {
+/*jooq {
     version = '3.19.10'
     configurations {
         main {
@@ -64,7 +64,7 @@ jooq {
             }
         }
     }
-}
+}*/
 
 
 test {
