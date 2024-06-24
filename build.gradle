@@ -30,14 +30,14 @@ dependencies {
 
     implementation 'org.postgresql:postgresql:42.5.0'
 
-    /*implementation 'org.jooq:jooq:3.19.10'
+    implementation 'org.jooq:jooq:3.19.10'
     implementation 'org.jooq:jooq-meta:3.19.10'
     implementation 'org.jooq:jooq-codegen:3.19.10'
     implementation 'org.postgresql:postgresql:42.2.24'
-    jooqGenerator 'org.postgresql:postgresql:42.2.24'*/
+    jooqGenerator 'org.postgresql:postgresql:42.2.24'
 }
 
-/*jooq {
+jooq {
     version = '3.19.10'
     configurations {
         main {
@@ -57,14 +57,14 @@ dependencies {
                         inputSchema = 'public'
                     }
                     target {
-                        packageName = 'com.yourpackage.jooq'
-                        directory = 'src/main/java/data'
+                        packageName = 'jooq'
+                        directory = 'target'
                     }
                 }
             }
         }
     }
-}*/
+}
 
 
 test {
