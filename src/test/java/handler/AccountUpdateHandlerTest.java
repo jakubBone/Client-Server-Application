@@ -1,6 +1,9 @@
 package handler;
 
+import database.DataBase;
 import handler.user.AccountUpdateHandler;
+import org.jooq.DSLContext;
+import org.jooq.impl.DSL;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,16 +18,21 @@ class AccountUpdateHandlerTest {
     AccountUpdateHandler updateHandler;
     UserManager userManager;
 
+    DataBase DATABASE;
+    DSLContext JOOQ;
+
     @BeforeEach
     void setUp() {
         updateHandler = new AccountUpdateHandler();
         userManager = new UserManager();
+        DATABASE = new DataBase();
+        JOOQ = DSL.using(DATABASE.getConnection());
     }
 
     @Test
     @DisplayName("Should test getting update response for password change")
     void testGetPasswordChangeResponse() {
-        Admin admin = new Admin();
+        Admin admin = new Admin(DATABASE, JOOQ);
 
         // Admin login
         userManager.login(admin);
@@ -41,7 +49,7 @@ class AccountUpdateHandlerTest {
     void testGetUserDeleteResponse() {
         String userName = "exampleUsername";
         String password = "examplePassword";
-        Admin admin = new Admin();
+        Admin admin = new Admin(DATABASE, JOOQ);
 
         // User register
         userManager.register(userName, password);
@@ -58,7 +66,7 @@ class AccountUpdateHandlerTest {
     @Test
     @DisplayName("Should test getting update response for user role change")
     void testGetChangeRoleResponse() {
-        Admin admin = new Admin();
+        Admin admin = new Admin(DATABASE, JOOQ);
 
         // Admin login
         userManager.login(admin);

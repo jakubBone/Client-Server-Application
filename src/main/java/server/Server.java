@@ -10,7 +10,6 @@ public class Server {
         log.info("Starting server on port {}", PORT);
         ServerConnection connectionHandler = new ServerConnection(PORT);
         connectionHandler.startServer();
-        DataBase dataBase = new DataBase();
         ServerRequestService logicHandler = new ServerRequestService(
                 connectionHandler.getOutToClient(),
                 connectionHandler.getInFromClient());

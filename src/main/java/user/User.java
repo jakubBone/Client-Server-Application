@@ -1,6 +1,9 @@
 package user;
 
 import mail.MailBox;
+import org.jooq.DSLContext;
+import org.jooq.Record;
+import org.jooq.impl.DSL;
 import org.mindrot.jbcrypt.BCrypt;
 
 import lombok.Getter;
@@ -22,6 +25,7 @@ public class User {
     protected Role role;
     protected MailBox mailBox;
 
+
     public User(String username, String password, Role role) {
         this.username = username;
         this.password = password;
@@ -35,9 +39,14 @@ public class User {
     BCrypt.checkpw() check whether hashed 'typedPassword' matches with 'hashedPassword'
     Bcrypt uses salt and protects against attacks, ensuring unique hashes even for identical passwords is
     */
-    public boolean checkPassword(String typedPassword) {
+    public boolean checkPassword(String typedPassword, DSLContext JOOQ) {
         log.info("Checking password for user: {}", username);
-        return BCrypt.checkpw(typedPassword, hashedPassword);
+        Record record = JOOQ.selectFrom("users")
+                            .where(DSL.field("username").eq(username))
+                            .fetchOne();
+
+        String hashed = record.getValue("hashed_password", String.class);
+        return BCrypt.checkpw(typedPassword, hashed);
     }
 
     public void hashPassword(){

@@ -1,13 +1,17 @@
 package user;
 
-import java.util.ArrayList;
 import java.util.List;
 
+import database.DataBase;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
-import shared.JsonConverter;
+import org.jooq.DSLContext;
+import org.jooq.Record;
+import org.jooq.impl.DSL;
 import shared.ResponseMessage;
+
+import static org.jooq.impl.DSL.*;
 
 /*
  * The UserManager class manages user-related operations such as registration, login, and logout.
@@ -20,16 +24,18 @@ import shared.ResponseMessage;
 public class UserManager {
     public static List<User> usersList;
     public static User currentLoggedInUser;
-    JsonConverter jsonConverter;
     public static boolean ifAdminSwitched;
     public Admin admin;
+    private final String USERS_TABLE = "users";
+    public final DataBase DATABASE;
+    public final DSLContext JOOQ;
+
 
     public UserManager() {
-        this.admin = new Admin();
-        jsonConverter = new JsonConverter();
-        jsonConverter.saveUserData(admin);
-        usersList = new ArrayList<>();
-        usersList.add(admin);
+        this.DATABASE = new DataBase();
+        this.JOOQ = DSL.using(DATABASE.getConnection());
+        this.admin = new Admin(DATABASE, JOOQ);
+        //addUserToDataBase(admin);
         log.info("UserManager instance created");
     }
 
@@ -55,12 +61,23 @@ public class UserManager {
 
     public void register(String username, String password) throws IllegalArgumentException {
         User newUser = new User(username, password, User.Role.USER);
-        jsonConverter.saveUserData(newUser);
-        usersList.add(newUser);
+        addUserToDataBase(newUser);
         currentLoggedInUser = newUser;
         log.info("User registered: {}", username);
     }
 
+    public void addUserToDataBase(User user)  {
+        JOOQ.insertInto(table("users"),
+                        field("username"),
+                        field("password"),
+                        field("role"),
+                        field("hashed_password"))
+                .values(user.getUsername(),
+                        user.getPassword(),
+                        user.getRole().toString(),
+                        user.getHashedPassword())
+                .execute();
+    }
 
     public String loginAndGetResponse(String username, String password) {
         log.info("Login attempted for user: {}", username);
@@ -97,7 +114,7 @@ public class UserManager {
     }
 
     public boolean ifPasswordCorrect(String password, User existingUser) {
-        return existingUser.checkPassword(password);
+        return existingUser.checkPassword(password, JOOQ);
     }
 
     public String getLogoutResponse() {
@@ -114,19 +131,25 @@ public class UserManager {
 
     // Finds a user by the username
     public User getUserByUsername(String username) {
-        for (User user : usersList) {
-            if (username.equals(user.getUsername())) {
-                log.info("User found on the list: {}", username);
-                return user;
-            }
+        log.info("Searching for user in the database: {}", username);
+        Record record = JOOQ.selectFrom("users")
+                            .where(DSL.field("username").eq(username))
+                            .fetchOne();
+
+        if(record != null){
+            User user = new User(record.getValue("username", String.class),
+                                 record.getValue("password", String.class),
+                                 User.Role.valueOf(record.getValue("role", String.class).toUpperCase()));
+            log.info("User found in database: {}", username);
+            return user;
+        } else {
+            log.warn("User not found in database: {}", username);
+            return null;
         }
-        log.warn("User not found on the list: {}", username);
-        return null;
     }
 
     public boolean ifCurrentUserAdmin(){
         log.info("Admin role checking for user: {}", currentLoggedInUser.getUsername());
         return currentLoggedInUser != null && currentLoggedInUser.getRole().equals(User.Role.ADMIN);
     }
-
 }

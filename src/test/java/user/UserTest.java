@@ -1,18 +1,32 @@
 package user;
 
+import database.DataBase;
+import org.jooq.DSLContext;
+import org.jooq.impl.DSL;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class UserTest {
+
+    DataBase DATABASE;
+    DSLContext JOOQ;
+
+    @BeforeEach
+    void setUp() {
+        DATABASE = new DataBase();
+        JOOQ = DSL.using(DATABASE.getConnection());
+    }
+
     @Test
     @DisplayName("Should test password matching functionality with correct password")
     void testCheckPasswordCorrect() {
         User user = new User("exampleUser", "examplePassword", User.Role.USER);
         String typedPassword = "examplePassword";
 
-        boolean isMatching =  user.checkPassword(typedPassword);
+        boolean isMatching =  user.checkPassword(typedPassword, JOOQ );
 
         assertTrue(isMatching);
     }
@@ -23,7 +37,7 @@ class UserTest {
         User user = new User("exampleUser", "examplePassword", User.Role.USER);
         String typedPassword = "incorrectPassword";
 
-        boolean isMatching =  user.checkPassword(typedPassword);
+        boolean isMatching =  user.checkPassword(typedPassword, JOOQ);
 
         assertFalse(isMatching);
     }
@@ -37,6 +51,6 @@ class UserTest {
         user.hashPassword();
 
         assertNotNull(user.getHashedPassword());
-        assertTrue(user.checkPassword(typedPassword));
+        assertTrue(user.checkPassword(typedPassword, JOOQ));
     }
 }

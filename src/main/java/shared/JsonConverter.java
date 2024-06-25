@@ -22,21 +22,6 @@ public class JsonConverter {
     public JsonConverter(String message) {
         this.message = message;
     }
-    public JsonConverter() {
-
-    }
-
-    public void writeUserToPath(User user, String filePath) {
-        log.info("Serializing user data for {} to file: {}", user.getUsername(), filePath);
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        try(FileWriter writer = new FileWriter(filePath)) {
-            gson.toJson(user, writer);
-            writer.flush();
-            log.info("Data serialized u for {} to file: {}", user.getUsername(), filePath);
-        } catch(IOException ex) {
-            log.error("Error - failed to serialize data for {} to JSON at {}: ", user.getUsername(), filePath, ex);
-        }
-    }
 
     public String serializeMessage() {
         log.info("Serializing message");
@@ -61,10 +46,6 @@ public class JsonConverter {
         } catch (JsonSyntaxException e) {
             throw new IllegalArgumentException("Error deserializing JSON. Please check syntax", e);
         }
-    }
-
-    public void saveUserData(User newUser){
-        writeUserToPath(newUser, "C:\\Users\\Jakub Bone\\Desktop\\Z2J\\projects\\Client-Server\\" + newUser.getUsername() + ".json");
     }
 
     @Override

@@ -36,6 +36,7 @@ public class ServerRequestService {
     private WriteHandler writeHandler;
     private LogoutHandler logoutHandler;
     private AdminSwitchHandler switchHandler;
+
     public ServerRequestService(PrintWriter outToClient, BufferedReader inFromClient) {
         this.outToClient = outToClient;
         this.inFromClient = inFromClient;
