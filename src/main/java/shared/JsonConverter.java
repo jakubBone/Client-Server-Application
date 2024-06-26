@@ -1,11 +1,7 @@
 package shared;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
-
-import java.io.FileWriter;
-import java.io.IOException;
 
 import lombok.extern.log4j.Log4j2;
 import user.User;

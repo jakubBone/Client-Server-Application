@@ -31,7 +31,6 @@ public class ClientConnection {
     private boolean  isAdminSwitchedAndAuthorized = false;
     public static int connectionAttempts = 0;
     private boolean connected = false;
-    private static ResponseMessage responseMsg;
 
     /*
      * The ClientConnection class is responsible for managing connections
