@@ -1,8 +1,5 @@
 package user;
 
-import database.DataBase;
-import org.jooq.DSLContext;
-import org.jooq.impl.DSL;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -117,7 +114,7 @@ class UserMangerTest {
     @Test
     @DisplayName("Should test if current user is admin")
     void testIfCurrentUserAdmin() {
-        User admin = new Admin(userManager.DATABASE, userManager.JOOQ);
+        User admin = new Admin(userManager.DATABASE, userManager.CREATE);
 
         // Log in as the admin user
         userManager.login(admin);

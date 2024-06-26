@@ -28,14 +28,13 @@ public class UserManager {
     public Admin admin;
     private final String USERS_TABLE = "users";
     public final DataBase DATABASE;
-    public final DSLContext JOOQ;
+    public final DSLContext CREATE;
 
 
     public UserManager() {
         this.DATABASE = new DataBase();
-        this.JOOQ = DSL.using(DATABASE.getConnection());
-        this.admin = new Admin(DATABASE, JOOQ);
-        //addUserToDataBase(admin);
+        this.CREATE = DSL.using(DATABASE.getConnection());
+        this.admin = new Admin(DATABASE, CREATE);
         log.info("UserManager instance created");
     }
 
@@ -67,7 +66,7 @@ public class UserManager {
     }
 
     public void addUserToDataBase(User user)  {
-        JOOQ.insertInto(table("users"),
+        CREATE.insertInto(table("users"),
                         field("username"),
                         field("password"),
                         field("role"),
@@ -114,7 +113,7 @@ public class UserManager {
     }
 
     public boolean ifPasswordCorrect(String password, User existingUser) {
-        return existingUser.checkPassword(password, JOOQ);
+        return existingUser.checkPassword(password, CREATE);
     }
 
     public String getLogoutResponse() {
@@ -132,7 +131,7 @@ public class UserManager {
     // Finds a user by the username
     public User getUserByUsername(String username) {
         log.info("Searching for user in the database: {}", username);
-        Record record = JOOQ.selectFrom("users")
+        Record record = CREATE.selectFrom("users")
                             .where(DSL.field("username").eq(username))
                             .fetchOne();
 

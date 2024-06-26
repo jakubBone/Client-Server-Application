@@ -10,12 +10,12 @@ import org.jooq.impl.DSL;
 @Log4j2
 public class Admin extends User {
     public final DataBase DATABASE;
-    public final DSLContext JOOQ;
+    public final DSLContext CREATE;
 
-    public Admin(DataBase DATABASE, DSLContext JOOQ) {
+    public Admin(DataBase DATABASE, DSLContext create) {
         super("admin", "java10", Role.ADMIN);
         this.DATABASE = DATABASE;
-        this.JOOQ = JOOQ;
+        this.CREATE = create;
         log.info("Admin instance created");
     }
 
@@ -31,7 +31,7 @@ public class Admin extends User {
         Table<?> usersTable = DSL.table("users");
         Field<String> usernameField = DSL.field("username", String.class);
 
-        JOOQ.deleteFrom(usersTable)
+        CREATE.deleteFrom(usersTable)
                         .where(usernameField.eq(user.getUsername()))
                         .execute();
         log.info("User deletion succeeded: {}", user.getUsername());
@@ -59,7 +59,7 @@ public class Admin extends User {
         Field<String> roleField = DSL.field("role", String.class);
         Field<String> hashedPasswordField = DSL.field("hashed_password", String.class);
 
-        JOOQ.update(usersTable)
+        CREATE.update(usersTable)
                 .set(passwordField, user.getPassword())
                 .set(roleField, user.getRole().toString())
                 .set(hashedPasswordField, user.getHashedPassword())

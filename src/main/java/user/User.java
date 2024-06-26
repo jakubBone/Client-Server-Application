@@ -39,9 +39,9 @@ public class User {
     BCrypt.checkpw() check whether hashed 'typedPassword' matches with 'hashedPassword'
     Bcrypt uses salt and protects against attacks, ensuring unique hashes even for identical passwords is
     */
-    public boolean checkPassword(String typedPassword, DSLContext JOOQ) {
+    public boolean checkPassword(String typedPassword, DSLContext create) {
         log.info("Checking password for user: {}", username);
-        Record record = JOOQ.selectFrom("users")
+        Record record = create.selectFrom("users")
                             .where(DSL.field("username").eq(username))
                             .fetchOne();
 
