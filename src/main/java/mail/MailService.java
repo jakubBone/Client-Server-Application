@@ -2,29 +2,45 @@ package mail;
 
 import lombok.extern.log4j.Log4j2;
 import user.UserManager;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @Log4j2
 public class MailService {
     public void sendMail(Mail mail) {
-        mail.getRecipient().getMailBox().getUnreadBox().add(mail);
-        mail.getSender().getMailBox().getSentBox().add(mail);
+        mail.getSender().addSentMail(mail);
+        mail.getRecipient().addUnreadMail(mail);
         log.info("Mail successfully sent to {}", mail.getRecipient().getUsername());
     }
 
     /*
-     * Retrieves a list of mails based on the specified mailbox type (e.g., OPENED, UNREAD, SENT).
-     * Logs the retrieval operation and handles invalid mailbox types.
+     * Retrieves the list of mails
+     * Handles the different mailbox types: OPENED, UNREAD, SENT.
      */
-    public List<Mail> getMailsToRead(String boxType) {
+    public List<Mail> getMails(String boxType) {
         log.info("Getting mails to read for mailbox: {}", boxType);
-        List<Mail> mailsToRead = getMailListByType(boxType);
-        if (mailsToRead != null) {
+        List<Mail> mails;
+        switch (boxType.toUpperCase()) {
+            case "OPENED":
+                mails = UserManager.currentLoggedInUser.getOpenedMails();
+                break;
+            case "UNREAD":
+                mails = UserManager.currentLoggedInUser.getUnreadMails();
+                break;
+            case "SENT":
+                mails = UserManager.currentLoggedInUser.getSentMails();
+                break;
+            default:
+                log.warn("Invalid mailbox type: {}", boxType);
+                return new ArrayList<>();
+        }
+        if (mails != null) {
             log.info("{} mails returned for mailbox {}", boxType, UserManager.currentLoggedInUser.getUsername());
         } else {
-            log.warn("Invalid mailbox type requested: {}", boxType);
+            log.warn("Mailbox empty: {}", boxType);
         }
-        return mailsToRead;
+        return mails;
     }
 
     /*
@@ -33,49 +49,33 @@ public class MailService {
      */
     public void deleteEmails(String boxType) {
         log.info("Deleting mails from box: {}", boxType);
-        List<Mail> mailList = getMailListByType(boxType);
-        if (mailList != null) {
-            mailList.clear();
-            log.info("{} mails deleted successfully for user {}", boxType, UserManager.currentLoggedInUser.getUsername());
-        } else {
-            log.warn("Attempted to empty non-existent mailbox type: {}", boxType);
-        }
-    }
-
-    /*
-     * Retrieves the list of mails
-     * Handles the different mailbox types: OPENED, UNREAD, SENT.
-     */
-    private List<Mail> getMailListByType(String boxType) {
-        MailBox mailBox = UserManager.currentLoggedInUser.getMailBox();
         switch (boxType.toUpperCase()) {
             case "OPENED":
-                return mailBox.getOpenedBox();
+                UserManager.currentLoggedInUser.getOpenedMails().clear();
+                break;
             case "UNREAD":
-                return mailBox.getUnreadBox();
+                UserManager.currentLoggedInUser.getUnreadMails().clear();
+                break;
             case "SENT":
-                return mailBox.getSentBox();
+                UserManager.currentLoggedInUser.getSentMails().clear();
+                break;
             default:
-                log.error("Unknown mailbox type requested: {}", boxType);
-                return null;
+                log.warn("Invalid mailbox type: {}", boxType);
         }
+        log.info("{} mails deleted for user {}", boxType, UserManager.currentLoggedInUser.getUsername());
     }
 
     /*
-     * Marks all unread mails as read by moving them to the opened box and clearing the unread box.
-     * Logs the operation and ensures the 'sent' mails are not marked as read.
+     * Marks all unread mails as opened by moves it to the opened box
      */
-    public void markMailsAsRead(String boxType){
+    public void markMailAsRead(String boxType) {
         log.info("Marking mails as read for mailbox: {}", boxType);
-        if(!boxType.equals("SENT")){
-            List<Mail> unreadMails = UserManager.currentLoggedInUser.getMailBox().getUnreadBox();
-            for(Mail mail: unreadMails){
-                UserManager.currentLoggedInUser.getMailBox().getOpenedBox().add(mail);
-            }
-            UserManager.currentLoggedInUser.getMailBox().getUnreadBox().clear();
-            log.info("Marked all unread mails as read for user {}", UserManager.currentLoggedInUser.getUsername());
-        } else {
-        log.warn("Attempted to mark 'sent' mails as read, operation not allowed");
+        List<Mail> unreadMails = UserManager.currentLoggedInUser.getUnreadMails();
+        for(Mail mail: unreadMails){
+            UserManager.currentLoggedInUser.addOpenedMail(mail);
         }
+        UserManager.currentLoggedInUser.getUnreadMails().clear();
+        log.info("Marked all unread mails as opened for user {}", UserManager.currentLoggedInUser.getUsername());
     }
+
 }

@@ -13,7 +13,7 @@ public class Request {
     String recipient;
     String message;
     String boxOperation;
-    String mailbox;
+    String boxType;
     String updateOperation;
     String userToUpdate;
     String newPassword;

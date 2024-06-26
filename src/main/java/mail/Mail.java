@@ -14,6 +14,5 @@ public class Mail {
         this.sender = sender;
         this.recipient = recipient;
         this.message = message;
-
     }
 }

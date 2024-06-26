@@ -52,7 +52,7 @@ public class UserInteraction {
             String operation = reader.readLine().toUpperCase();
             switch (operation) {
                 case "READ":
-                case "EMPTY":
+                case "DELETE":
                     return operation;
                 default:
                     System.out.println("Invalid operation. Please try again!");;

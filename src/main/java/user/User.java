@@ -1,6 +1,6 @@
 package user;
 
-import mail.MailBox;
+import mail.Mail;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.impl.DSL;
@@ -9,6 +9,9 @@ import org.mindrot.jbcrypt.BCrypt;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -23,16 +26,31 @@ public class User {
     protected String password;
     protected String hashedPassword;
     protected Role role;
-    protected MailBox mailBox;
-
+    protected List<Mail> openedMails;
+    protected List<Mail> unreadMails;
+    protected List<Mail> sentMails;
 
     public User(String username, String password, Role role) {
         this.username = username;
         this.password = password;
         this.role = role;
-        this.mailBox = new MailBox();
         this.hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
+        openedMails = new ArrayList<>();
+        unreadMails = new ArrayList<>();
+        sentMails = new ArrayList<>();
         log.info("User instance created: {}", username);
+    }
+
+    public void addOpenedMail(Mail mail) {
+        openedMails.add(mail);
+    }
+
+    public void addUnreadMail(Mail mail) {
+        unreadMails.add(mail);
+    }
+
+    public void addSentMail(Mail mail) {
+        sentMails.add(mail);
     }
 
     /*

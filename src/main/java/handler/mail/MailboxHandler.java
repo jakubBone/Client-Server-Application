@@ -22,7 +22,7 @@ public class MailboxHandler {
             case "READ":
                 return getReadResponse(boxType);
             case "EMPTY":
-                return getEmptyMailboxResponse(boxType);
+                return getDeleteMailboxResponse(boxType);
             default:
                 log.warn("Unknown mail operation: {}", mailboxOperation);
                 return ResponseMessage.UNKNOWN_REQUEST.getResponse();
@@ -31,12 +31,11 @@ public class MailboxHandler {
 
     private String getReadResponse(String boxType) {
         log.info("Reading mails from box: {}", boxType);
-        List<Mail> mailsToRead = mailService.getMailsToRead(boxType);
+        List<Mail> mailsToRead = mailService.getMails(boxType);
 
         if (mailsToRead.isEmpty()) {
             return ResponseMessage.MAILBOX_EMPTY.getResponse();
         }
-
         StringBuilder response = new StringBuilder();
         for (Mail mail : mailsToRead) {
             response.append("From ")
@@ -44,13 +43,12 @@ public class MailboxHandler {
                     .append("\n Message: ")
                     .append(mail.getMessage());
         }
-
-        mailService.markMailsAsRead(boxType);
+        mailService.markMailAsRead(boxType);
         return response.toString();
     }
 
-    private String getEmptyMailboxResponse(String boxType){
-        log.info("Emptying mails from box: {}", boxType);
+    private String getDeleteMailboxResponse(String boxType){
+        log.info("Deleting mails from box: {}", boxType);
         mailService.deleteEmails(boxType);
         return ResponseMessage.MAIL_DELETION_SUCCEEDED.getResponse();
     }

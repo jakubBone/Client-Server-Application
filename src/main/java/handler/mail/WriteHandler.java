@@ -17,16 +17,17 @@ import user.UserManager;
 @Log4j2
 public class WriteHandler {
     private MailService mailService = new MailService();
+
     public String getResponse(String username, String message, UserManager userManager) throws IOException {
         log.info("Attempting to send mail to user: {}", username);
         User recipient = userManager.getUserByUsername(username);
 
-        if (recipient != null) {
+        if (recipient == null) {
             log.warn("Mail sending failed, recipient not found: {}", username);
             return ResponseMessage.SENDING_FAILED_RECIPIENT_NOT_FOUND.getResponse();
         }
 
-        if(recipient.getMailBox().ifUnreadBoxFull()) {
+        if(recipient.getUnreadMails().size() >= 5) {
             log.warn("Mail sending failed, recipient's {} mailbox is full: ", username);
             return ResponseMessage.SENDING_FAILED_BOX_FULL.getResponse();
         }
@@ -36,7 +37,9 @@ public class WriteHandler {
             return ResponseMessage.SENDING_FAILED_TO_LONG_MESSAGE.getResponse();
         }
 
-        mailService.sendMail(new Mail(UserManager.currentLoggedInUser, recipient, message));
+        Mail newMail = new  Mail(UserManager.currentLoggedInUser, recipient, message);
+        mailService.sendMail(newMail);
+
         log.info("Mail sent successfully to: {}", username);
         return ResponseMessage.SENDING_SUCCEEDED.getResponse();
     }

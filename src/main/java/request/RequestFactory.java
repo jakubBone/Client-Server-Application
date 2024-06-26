@@ -47,7 +47,7 @@ public class RequestFactory {
     public Request createMailBoxRequest(String requestCommand, String boxOperation, String mailbox) {
         request.requestCommand = requestCommand;
         request.boxOperation = boxOperation;
-        request.mailbox = mailbox;
+        request.boxType = mailbox;
         log.info("MailBoxRequest created with operation: {} for mailbox: {}", boxOperation, mailbox);
         return request;
     }
