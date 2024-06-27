@@ -22,6 +22,7 @@ public class User {
         ADMIN,
         USER;
     }
+
     protected String username;
     protected String password;
     protected String hashedPassword;

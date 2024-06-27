@@ -23,11 +23,9 @@ import static org.jooq.impl.DSL.*;
 @Getter
 @Setter
 public class UserManager {
-    public static List<User> usersList;
     public static User currentLoggedInUser;
     public static boolean ifAdminSwitched;
     public Admin admin;
-    private final String USERS_TABLE = "users";
     public final DataBase DATABASE;
     public final DSLContext CREATE;
 
@@ -131,23 +129,25 @@ public class UserManager {
 
     // Finds a user by the username
     public User getUserByUsername(String username) {
-            log.info("Searching for user in the database: {}", username);
-            Record record = CREATE.selectFrom("users")
-                    .where(DSL.field("username").eq(username))
-                    .fetchOne();
+        log.info("Searching for user in the database: {}", username);
+        Record record = CREATE.selectFrom("users")
+                .where(DSL.field("username").eq(username))
+                .fetchOne();
 
-            if(record != null){
-                User user = new User(record.getValue("username", String.class),
-                                    record.getValue("password", String.class),
-                  User.Role.valueOf(record.getValue("role", String.class).toUpperCase()));
-                log.info("User found in database: {}", username);
-                return user;
-            } else {
-                log.warn("User not found in database: {}", username);
-                return null;
-            }
+        if (record == null) {
+            log.warn("User not found in database: {}", username);
+            return null;
+        }
+
+        User user = new User(
+                record.getValue("username", String.class),
+                record.getValue("password", String.class),
+                User.Role.valueOf(record.getValue("role", String.class).toUpperCase())
+        );
+
+        log.info("User found in database: {}", username);
+        return user;
     }
-
 
     public boolean ifCurrentUserAdmin(){
         log.info("Admin role checking for user: {}", currentLoggedInUser.getUsername());

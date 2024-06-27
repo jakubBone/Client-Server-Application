@@ -8,8 +8,6 @@ import org.junit.jupiter.api.Test;
 import user.User;
 import user.UserManager;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 class MailServiceTest {
     User sender;
     User recipient;
@@ -53,7 +51,7 @@ class MailServiceTest {
         String requestedMailBox = "OPEN";
 
         // Test emptying the opened mailbox
-        mailService.deleteEmails(requestedMailBox);
+        mailService.deleteMails(requestedMailBox);
 
         assertTrue(mailBox.getOpenedBox().isEmpty());
     }

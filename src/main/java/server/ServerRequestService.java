@@ -73,7 +73,7 @@ public class ServerRequestService {
                         response = writeHandler.getResponse(req.getRecipient(), req.getMessage(), userManager);
                         break;
                     case "MAILBOX":
-                        response = mailboxHandler.getResponse(req.getBoxOperation(),req.getBoxType());
+                        response = mailboxHandler.getResponse(req.getBoxOperation(),req.getBoxType(), userManager);
                         break;
                     case "PASSWORD":
                         response = updateHandler.getChangePasswordResponse(req.getUserToUpdate(), req.getNewPassword(), userManager);

@@ -7,6 +7,7 @@ import lombok.extern.log4j.Log4j2;
 import mail.Mail;
 import mail.MailService;
 import shared.ResponseMessage;
+import user.UserManager;
 
 /*
  * The MailboxHandler class handles mailbox operations such as reading and emptying mailboxes.
@@ -16,26 +17,27 @@ import shared.ResponseMessage;
 public class MailboxHandler {
     private MailService mailService = new MailService();
 
-    public String getResponse(String mailboxOperation, String boxType) throws IOException {
+    public String getResponse(String mailboxOperation, String boxType, UserManager userManager) throws IOException {
         log.info("Processing mailbox operation: {}", mailboxOperation);
         switch (mailboxOperation) {
             case "READ":
-                return getReadResponse(boxType);
-            case "EMPTY":
-                return getDeleteMailboxResponse(boxType);
+                return getReadResponse(boxType, userManager);
+            case "DELETE":
+                return getDeleteMailsResponse(boxType, userManager);
             default:
                 log.warn("Unknown mail operation: {}", mailboxOperation);
                 return ResponseMessage.UNKNOWN_REQUEST.getResponse();
         }
     }
 
-    private String getReadResponse(String boxType) {
+    private String getReadResponse(String boxType, UserManager userManager) {
         log.info("Reading mails from box: {}", boxType);
-        List<Mail> mailsToRead = mailService.getMails(boxType);
+        List<Mail> mailsToRead = mailService.getMails(boxType, userManager);
 
         if (mailsToRead.isEmpty()) {
             return ResponseMessage.MAILBOX_EMPTY.getResponse();
         }
+
         StringBuilder response = new StringBuilder();
         for (Mail mail : mailsToRead) {
             response.append("From ")
@@ -43,13 +45,13 @@ public class MailboxHandler {
                     .append("\n Message: ")
                     .append(mail.getMessage());
         }
-        mailService.markMailAsRead(boxType);
+        mailService.markUnreadMailsAsRead(userManager);
         return response.toString();
     }
 
-    private String getDeleteMailboxResponse(String boxType){
+    private String getDeleteMailsResponse(String boxType, UserManager userManager){
         log.info("Deleting mails from box: {}", boxType);
-        mailService.deleteEmails(boxType);
+        mailService.deleteMails(boxType, userManager);
         return ResponseMessage.MAIL_DELETION_SUCCEEDED.getResponse();
     }
 }

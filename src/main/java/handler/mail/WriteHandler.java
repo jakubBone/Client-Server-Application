@@ -18,29 +18,28 @@ import user.UserManager;
 public class WriteHandler {
     private MailService mailService = new MailService();
 
-    public String getResponse(String username, String message, UserManager userManager) throws IOException {
-        log.info("Attempting to send mail to user: {}", username);
-        User recipient = userManager.getUserByUsername(username);
+    public String getResponse(String recipientUsername, String message, UserManager userManager) throws IOException {
+        log.info("Attempting to send mail to user: {}", recipientUsername);
+        User recipient = userManager.getUserByUsername(recipientUsername);
 
         if (recipient == null) {
-            log.warn("Mail sending failed, recipient not found: {}", username);
+            log.warn("Mail sending failed, recipient not found: {}", recipientUsername);
             return ResponseMessage.SENDING_FAILED_RECIPIENT_NOT_FOUND.getResponse();
         }
 
         if(recipient.getUnreadMails().size() >= 5) {
-            log.warn("Mail sending failed, recipient's {} mailbox is full: ", username);
+            log.warn("Mail sending failed, recipient's {} mailbox is full: ", recipientUsername);
             return ResponseMessage.SENDING_FAILED_BOX_FULL.getResponse();
         }
 
         if(message.length() >= 255) {
-            log.warn("Mail sending failed, message too long for recipient: {}", username);
+            log.warn("Mail sending failed, message too long for recipient: {}", recipientUsername);
             return ResponseMessage.SENDING_FAILED_TO_LONG_MESSAGE.getResponse();
         }
 
-        Mail newMail = new  Mail(UserManager.currentLoggedInUser, recipient, message);
-        mailService.sendMail(newMail);
+        mailService.sendMail(recipient, message, userManager);
 
-        log.info("Mail sent successfully to: {}", username);
+        log.info("Mail sent successfully to: {}", recipientUsername);
         return ResponseMessage.SENDING_SUCCEEDED.getResponse();
     }
 }

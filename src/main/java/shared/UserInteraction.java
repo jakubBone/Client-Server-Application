@@ -47,7 +47,7 @@ public class UserInteraction {
 
     public String chooseBoxOperation() throws IOException {
         while (true) {
-            System.out.println("Mailbox operation: READ / EMPTY: ");
+            System.out.println("Mailbox operation: READ / DELETE: ");
             System.out.print("Select: ");
             String operation = reader.readLine().toUpperCase();
             switch (operation) {
