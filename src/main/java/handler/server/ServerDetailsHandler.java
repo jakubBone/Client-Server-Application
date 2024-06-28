@@ -28,11 +28,11 @@ public class ServerDetailsHandler {
                         serverInfo.getUptime().get("Hours"),
                         serverInfo.getUptime().get("Minutes"),
                         serverInfo.getUptime().get("Seconds")));
-                builder.toString();
+                return builder.toString();
             case "INFO":
                 builder.append("Server Info:\n");
                 serverInfo.getServerDetails().forEach((key, value) -> builder.append(key).append(" = ").append(value).append("\n"));
-                builder.toString();
+                return builder.toString();
             case "HELP":
                 builder.append("Available Commands:\n");
                 serverInfo.getCommands().forEach((key, value) -> builder.append(key).append(" - ").append(value).append("\n"));

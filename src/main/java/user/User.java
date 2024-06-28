@@ -27,31 +27,13 @@ public class User {
     protected String password;
     protected String hashedPassword;
     protected Role role;
-    protected List<Mail> openedMails;
-    protected List<Mail> unreadMails;
-    protected List<Mail> sentMails;
 
     public User(String username, String password, Role role) {
         this.username = username;
         this.password = password;
         this.role = role;
         this.hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
-        openedMails = new ArrayList<>();
-        unreadMails = new ArrayList<>();
-        sentMails = new ArrayList<>();
         log.info("User instance created: {}", username);
-    }
-
-    public void addOpenedMail(Mail mail) {
-        openedMails.add(mail);
-    }
-
-    public void addUnreadMail(Mail mail) {
-        unreadMails.add(mail);
-    }
-
-    public void addSentMail(Mail mail) {
-        sentMails.add(mail);
     }
 
     /*

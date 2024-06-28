@@ -18,7 +18,6 @@ public class Mail {
     private String message;
     private Status status;
 
-
     public Mail(User sender, User recipient, String message, Status status) {
         this.sender = sender;
         this.recipient = recipient;

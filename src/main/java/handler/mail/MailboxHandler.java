@@ -10,8 +10,8 @@ import shared.ResponseMessage;
 import user.UserManager;
 
 /*
- * The MailboxHandler class handles mailbox operations such as reading and emptying mailboxes.
- * It uses the MailService to perform these operations and generate appropriate responses.
+ * The MailboxHandler class handles mailbox operations such as reading and deleting mails.
+ * It uses the MailService to perform the operations and generate appropriate responses.
  */
 @Log4j2
 public class MailboxHandler {
@@ -31,6 +31,7 @@ public class MailboxHandler {
         }
     }
 
+
     private String getReadResponse(String boxType, UserManager userManager) {
         log.info("Reading mails from box: {}", boxType);
         List<Mail> mailsToRead = mailService.getMails(boxType, userManager);
@@ -39,15 +40,17 @@ public class MailboxHandler {
             return ResponseMessage.MAILBOX_EMPTY.getResponse();
         }
 
+        // Mail reading
         StringBuilder response = new StringBuilder();
         for (Mail mail : mailsToRead) {
-            response.append("From ")
+            response.append("From: ")
                     .append(mail.getSender().getUsername())
                     .append("\n Message: ")
-                    .append(mail.getMessage());
+                    .append(mail.getMessage())
+                    .append("\n");
         }
 
-        if(boxType.equals("UNREAD")){
+        if(boxType.equals(Mail.Status.UNREAD.toString())){
             mailService.markAsRead(userManager);
         }
 

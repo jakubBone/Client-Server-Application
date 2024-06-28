@@ -119,6 +119,6 @@ class UserMangerTest {
         // Log in as the admin user
         userManager.login(admin);
 
-        assertTrue(userManager.ifCurrentUserAdmin());
+        assertTrue(userManager.isUserAdmin());
     }
 }

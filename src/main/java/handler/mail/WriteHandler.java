@@ -28,7 +28,7 @@ public class WriteHandler {
             return ResponseMessage.SENDING_FAILED_RECIPIENT_NOT_FOUND.getResponse();
         }
 
-        if(recipient.getUnreadMails().size() >= 5) {
+        if(mailService.isMailboxFull(recipient, userManager)){
             log.warn("Mail sending failed, recipient's {} mailbox is full: ", recipientUsername);
             return ResponseMessage.SENDING_FAILED_BOX_FULL.getResponse();
         }

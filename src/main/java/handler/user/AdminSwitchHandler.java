@@ -21,7 +21,7 @@ public class AdminSwitchHandler {
             return ResponseMessage.SWITCH_FAILED.getResponse() + ": user not found";
         }
 
-        if (!userManager.ifCurrentUserAdmin()) {
+        if (!userManager.isUserAdmin()) {
             log.warn("Non-admin user attempted switch: {}", username);
             return ResponseMessage.SWITCH_FAILED.getResponse() + ": non-admin user";
         }

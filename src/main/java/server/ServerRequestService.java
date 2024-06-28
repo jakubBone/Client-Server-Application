@@ -113,4 +113,11 @@ public class ServerRequestService {
         outToClient.println(json);
         log.info("Response sent: {}", json);
     }
+
+    public void closeDataBase() {
+        if (userManager != null) {
+            userManager.close();
+            log.info("Data Base disconnected");
+        }
+    }
 }

@@ -3,6 +3,7 @@ package mail;
 import lombok.extern.log4j.Log4j2;
 import org.jooq.Record;
 import org.jooq.Condition;
+import shared.ResponseMessage;
 import user.User;
 import user.UserManager;
 
@@ -14,6 +15,8 @@ import static org.jooq.impl.DSL.table;
 
 @Log4j2
 public class MailService {
+    private final String MAILS_TABLE = "mails";
+
     public void sendMail(User recipient, String message, UserManager userManager) {
         log.info("Mail sending to {} from {}", recipient, UserManager.currentLoggedInUser);
 
@@ -27,7 +30,7 @@ public class MailService {
     }
 
     public void saveMail(Mail mail, UserManager userManager) {
-        userManager.CREATE.insertInto(table("mails"),
+        userManager.CREATE.insertInto(table(MAILS_TABLE),
                         field("sender_name"),
                         field("recipient_name"),
                         field("message"),
@@ -46,7 +49,7 @@ public class MailService {
     public List<Mail> getMails(String boxType, UserManager userManager) {
         log.info("Entering getMails method with boxType: {}", boxType);
 
-        List<Record> records = userManager.CREATE.selectFrom("mails")
+        List<Record> records = userManager.CREATE.selectFrom(MAILS_TABLE)
                 .where(getMailboxCondition(boxType))
                 .fetch();
 
@@ -73,6 +76,18 @@ public class MailService {
             return new Mail(sender, recipient, message, status);
     }
 
+    public boolean isMailboxFull(User recipient, UserManager userManager){
+        String unread = Mail.Status.UNREAD.toString();
+
+        int messageCount = userManager.CREATE.selectFrom(table(MAILS_TABLE))
+                .where(field("recipient_name").eq(recipient.getUsername())
+                        .and(field("status").eq(unread)))
+                .fetch()
+                .size();
+
+        return messageCount > 5;
+    }
+
     public Condition getMailboxCondition(String boxType) {
         String username = UserManager.currentLoggedInUser.getUsername();
         Condition condition;
@@ -88,36 +103,25 @@ public class MailService {
         return condition;
     }
 
-    /*
-     * Deletes all emails from the specified mailbox type.
-     * Logs the deletion operation and handles invalid mailbox types.
-     */
+
     public void deleteMails(String boxType, UserManager userManager) {
         log.info("Deleting mails from box: {}", boxType);
 
-        if (boxType.equals("SENT")) {
-            userManager.CREATE.deleteFrom(table("mails"))
+        userManager.CREATE.deleteFrom(table(MAILS_TABLE))
                     .where(getMailboxCondition(boxType))
                     .execute();
-        } else {
-            userManager.CREATE.deleteFrom(table("mails"))
-                    .where(getMailboxCondition(boxType))
-                    .execute();
-        }
 
         log.info("{} mails deleted for user {}", boxType, UserManager.currentLoggedInUser.getUsername());
     }
 
-    /*
-     * Marks all unread mails as opened by moves it to the opened box
-     */
+
     public void markAsRead(UserManager userManager) {
         log.info("Marking mails as read");
 
-        userManager.CREATE.update(table("mails"))
-                .set(field("status"), "OPENED")
+        userManager.CREATE.update(table(MAILS_TABLE))
+                .set(field("status"), Mail.Status.OPENED.toString())
                 .where(field("recipient_name").eq(UserManager.currentLoggedInUser.getUsername()))
-                .and(field("status").eq("UNREAD"))
+                .and(field("status").eq(Mail.Status.UNREAD.toString()))
                 .execute();
 
         log.info("Marked all unread mails as opened for user {}", UserManager.currentLoggedInUser.getUsername());

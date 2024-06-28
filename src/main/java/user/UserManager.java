@@ -1,8 +1,5 @@
 package user;
 
-import java.util.List;
-import java.util.Map;
-
 import database.DataBase;
 import lombok.Getter;
 import lombok.Setter;
@@ -28,7 +25,7 @@ public class UserManager {
     public Admin admin;
     public final DataBase DATABASE;
     public final DSLContext CREATE;
-
+    private final String USERS_TABLE = "users";
 
     public UserManager() {
         this.DATABASE = new DataBase();
@@ -65,7 +62,7 @@ public class UserManager {
     }
 
     public void addUserToDataBase(User user)  {
-        CREATE.insertInto(table("users"),
+        CREATE.insertInto(table(USERS_TABLE),
                         field("username"),
                         field("password"),
                         field("role"),
@@ -95,7 +92,7 @@ public class UserManager {
         login(user);
         log.info("User login succeeded: {}", user.getUsername());
 
-        if (ifCurrentUserAdmin()) {
+        if (isUserAdmin()) {
             return ResponseMessage.ADMIN_LOGIN_SUCCEEDED.getResponse();
         } else {
             return ResponseMessage.USER_LOGIN_SUCCEEDED.getResponse();
@@ -130,7 +127,8 @@ public class UserManager {
     // Finds a user by the username
     public User getUserByUsername(String username) {
         log.info("Searching for user in the database: {}", username);
-        Record record = CREATE.selectFrom("users")
+
+        Record record = CREATE.selectFrom(USERS_TABLE)
                 .where(DSL.field("username").eq(username))
                 .fetchOne();
 
@@ -149,8 +147,16 @@ public class UserManager {
         return user;
     }
 
-    public boolean ifCurrentUserAdmin(){
+    public boolean isUserAdmin(){
         log.info("Admin role checking for user: {}", currentLoggedInUser.getUsername());
         return currentLoggedInUser != null && currentLoggedInUser.getRole().equals(User.Role.ADMIN);
     }
+
+    public void close() {
+        if (DATABASE != null) {
+            DATABASE.disconnect();
+        }
+
+    }
+
 }
