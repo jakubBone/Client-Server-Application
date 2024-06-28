@@ -20,6 +20,7 @@ public class WriteHandler {
 
     public String getResponse(String recipientUsername, String message, UserManager userManager) throws IOException {
         log.info("Attempting to send mail to user: {}", recipientUsername);
+
         User recipient = userManager.getUserByUsername(recipientUsername);
 
         if (recipient == null) {

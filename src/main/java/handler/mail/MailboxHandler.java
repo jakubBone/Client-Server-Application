@@ -19,6 +19,7 @@ public class MailboxHandler {
 
     public String getResponse(String mailboxOperation, String boxType, UserManager userManager) throws IOException {
         log.info("Processing mailbox operation: {}", mailboxOperation);
+
         switch (mailboxOperation) {
             case "READ":
                 return getReadResponse(boxType, userManager);
@@ -45,7 +46,11 @@ public class MailboxHandler {
                     .append("\n Message: ")
                     .append(mail.getMessage());
         }
-        mailService.markUnreadMailsAsRead(userManager);
+
+        if(boxType.equals("UNREAD")){
+            mailService.markAsRead(userManager);
+        }
+
         return response.toString();
     }
 
