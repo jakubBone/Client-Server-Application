@@ -24,12 +24,14 @@ public class RequestService {
         log.info("RequestFactory instance created");
     }
 
-    /*
+    /**
      * Creates a request based on the current connection state (logged in or not).
      * Delegates to the appropriate menu request handler.
+     * @param requestCommand The request command
      */
     public Request getRequest(String requestCommand) throws IOException {
         log.info("Creating request for command: {}", requestCommand);
+
         if(!connection.isLoggedIn()){
             return getLoginMenuRequest(requestCommand);
         } else {
@@ -37,7 +39,7 @@ public class RequestService {
         }
     }
 
-    /*
+    /**
      * Handles requests from the login menu.
      * Prompts the user for necessary information and creates the appropriate request.
      */
@@ -60,7 +62,7 @@ public class RequestService {
         }
     }
 
-    /*
+    /**
      * Handles requests from the mailbox menu.
      * Prompts the user for necessary information and creates the appropriate request.
      */
@@ -87,13 +89,13 @@ public class RequestService {
         }
     }
 
-    /*
+    /**
      * Creates an account update request (password change, delete user, change role).
      * Ensures the current user is authorized to perform the update.
-     * Prompts the user for necessary information and creates the appropriate request.
      */
     public Request getAccountUpdateRequest() throws IOException {
         log.info("Creating account update request");
+
         if (connection.isAuthorized()) {
             log.info("Authorization succeeded");
             String updateOperation = userInteraction.chooseUpdateOperation();
@@ -111,9 +113,8 @@ public class RequestService {
                     log.warn("Unknown update operation: {}", updateOperation);
                     return null;
             }
-
         }
-        log.info("Authorization failed");
+        log.warn("Authorization failed");
         return null;
     }
 }

@@ -12,7 +12,7 @@ import lombok.extern.log4j.Log4j2;
 import shared.ResponseMessage;
 import shared.JsonConverter;
 
-/*
+/**
  * The ClientConnection class manages the connection between the client and server.
  * It establishes, maintains, and handles communication through sockets.
  * Additionally, it manages login status and authorization checks.
@@ -32,16 +32,16 @@ public class ClientConnection {
     public static int connectionAttempts = 0;
     private boolean connected = false;
 
-    /*
-     * The ClientConnection class is responsible for managing connections
-     * Establishes connections with server, and handles the communication
-     */
 
     public ClientConnection() {
         connectToServer();
         log.info("ClientConnection instance created");
     }
 
+    /**
+     * Attempts to connect to the server.
+     * If the initial connection fails, it tries to reconnect.
+     */
     public void connectToServer() {
         try {
             clientSocket = new Socket("localhost", PORT_NUMBER);
@@ -55,6 +55,9 @@ public class ClientConnection {
         }
     }
 
+    /**
+     * Retries connection to the server up to a maximum number of attempts.
+     */
     public void retryConnection() {
         if (connectionAttempts >= 2) {
             log.error("Max reconnection attempts reached. Giving up");
@@ -92,7 +95,11 @@ public class ClientConnection {
         }
     }
 
-    // Checks the login update and role authorization
+    /**
+     * Checks the status of the response from the server.
+     * Updates login and authorization status based on the response.
+     * @param response The response from the server
+     */
     public void checkResponseStatus(String response) {
         ResponseMessage operationMessage = ResponseMessage.fromString(response);
         System.out.println(operationMessage);

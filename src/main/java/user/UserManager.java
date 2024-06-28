@@ -11,9 +11,9 @@ import shared.ResponseMessage;
 
 import static org.jooq.impl.DSL.*;
 
-/*
- * The UserManager class manages user-related operations such as registration, login, and logout.
- * It maintains a list of users and tracks the currently logged-in user.
+/**
+ * The UserManager class manages user accounts and operations such as registration, login, and role changes.
+ * It interacts with the database to store and retrieve user information.
  */
 
 @Log4j2
@@ -33,12 +33,6 @@ public class UserManager {
         this.admin = new Admin(DATABASE, CREATE);
         log.info("UserManager instance created");
     }
-
-     /*
-      * Registers a new user with the specified username and password
-      * If the username already exists, it's failure
-      * Otherwise, successful registration
-      */
 
 
     public String registerAndGetResponse(String username, String password) {
@@ -124,7 +118,10 @@ public class UserManager {
         currentLoggedInUser = null;
     }
 
-    // Finds a user by the username
+    /**
+     * Retrieves a user from the database by username.
+     * @return The User object, or null if not found
+     */
     public User getUserByUsername(String username) {
         log.info("Searching for user in the database: {}", username);
 
@@ -158,5 +155,4 @@ public class UserManager {
         }
 
     }
-
 }

@@ -11,7 +11,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
 
-/*
+/**
  * The ServerDetails class provides information about the server.
  * It includes server version, available commands, and server uptime.
  */

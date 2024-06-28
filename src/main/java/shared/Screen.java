@@ -1,5 +1,9 @@
 package shared;
 
+/**
+ * The Screen class provides methods to display various user interfaces
+ * LoginMenu and MailboxManu depending of current logged in user or admin.
+ */
 public class Screen {
 
     public static void printLoginMenu() {

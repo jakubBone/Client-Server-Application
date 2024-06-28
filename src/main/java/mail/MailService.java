@@ -3,7 +3,6 @@ package mail;
 import lombok.extern.log4j.Log4j2;
 import org.jooq.Record;
 import org.jooq.Condition;
-import shared.ResponseMessage;
 import user.User;
 import user.UserManager;
 
@@ -28,7 +27,10 @@ public class MailService {
 
         log.info("Mail successfully sent to {}", recipient.getUsername());
     }
-
+    /**
+     * Saves a mail to the database.
+     * @param mail The mail object to save
+     */
     public void saveMail(Mail mail, UserManager userManager) {
         userManager.CREATE.insertInto(table(MAILS_TABLE),
                         field("sender_name"),
@@ -42,9 +44,10 @@ public class MailService {
                 .execute();
     }
 
-    /*
-     * Retrieves the list of mails
-     * Handles the different mailbox types: OPENED, UNREAD, SENT.
+    /**
+     * Retrieves the list of mails for the specified mailbox type.
+     * @param boxType The type of mailbox (e.g., "UNREAD", "OPENED", "SENT")
+     * @return The list of mails
      */
     public List<Mail> getMails(String boxType, UserManager userManager) {
         log.info("Entering getMails method with boxType: {}", boxType);
@@ -64,6 +67,11 @@ public class MailService {
         return mails;
     }
 
+    /**
+     * Converts a database record to a Mail object.
+     * @param record The database record
+     * @return The Mail object
+     */
     public Mail convertRecordToMail(Record record, UserManager userManager) {
             String message = record.getValue("message", String.class);
             String senderUsername = record.getValue("sender_name", String.class);
@@ -88,11 +96,16 @@ public class MailService {
         return messageCount > 5;
     }
 
+    /**
+     * Generates the condition for retrieving mails from the specified mailbox type.
+     * @param boxType The type of mailbox (e.g., "UNREAD", "OPENED", "SENT")
+     * @return The condition for querying the database
+     */
     public Condition getMailboxCondition(String boxType) {
         String username = UserManager.currentLoggedInUser.getUsername();
         Condition condition;
 
-        if (boxType.equals("SENT")) {
+        if (boxType.equals(Mail.Status.SENT.toString()))) {
             condition = field("sender_name").eq(username)
                     .and(field("status").eq(boxType));
         } else {

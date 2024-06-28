@@ -9,7 +9,7 @@ import shared.ResponseMessage;
 import user.User;
 import user.UserManager;
 
-/*
+/**
  * The WriteHandler class processes requests to send mail.
  * It interacts with the MailService and UserManager to send emails and handle related validations.
  */
@@ -18,6 +18,13 @@ import user.UserManager;
 public class WriteHandler {
     private MailService mailService = new MailService();
 
+    /**
+     * Processes a request to send mail and generates an appropriate response.
+     * @param recipientUsername The username of the recipient
+     * @param message The message to be sent
+     * @param userManager The UserManager instance for managing users
+     * @return The response message as a string
+     */
     public String getResponse(String recipientUsername, String message, UserManager userManager) throws IOException {
         log.info("Attempting to send mail to user: {}", recipientUsername);
 

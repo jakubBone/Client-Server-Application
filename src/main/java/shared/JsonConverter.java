@@ -4,9 +4,8 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
 import lombok.extern.log4j.Log4j2;
-import user.User;
 
-/*
+/**
   * The JsonConverter class provides utilities for converting objects to and from JSON
   * It includes methods for serializing and deserializing user data
   */

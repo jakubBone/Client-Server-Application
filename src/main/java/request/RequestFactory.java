@@ -3,7 +3,7 @@ package request;
 import lombok.extern.log4j.Log4j2;
 import user.User;
 
-/*
+/**
  * The RequestFactory class creates different types of Request objects based on the command and parameters provided.
  * It includes methods for creating authentication, server details, mailbox, and account update requests.
  */
@@ -24,18 +24,26 @@ public class RequestFactory {
         return request;
     }
 
-    public Request createServerDetailsRequest(String requestCommand) {
-        request.requestCommand = requestCommand;
-        log.info("ServerDetailsRequest created with command: {}", requestCommand);
-        return request;
-    }
-
     public Request createLogoutRequest(String requestCommand) {
         request.requestCommand = requestCommand;
         log.info("LogoutRequest created with command: {}", requestCommand);
         return request;
     }
 
+    /**
+     * Creates a server details request.
+     * @param requestCommand The request command (e.g., "INFO", "UPTIME")
+     */
+    public Request createServerDetailsRequest(String requestCommand) {
+        request.requestCommand = requestCommand;
+        log.info("ServerDetailsRequest created with command: {}", requestCommand);
+        return request;
+    }
+
+    /**
+     * Creates a write (send mail) request.
+     * @param requestCommand The request command ("WRITE")
+     */
     public Request createWriteRequest(String requestCommand, String recipient, String message) {
         request.requestCommand = requestCommand;
         request.recipient = recipient;
@@ -44,6 +52,12 @@ public class RequestFactory {
         return request;
     }
 
+    /**
+     * Creates a mailbox operation request.
+     * @param requestCommand The request command ("MAILBOX")
+     * @param boxOperation The mailbox operation (e.g., "READ", "DELETE")
+     * @param mailbox The mailbox type (e.g., "UNREAD", "SENT")
+     */
     public Request createMailBoxRequest(String requestCommand, String boxOperation, String mailbox) {
         request.requestCommand = requestCommand;
         request.boxOperation = boxOperation;
@@ -52,6 +66,10 @@ public class RequestFactory {
         return request;
     }
 
+    /**
+     * Creates an admin password change request.
+     * @param updateOperation The update operation ("PASSWORD")
+     */
     public Request createAdminChangePasswordRequest(String updateOperation, String userToUpdate, String newPassword) {
         request.requestCommand = updateOperation;
         request.userToUpdate = userToUpdate;
@@ -59,6 +77,7 @@ public class RequestFactory {
         log.info("AdminChangePasswordRequest created for user: {}", userToUpdate);
         return request;
     }
+
 
     public Request createAdminDeleteUserRequest(String updateOperation, String userToDelete) {
         request.requestCommand = updateOperation;
@@ -75,6 +94,11 @@ public class RequestFactory {
         return request;
     }
 
+    /**
+     * Creates an admin switch user request.
+     * @param requestCommand The request command ("SWITCH")
+     * @param username The username of the user to switch to
+     */
     public Request createAdminSwitchUserRequest(String requestCommand, String username) {
         request.requestCommand = requestCommand;
         request.userToSwitch = username;

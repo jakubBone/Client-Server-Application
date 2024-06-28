@@ -5,10 +5,11 @@ import java.io.IOException;
 
 import user.User.Role;
 
-/*
-  * The UserInteraction class is responsible for interaction with users through the console
-  * The methods used to obtain user input for various purposes, such as usernames, passwords, and mailbox operations
-  */
+/**
+ * The UserInteraction class provides methods to interact with the user through the console.
+ * It prompts the user for various inputs required for creating requests.
+ */
+
 public class UserInteraction {
     private BufferedReader reader;
     public UserInteraction(BufferedReader reader) {
