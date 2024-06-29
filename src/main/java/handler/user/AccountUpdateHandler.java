@@ -26,13 +26,12 @@ public class AccountUpdateHandler {
 
         if(userManager.isUserAdmin()){
             User user = userManager.getUserByUsername(username);
-
             if (user == null) {
                 log.warn("Failed to find user: {}", username);
                 return ResponseMessage.FAILED_TO_FIND_USER.getResponse();
             }
 
-            userManager.getAdmin().changePassword(user, newPassword);
+            userManager.changePassword(user, newPassword);
 
             log.info("Password changed successfully for user: {}", username);
             return ResponseMessage.OPERATION_SUCCEEDED.getResponse();
@@ -57,7 +56,7 @@ public class AccountUpdateHandler {
                 return ResponseMessage.FAILED_TO_FIND_USER.getResponse();
             }
 
-            userManager.getAdmin().deleteUser(user);
+            userManager.deleteUser(user);
 
             log.info("User account deletion succeeded: {}", username);
             return ResponseMessage.OPERATION_SUCCEEDED.getResponse();
@@ -78,13 +77,12 @@ public class AccountUpdateHandler {
 
         if(userManager.isUserAdmin()){
             User user = userManager.getUserByUsername(username);
-
             if (user == null) {
                 log.warn("Failed to find user: {}", username);
                 return ResponseMessage.FAILED_TO_FIND_USER.getResponse();
             }
 
-            userManager.getAdmin().changeUserRole(user, role);
+            userManager.changeUserRole(user, role);
 
             log.info("Role change succeeded: {}", username);
             return ResponseMessage.ROLE_CHANGE_SUCCEEDED.getResponse();

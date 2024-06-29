@@ -3,7 +3,6 @@ package handler.mail;
 import java.io.IOException;
 
 import lombok.extern.log4j.Log4j2;
-import mail.Mail;
 import mail.MailService;
 import shared.ResponseMessage;
 import user.User;
@@ -35,7 +34,7 @@ public class WriteHandler {
             return ResponseMessage.SENDING_FAILED_RECIPIENT_NOT_FOUND.getResponse();
         }
 
-        if(mailService.isMailboxFull(recipient, userManager)){
+        if(mailService.isMailboxFull(recipient)){
             log.warn("Mail sending failed, recipient's {} mailbox is full: ", recipientUsername);
             return ResponseMessage.SENDING_FAILED_BOX_FULL.getResponse();
         }
@@ -45,7 +44,7 @@ public class WriteHandler {
             return ResponseMessage.SENDING_FAILED_TO_LONG_MESSAGE.getResponse();
         }
 
-        mailService.sendMail(recipient, message, userManager);
+        mailService.sendMail(recipient, message);
 
         log.info("Mail sent successfully to: {}", recipientUsername);
         return ResponseMessage.SENDING_SUCCEEDED.getResponse();

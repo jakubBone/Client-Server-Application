@@ -1,141 +1,62 @@
 package mail;
 
+import database.DataBaseConnection;
+import database.MailDAO;
+import database.UserDAO;
 import lombok.extern.log4j.Log4j2;
-import org.jooq.Record;
-import org.jooq.Condition;
+import org.jooq.DSLContext;
+import org.jooq.impl.DSL;
 import user.User;
 import user.UserManager;
 
-import java.util.ArrayList;
 import java.util.List;
-
-import static org.jooq.impl.DSL.field;
-import static org.jooq.impl.DSL.table;
 
 @Log4j2
 public class MailService {
-    private final String MAILS_TABLE = "mails";
+    private final DSLContext create;
+    private final MailDAO mailDAO;
+    public MailService() {
+        create = DSL.using(DataBaseConnection.getConnection());
+        mailDAO = new MailDAO(create);
+    }
 
-    public void sendMail(User recipient, String message, UserManager userManager) {
+    public void sendMail(User recipient, String message) {
         log.info("Mail sending to {} from {}", recipient, UserManager.currentLoggedInUser);
 
         Mail mailToSender = new Mail(UserManager.currentLoggedInUser, recipient, message, Mail.Status.SENT);
-        saveMail(mailToSender, userManager);
+        mailDAO.saveMailToDB(mailToSender);
 
         Mail mailToRecipient = new Mail(mailToSender.getSender(), recipient, message, Mail.Status.UNREAD);
-        saveMail(mailToRecipient, userManager);
+        mailDAO.saveMailToDB(mailToRecipient);
 
         log.info("Mail successfully sent to {}", recipient.getUsername());
     }
-    /**
-     * Saves a mail to the database.
-     * @param mail The mail object to save
-     */
-    public void saveMail(Mail mail, UserManager userManager) {
-        userManager.CREATE.insertInto(table(MAILS_TABLE),
-                        field("sender_name"),
-                        field("recipient_name"),
-                        field("message"),
-                        field("status"))
-                .values(mail.getSender().getUsername(),
-                        mail.getRecipient().getUsername(),
-                        mail.getMessage(),
-                        mail.getStatus().toString())
-                .execute();
-    }
 
-    /**
-     * Retrieves the list of mails for the specified mailbox type.
-     * @param boxType The type of mailbox (e.g., "UNREAD", "OPENED", "SENT")
-     * @return The list of mails
-     */
-    public List<Mail> getMails(String boxType, UserManager userManager) {
+    public List<Mail> getMails(String boxType) {
         log.info("Entering getMails method with boxType: {}", boxType);
 
-        List<Record> records = userManager.CREATE.selectFrom(MAILS_TABLE)
-                .where(getMailboxCondition(boxType))
-                .fetch();
+        mailDAO.getMailsFromDB(boxType);
 
-        List<Mail> mails = new ArrayList<>();
-        for (Record record : records) {
-            //
-            Mail mail = convertRecordToMail(record, userManager);
-            mails.add(mail);
-        }
-
-        log.info("Exiting getMails method");
-        return mails;
+        return log.info("Exiting getMails method");
     }
 
-    /**
-     * Converts a database record to a Mail object.
-     * @param record The database record
-     * @return The Mail object
-     */
-    public Mail convertRecordToMail(Record record, UserManager userManager) {
-            String message = record.getValue("message", String.class);
-            String senderUsername = record.getValue("sender_name", String.class);
-            String recipientUsername = record.getValue("recipient_name", String.class);
-            Mail.Status status = Mail.Status.valueOf(record.getValue("status", String.class));
-
-            User sender = userManager.getUserByUsername(senderUsername);
-            User recipient = userManager.getUserByUsername(recipientUsername);
-
-            return new Mail(sender, recipient, message, status);
-    }
-
-    public boolean isMailboxFull(User recipient, UserManager userManager){
-        String unread = Mail.Status.UNREAD.toString();
-
-        int messageCount = userManager.CREATE.selectFrom(table(MAILS_TABLE))
-                .where(field("recipient_name").eq(recipient.getUsername())
-                        .and(field("status").eq(unread)))
-                .fetch()
-                .size();
-
-        return messageCount > 5;
-    }
-
-    /**
-     * Generates the condition for retrieving mails from the specified mailbox type.
-     * @param boxType The type of mailbox (e.g., "UNREAD", "OPENED", "SENT")
-     * @return The condition for querying the database
-     */
-    public Condition getMailboxCondition(String boxType) {
-        String username = UserManager.currentLoggedInUser.getUsername();
-        Condition condition;
-
-        if (boxType.equals(Mail.Status.SENT.toString()))) {
-            condition = field("sender_name").eq(username)
-                    .and(field("status").eq(boxType));
-        } else {
-            condition = field("recipient_name").eq(username)
-                    .and(field("status").eq(boxType));
-        }
-
-        return condition;
+    public boolean isMailboxFull(User recipient){
+        return mailDAO.isMailboxFullInDB(recipient);
     }
 
 
-    public void deleteMails(String boxType, UserManager userManager) {
+    public void deleteMails(String boxType) {
         log.info("Deleting mails from box: {}", boxType);
 
-        userManager.CREATE.deleteFrom(table(MAILS_TABLE))
-                    .where(getMailboxCondition(boxType))
-                    .execute();
+        mailDAO.deleteMailsFromDB(boxType);
 
         log.info("{} mails deleted for user {}", boxType, UserManager.currentLoggedInUser.getUsername());
     }
 
-
-    public void markAsRead(UserManager userManager) {
+    public void markAsRead() {
         log.info("Marking mails as read");
 
-        userManager.CREATE.update(table(MAILS_TABLE))
-                .set(field("status"), Mail.Status.OPENED.toString())
-                .where(field("recipient_name").eq(UserManager.currentLoggedInUser.getUsername()))
-                .and(field("status").eq(Mail.Status.UNREAD.toString()))
-                .execute();
+        mailDAO.markAsReadInDB();
 
         log.info("Marked all unread mails as opened for user {}", UserManager.currentLoggedInUser.getUsername());
     }

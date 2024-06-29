@@ -1,15 +1,16 @@
 package user;
 
-import database.DataBase;
+import database.DataBaseConnection;
+import database.MailDAO;
+import database.UserDAO;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
 import org.jooq.DSLContext;
-import org.jooq.Record;
 import org.jooq.impl.DSL;
+import org.mindrot.jbcrypt.BCrypt;
 import shared.ResponseMessage;
 
-import static org.jooq.impl.DSL.*;
 
 /**
  * The UserManager class manages user accounts and operations such as registration, login, and role changes.
@@ -23,17 +24,15 @@ public class UserManager {
     public static User currentLoggedInUser;
     public static boolean ifAdminSwitched;
     public Admin admin;
-    public final DataBase DATABASE;
-    public final DSLContext CREATE;
-    private final String USERS_TABLE = "users";
+
+    private final DSLContext create; // do tego potrzebuje DB
+    private final UserDAO userDAO;
 
     public UserManager() {
-        this.DATABASE = new DataBase();
-        this.CREATE = DSL.using(DATABASE.getConnection());
-        this.admin = new Admin(DATABASE, CREATE);
-        log.info("UserManager instance created");
+        create = DSL.using(DataBaseConnection.getConnection());
+        userDAO = new UserDAO(create);
+        this.admin = new Admin();
     }
-
 
     public String registerAndGetResponse(String username, String password) {
         log.info("Registration attempted for user: {}", username);
@@ -50,27 +49,14 @@ public class UserManager {
 
     public void register(String username, String password) throws IllegalArgumentException {
         User newUser = new User(username, password, User.Role.USER);
-        addUserToDataBase(newUser);
+        userDAO.addUser(newUser);
         currentLoggedInUser = newUser;
         log.info("User registered: {}", username);
     }
 
-    public void addUserToDataBase(User user)  {
-        CREATE.insertInto(table(USERS_TABLE),
-                        field("username"),
-                        field("password"),
-                        field("role"),
-                        field("hashed_password"))
-                .values(user.getUsername(),
-                        user.getPassword(),
-                        user.getRole().toString(),
-                        user.getHashedPassword())
-                .execute();
-    }
-
     public String loginAndGetResponse(String username, String password) {
         log.info("Login attempted for user: {}", username);
-        User user = getUserByUsername(username);
+        User user = userDAO.getUserFromDB(username);
 
         if (user == null) {
             log.info("Login attempt failed - user does not exist: {}", username);
@@ -83,7 +69,9 @@ public class UserManager {
         }
 
         log.info("User password correct: {}", user.getUsername());
+
         login(user);
+
         log.info("User login succeeded: {}", user.getUsername());
 
         if (isUserAdmin()) {
@@ -98,61 +86,82 @@ public class UserManager {
         log.info("User logged in: {}", existingUser.getUsername());
     }
 
-    public boolean isUserExistsInSystem(String username) {
-        return getUserByUsername(username) != null;
-    }
-
-    public boolean ifPasswordCorrect(String password, User existingUser) {
-        return existingUser.checkPassword(password, CREATE);
-    }
-
-    public String getLogoutResponse() {
-        log.info("User logout requested");
-        logoutCurrentUser();
-        return ResponseMessage.LOGOUT_SUCCEEDED.getResponse();
-    }
-
-    public void logoutCurrentUser() {
-        log.info("User logout succeeded: {}", currentLoggedInUser.getUsername());
-        ifAdminSwitched = false;
-        currentLoggedInUser = null;
-    }
-
-    /**
-     * Retrieves a user from the database by username.
-     * @return The User object, or null if not found
-     */
     public User getUserByUsername(String username) {
         log.info("Searching for user in the database: {}", username);
 
-        Record record = CREATE.selectFrom(USERS_TABLE)
-                .where(DSL.field("username").eq(username))
-                .fetchOne();
+        User user = userDAO.getUserFromDB(username);
 
-        if (record == null) {
+        if (user == null) {
             log.warn("User not found in database: {}", username);
             return null;
         }
 
-        User user = new User(
-                record.getValue("username", String.class),
-                record.getValue("password", String.class),
-                User.Role.valueOf(record.getValue("role", String.class).toUpperCase())
-        );
-
-        log.info("User found in database: {}", username);
         return user;
+        log.info("User found in database: {}", username);
     }
+
+    public boolean checkPassword(String typedPassword, User user) {
+        log.info("Checking password for user: {}", user.getUsername());
+
+        userDAO.checkPasswordInDB(typedPassword, user.getUsername());
+    }
+
+    public void changePassword(User user, String newPassword) {
+        log.info("Attempting to password change for user: {}", user.getUsername());
+
+        user.setPassword(newPassword);
+        userDAO.updateUserInDB(user);
+
+        log.info("Password change succeeded for user: {}", user.getUsername());
+    }
+
+    public void deleteUser(User user) {
+        log.info("Attempting to delete user: {}", user.getUsername());
+
+        userDAO.deleteUser(user.getUsername());
+
+        log.info("User deletion succeeded: {}", user.getUsername());
+    }
+
+    public void switchUser(User user) {
+        log.info("Attempting to switch to user: {}", user.getUsername());
+
+            UserManager.currentLoggedInUser = user;
+            UserManager.ifAdminSwitched = true;
+
+        log.info("Switched to user: {}", user.getUsername());
+    }
+
+    public void changeUserRole(User user, User.Role role) {
+        log.info("Attempting to role change for user: {}", user.getUsername());
+
+        userDAO.changeUserRole(user, role);
+
+        log.info("Role change succeeded for user: {} to {}", user.getUsername(), role);
+    }
+
+    public boolean isUserExistsInSystem(String username) {
+        return userDAO.getUserFromDB(username) != null;
+    }
+
+    public boolean ifPasswordCorrect(String password, User user) {
+        return checkPassword(password, user);
+    }
+
+    public String logoutAndGetResponse() {
+        log.info("User logout requested");
+
+        ifAdminSwitched = false;
+        currentLoggedInUser = null;
+
+        log.info("User logout succeeded: {}", currentLoggedInUser.getUsername());
+        return ResponseMessage.LOGOUT_SUCCEEDED.getResponse();
+    }
+
 
     public boolean isUserAdmin(){
         log.info("Admin role checking for user: {}", currentLoggedInUser.getUsername());
+
         return currentLoggedInUser != null && currentLoggedInUser.getRole().equals(User.Role.ADMIN);
-    }
-
-    public void close() {
-        if (DATABASE != null) {
-            DATABASE.disconnect();
-        }
-
     }
 }

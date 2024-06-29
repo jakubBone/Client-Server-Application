@@ -22,8 +22,9 @@ public class AdminSwitchHandler {
      */
     public String getResponse(String username, UserManager userManager) {
         log.info("Attempting to switch admin to user: {}", username);
+        ////
         User user = userManager.getUserByUsername(username);
-
+        ////
         if (user == null) {
             log.warn("User not found: {}", username);
             return ResponseMessage.SWITCH_FAILED.getResponse() + ": user not found";
@@ -34,7 +35,7 @@ public class AdminSwitchHandler {
             return ResponseMessage.SWITCH_FAILED.getResponse() + ": non-admin user";
         }
 
-        userManager.getAdmin().switchUser(user);
+        userManager.switchUser(user);
 
         if (UserManager.ifAdminSwitched) {
             log.info("Switch succeeded: {}", username);

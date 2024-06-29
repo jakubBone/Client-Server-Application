@@ -25,7 +25,7 @@ class AdminTest {
 
         // Find the user and change the password
         User user = userManager.getUserByUsername(username);
-        userManager.getAdmin().changePassword(user, "newPassword");
+        userManager.changePassword(user, "newPassword");
 
         assertNotEquals(user.getPassword(), password);
         assertEquals(user.getPassword(), "newPassword");
@@ -42,7 +42,7 @@ class AdminTest {
 
         // Find the user and delete
         User user = userManager.getUserByUsername(username);
-        userManager.getAdmin().deleteUser(user);
+        userManager.deleteUser(user);
 
         assertNull(userManager.getUserByUsername(username));
     }
@@ -58,7 +58,7 @@ class AdminTest {
 
         // Find the user change the role
         User user = userManager.getUserByUsername(username);
-        userManager.getAdmin().changeUserRole(user, User.Role.ADMIN);
+        userManager.changeUserRole(user, User.Role.ADMIN);
 
         userManager.login(user);
         assertTrue(userManager.isUserAdmin());
@@ -76,7 +76,7 @@ class AdminTest {
 
         // Find the user change the role
         User user = userManager.getUserByUsername(username);
-        userManager.getAdmin().switchUser(user);
+        userManager.switchUser(user);
 
         assertTrue(UserManager.currentLoggedInUser.equals(user));
         assertTrue(UserManager.ifAdminSwitched);
