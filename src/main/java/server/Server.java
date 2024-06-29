@@ -15,7 +15,6 @@ public class Server {
 
         logicHandler.handleClientRequest();
 
-        logicHandler.closeDataBase();
         connectionHandler.closeConnections();
     }
 }

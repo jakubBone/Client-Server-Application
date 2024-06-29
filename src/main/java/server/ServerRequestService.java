@@ -73,7 +73,7 @@ public class ServerRequestService {
                         response = writeHandler.getResponse(req.getRecipient(), req.getMessage(), userManager);
                         break;
                     case "MAILBOX":
-                        response = mailboxHandler.getResponse(req.getBoxOperation(),req.getBoxType(), userManager);
+                        response = mailboxHandler.getResponse(req.getBoxOperation(),req.getBoxType());
                         break;
                     case "PASSWORD":
                         response = updateHandler.getChangePasswordResponse(req.getUserToUpdate(), req.getNewPassword(), userManager);
@@ -112,12 +112,5 @@ public class ServerRequestService {
         String json = jsonResponse.serializeMessage();
         outToClient.println(json);
         log.info("Response sent: {}", json);
-    }
-
-    public void closeDataBase() {
-        if (userManager != null) {
-            userManager.close();
-            log.info("Data Base disconnected");
-        }
     }
 }

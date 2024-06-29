@@ -1,6 +1,6 @@
 package mail;
 
-import database.DataBaseConnection;
+import database.DatabaseConnection;
 import database.MailDAO;
 import database.UserDAO;
 import lombok.extern.log4j.Log4j2;
@@ -15,9 +15,11 @@ import java.util.List;
 public class MailService {
     private final DSLContext create;
     private final MailDAO mailDAO;
+    private UserDAO userDAO;
     public MailService() {
-        create = DSL.using(DataBaseConnection.getConnection());
-        mailDAO = new MailDAO(create);
+        this.create = DSL.using(DatabaseConnection.getInstance().getConnection());
+        this.userDAO = new UserDAO(create);
+        this.mailDAO = new MailDAO(create, userDAO);
     }
 
     public void sendMail(User recipient, String message) {
@@ -34,10 +36,7 @@ public class MailService {
 
     public List<Mail> getMails(String boxType) {
         log.info("Entering getMails method with boxType: {}", boxType);
-
-        mailDAO.getMailsFromDB(boxType);
-
-        return log.info("Exiting getMails method");
+        return mailDAO.getMailsFromDB(boxType);
     }
 
     public boolean isMailboxFull(User recipient){

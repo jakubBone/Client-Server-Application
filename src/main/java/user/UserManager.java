@@ -1,14 +1,12 @@
 package user;
 
-import database.DataBaseConnection;
-import database.MailDAO;
+import database.DatabaseConnection;
 import database.UserDAO;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
-import org.mindrot.jbcrypt.BCrypt;
 import shared.ResponseMessage;
 
 
@@ -24,13 +22,12 @@ public class UserManager {
     public static User currentLoggedInUser;
     public static boolean ifAdminSwitched;
     public Admin admin;
-
-    private final DSLContext create; // do tego potrzebuje DB
+    private final DSLContext create;
     private final UserDAO userDAO;
 
     public UserManager() {
-        create = DSL.using(DataBaseConnection.getConnection());
-        userDAO = new UserDAO(create);
+        this.create = DSL.using(DatabaseConnection.getInstance().getConnection());
+        this.userDAO = new UserDAO(create);
         this.admin = new Admin();
     }
 
@@ -96,14 +93,14 @@ public class UserManager {
             return null;
         }
 
-        return user;
         log.info("User found in database: {}", username);
+        return user;
     }
 
     public boolean checkPassword(String typedPassword, User user) {
         log.info("Checking password for user: {}", user.getUsername());
 
-        userDAO.checkPasswordInDB(typedPassword, user.getUsername());
+        return userDAO.checkPasswordInDB(typedPassword, user.getUsername());
     }
 
     public void changePassword(User user, String newPassword) {
@@ -157,7 +154,6 @@ public class UserManager {
         log.info("User logout succeeded: {}", currentLoggedInUser.getUsername());
         return ResponseMessage.LOGOUT_SUCCEEDED.getResponse();
     }
-
 
     public boolean isUserAdmin(){
         log.info("Admin role checking for user: {}", currentLoggedInUser.getUsername());

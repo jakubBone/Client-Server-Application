@@ -7,16 +7,24 @@ import java.sql.SQLException;
 import lombok.extern.log4j.Log4j2;
 
 @Log4j2
-public class DataBaseConnection {
+public class DatabaseConnection {
     private final String USER = "user_manager";
     private final String PASSWORD = "user123";
     private final String DATABASE = "user_db";
     private final int PORT_NUMBER = 5432;
     private final String URL = String.format("jdbc:postgresql://localhost:%d/%s", PORT_NUMBER, DATABASE);
+    private static DatabaseConnection instance;
     private static Connection connection;
 
-    public DataBaseConnection() {
+    public DatabaseConnection() {
         startConnection();
+    }
+
+    public static synchronized DatabaseConnection getInstance() {
+        if (instance == null) {
+            instance = new DatabaseConnection();
+        }
+        return instance;
     }
 
     private void startConnection() {

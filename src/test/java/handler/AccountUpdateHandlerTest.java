@@ -1,6 +1,6 @@
 package handler;
 
-import database.DataBaseConnection;
+import database.DatabaseConnection;
 import handler.user.AccountUpdateHandler;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
@@ -18,14 +18,14 @@ class AccountUpdateHandlerTest {
     AccountUpdateHandler updateHandler;
     UserManager userManager;
 
-    DataBaseConnection DATABASE;
+    DatabaseConnection DATABASE;
     DSLContext JOOQ;
 
     @BeforeEach
     void setUp() {
         updateHandler = new AccountUpdateHandler();
         userManager = new UserManager();
-        DATABASE = new DataBaseConnection();
+        DATABASE = new DatabaseConnection();
         JOOQ = DSL.using(DATABASE.getConnection());
     }
 

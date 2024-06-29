@@ -1,6 +1,6 @@
 package user;
 
-import database.DataBaseConnection;
+import database.DatabaseConnection;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,12 +11,12 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class UserTest {
 
-    DataBaseConnection DATABASE;
+    DatabaseConnection DATABASE;
     DSLContext JOOQ;
 
     @BeforeEach
     void setUp() {
-        DATABASE = new DataBaseConnection();
+        DATABASE = new DatabaseConnection();
         JOOQ = DSL.using(DATABASE.getConnection());
     }
 

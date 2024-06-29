@@ -20,8 +20,11 @@ public class MailDAO {
     private final DSLContext create;
     private final String MAILS_TABLE = "mails";
 
-    public MailDAO(DSLContext create) {
+    private final UserDAO userDAO;
+
+    public MailDAO(DSLContext create, UserDAO userDAO) {
         this.create = create;
+        this.userDAO = userDAO;
     }
 
     public void saveMailToDB(Mail mail) {
