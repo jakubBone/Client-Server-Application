@@ -23,14 +23,6 @@ public class ServerRequestService {
     private final UserManager userManager;
     private Gson gson;
     private JsonConverter jsonResponse;
-
-     /*private AuthHandler authHandler;
-     private ServerDetailsHandler serverInfoHandler;
-     private MailboxHandler mailboxHandler;
-     private AccountUpdateHandler updateHandler;
-     private WriteHandler writeHandler;
-     private LogoutHandler logoutHanlder;
-     private AdminSwitchHandler switchHandlerResponse;*/
      private HandlerFactory handler;
 
 
@@ -40,65 +32,15 @@ public class ServerRequestService {
         this.userManager = new UserManager();
         this.gson = new Gson();
         this.handler = new HandlerFactory();
-
     }
-
-    /*public void initializeHandlers(){
-        this.authHandler = new AuthHandler();
-        this.serverInfoHandler = new ServerDetailsHandler();
-        this.mailboxHandler = new MailboxHandler();
-        this.updateHandler = new AccountUpdateHandler();
-        this.writeHandler = new WriteHandler();
-        this.switchHandlerResponse = new AdminSwitchHandler();
-        this.logoutHanlder = new LogoutHandler();
-    }*/
 
     public void handleClientRequest() {
         String request;
-        String response;
         try {
             while ((request = inFromClient.readLine()) != null) {
                 Request req = getParseRequest(request);
-                String requestCommand = req.getRequestCommand().toUpperCase();
-                log.info("Handling request command: {}", requestCommand);
-                switch (requestCommand) {
-                    case "REGISTER":
-                    case "LOGIN":
-                        response = handler.getAuthHandler().getResponse(requestCommand, req.getUsername(), req.getPassword(), userManager);
-                        break;
-                    case "HELP":
-                    case "INFO":
-                    case "UPTIME":
-                        response = handler.getServerInfoHandler().getResponse(requestCommand);
-                        break;
-                    case "WRITE":
-                        response = handler.getWriteHandler().getResponse(req.getRecipient(), req.getMessage(), userManager);
-                        break;
-                    case "MAILBOX":
-                        response = handler.getMailHandler().getResponse(req.getBoxOperation(),req.getBoxType());
-                        break;
-                    case "PASSWORD":
-                        response = handler.getPasswordHandler().getResponse(req.getUserToUpdate(), req.getNewPassword(), userManager);
-                        break;
-                    case "DELETE":
-                        response = handler.getDeleteHandler().getResponse(req.getUserToUpdate(), userManager);
-                        break;
-                    case "ROLE":
-                        response = handler.getRoleHandler().getResponse(req.getUserToUpdate(), req.getNewRole(), userManager);
-                        break;
-                    case "SWITCH":
-                        response = handler.getSwitchHandler().getResponse(req.getUserToSwitch(), userManager);
-                        break;
-                    case "LOGOUT":
-                        response = handler.getLogoutHandler().getResponse(userManager);
-                        break;
-                    default:
-                        log.warn("Unknown request command: {}", requestCommand);
-                        response = "Unknown request command";
-                        break;
-                }
+                String response = processRequest(req);
                 sendResponse(response);
-                log.info("Completed processing request command: {}", requestCommand);
             }
         } catch (IOException ex) {
             log.error("IOException occurred while processing the request: {}. Error: ", ex.getMessage());
@@ -109,6 +51,38 @@ public class ServerRequestService {
         log.info("Parsing request: {}", request);
         return gson.fromJson(request, Request.class);
     }
+
+     public String processRequest(Request req) throws IOException{
+         String command = req.getRequestCommand().toUpperCase();
+         log.info("Handling request command: {}", command);
+         switch (command) {
+             case "REGISTER":
+             case "LOGIN":
+                 return handler.getAuthHandler().getResponse(command, req.getUsername(), req.getPassword(), userManager);
+             case "HELP":
+             case "INFO":
+             case "UPTIME":
+                 return handler.getServerInfoHandler().getResponse(command);
+             case "WRITE":
+                 return handler.getWriteHandler().getResponse(req.getRecipient(), req.getMessage(), userManager);
+             case "MAILBOX":
+                 return handler.getMailHandler().getResponse(req.getBoxOperation(), req.getBoxType());
+             case "PASSWORD":
+                 return handler.getPasswordHandler().getResponse(req.getUserToUpdate(), req.getNewPassword(), userManager);
+             case "DELETE":
+                 return handler.getDeleteHandler().getResponse(req.getUserToUpdate(), userManager);
+             case "ROLE":
+                 return handler.getRoleHandler().getResponse(req.getUserToUpdate(), req.getNewRole(), userManager);
+             case "SWITCH":
+                 return handler.getSwitchHandler().getResponse(req.getUserToSwitch(), userManager);
+             case "LOGOUT":
+                 return handler.getLogoutHandler().getResponse(userManager);
+             default:
+                 log.warn("Unknown request command: {}", command);
+                 return "Unknown request command";
+         }
+     }
+
     public void sendResponse(String response){
         jsonResponse = new JsonConverter(response);
         String json = jsonResponse.serializeMessage();
