@@ -16,7 +16,13 @@ Utils: Various utility classes for handling tasks like JSON conversion, user int
 
 User Management: Contains classes and functionality related to users, including user data, admin handling, and user management.
 
-Mail System: Contains the mail-related features, with classes that manage mail details and individual mailboxes.
+Mail System: Contains mail-related features, with classes that manage mail details and individual mailboxes.
+
+Handlers: Classes that process different types of client requests.
+
+Database: Classes related to database connections and operations.
+
+Requests: Classes for creating and processing client requests.
 
 
 ## Project Overview
@@ -28,6 +34,8 @@ Authentication: The client can register, log in, and log out. The server handles
 Mailbox Operations: The client can send messages, read from the mailbox, and perform other related operations.
 
 Admin Functions: The server includes admin capabilities for updating user data, managing user roles, and other administrative tasks.
+
+Database Operations: The application uses a database to manage user data and mailbox information, leveraging JOOQ for efficient database interaction.
 
 Server Information: The server can provide information such as uptime, version, and available commands.
 
@@ -60,7 +68,7 @@ To compile and run the application, you'll need Java Development Kit (JDK) insta
 This project is a work in progress, with ongoing updates focused on enhancing functionality. 
 Future updates will aim to improve the security, and add more advanced features such as
 enhanced error handling and logging, more robust mailbox operations, additional admin functionalities 
-for user management and change the data storage approach to use a database system. 
+for user management.
 
 
 ## Additional Information
@@ -69,3 +77,5 @@ Logging: The application uses the Log4j2 library for logging.
 JSON Handling: The Gson library is used for JSON conversion of data between the client and server.
 
 Unit Testing: The project includes JUnit tests for key components to ensure code quality and functionality.
+
+Database Integration: The application uses JOOQ for interacting with the database, enabling efficient and typesafe SQL query construction and execution.
