@@ -5,13 +5,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 import com.google.gson.Gson;
-import handler.auth.AuthHandler;
-import handler.auth.LogoutHandler;
-import handler.mail.MailboxHandler;
-import handler.mail.WriteHandler;
-import handler.server.ServerDetailsHandler;
-import handler.user.AccountUpdateHandler;
-import handler.user.AdminSwitchHandler;
+import handler.HandlerFactory;
 import lombok.extern.log4j.Log4j2;
 import request.Request;
 import shared.JsonConverter;
@@ -29,23 +23,27 @@ public class ServerRequestService {
     private final UserManager userManager;
     private Gson gson;
     private JsonConverter jsonResponse;
-    private AuthHandler authHandler;
-    private ServerDetailsHandler serverInfoHandler;
-    private MailboxHandler mailboxHandler;
-    private AccountUpdateHandler updateHandler;
-    private WriteHandler writeHandler;
-    private LogoutHandler logoutHanlder;
-    private AdminSwitchHandler switchHandlerResponse;
+
+     /*private AuthHandler authHandler;
+     private ServerDetailsHandler serverInfoHandler;
+     private MailboxHandler mailboxHandler;
+     private AccountUpdateHandler updateHandler;
+     private WriteHandler writeHandler;
+     private LogoutHandler logoutHanlder;
+     private AdminSwitchHandler switchHandlerResponse;*/
+     private HandlerFactory handler;
+
 
     public ServerRequestService(PrintWriter outToClient, BufferedReader inFromClient) {
         this.outToClient = outToClient;
         this.inFromClient = inFromClient;
         this.userManager = new UserManager();
         this.gson = new Gson();
-        initializeHandlers();
+        this.handler = new HandlerFactory();
+
     }
 
-    public void initializeHandlers(){
+    /*public void initializeHandlers(){
         this.authHandler = new AuthHandler();
         this.serverInfoHandler = new ServerDetailsHandler();
         this.mailboxHandler = new MailboxHandler();
@@ -53,7 +51,7 @@ public class ServerRequestService {
         this.writeHandler = new WriteHandler();
         this.switchHandlerResponse = new AdminSwitchHandler();
         this.logoutHanlder = new LogoutHandler();
-    }
+    }*/
 
     public void handleClientRequest() {
         String request;
@@ -66,33 +64,33 @@ public class ServerRequestService {
                 switch (requestCommand) {
                     case "REGISTER":
                     case "LOGIN":
-                        response = authHandler.getResponse(requestCommand, req.getUsername(), req.getPassword(), userManager);
+                        response = handler.getAuthHandler().getResponse(requestCommand, req.getUsername(), req.getPassword(), userManager);
                         break;
                     case "HELP":
                     case "INFO":
                     case "UPTIME":
-                        response = serverInfoHandler.getResponse(requestCommand);
+                        response = handler.getServerInfoHandler().getResponse(requestCommand);
                         break;
                     case "WRITE":
-                        response = writeHandler.getResponse(req.getRecipient(), req.getMessage(), userManager);
+                        response = handler.getWriteHandler().getResponse(req.getRecipient(), req.getMessage(), userManager);
                         break;
                     case "MAILBOX":
-                        response = mailboxHandler.getResponse(req.getBoxOperation(),req.getBoxType());
+                        response = handler.getMailHandler().getResponse(req.getBoxOperation(),req.getBoxType());
                         break;
                     case "PASSWORD":
-                        response = updateHandler.getChangePasswordResponse(req.getUserToUpdate(), req.getNewPassword(), userManager);
+                        response = handler.getPasswordHandler().getResponse(req.getUserToUpdate(), req.getNewPassword(), userManager);
                         break;
                     case "DELETE":
-                        response = updateHandler.getUserDeleteResponse(req.getUserToUpdate(), userManager);
+                        response = handler.getDeleteHandler().getResponse(req.getUserToUpdate(), userManager);
                         break;
                     case "ROLE":
-                        response = updateHandler.getChangeRoleResponse(req.getUserToUpdate(), req.getNewRole(), userManager);
+                        response = handler.getRoleHandler().getResponse(req.getUserToUpdate(), req.getNewRole(), userManager);
                         break;
                     case "SWITCH":
-                        response = switchHandlerResponse.getResponse(req.getUserToSwitch(), userManager);
+                        response = handler.getSwitchHandler().getResponse(req.getUserToSwitch(), userManager);
                         break;
                     case "LOGOUT":
-                        response = logoutHanlder.getResponse(userManager);
+                        response = handler.getLogoutHandler().getResponse(userManager);
                         break;
                     default:
                         log.warn("Unknown request command: {}", requestCommand);

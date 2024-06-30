@@ -1166,8 +1166,8 @@ import handler.auth.LogoutHandler;
 import handler.mail.MailboxHandler;
 import handler.mail.WriteHandler;
 import handler.server.ServerDetailsHandler;
-import handler.user.AccountUpdateHandler;
-import handler.user.AdminSwitchHandler;
+import handler.user.PasswordChangeHandler;
+import handler.user.UserSwitchHandler;
 import lombok.extern.log4j.Log4j2;
 import request.Request;
 import shared.JsonConverter;
@@ -2080,7 +2080,7 @@ FILE: AccountUpdateHandlerTest.java
 
 package handler;
 
-import handler.user.AccountUpdateHandler;
+import handler.user.PasswordChangeHandler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

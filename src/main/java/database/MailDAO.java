@@ -52,13 +52,9 @@ public class MailDAO {
     }
 
     public void deleteMailsFromDB(String boxType) {
-        log.info("Deleting mails from box: {}", boxType);
-
         create.deleteFrom(table(MAILS_TABLE))
                 .where(getMailboxCondition(boxType))
                 .execute();
-
-        log.info("{} mails deleted for user {}", boxType, UserManager.currentLoggedInUser.getUsername());
     }
 
     public Mail convertRecordToMail(Record record) {

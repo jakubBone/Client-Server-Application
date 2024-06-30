@@ -103,6 +103,7 @@ public class UserInteraction {
         System.out.print("Please type the new role (ADMIN / USER): ");
         String newRole = reader.readLine();
         if(newRole.equals("ADMIN")){
+            System.out.println("!!!!!" + newRole);
             return Role.ADMIN;
         } else {
             return Role.USER;

@@ -1,7 +1,7 @@
 package handler;
 
 import database.DatabaseConnection;
-import handler.user.AccountUpdateHandler;
+import handler.user.PasswordChangeHandler;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,7 +15,7 @@ import user.manager.UserManager;
 import static org.junit.jupiter.api.Assertions.*;
 
 class AccountUpdateHandlerTest {
-    AccountUpdateHandler updateHandler;
+    PasswordChangeHandler updateHandler;
     UserManager userManager;
 
     DatabaseConnection DATABASE;
@@ -23,7 +23,7 @@ class AccountUpdateHandlerTest {
 
     @BeforeEach
     void setUp() {
-        updateHandler = new AccountUpdateHandler();
+        updateHandler = new PasswordChangeHandler();
         userManager = new UserManager();
         DATABASE = new DatabaseConnection();
         JOOQ = DSL.using(DATABASE.getConnection());

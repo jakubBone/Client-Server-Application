@@ -79,14 +79,14 @@ public class RequestFactory {
     }
 
 
-    public Request createAdminDeleteUserRequest(String updateOperation, String userToDelete) {
+    public Request createDeleteUserRequest(String updateOperation, String userToDelete) {
         request.setRequestCommand(updateOperation);
         request.setUserToUpdate(userToDelete);
         log.info("AdminDeleteUserRequest created for user: {}", userToDelete);
         return request;
     }
 
-    public Request createAdminChangeRoleRequest(String updateOperation, String userToUpdate, User.Role role) {
+    public Request createChangeRoleRequest(String updateOperation, String userToUpdate, User.Role role) {
         request.setRequestCommand(updateOperation);
         request.setUserToUpdate(userToUpdate);
         request.setNewRole(role);
@@ -98,7 +98,7 @@ public class RequestFactory {
      * Creates an admin switch user request.
      * @param requestCommand The request command ("SWITCH")
      */
-    public Request createAdminSwitchUserRequest(String requestCommand, String userToSwitch) {
+    public Request createSwitchUserRequest(String requestCommand, String userToSwitch) {
         request.setRequestCommand(requestCommand);
         request.setUserToSwitch(userToSwitch);
         log.info("AdminSwitchUserRequest created for user: {}", userToSwitch);

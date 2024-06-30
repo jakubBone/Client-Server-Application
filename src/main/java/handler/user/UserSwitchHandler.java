@@ -6,12 +6,13 @@ import user.credential.User;
 import user.manager.UserManager;
 
 /**
- * The AdminSwitchHandler class handles requests to switch the current user to an admin user.
+ * The AdminSwitchHandler class handles requests to switch the any user account.
+ * The operation permitted only for admin.
  * It verifies the current user is authorized to perform the switch.
  */
 
 @Log4j2
-public class AdminSwitchHandler {
+public class UserSwitchHandler {
 
     public String getResponse(String username, UserManager userManager) {
         log.info("Attempting to switch admin to user: {}", username);

@@ -72,7 +72,7 @@ public class RequestService {
                 return getAccountUpdateRequest();
             case "SWITCH":
                 String userToSwitch = userInteraction.getUserToSwitch();
-                return factory.createAdminSwitchUserRequest(requestCommand, userToSwitch);
+                return factory.createSwitchUserRequest(requestCommand, userToSwitch);
             case "LOGOUT":
                 return factory.createLogoutRequest(requestCommand);
             default:
@@ -91,15 +91,15 @@ public class RequestService {
             log.info("Authorization succeeded");
             String updateOperation = userInteraction.chooseUpdateOperation();
             String userToUpdate = userInteraction.chooseUserToUpdate();
-            switch (updateOperation) {
+            switch (updateOperation.toUpperCase()) {
                 case "PASSWORD":
                     String newPassword = userInteraction.getNewPassword();
                     return factory.createAdminChangePasswordRequest(updateOperation, userToUpdate, newPassword);
                 case "DELETE":
-                    return factory.createAdminDeleteUserRequest(updateOperation, userToUpdate);
+                    return factory.createDeleteUserRequest(updateOperation, userToUpdate);
                 case "ROLE":
                     User.Role newRole = userInteraction.chooseRole();
-                    return factory.createAdminChangeRoleRequest(updateOperation, userToUpdate, newRole);
+                    return factory.createChangeRoleRequest(updateOperation, userToUpdate, newRole);
                 default:
                     log.warn("Unknown update operation: {}", updateOperation);
                     return null;
