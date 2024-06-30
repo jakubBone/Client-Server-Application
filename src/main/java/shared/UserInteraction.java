@@ -60,9 +60,9 @@ public class UserInteraction {
             }
         }
     }
-    public String chooseMailBox() throws IOException {
+    public String chooseBoxType() throws IOException {
         while (true) {
-                System.out.println("Mailbox: OPENED / UNREAD / SENT");
+                System.out.println("Mailbox type: OPENED / UNREAD / SENT");
                 System.out.print("Select: ");
                 String mailbox = reader.readLine().toUpperCase();
                 switch (mailbox) {

@@ -7,16 +7,16 @@ import user.credential.User;
 @Getter
 @Setter
 public class Request {
-    String requestCommand;
-    String username;
-    String password;
-    String recipient;
-    String message;
-    String boxOperation;
-    String boxType;
-    String userToUpdate;
-    String newPassword;
-    String userToSwitch;
-    User.Role newRole;
+    private String requestCommand;
+    private String username;
+    private String password;
+    private String recipient;
+    private String message;
+    private String boxOperation;
+    private String boxType;
+    private String userToUpdate;
+    private String newPassword;
+    private String userToSwitch;
+    private User.Role newRole;
 }
 

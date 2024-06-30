@@ -66,8 +66,8 @@ public class RequestService {
                 return factory.createWriteRequest(requestCommand, recipient, message);
             case "MAILBOX":
                 String boxOperation = userInteraction.chooseBoxOperation();
-                String mailbox = userInteraction.chooseMailBox();
-                return factory.createMailBoxRequest(requestCommand, boxOperation, mailbox);
+                String boxType = userInteraction.chooseBoxType();
+                return factory.createMailBoxRequest(requestCommand, boxOperation, boxType);
             case "UPDATE":
                 return getAccountUpdateRequest();
             case "SWITCH":
@@ -76,7 +76,7 @@ public class RequestService {
             case "LOGOUT":
                 return factory.createLogoutRequest(requestCommand);
             default:
-                log.warn("Unknown mailbox menu request: {}", requestCommand);
+                log.warn("Unknown boxType menu request: {}", requestCommand);
                 return null;
         }
     }

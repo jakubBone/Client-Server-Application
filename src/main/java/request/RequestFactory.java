@@ -17,15 +17,15 @@ public class RequestFactory {
     }
 
     public Request createAuthRequest(String requestCommand, String username, String password) {
-        request.requestCommand = requestCommand;
-        request.username = username;
-        request.password = password;
+        request.setRequestCommand(requestCommand);
+        request.setUsername(username);
+        request.setPassword(password);
         log.info("AuthRequest created for user: {}", username);
         return request;
     }
 
     public Request createLogoutRequest(String requestCommand) {
-        request.requestCommand = requestCommand;
+        request.setRequestCommand(requestCommand);
         log.info("LogoutRequest created with command: {}", requestCommand);
         return request;
     }
@@ -35,7 +35,7 @@ public class RequestFactory {
      * @param requestCommand The request command (e.g., "INFO", "UPTIME")
      */
     public Request createServerDetailsRequest(String requestCommand) {
-        request.requestCommand = requestCommand;
+        request.setRequestCommand(requestCommand);
         log.info("ServerDetailsRequest created with command: {}", requestCommand);
         return request;
     }
@@ -45,24 +45,24 @@ public class RequestFactory {
      * @param requestCommand The request command ("WRITE")
      */
     public Request createWriteRequest(String requestCommand, String recipient, String message) {
-        request.requestCommand = requestCommand;
-        request.recipient = recipient;
-        request.message = message;
+        request.setRequestCommand(requestCommand);
+        request.setRecipient(recipient);
+        request.setMessage(message);
         log.info("WriteRequest created for recipient: {}", recipient);
         return request;
     }
 
     /**
-     * Creates a mailbox operation request.
+     * Creates a boxType operation request.
      * @param requestCommand The request command ("MAILBOX")
-     * @param boxOperation The mailbox operation (e.g., "READ", "DELETE")
-     * @param mailbox The mailbox type (e.g., "UNREAD", "SENT")
+     * @param boxOperation The boxType operation (e.g., "READ", "DELETE")
+     * @param boxType The boxType type (e.g., "UNREAD", "SENT")
      */
-    public Request createMailBoxRequest(String requestCommand, String boxOperation, String mailbox) {
-        request.requestCommand = requestCommand;
-        request.boxOperation = boxOperation;
-        request.boxType = mailbox;
-        log.info("MailBoxRequest created with operation: {} for mailbox: {}", boxOperation, mailbox);
+    public Request createMailBoxRequest(String requestCommand, String boxOperation, String boxType) {
+        request.setRequestCommand(requestCommand);
+        request.setBoxOperation(boxOperation);
+        request.setBoxType(boxType);
+        log.info("MailBoxRequest created with operation: {} for boxType: {}", boxOperation, boxType);
         return request;
     }
 
@@ -71,25 +71,25 @@ public class RequestFactory {
      * @param updateOperation The update operation ("PASSWORD")
      */
     public Request createAdminChangePasswordRequest(String updateOperation, String userToUpdate, String newPassword) {
-        request.requestCommand = updateOperation;
-        request.userToUpdate = userToUpdate;
-        request.newPassword = newPassword;
+        request.setRequestCommand(updateOperation);
+        request.setUserToUpdate(userToUpdate);
+        request.setNewPassword(newPassword);
         log.info("AdminChangePasswordRequest created for user: {}", userToUpdate);
         return request;
     }
 
 
     public Request createAdminDeleteUserRequest(String updateOperation, String userToDelete) {
-        request.requestCommand = updateOperation;
-        request.userToUpdate = userToDelete;
+        request.setRequestCommand(updateOperation);
+        request.setUserToUpdate(userToDelete);
         log.info("AdminDeleteUserRequest created for user: {}", userToDelete);
         return request;
     }
 
     public Request createAdminChangeRoleRequest(String updateOperation, String userToUpdate, User.Role role) {
-        request.requestCommand = updateOperation;
-        request.userToUpdate = userToUpdate;
-        request.newRole = role;
+        request.setRequestCommand(updateOperation);
+        request.setUserToUpdate(userToUpdate);
+        request.setNewRole(role);
         log.info("AdminChangeRoleRequest created for user: {} with new role: {}", userToUpdate, role);
         return request;
     }
@@ -97,12 +97,11 @@ public class RequestFactory {
     /**
      * Creates an admin switch user request.
      * @param requestCommand The request command ("SWITCH")
-     * @param username The username of the user to switch to
      */
-    public Request createAdminSwitchUserRequest(String requestCommand, String username) {
-        request.requestCommand = requestCommand;
-        request.userToSwitch = username;
-        log.info("AdminSwitchUserRequest created for user: {}", username);
+    public Request createAdminSwitchUserRequest(String requestCommand, String userToSwitch) {
+        request.setRequestCommand(requestCommand);
+        request.setUserToSwitch(userToSwitch);
+        log.info("AdminSwitchUserRequest created for user: {}", userToSwitch);
         return request;
     }
 }
