@@ -5,7 +5,7 @@ import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.impl.DSL;
 import org.mindrot.jbcrypt.BCrypt;
-import user.User;
+import user.credential.User;
 
 import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.table;
@@ -19,7 +19,7 @@ public class UserDAO {
         this.create = create;
     }
 
-    public void addUser(User user)  {
+    public void addUserToDB(User user)  {
         create.insertInto(table(USERS_TABLE),
                         field("username"),
                         field("password"),
@@ -37,6 +37,10 @@ public class UserDAO {
                 .where(DSL.field("username").eq(username))
                 .fetchOne();
 
+        if (record == null) {
+            return null;
+        }
+
         return new User(
                 record.getValue("username", String.class),
                 record.getValue("password", String.class),
@@ -53,35 +57,24 @@ public class UserDAO {
 
         return BCrypt.checkpw(typedPassword, hashed);
     }
-    public void deleteUser(String username) {
-        log.info("Attempting to delete user: {}", username);
 
+    public void deleteUserFromDB(String username) {
         create.deleteFrom(table(USERS_TABLE))
                 .where(field("username").eq(username))
                 .execute();
-
-        log.info("User deletion succeeded: {}", username);
     }
 
-    public void changeUserRole(User user, User.Role role) {
-        log.info("Attempting to role change for user: {}", user.getUsername());
-
+    public void changeUserRoleInDB(User user, User.Role role) {
         user.setRole(role);
         updateUserInDB(user);
-
-        log.info("Role change succeeded for user: {} to {}", user.getUsername(), role);
     }
 
     public void updateUserInDB(User user) {
-        log.info("Attempting to upload database: {}", user.getUsername());
-
         create.update(table(USERS_TABLE))
                 .set(field("password"), user.getPassword())
                 .set(field("role"), user.getRole().toString())
                 .set(field("hashed_password"), user.getHashedPassword())
                 .where(field("username").eq(user.getUsername()))
                 .execute();
-
-        log.info("Data base upload succeeded {}", user.getUsername());
     }
 }

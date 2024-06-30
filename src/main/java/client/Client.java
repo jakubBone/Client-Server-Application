@@ -36,11 +36,6 @@ public class Client {
         log.info("Client instance created");
     }
 
-    /**
-     * Handles the communication with the server.
-     * This method runs in a loop, allowing the user to send requests to the server
-     * and handle responses until the user exits the application.
-     */
     public void handleServerCommunication() {
         try {
             log.info("Starting server communication");
@@ -85,9 +80,6 @@ public class Client {
         }
     }
 
-    /**
-     * Displays the appropriate UI based on the user's login and authorization status.
-     */
     public void printClientUI(){
         if(!connection.isLoggedIn()) {
             Screen.printLoginMenu();

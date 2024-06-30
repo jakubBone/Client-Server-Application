@@ -177,20 +177,20 @@ public class ClientConnection {
     public void readResponse() throws IOException {
         try{
             String jsonResponse;
-            log.info("Reading response from server");
+            log.info("Reading handler from server");
             while (!(jsonResponse = inFromServer.readLine()).equals("<<END>>")) {
-                String response = JsonConverter.deserializeMessage(jsonResponse);
-                checkResponseStatus(response);
+                String handler = JsonConverter.deserializeMessage(jsonResponse);
+                checkResponseStatus(handler);
                 System.out.println(JsonConverter.deserializeMessage(jsonResponse));
             }
         } catch (IOException ex){
-            log.error("Error reading response: {}", ex.getMessage());
+            log.error("Error reading handler: {}", ex.getMessage());
         }
     }
 
     // Checks the login update and role authorization
-    public void checkResponseStatus(String response) {
-        ResponseMessage operationMessage = ResponseMessage.fromString(response);
+    public void checkResponseStatus(String handler) {
+        ResponseMessage operationMessage = ResponseMessage.fromString(handler);
         System.out.println(operationMessage);
         switch (operationMessage) {
             case ADMIN_LOGIN_SUCCEEDED:
@@ -222,7 +222,7 @@ public class ClientConnection {
                 log.info("Switch succeeded");
                 break;
             default:
-                log.info("No response required to action");
+                log.info("No handler required to action");
         }
     }
 
@@ -262,7 +262,7 @@ package handler.auth;
 
 import lombok.extern.log4j.Log4j2;
 import shared.ResponseMessage;
-import user.UserManager;
+import user.manager.UserManager;
 
 /*
  * The AuthHandler class processes authentication requests such as REGISTER and LOGIN.
@@ -291,7 +291,7 @@ FILE: LogoutHandler.java
 package handler.auth;
 
 import lombok.extern.log4j.Log4j2;
-import user.UserManager;
+import user.manager.UserManager;
 
 @Log4j2
 public class LogoutHandler {
@@ -343,16 +343,16 @@ public class MailboxHandler {
             return ResponseMessage.MAILBOX_EMPTY.getResponse();
         }
 
-        StringBuilder response = new StringBuilder();
+        StringBuilder handler = new StringBuilder();
         for (Mail mail : mailsToRead) {
-            response.append("From ")
+            handler.append("From ")
                     .append(mail.getSender().getUsername())
                     .append("\n Message: ")
                     .append(mail.getMessage());
         }
 
         mailService.markMailsAsRead(boxType);
-        return response.toString();
+        return handler.toString();
     }
 
     private String getEmptyMailboxResponse(String boxType){
@@ -373,8 +373,8 @@ import lombok.extern.log4j.Log4j2;
 import mail.Mail;
 import mail.MailService;
 import shared.ResponseMessage;
-import user.User;
-import user.UserManager;
+import user.credential.User;
+import user.manager.UserManager;
 
 /*
  * The WriteHandler class processes requests to send mail.
@@ -465,8 +465,8 @@ package handler.user;
 
 import lombok.extern.log4j.Log4j2;
 import shared.ResponseMessage;
-import user.User;
-import user.UserManager;
+import user.credential.User;
+import user.manager.UserManager;
 
 /*
  * The AccountUpdateHandler class handles account update requests such as changing passwords, deleting users, and changing user roles.
@@ -553,8 +553,8 @@ package handler.user;
 
 import lombok.extern.log4j.Log4j2;
 import shared.ResponseMessage;
-import user.User;
-import user.UserManager;
+import user.credential.User;
+import user.manager.UserManager;
 
 /*
  * The AdminSwitchHandler class handles requests to switch the current user to an admin user.
@@ -596,7 +596,7 @@ package mail;
 
 import lombok.Getter;
 import lombok.Setter;
-import user.User;
+import user.credential.User;
 @Getter
 @Setter
 public class Mail {
@@ -649,7 +649,7 @@ FILE: MailService.java
 package mail;
 
 import lombok.extern.log4j.Log4j2;
-import user.UserManager;
+import user.manager.UserManager;
 import java.util.List;
 
 @Log4j2
@@ -735,7 +735,7 @@ package request;
 
 import lombok.Getter;
 import lombok.Setter;
-import user.User;
+import user.credential.User;
 
 @Getter
 @Setter
@@ -761,7 +761,7 @@ FILE: RequestFactory.java
 package request;
 
 import lombok.extern.log4j.Log4j2;
-import user.User;
+import user.credential.User;
 
 /*
  * The RequestFactory class creates different types of Request objects based on the command and parameters provided.
@@ -855,7 +855,7 @@ import java.io.InputStreamReader;
 import client.ClientConnection;
 import lombok.extern.log4j.Log4j2;
 import shared.UserInteraction;
-import user.User;
+import user.credential.User;
 
 @Log4j2
 public class RequestService {
@@ -1171,7 +1171,7 @@ import handler.user.AdminSwitchHandler;
 import lombok.extern.log4j.Log4j2;
 import request.Request;
 import shared.JsonConverter;
-import user.UserManager;
+import user.manager.UserManager;
 
  /*
   * The ServerRequestService class is responsible for handling various client requests and processing server-side logic
@@ -1208,7 +1208,7 @@ public class ServerRequestService {
 
     public void handleClientRequest() {
         String request;
-        String response;
+        String handler;
         try {
             while ((request = inFromClient.readLine()) != null) {
                 Request req = getParseRequest(request);
@@ -1217,40 +1217,40 @@ public class ServerRequestService {
                 switch (requestCommand) {
                     case "REGISTER":
                     case "LOGIN":
-                        response = authHandler.getResponse(requestCommand, req.getUsername(), req.getPassword(), userManager);
+                        handler = authHandler.getResponse(requestCommand, req.getUsername(), req.getPassword(), userManager);
                         break;
                     case "HELP":
                     case "INFO":
                     case "UPTIME":
-                        response = serverInfoHandler.getResponse(requestCommand);
+                        handler = serverInfoHandler.getResponse(requestCommand);
                         break;
                     case "WRITE":
-                        response = writeHandler.getResponse(req.getRecipient(), req.getMessage(), userManager);
+                        handler = writeHandler.getResponse(req.getRecipient(), req.getMessage(), userManager);
                         break;
                     case "MAILBOX":
-                        response = mailboxHandler.getResponse(req.getBoxOperation(),req.getMailbox());
+                        handler = mailboxHandler.getResponse(req.getBoxOperation(),req.getMailbox());
                         break;
                     case "PASSWORD":
-                        response = updateHandler.getChangePasswordResponse(req.getUserToUpdate(), req.getNewPassword(), userManager);
+                        handler = updateHandler.getChangePasswordResponse(req.getUserToUpdate(), req.getNewPassword(), userManager);
                         break;
                     case "DELETE":
-                        response = updateHandler.getUserDeleteResponse(req.getUserToUpdate(), userManager);
+                        handler = updateHandler.getUserDeleteResponse(req.getUserToUpdate(), userManager);
                         break;
                     case "ROLE":
-                        response = updateHandler.getChangeRoleResponse(req.getUserToUpdate(), req.getNewRole(), userManager);
+                        handler = updateHandler.getChangeRoleResponse(req.getUserToUpdate(), req.getNewRole(), userManager);
                         break;
                     case "SWITCH":
-                        response = switchHandler.getResponse(req.getUserToSwitch(), userManager);
+                        handler = switchHandler.getResponse(req.getUserToSwitch(), userManager);
                         break;
                     case "LOGOUT":
-                        response = logoutHandler.getResponse(userManager);
+                        handler = logoutHandler.getResponse(userManager);
                         break;
                     default:
                         log.warn("Unknown request command: {}", requestCommand);
-                        response = "Unknown request command";
+                        handler = "Unknown request command";
                         break;
                 }
-                sendResponse(response);
+                sendResponse(handler);
                 log.info("Completed processing request command: {}", requestCommand);
             }
         } catch (IOException ex) {
@@ -1262,8 +1262,8 @@ public class ServerRequestService {
         log.info("Parsing request: {}", request);
         return gson.fromJson(request, Request.class);
     }
-    public void sendResponse(String response){
-        jsonResponse = new JsonConverter(response);
+    public void sendResponse(String handler){
+        jsonResponse = new JsonConverter(handler);
         String json = jsonResponse.serializeMessage();
         outToClient.println(json);
         log.info("Response sent: {}", json);
@@ -1283,7 +1283,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import lombok.extern.log4j.Log4j2;
-import user.User;
+import user.credential.User;
 
 /*
   * The JsonConverter class provides utilities for converting objects to and from JSON
@@ -1372,7 +1372,7 @@ public enum ResponseMessage {
     ADMIN_LOGIN_SUCCEEDED("Admin login successful"),
     LOGIN_FAILED_INCORRECT_PASSWORD("Login failed: Incorrect password"),
 
-    // Logout response
+    // Logout handler
     LOGOUT_SUCCEEDED("Logout succeeded"),
 
     // Authorization responses
@@ -1397,12 +1397,12 @@ public enum ResponseMessage {
 
     // Unknown Message
     UNKNOWN_REQUEST("Unknown request"),
-    UNKNOWN_RESPONSE("Unknown response");
+    UNKNOWN_RESPONSE("Unknown handler");
 
     private final String RESPONSE;
 
-    ResponseMessage(String response){
-        this.RESPONSE = response;
+    ResponseMessage(String handler){
+        this.RESPONSE = handler;
     }
 
     public String getResponse() {
@@ -1483,7 +1483,7 @@ package shared;
 import java.io.BufferedReader;
 import java.io.IOException;
 
-import user.User.Role;
+import user.credential.User.Role;
 
 /*
   * The UserInteraction class is responsible for interaction with users through the console
@@ -1890,7 +1890,7 @@ class ClientCommunicationTest {
     }
 
     @Test
-    @DisplayName("Should test checking response status")
+    @DisplayName("Should test checking handler status")
     void testReadResponse() throws IOException {
         String jsonResponse1 = "{\"message\":\"response1\"}";
         String jsonResponse2 = "{\"message\":\"response2\"}";
@@ -1906,39 +1906,39 @@ class ClientCommunicationTest {
     }
 
     @Test
-    @DisplayName("Should check response status")
+    @DisplayName("Should check handler status")
     void testCheckResponseStatus() {
         // Test admin login succeeded
-        String response = ResponseMessage.ADMIN_LOGIN_SUCCEEDED.getResponse();
-        clientConnection.checkResponseStatus(response);
+        String handler = ResponseMessage.ADMIN_LOGIN_SUCCEEDED.getResponse();
+        clientConnection.checkResponseStatus(handler);
         assertTrue(clientConnection.isLoggedIn());
         assertTrue(clientConnection.isAuthorized());
 
         // Test user login succeeded
-        response = ResponseMessage.USER_LOGIN_SUCCEEDED.getResponse();
-        clientConnection.checkResponseStatus(response);
+        handler = ResponseMessage.USER_LOGIN_SUCCEEDED.getResponse();
+        clientConnection.checkResponseStatus(handler);
         assertTrue(clientConnection.isLoggedIn());
 
         // Test registration succeeded
-        response = ResponseMessage.REGISTRATION_SUCCESSFUL.getResponse();
-        clientConnection.checkResponseStatus(response);
+        handler = ResponseMessage.REGISTRATION_SUCCESSFUL.getResponse();
+        clientConnection.checkResponseStatus(handler);
         assertTrue(clientConnection.isLoggedIn());
 
         // Test logout succeeded
-        response = ResponseMessage.LOGOUT_SUCCEEDED.getResponse();
-        clientConnection.checkResponseStatus(response);
+        handler = ResponseMessage.LOGOUT_SUCCEEDED.getResponse();
+        clientConnection.checkResponseStatus(handler);
         assertFalse(clientConnection.isLoggedIn());
         assertFalse(clientConnection.isAuthorized());
         assertFalse(clientConnection.isAdminSwitchedAndAuthorized());
 
         // Test authorization succeeded
-        response = ResponseMessage.AUTHORIZATION_SUCCEEDED.getResponse();
-        clientConnection.checkResponseStatus(response);
+        handler = ResponseMessage.AUTHORIZATION_SUCCEEDED.getResponse();
+        clientConnection.checkResponseStatus(handler);
         assertTrue(clientConnection.isAuthorized());
 
-        // Test operation failed response
-        response = ResponseMessage.SWITCH_SUCCEEDED.getResponse();
-        clientConnection.checkResponseStatus(response);
+        // Test operation failed handler
+        handler = ResponseMessage.SWITCH_SUCCEEDED.getResponse();
+        clientConnection.checkResponseStatus(handler);
         assertFalse(clientConnection.isAuthorized());
         assertTrue(clientConnection.isAdminSwitchedAndAuthorized());
     }
@@ -2085,9 +2085,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import shared.ResponseMessage;
-import user.Admin;
-import user.User;
-import user.UserManager;
+import user.credential.Admin;
+import user.credential.User;
+import user.manager.UserManager;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -2102,18 +2102,18 @@ class AccountUpdateHandlerTest {
     }
 
     @Test
-    @DisplayName("Should test getting update response for password change")
+    @DisplayName("Should test getting update handler for password change")
     void testGetPasswordChangeResponse() {
         Admin admin = new Admin();
 
         // Admin login
         userManager.login(admin);
         // Password changing
-        String response = updateHandler.getChangePasswordResponse(admin.getUsername(), "newPasswod", userManager);
+        String handler = updateHandler.getChangePasswordResponse(admin.getUsername(), "newPasswod", userManager);
 
-        assertNotEquals(ResponseMessage.AUTHORIZATION_FAILED.getResponse(), response);
-        assertNotEquals(ResponseMessage.FAILED_TO_FIND_USER.getResponse(), response);
-        assertEquals(ResponseMessage.OPERATION_SUCCEEDED.getResponse(), response);
+        assertNotEquals(ResponseMessage.AUTHORIZATION_FAILED.getResponse(), handler);
+        assertNotEquals(ResponseMessage.FAILED_TO_FIND_USER.getResponse(), handler);
+        assertEquals(ResponseMessage.OPERATION_SUCCEEDED.getResponse(), handler);
     }
 
     @Test
@@ -2128,26 +2128,26 @@ class AccountUpdateHandlerTest {
         // Admin login
         userManager.login(admin);
         // User account deletion
-        String response = updateHandler.getUserDeleteResponse(userName, userManager);
+        String handler = updateHandler.getUserDeleteResponse(userName, userManager);
 
-        assertNotEquals(ResponseMessage.AUTHORIZATION_FAILED.getResponse(), response);
-        assertNotEquals(ResponseMessage.FAILED_TO_FIND_USER.getResponse(), response);
-        assertEquals(ResponseMessage.OPERATION_SUCCEEDED.getResponse(), response);
+        assertNotEquals(ResponseMessage.AUTHORIZATION_FAILED.getResponse(), handler);
+        assertNotEquals(ResponseMessage.FAILED_TO_FIND_USER.getResponse(), handler);
+        assertEquals(ResponseMessage.OPERATION_SUCCEEDED.getResponse(), handler);
     }
 
     @Test
-    @DisplayName("Should test getting update response for user role change")
+    @DisplayName("Should test getting update handler for user role change")
     void testGetChangeRoleResponse() {
         Admin admin = new Admin();
 
         // Admin login
         userManager.login(admin);
         // Role changing
-        String response = updateHandler.getChangeRoleResponse(admin.getUsername(), User.Role.USER, userManager);
+        String handler = updateHandler.getChangeRoleResponse(admin.getUsername(), User.Role.USER, userManager);
 
-        assertNotEquals(ResponseMessage.AUTHORIZATION_FAILED.getResponse(), response);
-        assertNotEquals(ResponseMessage.FAILED_TO_FIND_USER.getResponse(), response);
-        assertEquals(ResponseMessage.ROLE_CHANGE_SUCCEEDED.getResponse(), response);
+        assertNotEquals(ResponseMessage.AUTHORIZATION_FAILED.getResponse(), handler);
+        assertNotEquals(ResponseMessage.FAILED_TO_FIND_USER.getResponse(), handler);
+        assertEquals(ResponseMessage.ROLE_CHANGE_SUCCEEDED.getResponse(), handler);
     }
 }
 
@@ -2159,7 +2159,7 @@ package mail;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import user.User;
+import user.credential.User;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -2216,8 +2216,8 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import user.User;
-import user.UserManager;
+import user.credential.User;
+import user.manager.UserManager;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -2296,8 +2296,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import shared.UserInteraction;
-import user.User;
-import user.UserManager;
+import user.credential.User;
+import user.manager.UserManager;
 import client.ClientConnection;
 
 import static org.junit.jupiter.api.Assertions.*;

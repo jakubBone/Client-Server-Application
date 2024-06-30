@@ -1,8 +1,5 @@
-package user;
+package user.credential;
 
-import org.jooq.DSLContext;
-import org.jooq.Record;
-import org.jooq.impl.DSL;
 import org.mindrot.jbcrypt.BCrypt;
 
 import lombok.Getter;

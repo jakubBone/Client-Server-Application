@@ -7,27 +7,27 @@ import java.io.InputStreamReader;
 import client.ClientConnection;
 import lombok.extern.log4j.Log4j2;
 import shared.UserInteraction;
-import user.User;
+import user.credential.User;
 
 @Log4j2
 public class RequestService {
 
     private BufferedReader userInput;
-    UserInteraction userInteraction;
-    ClientConnection connection;
-    RequestFactory factory = new RequestFactory();
+    private UserInteraction userInteraction;
+    private ClientConnection connection;
+    private RequestFactory factory;
 
     public RequestService(ClientConnection clientConnection) {
         this.connection = clientConnection;
         this.userInput = new BufferedReader(new InputStreamReader(System.in));
         this.userInteraction = new UserInteraction(userInput);
+        this.factory = new RequestFactory();
         log.info("RequestFactory instance created");
     }
 
     /**
      * Creates a request based on the current connection state (logged in or not).
      * Delegates to the appropriate menu request handler.
-     * @param requestCommand The request command
      */
     public Request getRequest(String requestCommand) throws IOException {
         log.info("Creating request for command: {}", requestCommand);
@@ -39,10 +39,6 @@ public class RequestService {
         }
     }
 
-    /**
-     * Handles requests from the login menu.
-     * Prompts the user for necessary information and creates the appropriate request.
-     */
     public Request getLoginMenuRequest(String requestCommand) throws IOException {
         switch (requestCommand.toUpperCase()) {
             case "REGISTER":
@@ -62,10 +58,6 @@ public class RequestService {
         }
     }
 
-    /**
-     * Handles requests from the mailbox menu.
-     * Prompts the user for necessary information and creates the appropriate request.
-     */
     public Request getMailboxMenuRequest(String requestCommand) throws IOException {
         switch (requestCommand.toUpperCase()){
             case "WRITE":
@@ -90,7 +82,6 @@ public class RequestService {
     }
 
     /**
-     * Creates an account update request (password change, delete user, change role).
      * Ensures the current user is authorized to perform the update.
      */
     public Request getAccountUpdateRequest() throws IOException {

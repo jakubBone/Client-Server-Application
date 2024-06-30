@@ -3,8 +3,8 @@ package shared;
 import lombok.extern.log4j.Log4j2;
 
 /**
- * The ResponseMessage enum defines various response messages
- * The messages sent from the server to the client.
+ * The ResponseMessage enum defines various response
+ * The messages is sent from the server to the client.
  */
 @Log4j2
 public enum ResponseMessage {
@@ -65,7 +65,6 @@ public enum ResponseMessage {
   * Iterate over all the values in the ResponseMessage enum
   * Check if the 'response' field of the current enum value matches the input text
   * If a match is found, return the corresponding ResponseMessage enum value
-  * If no match is found after checking all enum values, return "Unknown response"
   */
  public static ResponseMessage fromString(String text) {
         log.info("Converting text to OperationResponses: {}", text);

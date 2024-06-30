@@ -1,6 +1,7 @@
-package user;
+package user.credential;
 
 import lombok.extern.log4j.Log4j2;
+import user.credential.User;
 
 @Log4j2
 public class Admin extends User {

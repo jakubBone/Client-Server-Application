@@ -1,16 +1,16 @@
 package request;
 
 import lombok.extern.log4j.Log4j2;
-import user.User;
+import user.credential.User;
 
 /**
- * The RequestFactory class creates different types of Request objects based on the command and parameters provided.
+ * The RequestFactory class creates different types of Request objects based on the command.
  * It includes methods for creating authentication, server details, mailbox, and account update requests.
  */
 
 @Log4j2
 public class RequestFactory {
-    Request request;
+    private Request request;
 
     public RequestFactory() {
         this.request = new Request();

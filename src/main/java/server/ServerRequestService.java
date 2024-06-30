@@ -15,10 +15,10 @@ import handler.user.AdminSwitchHandler;
 import lombok.extern.log4j.Log4j2;
 import request.Request;
 import shared.JsonConverter;
-import user.UserManager;
+import user.manager.UserManager;
 
- /*
-  * The ServerRequestService class is responsible for handling various client requests and processing server-side logic
+ /**
+  * The ServerRequestService class is responsible for handling various client requests
   * It manages user authentication, mail operations, user account updates, account switch, and server information
   */
 
@@ -34,21 +34,25 @@ public class ServerRequestService {
     private MailboxHandler mailboxHandler;
     private AccountUpdateHandler updateHandler;
     private WriteHandler writeHandler;
-    private LogoutHandler logoutHandler;
-    private AdminSwitchHandler switchHandler;
+    private LogoutHandler logoutHanlder;
+    private AdminSwitchHandler switchHandlerResponse;
 
     public ServerRequestService(PrintWriter outToClient, BufferedReader inFromClient) {
         this.outToClient = outToClient;
         this.inFromClient = inFromClient;
         this.userManager = new UserManager();
         this.gson = new Gson();
+        initializeHandlers();
+    }
+
+    public void initializeHandlers(){
         this.authHandler = new AuthHandler();
         this.serverInfoHandler = new ServerDetailsHandler();
         this.mailboxHandler = new MailboxHandler();
         this.updateHandler = new AccountUpdateHandler();
         this.writeHandler = new WriteHandler();
-        this.switchHandler = new AdminSwitchHandler();
-        this.logoutHandler = new LogoutHandler();
+        this.switchHandlerResponse = new AdminSwitchHandler();
+        this.logoutHanlder = new LogoutHandler();
     }
 
     public void handleClientRequest() {
@@ -85,10 +89,10 @@ public class ServerRequestService {
                         response = updateHandler.getChangeRoleResponse(req.getUserToUpdate(), req.getNewRole(), userManager);
                         break;
                     case "SWITCH":
-                        response = switchHandler.getResponse(req.getUserToSwitch(), userManager);
+                        response = switchHandlerResponse.getResponse(req.getUserToSwitch(), userManager);
                         break;
                     case "LOGOUT":
-                        response = logoutHandler.getResponse(userManager);
+                        response = logoutHanlder.getResponse(userManager);
                         break;
                     default:
                         log.warn("Unknown request command: {}", requestCommand);

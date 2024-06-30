@@ -3,7 +3,7 @@ package shared;
 import java.io.BufferedReader;
 import java.io.IOException;
 
-import user.User.Role;
+import user.credential.User.Role;
 
 /**
  * The UserInteraction class provides methods to interact with the user through the console.

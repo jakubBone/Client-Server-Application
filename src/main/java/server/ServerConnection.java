@@ -70,7 +70,7 @@ public class ServerConnection {
             if (serverSocket != null) {
                 serverSocket.close();
             }
-            log.info("Server and client connections closed");
+            log.info("Server disconnected");
         } catch (IOException ex) {
             log.error("Error closing connections: {}", ex.getMessage());
         }

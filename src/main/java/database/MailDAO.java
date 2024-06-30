@@ -5,9 +5,8 @@ import lombok.extern.log4j.Log4j2;
 import org.jooq.Condition;
 import org.jooq.DSLContext;
 import org.jooq.Record;
-import user.User;
-import user.UserManager;
-
+import user.credential.User;
+import user.manager.UserManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +18,6 @@ import static org.jooq.impl.DSL.table;
 public class MailDAO {
     private final DSLContext create;
     private final String MAILS_TABLE = "mails";
-
     private final UserDAO userDAO;
 
     public MailDAO(DSLContext create, UserDAO userDAO) {
@@ -50,7 +48,6 @@ public class MailDAO {
             Mail mail = convertRecordToMail(record);
             mails.add(mail);
         }
-
         return mails;
     }
 

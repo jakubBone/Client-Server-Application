@@ -3,6 +3,8 @@ package user;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import user.credential.User;
+import user.manager.UserManager;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -21,7 +23,7 @@ class AdminTest {
         String password = "examplePassword";
 
         // Register user
-        userManager.register(username, password);
+        userManager.handleRegister(username, password);
 
         // Find the user and change the password
         User user = userManager.getUserByUsername(username);
@@ -38,7 +40,7 @@ class AdminTest {
         String password = "examplePassword";
 
         // Register user
-        userManager.register(username, password);
+        userManager.handleRegister(username, password);
 
         // Find the user and delete
         User user = userManager.getUserByUsername(username);
@@ -54,7 +56,7 @@ class AdminTest {
         String password = "examplePassword";
 
         // Register user
-        userManager.register(username, password);
+        userManager.handleRegister(username, password);
 
         // Find the user change the role
         User user = userManager.getUserByUsername(username);
@@ -72,7 +74,7 @@ class AdminTest {
         String password = "examplePassword";
 
         // Register user
-        userManager.register(username, password);
+        userManager.handleRegister(username, password);
 
         // Find the user change the role
         User user = userManager.getUserByUsername(username);

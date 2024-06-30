@@ -8,8 +8,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import shared.UserInteraction;
-import user.User;
-import user.UserManager;
+import user.credential.User;
+import user.manager.UserManager;
 import client.ClientConnection;
 
 import static org.junit.jupiter.api.Assertions.*;

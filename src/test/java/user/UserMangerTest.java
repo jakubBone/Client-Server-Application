@@ -3,6 +3,9 @@ package user;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import user.credential.Admin;
+import user.credential.User;
+import user.manager.UserManager;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -21,7 +24,7 @@ class UserMangerTest {
         User newUser = new User(userName, password, User.Role.USER);
 
         // Test user registration with a new username
-        userManager.register(userName, password);
+        userManager.handleRegister(userName, password);
         assertEquals(UserManager.currentLoggedInUser.getUsername(), userName);
         assertEquals(UserManager.currentLoggedInUser.getPassword(), password);
         assertEquals(UserManager.currentLoggedInUser.role, User.Role.USER);
@@ -34,10 +37,10 @@ class UserMangerTest {
         String password = "examplePassword";
 
         // Register the user for the first time
-        userManager.register(userName, password);
+        userManager.handleRegister(userName, password);
 
         // Attempt to register the same user again
-        userManager.register(userName, password);
+        userManager.handleRegister(userName, password);
         String registrationStatus = userManager.registerAndGetResponse(userName, password);
 
         assertEquals("Registration failed: User already exists", registrationStatus);
@@ -51,7 +54,7 @@ class UserMangerTest {
         User newUser = new User(username, password, User.Role.USER);
 
         // Register the user first
-        userManager.register(username, password);
+        userManager.handleRegister(username, password);
 
         // Attempt to log in with correct credentials
         userManager.login(newUser);
@@ -70,7 +73,7 @@ class UserMangerTest {
         User anotherUser = new User(username,"wrongPassword" , User.Role.USER);
 
         // Register the user first
-        userManager.register(username, password);
+        userManager.handleRegister(username, password);
 
         // Attempt to log in with incorrect password
         userManager.login(anotherUser);
@@ -86,7 +89,7 @@ class UserMangerTest {
         User user = new User(username,password , User.Role.USER);
 
         // Register and login the user first
-        userManager.register(username, password);
+        userManager.handleRegister(username, password);
         userManager.login(user);
 
         // Logout the current user
@@ -102,7 +105,7 @@ class UserMangerTest {
         String password = "examplePassword";
 
         // Register the user first
-        userManager.register(username, password);
+        userManager.handleRegister(username, password);
 
         // Find the user by username
         User foundUser = userManager.getUserByUsername(username);

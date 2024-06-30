@@ -8,9 +8,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import shared.ResponseMessage;
-import user.Admin;
-import user.User;
-import user.UserManager;
+import user.credential.Admin;
+import user.credential.User;
+import user.manager.UserManager;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -52,7 +52,7 @@ class AccountUpdateHandlerTest {
         Admin admin = new Admin(DATABASE, JOOQ);
 
         // User register
-        userManager.register(userName, password);
+        userManager.handleRegister(userName, password);
         // Admin login
         userManager.login(admin);
         // User account deletion

@@ -148,7 +148,7 @@ public class ClientConnection {
             if (clientSocket != null) {
                 clientSocket.close();
             }
-            log.info("Disconnected from server");
+            log.info("Client disconnected");
         } catch (IOException ex) {
             log.error("Error during disconnection: {}", ex.getMessage());
         }

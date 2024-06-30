@@ -1,5 +1,6 @@
 package server;
 
+import database.DatabaseConnection;
 import lombok.extern.log4j.Log4j2;
 
 @Log4j2
@@ -15,6 +16,12 @@ public class Server {
 
         logicHandler.handleClientRequest();
 
-        connectionHandler.closeConnections();
+        try {
+            logicHandler.handleClientRequest();
+        } finally {
+            connectionHandler.closeConnections();
+            DatabaseConnection.getInstance().disconnect();
+        }
+
     }
 }

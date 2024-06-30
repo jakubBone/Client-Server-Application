@@ -2,7 +2,7 @@ package mail;
 
 import lombok.Getter;
 import lombok.Setter;
-import user.User;
+import user.credential.User;
 @Getter
 @Setter
 public class Mail {

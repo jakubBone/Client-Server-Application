@@ -6,8 +6,8 @@ import database.UserDAO;
 import lombok.extern.log4j.Log4j2;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
-import user.User;
-import user.UserManager;
+import user.credential.User;
+import user.manager.UserManager;
 
 import java.util.List;
 
@@ -16,6 +16,7 @@ public class MailService {
     private final DSLContext create;
     private final MailDAO mailDAO;
     private UserDAO userDAO;
+
     public MailService() {
         this.create = DSL.using(DatabaseConnection.getInstance().getConnection());
         this.userDAO = new UserDAO(create);

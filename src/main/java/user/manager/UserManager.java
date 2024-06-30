@@ -1,4 +1,4 @@
-package user;
+package user.manager;
 
 import database.DatabaseConnection;
 import database.UserDAO;
@@ -8,6 +8,8 @@ import lombok.extern.log4j.Log4j2;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
 import shared.ResponseMessage;
+import user.credential.Admin;
+import user.credential.User;
 
 
 /**
@@ -24,63 +26,21 @@ public class UserManager {
     public Admin admin;
     private final DSLContext create;
     private final UserDAO userDAO;
+    private AuthManager authManager;
 
     public UserManager() {
         this.create = DSL.using(DatabaseConnection.getInstance().getConnection());
         this.userDAO = new UserDAO(create);
         this.admin = new Admin();
+        this.authManager = new AuthManager();
     }
 
     public String registerAndGetResponse(String username, String password) {
-        log.info("Registration attempted for user: {}", username);
-
-        if (isUserExistsInSystem(username)) {
-            log.info("Registration attempt failed - user already exists: {}", username);
-            return ResponseMessage.REGISTRATION_FAILED_USER_EXISTS.getResponse();
-        }
-
-        register(username, password);
-        log.info("Registration successful for new user: {}", username);
-        return ResponseMessage.REGISTRATION_SUCCESSFUL.getResponse();
-    }
-
-    public void register(String username, String password) throws IllegalArgumentException {
-        User newUser = new User(username, password, User.Role.USER);
-        userDAO.addUser(newUser);
-        currentLoggedInUser = newUser;
-        log.info("User registered: {}", username);
+        return authManager.registerUser(username, password, userDAO);
     }
 
     public String loginAndGetResponse(String username, String password) {
-        log.info("Login attempted for user: {}", username);
-        User user = userDAO.getUserFromDB(username);
-
-        if (user == null) {
-            log.info("Login attempt failed - user does not exist: {}", username);
-            return ResponseMessage.FAILED_TO_FIND_USER.getResponse();
-        }
-
-        if (!ifPasswordCorrect(password, user)) {
-            log.info("Incorrect password attempt for user: {}", user.getUsername());
-            return ResponseMessage.LOGIN_FAILED_INCORRECT_PASSWORD.getResponse();
-        }
-
-        log.info("User password correct: {}", user.getUsername());
-
-        login(user);
-
-        log.info("User login succeeded: {}", user.getUsername());
-
-        if (isUserAdmin()) {
-            return ResponseMessage.ADMIN_LOGIN_SUCCEEDED.getResponse();
-        } else {
-            return ResponseMessage.USER_LOGIN_SUCCEEDED.getResponse();
-        }
-    }
-
-    public void login(User existingUser) {
-        currentLoggedInUser = existingUser;
-        log.info("User logged in: {}", existingUser.getUsername());
+        return authManager.loginUser(username, password, userDAO);
     }
 
     public User getUserByUsername(String username) {
@@ -97,17 +57,14 @@ public class UserManager {
         return user;
     }
 
-    public boolean checkPassword(String typedPassword, User user) {
-        log.info("Checking password for user: {}", user.getUsername());
-
-        return userDAO.checkPasswordInDB(typedPassword, user.getUsername());
-    }
-
     public void changePassword(User user, String newPassword) {
         log.info("Attempting to password change for user: {}", user.getUsername());
 
         user.setPassword(newPassword);
+
+        log.info("Attempting to upload database: {}", user.getUsername());
         userDAO.updateUserInDB(user);
+        log.info("Data base upload succeeded {}", user.getUsername());
 
         log.info("Password change succeeded for user: {}", user.getUsername());
     }
@@ -115,7 +72,7 @@ public class UserManager {
     public void deleteUser(User user) {
         log.info("Attempting to delete user: {}", user.getUsername());
 
-        userDAO.deleteUser(user.getUsername());
+        userDAO.deleteUserFromDB(user.getUsername());
 
         log.info("User deletion succeeded: {}", user.getUsername());
     }
@@ -132,17 +89,9 @@ public class UserManager {
     public void changeUserRole(User user, User.Role role) {
         log.info("Attempting to role change for user: {}", user.getUsername());
 
-        userDAO.changeUserRole(user, role);
+        userDAO.changeUserRoleInDB(user, role);
 
         log.info("Role change succeeded for user: {} to {}", user.getUsername(), role);
-    }
-
-    public boolean isUserExistsInSystem(String username) {
-        return userDAO.getUserFromDB(username) != null;
-    }
-
-    public boolean ifPasswordCorrect(String password, User user) {
-        return checkPassword(password, user);
     }
 
     public String logoutAndGetResponse() {
@@ -151,13 +100,11 @@ public class UserManager {
         ifAdminSwitched = false;
         currentLoggedInUser = null;
 
-        log.info("User logout succeeded: {}", currentLoggedInUser.getUsername());
         return ResponseMessage.LOGOUT_SUCCEEDED.getResponse();
     }
 
     public boolean isUserAdmin(){
         log.info("Admin role checking for user: {}", currentLoggedInUser.getUsername());
-
         return currentLoggedInUser != null && currentLoggedInUser.getRole().equals(User.Role.ADMIN);
     }
 }

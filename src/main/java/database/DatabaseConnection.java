@@ -27,7 +27,7 @@ public class DatabaseConnection {
         return instance;
     }
 
-    private void startConnection() {
+    public void startConnection() {
         try {
             log.info("Attempting to connect with data base");
             connection = DriverManager.getConnection(URL, USER, PASSWORD);

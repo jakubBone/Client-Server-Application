@@ -17,13 +17,10 @@ import shared.ResponseMessage;
 public class MailboxHandler {
     private MailService mailService = new MailService();
 
-
     /**
      * Processes mailbox operations (READ, DELETE) and generates appropriate responses.
      * @param mailboxOperation The mailbox operation command (e.g., "READ", "DELETE")
      * @param boxType The type of mailbox (e.g., "UNREAD", "OPENED")
-     * @param userManager The UserManager instance for managing users
-     * @return The response message as a string
      */
     public String getResponse(String mailboxOperation, String boxType) throws IOException {
         log.info("Processing mailbox operation: {}", mailboxOperation);
@@ -41,8 +38,6 @@ public class MailboxHandler {
 
     /**
      * Generates the response for reading mails from the specified mailbox.
-     * @param boxType The type of mailbox
-     * @return The response message as a string
      */
     private String getReadResponse(String boxType) {
         log.info("Reading mails from box: {}", boxType);
