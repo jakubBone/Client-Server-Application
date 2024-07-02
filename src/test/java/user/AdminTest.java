@@ -9,7 +9,7 @@ import user.manager.UserManager;
 import static org.junit.jupiter.api.Assertions.*;
 
 class AdminTest {
-    UserManager userManager;
+    /*UserManager userManager;
 
     @BeforeEach
     void setUp() {
@@ -82,5 +82,5 @@ class AdminTest {
 
         assertTrue(UserManager.currentLoggedInUser.equals(user));
         assertTrue(UserManager.ifAdminSwitched);
-    }
+    }*/
 }

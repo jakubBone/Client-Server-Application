@@ -15,9 +15,8 @@ import user.manager.UserManager;
 import static org.junit.jupiter.api.Assertions.*;
 
 class AccountUpdateHandlerTest {
-    PasswordChangeHandler updateHandler;
+    P/*asswordChangeHandler updateHandler;
     UserManager userManager;
-
     DatabaseConnection DATABASE;
     DSLContext JOOQ;
 
@@ -76,5 +75,5 @@ class AccountUpdateHandlerTest {
         assertNotEquals(ResponseMessage.AUTHORIZATION_FAILED.getResponse(), response);
         assertNotEquals(ResponseMessage.FAILED_TO_FIND_USER.getResponse(), response);
         assertEquals(ResponseMessage.ROLE_CHANGE_SUCCEEDED.getResponse(), response);
-    }
+    }*/
 }

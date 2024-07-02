@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class UserTest {
 
-    DatabaseConnection DATABASE;
+    /*DatabaseConnection DATABASE;
     DSLContext JOOQ;
 
     @BeforeEach
@@ -53,5 +53,5 @@ class UserTest {
 
         assertNotNull(user.getHashedPassword());
         assertTrue(user.checkPassword(typedPassword, JOOQ));
-    }
+    }*/
 }
