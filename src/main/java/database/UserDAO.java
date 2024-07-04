@@ -65,7 +65,6 @@ public class UserDAO {
     }
 
     public void changeUserRoleInDB(User user, User.Role role) {
-        user.setRole(role);
         updateUserInDB(user);
     }
 

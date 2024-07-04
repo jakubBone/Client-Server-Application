@@ -1,127 +1,133 @@
 package user;
 
+import database.UserDAO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import user.credential.Admin;
+import shared.ResponseMessage;
 import user.credential.User;
 import user.manager.UserManager;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 class UserMangerTest {
     UserManager userManager;
+    User user;
+    UserDAO mockUserDAO;
+    String username = "exampleUsername";
+    String password = "examplePassword";
 
-    /*@BeforeEach
+    @BeforeEach
     void setUp() {
         userManager = new UserManager();
-    }
-    @Test
-    @DisplayName("Should test user registration for the first time")
-    void testRegister() {
-        String userName = "exampleUsername";
-        String password = "examplePassword";
-        User newUser = new User(userName, password, User.Role.USER);
-
-        // Test user registration with a new username
-        userManager.handleRegister(userName, password);
-        assertEquals(UserManager.currentLoggedInUser.getUsername(), userName);
-        assertEquals(UserManager.currentLoggedInUser.getPassword(), password);
-        assertEquals(UserManager.currentLoggedInUser.role, User.Role.USER);
+        user = new User(username, password, User.Role.USER);
+        mockUserDAO = mock(UserDAO.class);
+        userManager.setUserDAO(mockUserDAO);
     }
 
     @Test
-    @DisplayName("Should test user registration with existing username")
-    void testRegisterExistingUser() {
-        String userName = "exampleUsername";
-        String password = "examplePassword";
+    @DisplayName("Should test user registration with existing user in database")
+    void testRegisterAndGetResponse() {
+        when(mockUserDAO.getUserFromDB(username)).thenReturn(null);
 
-        // Register the user for the first time
-        userManager.handleRegister(userName, password);
+        String response = userManager.registerAndGetResponse(username, password);
 
-        // Attempt to register the same user again
-        userManager.handleRegister(userName, password);
-        String registrationStatus = userManager.registerAndGetResponse(userName, password);
-
-        assertEquals("Registration failed: User already exists", registrationStatus);
+        assertEquals(ResponseMessage.REGISTRATION_SUCCESSFUL.getResponse(), response);
     }
 
     @Test
-    @DisplayName("Should test user login with correct credentials")
-    void testLoginCorrect() {
-        String username = "exampleUsername";
-        String password = "examplePassword";
-        User newUser = new User(username, password, User.Role.USER);
+    @DisplayName("Should test user registration with non-existent user in database")
+    void testRegisterAndGetResponse_UserExists() {
+        when(mockUserDAO.getUserFromDB(username)).thenReturn(user);
 
-        // Register the user first
-        userManager.handleRegister(username, password);
+        String response = userManager.registerAndGetResponse(username, password);
 
-        // Attempt to log in with correct credentials
-        userManager.login(newUser);
-
-
-        assertNotNull(UserManager.currentLoggedInUser);
-        assertEquals(username, UserManager.currentLoggedInUser.getUsername());
-        assertEquals(password, UserManager.currentLoggedInUser.getPassword());
+        assertEquals(ResponseMessage.REGISTRATION_FAILED_USER_EXISTS.getResponse(), response);
     }
 
     @Test
-    @DisplayName("Should test user login with incorrect credentials")
-    void testLoginIncorrect() {
-        String username = "exampleUsername";
-        String password = "examplePassword";
-        User anotherUser = new User(username,"wrongPassword" , User.Role.USER);
+    @DisplayName("Should test user login with existing user in database")
+    void testLoginAndGetResponse() {
+        when(mockUserDAO.getUserFromDB(username)).thenReturn(user);
+        when(mockUserDAO.checkPasswordInDB(password, username)).thenReturn(true);
 
-        // Register the user first
-        userManager.handleRegister(username, password);
+        String response = userManager.loginAndGetResponse(username, password);
 
-        // Attempt to log in with incorrect password
-        userManager.login(anotherUser);
-        String loginStatus = userManager.loginAndGetResponse(username, "wrongPassword");
-        assertEquals("Login failed: Incorrect password", loginStatus);
+        assertEquals(ResponseMessage.USER_LOGIN_SUCCEEDED.getResponse(), response);
+        assertEquals(user, UserManager.currentLoggedInUser);
     }
 
     @Test
-    @DisplayName("Should test user logout")
-    void testLogout() {
-        String username = "exampleUsername";
-        String password = "examplePassword";
-        User user = new User(username,password , User.Role.USER);
+    @DisplayName("Should test user login with non-existent user in database")
+    void testLoginAndGetResponse_IncorrectPassword() {
+        when(mockUserDAO.getUserFromDB(username)).thenReturn(user);
+        when(mockUserDAO.checkPasswordInDB(username,password)).thenReturn(true);
 
-        // Register and login the user first
-        userManager.handleRegister(username, password);
-        userManager.login(user);
+        String response = userManager.loginAndGetResponse(username, password);
 
-        // Logout the current user
-        userManager.logoutCurrentUser();
-
+        assertEquals(ResponseMessage.LOGIN_FAILED_INCORRECT_PASSWORD.getResponse(), response);
         assertNull(UserManager.currentLoggedInUser);
     }
 
     @Test
-    @DisplayName("Should test finding user by username")
-    void testFindUserByUsername() {
-        String username = "exampleUsername";
-        String password = "examplePassword";
+    @DisplayName("Should test user registration for the first time")
+    void testGetUserByUsername() {
+        when(mockUserDAO.getUserFromDB("exampleUser")).thenReturn(user);
 
-        // Register the user first
-        userManager.handleRegister(username, password);
-
-        // Find the user by username
-        User foundUser = userManager.getUserByUsername(username);
-
-        assertNotNull(foundUser);
-        assertEquals(username, foundUser.getUsername());
+        User foundUser = userManager.getUserByUsername("exampleUser");
+        assertEquals(user, foundUser);
     }
 
     @Test
-    @DisplayName("Should test if current user is admin")
-    void testIfCurrentUserAdmin() {
-        User admin = new Admin(userManager.DATABASE, userManager.CREATE);
+    @DisplayName("Should test user registration for the first time")
+    void testPasswordChange() {
+        String newPassword = "newPassword";
+        when(mockUserDAO.getUserFromDB(password)).thenReturn(user);
 
-        // Log in as the admin user
-        userManager.login(admin);
+        userManager.changePassword(user, newPassword);
 
-        assertTrue(userManager.isUserAdmin());
-    }*/
+        assertNotEquals(password, user.getPassword());
+        assertEquals(newPassword, user.getPassword());
+    }
+
+    @Test
+    @DisplayName("Should test user deletion")
+    void testDeleteUser() {
+        doNothing().when(mockUserDAO).deleteUserFromDB(username);
+
+        userManager.deleteUser(user);
+
+        User foundUser = userManager.getUserByUsername(username);
+        assertNull(foundUser);
+    }
+
+    @Test
+    @DisplayName("Should test user switch by admin")
+    void testSwitchUser() {
+        userManager.switchUser(user);
+
+        assertEquals(user, UserManager.currentLoggedInUser);
+        assertTrue(UserManager.ifAdminSwitched);
+    }
+
+    @Test
+    @DisplayName("Should test user role change")
+    void testChangeRole() {
+        when(mockUserDAO.getUserFromDB(username)).thenReturn(user);
+
+        userManager.changeUserRole(user, User.Role.ADMIN);
+
+        assertEquals(User.Role.ADMIN, user.getRole());
+    }
+
+    @Test
+    @DisplayName("Should test user switch by admin")
+    void testLogoutAndGetResponse(){
+        String response = userManager.logoutAndGetResponse();
+
+        assertNull(UserManager.currentLoggedInUser);
+        assertFalse(UserManager.ifAdminSwitched);
+        assertEquals(ResponseMessage.LOGOUT_SUCCEEDED.getResponse(), response);
+    }
 }

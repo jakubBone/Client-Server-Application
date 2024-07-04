@@ -1,57 +1,33 @@
 package user;
 
-import database.DatabaseConnection;
-import org.jooq.DSLContext;
-import org.jooq.impl.DSL;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mindrot.jbcrypt.BCrypt;
 import user.credential.User;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class UserTest {
-
-    /*DatabaseConnection DATABASE;
-    DSLContext JOOQ;
-
+    User user;
     @BeforeEach
     void setUp() {
-        DATABASE = new DatabaseConnection();
-        JOOQ = DSL.using(DATABASE.getConnection());
+        user = new User("exampleUser", "examplePassword", User.Role.USER);
     }
 
     @Test
-    @DisplayName("Should test password matching functionality with correct password")
-    void testCheckPasswordCorrect() {
-        User user = new User("exampleUser", "examplePassword", User.Role.USER);
-        String typedPassword = "examplePassword";
-
-        boolean isMatching =  user.checkPassword(typedPassword, JOOQ );
-
-        assertTrue(isMatching);
-    }
-
-    @Test
-    @DisplayName("Should test password matching functionality with incorrect password")
-    void testCheckPasswordIncorrect() {
-        User user = new User("exampleUser", "examplePassword", User.Role.USER);
-        String typedPassword = "incorrectPassword";
-
-        boolean isMatching =  user.checkPassword(typedPassword, JOOQ);
-
-        assertFalse(isMatching);
-    }
-
-    @Test
-    @DisplayName("Should test password hashing functionality")
+    @DisplayName("Should test password hashing")
     void testHashPassword() {
-        User user = new User("exampleUser", "examplePassword", User.Role.USER);
-        String typedPassword = "examplePassword";
-
         user.hashPassword();
 
-        assertNotNull(user.getHashedPassword());
-        assertTrue(user.checkPassword(typedPassword, JOOQ));
-    }*/
+        assertTrue(BCrypt.checkpw("examplePassword", user.getHashedPassword()));
+    }
+    @Test
+    @DisplayName("Should test password setting")
+    void testSetPassword() {
+        user.setPassword("examplePassword");
+
+        assertNotNull(user.getPassword());
+        assertEquals("examplePassword", user.getPassword());
+    }
 }

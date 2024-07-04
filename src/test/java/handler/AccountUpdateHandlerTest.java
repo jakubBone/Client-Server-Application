@@ -15,7 +15,7 @@ import user.manager.UserManager;
 import static org.junit.jupiter.api.Assertions.*;
 
 class AccountUpdateHandlerTest {
-    P/*asswordChangeHandler updateHandler;
+    /*asswordChangeHandler updateHandler;
     UserManager userManager;
     DatabaseConnection DATABASE;
     DSLContext JOOQ;

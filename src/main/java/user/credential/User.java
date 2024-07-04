@@ -30,7 +30,7 @@ public class User {
     }
 
 
-    public void hashPassword(){
+    public void hashPassword() {
         hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
         log.info("Password hashed for user: {}", username);
     }

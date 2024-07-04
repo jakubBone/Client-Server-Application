@@ -24,8 +24,8 @@ public class UserManager {
     public static User currentLoggedInUser;
     public static boolean ifAdminSwitched;
     public Admin admin;
-    private final DSLContext create;
-    private final UserDAO userDAO;
+    private DSLContext create;
+    private UserDAO userDAO;
     private AuthManager authManager;
 
     public UserManager() {
@@ -89,6 +89,7 @@ public class UserManager {
     public void changeUserRole(User user, User.Role role) {
         log.info("Attempting to role change for user: {}", user.getUsername());
 
+        user.setRole(role);
         userDAO.changeUserRoleInDB(user, role);
 
         log.info("Role change succeeded for user: {} to {}", user.getUsername(), role);
