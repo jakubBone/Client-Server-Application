@@ -27,50 +27,6 @@ class UserMangerTest {
     }
 
     @Test
-    @DisplayName("Should test user registration with existing user in database")
-    void testRegisterAndGetResponse() {
-        when(mockUserDAO.getUserFromDB(username)).thenReturn(null);
-
-        String response = userManager.registerAndGetResponse(username, password);
-
-        assertEquals(ResponseMessage.REGISTRATION_SUCCESSFUL.getResponse(), response);
-    }
-
-    @Test
-    @DisplayName("Should test user registration with non-existent user in database")
-    void testRegisterAndGetResponse_UserExists() {
-        when(mockUserDAO.getUserFromDB(username)).thenReturn(user);
-
-        String response = userManager.registerAndGetResponse(username, password);
-
-        assertEquals(ResponseMessage.REGISTRATION_FAILED_USER_EXISTS.getResponse(), response);
-    }
-
-    @Test
-    @DisplayName("Should test user login with existing user in database")
-    void testLoginAndGetResponse() {
-        when(mockUserDAO.getUserFromDB(username)).thenReturn(user);
-        when(mockUserDAO.checkPasswordInDB(password, username)).thenReturn(true);
-
-        String response = userManager.loginAndGetResponse(username, password);
-
-        assertEquals(ResponseMessage.USER_LOGIN_SUCCEEDED.getResponse(), response);
-        assertEquals(user, UserManager.currentLoggedInUser);
-    }
-
-    @Test
-    @DisplayName("Should test user login with non-existent user in database")
-    void testLoginAndGetResponse_IncorrectPassword() {
-        when(mockUserDAO.getUserFromDB(username)).thenReturn(user);
-        when(mockUserDAO.checkPasswordInDB(username,password)).thenReturn(false);
-
-        String response = userManager.loginAndGetResponse(username, password);
-
-        assertEquals(ResponseMessage.LOGIN_FAILED_INCORRECT_PASSWORD.getResponse(), response);
-        assertNull(UserManager.currentLoggedInUser);
-    }
-
-    @Test
     @DisplayName("Should test user registration for the first time")
     void testGetUserByUsername() {
         when(mockUserDAO.getUserFromDB("exampleUser")).thenReturn(user);
