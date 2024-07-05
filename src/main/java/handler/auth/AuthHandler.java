@@ -2,6 +2,7 @@ package handler.auth;
 
 import lombok.extern.log4j.Log4j2;
 import shared.ResponseMessage;
+import user.manager.AuthManager;
 import user.manager.UserManager;
 
 /**
@@ -12,6 +13,8 @@ import user.manager.UserManager;
 @Log4j2
 public class AuthHandler {
 
+    AuthManager authManager = new AuthManager();
+
     /**
      * Processes authentication requests (REGISTER, LOGIN) and generates appropriate responses.
      * @param requestCommand The command for the request (e.g., "REGISTER", "LOGIN")
@@ -20,9 +23,9 @@ public class AuthHandler {
          log.info("Processing authentication request: {}", requestCommand);
          switch (requestCommand) {
             case "REGISTER":
-                return userManager.registerAndGetResponse(username, password);
+                return authManager.registerAndGetResponse(username, password, userManager);
             case "LOGIN":
-                return userManager.loginAndGetResponse(username, password);
+                return authManager.loginAndGetResponse(username, password, userManager);
              default:
                  log.warn("Unknown request: {}", requestCommand);
                  return ResponseMessage.UNKNOWN_REQUEST.getResponse();

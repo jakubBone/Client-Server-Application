@@ -62,7 +62,7 @@ class UserMangerTest {
     @DisplayName("Should test user login with non-existent user in database")
     void testLoginAndGetResponse_IncorrectPassword() {
         when(mockUserDAO.getUserFromDB(username)).thenReturn(user);
-        when(mockUserDAO.checkPasswordInDB(username,password)).thenReturn(true);
+        when(mockUserDAO.checkPasswordInDB(username,password)).thenReturn(false);
 
         String response = userManager.loginAndGetResponse(username, password);
 

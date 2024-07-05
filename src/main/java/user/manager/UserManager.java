@@ -35,14 +35,6 @@ public class UserManager {
         this.authManager = new AuthManager();
     }
 
-    public String registerAndGetResponse(String username, String password) {
-        return authManager.registerUser(username, password, userDAO);
-    }
-
-    public String loginAndGetResponse(String username, String password) {
-        return authManager.loginUser(username, password, userDAO);
-    }
-
     public User getUserByUsername(String username) {
         log.info("Searching for user in the database: {}", username);
 
