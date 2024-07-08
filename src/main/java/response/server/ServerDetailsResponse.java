@@ -12,7 +12,7 @@ public class ServerDetailsResponse implements Response {
     }
     @Override
     public String execute(Request request) {
-        String serverRequest = request.getRequestCommand().toUpperCase()
+        String serverRequest = request.getCommand().toUpperCase();
         StringBuilder builder = new StringBuilder();
         
         switch (serverRequest) {

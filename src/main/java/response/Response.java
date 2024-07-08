@@ -2,7 +2,6 @@ package response;
 
 import request.Request;
 public interface Response {
-    String execute(Request request){
+    String execute(Request request);
 
-    }
 }

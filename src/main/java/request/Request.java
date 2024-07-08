@@ -7,7 +7,7 @@ import user.credential.User;
 @Getter
 @Setter
 public class Request {
-    private String requestCommand;
+    private String command;
     private String username;
     private String password;
     private String recipient;

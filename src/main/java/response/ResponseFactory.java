@@ -5,7 +5,7 @@ import response.auth.LogoutResponse;
 import response.auth.RegisterResponse;
 import response.mail.MailsDeleteResponse;
 import response.mail.MailsReadResponse;
-import response.mail.MailsWriteResponse;
+import response.mail.MailWriteResponse;
 import response.server.ServerDetailsResponse;
 import response.user.UserPasswordChangeResponse;
 import response.user.UserRoleChangeResponse;
@@ -29,7 +29,7 @@ public class ResponseFactory {
         this.serverDetails = serverDetails;
     }
 
-    public Response getResponse(String request) {
+    public Response getResponse(String request)  {
         switch (request.toUpperCase()) {
             case "REGISTER":
                 return new RegisterResponse(authManager, userManager);
@@ -38,13 +38,13 @@ public class ResponseFactory {
             case "LOGOUT":
                 return new LogoutResponse(userManager);
             case "WRITE":
-                return new MailsWriteResponse(mailService, userManager);
+                return new MailWriteResponse(mailService, userManager);
             case "READ":
                 return new MailsReadResponse(mailService);
             case "DELETE":
                 return new MailsDeleteResponse(mailService);
             case "PASSWORD":
-                return new UserPasswordChangeResponse(userManager)
+                return new UserPasswordChangeResponse(userManager);
             case "REMOVE":
                 return new UserRemoveResponse(userManager);
             case "ROLE":

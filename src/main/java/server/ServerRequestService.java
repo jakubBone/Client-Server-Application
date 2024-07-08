@@ -7,7 +7,6 @@ import java.io.PrintWriter;
 import com.google.gson.Gson;
 import response.Response;
 import response.ResponseFactory;
-import handler.HandlerFactory;
 import lombok.extern.log4j.Log4j2;
 import mail.MailService;
 import request.Request;
@@ -22,7 +21,6 @@ public class ServerRequestService {
     private final UserManager userManager;
     private Gson gson;
     private JsonConverter jsonResponse;
-    private HandlerFactory handler;
     private AuthManager authManager;
     private ServerDetails serverDetails;
     private MailService mailService;
@@ -33,7 +31,6 @@ public class ServerRequestService {
         this.inFromClient = inFromClient;
         this.userManager = new UserManager();
         this.gson = new Gson();
-        this.handler = new HandlerFactory();
 
         this.authManager = new AuthManager();
         this.mailService = new MailService();
@@ -59,7 +56,7 @@ public class ServerRequestService {
     }
 
      public String processRequest(Request req) throws IOException{
-         String requestCommand = req.getRequestCommand().toUpperCase();
+         String requestCommand = req.getCommand().toUpperCase();
          ResponseFactory factory = new ResponseFactory(authManager, userManager,mailService, serverDetails);
          Response command = factory.getResponse(requestCommand);
          log.info("Handling request command: {}", command.toString());

@@ -7,11 +7,11 @@ import shared.ResponseStatus;
 import user.credential.User;
 import user.manager.UserManager;
 
-public class MailsWriteResponse implements Response {
+public class MailWriteResponse implements Response {
     private final MailService mailService;
     private final UserManager userManager;
 
-    public WriteMailResponse(MailService mailService, UserManager userManager) {
+    public MailWriteResponse(MailService mailService, UserManager userManager) {
         this.mailService = mailService;
         this.userManager = userManager;
     }
