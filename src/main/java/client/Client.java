@@ -11,10 +11,6 @@ import lombok.extern.log4j.Log4j2;
 import request.*;
 import shared.Screen;
 
-/**
- * This class represents a client application for server communication.
- * It handles user login, sending requests, and interacting with a mailbox.
- */
 
 @Log4j2
 @Getter
@@ -22,7 +18,7 @@ import shared.Screen;
 public class Client {
     private ClientConnection connection;
     private BufferedReader userInput;
-    private static Gson gson;
+    private Gson gson;
 
     public static void main(String[] args) {
         Client client = new Client();
@@ -54,12 +50,6 @@ public class Client {
         }
     }
 
-
-    /**
-     * Processes a user request by sending it to the server.
-     * Converts the user request into the appropriate format and sends it to the server.
-     * @param request The user input request
-     */
     public void handleRequest(String request) throws IOException {
         log.info("Handling user request: {}", request);
         try{
@@ -84,7 +74,7 @@ public class Client {
         if(!connection.isLoggedIn()) {
             Screen.printLoginMenu();
         } else {
-            if(connection.isAuthorized()){
+            if(connection.isUserAuthorized() || connection.isAdminSwitchedAndAuthorized()){
                 Screen.printAdminMailBoxMenu();
             } else{
                 Screen.printUserMailBoxMenu();

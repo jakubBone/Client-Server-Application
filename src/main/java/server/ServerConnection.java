@@ -12,11 +12,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
 
-/*
- * The ServerConnection class is responsible for managing server connections.
- * It starts the server, establishes connections with clients, and handles communication streams.
- */
-
 @Log4j2
 @Getter
 @Setter

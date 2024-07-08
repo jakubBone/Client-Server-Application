@@ -6,7 +6,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 
 import org.junit.jupiter.api.*;
-import shared.ResponseMessage;
+import shared.ResponseStatus;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -70,37 +70,37 @@ class ClientCommunicationTest {
     @DisplayName("Should check response status")
     void testCheckResponseStatus() {
         // Test admin login succeeded
-        String response = ResponseMessage.ADMIN_LOGIN_SUCCEEDED.getResponse();
+        String response = ResponseStatus.ADMIN_LOGIN_SUCCEEDED.getResponse();
         clientConnection.checkResponseStatus(response);
         assertTrue(clientConnection.isLoggedIn());
-        assertTrue(clientConnection.isAuthorized());
+        assertTrue(clientConnection.isUserAuthorized());
 
         // Test user login succeeded
-        response = ResponseMessage.USER_LOGIN_SUCCEEDED.getResponse();
+        response = ResponseStatus.USER_LOGIN_SUCCEEDED.getResponse();
         clientConnection.checkResponseStatus(response);
         assertTrue(clientConnection.isLoggedIn());
 
         // Test registration succeeded
-        response = ResponseMessage.REGISTRATION_SUCCESSFUL.getResponse();
+        response = ResponseStatus.REGISTRATION_SUCCESSFUL.getResponse();
         clientConnection.checkResponseStatus(response);
         assertTrue(clientConnection.isLoggedIn());
 
         // Test logout succeeded
-        response = ResponseMessage.LOGOUT_SUCCEEDED.getResponse();
+        response = ResponseStatus.LOGOUT_SUCCEEDED.getResponse();
         clientConnection.checkResponseStatus(response);
         assertFalse(clientConnection.isLoggedIn());
-        assertFalse(clientConnection.isAuthorized());
+        assertFalse(clientConnection.isUserAuthorized());
         assertFalse(clientConnection.isAdminSwitchedAndAuthorized());
 
         // Test authorization succeeded
-        response = ResponseMessage.AUTHORIZATION_SUCCEEDED.getResponse();
+        response = ResponseStatus.AUTHORIZATION_SUCCEEDED.getResponse();
         clientConnection.checkResponseStatus(response);
-        assertTrue(clientConnection.isAuthorized());
+        assertTrue(clientConnection.isUserAuthorized());
 
         // Test operation failed response
-        response = ResponseMessage.SWITCH_SUCCEEDED.getResponse();
+        response = ResponseStatus.SWITCH_SUCCEEDED.getResponse();
         clientConnection.checkResponseStatus(response);
-        assertFalse(clientConnection.isAuthorized());
+        assertFalse(clientConnection.isUserAuthorized());
         assertTrue(clientConnection.isAdminSwitchedAndAuthorized());
     }
 }

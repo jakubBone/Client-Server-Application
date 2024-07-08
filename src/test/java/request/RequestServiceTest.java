@@ -71,7 +71,7 @@ class RequestServiceTest {
         clientConnection.setAuthorized(false);
 
         // // Test AccountUpdateRequest getting
-        Request requestType = requestService.getAccountUpdateRequest();
+        Request requestType = requestService.handleAccountUpdateRequest();
 
         assertNull(requestType);
     }

@@ -1,7 +1,7 @@
 package user.manager;
 
 import lombok.extern.log4j.Log4j2;
-import shared.ResponseMessage;
+import shared.ResponseStatus;
 import user.credential.User;
 
 @Log4j2
@@ -13,26 +13,26 @@ public class AuthManager {
 
         if (user != null) {
             log.info("Registration attempt failed - user already exists: {}", username);
-            return ResponseMessage.REGISTRATION_FAILED_USER_EXISTS.getResponse();
+            return ResponseStatus.REGISTRATION_FAILED_USER_EXISTS.getResponse();
         }
 
         handleRegister(username, password, userManager);
         log.info("Registration successful for new user: {}", username);
-        return ResponseMessage.REGISTRATION_SUCCESSFUL.getResponse();
+        return ResponseStatus.REGISTRATION_SUCCESSFUL.getResponse();
     }
 
     public String loginAndGetResponse(String username, String password, UserManager userManager) {
         log.info("Login attempted for user: {}", username);
         User user = userManager.getUserDAO().getUserFromDB(username);
-
+        System.out.println("User role" + user.getRole());
         if (user == null) {
             log.info("Login attempt failed - user does not exist: {}", username);
-            return ResponseMessage.FAILED_TO_FIND_USER.getResponse();
+            return ResponseStatus.FAILED_TO_FIND_USER.getResponse();
         }
 
         if (!ifPasswordCorrect(password, user, userManager)) {
             log.info("Incorrect password attempt for user: {}", user.getUsername());
-            return ResponseMessage.LOGIN_FAILED_INCORRECT_PASSWORD.getResponse();
+            return ResponseStatus.LOGIN_FAILED_INCORRECT_PASSWORD.getResponse();
         }
 
         log.info("User password correct: {}", user.getUsername());
@@ -42,9 +42,9 @@ public class AuthManager {
         log.info("User login succeeded: {}", user.getUsername());
 
         if (userManager.isUserAdmin()) {
-            return ResponseMessage.ADMIN_LOGIN_SUCCEEDED.getResponse();
+            return ResponseStatus.ADMIN_LOGIN_SUCCEEDED.getResponse();
         } else {
-            return ResponseMessage.USER_LOGIN_SUCCEEDED.getResponse();
+            return ResponseStatus.USER_LOGIN_SUCCEEDED.getResponse();
         }
     }
 

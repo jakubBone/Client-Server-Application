@@ -5,16 +5,15 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 import com.google.gson.Gson;
+import response.Response;
+import response.ResponseFactory;
 import handler.HandlerFactory;
 import lombok.extern.log4j.Log4j2;
+import mail.MailService;
 import request.Request;
 import shared.JsonConverter;
+import user.manager.AuthManager;
 import user.manager.UserManager;
-
- /**
-  * The ServerRequestService class is responsible for handling various client requests
-  * It manages user authentication, mail operations, user account updates, account switch, and server information
-  */
 
 @Log4j2
 public class ServerRequestService {
@@ -23,7 +22,10 @@ public class ServerRequestService {
     private final UserManager userManager;
     private Gson gson;
     private JsonConverter jsonResponse;
-     private HandlerFactory handler;
+    private HandlerFactory handler;
+    private AuthManager authManager;
+    private ServerDetails serverDetails;
+    private MailService mailService;
 
 
     public ServerRequestService(PrintWriter outToClient, BufferedReader inFromClient) {
@@ -32,6 +34,10 @@ public class ServerRequestService {
         this.userManager = new UserManager();
         this.gson = new Gson();
         this.handler = new HandlerFactory();
+
+        this.authManager = new AuthManager();
+        this.mailService = new MailService();
+        this.serverDetails = new ServerDetails();
     }
 
     public void handleClientRequest() {
@@ -53,34 +59,11 @@ public class ServerRequestService {
     }
 
      public String processRequest(Request req) throws IOException{
-         String command = req.getRequestCommand().toUpperCase();
-         log.info("Handling request command: {}", command);
-         switch (command) {
-             case "REGISTER":
-             case "LOGIN":
-                 return handler.getAuthHandler().getResponse(command, req.getUsername(), req.getPassword(), userManager);
-             case "HELP":
-             case "INFO":
-             case "UPTIME":
-                 return handler.getServerInfoHandler().getResponse(command);
-             case "WRITE":
-                 return handler.getWriteHandler().getResponse(req.getRecipient(), req.getMessage(), userManager);
-             case "MAILBOX":
-                 return handler.getMailHandler().getResponse(req.getBoxOperation(), req.getBoxType());
-             case "PASSWORD":
-                 return handler.getPasswordHandler().getResponse(req.getUserToUpdate(), req.getNewPassword(), userManager);
-             case "DELETE":
-                 return handler.getDeleteHandler().getResponse(req.getUserToUpdate(), userManager);
-             case "ROLE":
-                 return handler.getRoleHandler().getResponse(req.getUserToUpdate(), req.getNewRole(), userManager);
-             case "SWITCH":
-                 return handler.getSwitchHandler().getResponse(req.getUserToSwitch(), userManager);
-             case "LOGOUT":
-                 return handler.getLogoutHandler().getResponse(userManager);
-             default:
-                 log.warn("Unknown request command: {}", command);
-                 return "Unknown request command";
-         }
+         String requestCommand = req.getRequestCommand().toUpperCase();
+         ResponseFactory factory = new ResponseFactory(authManager, userManager,mailService, serverDetails);
+         Response command = factory.getResponse(requestCommand);
+         log.info("Handling request command: {}", command.toString());
+         return command.execute(req);
      }
 
     public void sendResponse(String response){

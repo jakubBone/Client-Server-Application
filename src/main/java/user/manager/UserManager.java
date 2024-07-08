@@ -7,7 +7,7 @@ import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
-import shared.ResponseMessage;
+import shared.ResponseStatus;
 import user.credential.Admin;
 import user.credential.User;
 
@@ -23,6 +23,7 @@ import user.credential.User;
 public class UserManager {
     public static User currentLoggedInUser;
     public static boolean ifAdminSwitched;
+    public static boolean ifAdminSwitchedAndAuthorized;
     public Admin admin;
     private DSLContext create;
     private UserDAO userDAO;
@@ -61,19 +62,23 @@ public class UserManager {
         log.info("Password change succeeded for user: {}", user.getUsername());
     }
 
-    public void deleteUser(User user) {
-        log.info("Attempting to delete user: {}", user.getUsername());
+    public void removeUser(User user) {
+        log.info("Attempting to remove user: {}", user.getUsername());
 
-        userDAO.deleteUserFromDB(user.getUsername());
+        userDAO.removeUserFromDB(user.getUsername());
 
-        log.info("User deletion succeeded: {}", user.getUsername());
+        log.info("User removal succeeded: {}", user.getUsername());
     }
 
     public void switchUser(User user) {
         log.info("Attempting to switch to user: {}", user.getUsername());
-
             UserManager.currentLoggedInUser = user;
-            UserManager.ifAdminSwitched = true;
+
+            if(isUserAdmin()){
+                UserManager.ifAdminSwitchedAndAuthorized = true;
+            } else {
+                UserManager.ifAdminSwitched = true;
+            }
 
         log.info("Switched to user: {}", user.getUsername());
     }
@@ -93,11 +98,12 @@ public class UserManager {
         ifAdminSwitched = false;
         currentLoggedInUser = null;
 
-        return ResponseMessage.LOGOUT_SUCCEEDED.getResponse();
+        return ResponseStatus.LOGOUT_SUCCEEDED.getResponse();
     }
 
     public boolean isUserAdmin(){
         log.info("Admin role checking for user: {}", currentLoggedInUser.getUsername());
         return currentLoggedInUser != null && currentLoggedInUser.getRole().equals(User.Role.ADMIN);
     }
+
 }

@@ -11,7 +11,6 @@ import user.credential.User;
 
 @Log4j2
 public class RequestService {
-
     private BufferedReader userInput;
     private UserInteraction userInteraction;
     private ClientConnection connection;
@@ -25,21 +24,16 @@ public class RequestService {
         log.info("RequestFactory instance created");
     }
 
-    /**
-     * Creates a request based on the current connection state (logged in or not).
-     * Delegates to the appropriate menu request handler.
-     */
     public Request getRequest(String requestCommand) throws IOException {
         log.info("Creating request for command: {}", requestCommand);
-
         if(!connection.isLoggedIn()){
-            return getLoginMenuRequest(requestCommand);
+            return handleLoginMenuRequest(requestCommand);
         } else {
-            return getMailboxMenuRequest(requestCommand);
+            return handleMailboxMenuRequest(requestCommand);
         }
     }
 
-    public Request getLoginMenuRequest(String requestCommand) throws IOException {
+    public Request handleLoginMenuRequest(String requestCommand) throws IOException {
         switch (requestCommand.toUpperCase()) {
             case "REGISTER":
             case "LOGIN":
@@ -58,21 +52,19 @@ public class RequestService {
         }
     }
 
-    public Request getMailboxMenuRequest(String requestCommand) throws IOException {
+    public Request handleMailboxMenuRequest(String requestCommand) throws IOException {
         switch (requestCommand.toUpperCase()){
             case "WRITE":
                 String recipient = userInteraction.getRecipient();
                 String message = userInteraction.getMessage();
                 return factory.createWriteRequest(requestCommand, recipient, message);
             case "MAILBOX":
-                String boxOperation = userInteraction.chooseBoxOperation();
-                String boxType = userInteraction.chooseBoxType();
-                return factory.createMailBoxRequest(requestCommand, boxOperation, boxType);
+                return handleMailboxRequest();
             case "UPDATE":
-                return getAccountUpdateRequest();
+                return handleAccountUpdateRequest();
             case "SWITCH":
                 String userToSwitch = userInteraction.getUserToSwitch();
-                return factory.createSwitchUserRequest(requestCommand, userToSwitch);
+                return factory.createUserSwitchRequest(requestCommand, userToSwitch);
             case "LOGOUT":
                 return factory.createLogoutRequest(requestCommand);
             default:
@@ -81,13 +73,24 @@ public class RequestService {
         }
     }
 
-    /**
-     * Ensures the current user is authorized to perform the update.
-     */
-    public Request getAccountUpdateRequest() throws IOException {
+    public Request handleMailboxRequest() throws IOException {
+        String boxOperation = userInteraction.chooseBoxOperation();
+        String boxType = userInteraction.chooseBoxType();
+            switch (boxOperation.toUpperCase()) {
+                case "READ":
+                    return factory.createReadMailsRequest(boxOperation, boxType);
+                case "DELETE":
+                    return factory.createDeleteMailsRequest(boxOperation, boxType);
+                default:
+                    log.warn("Unknown update operation: {}", boxOperation);
+                    return null;
+            }
+    }
+
+    public Request handleAccountUpdateRequest() throws IOException {
         log.info("Creating account update request");
 
-        if (connection.isAuthorized()) {
+        if (connection.isUserAuthorized()) {
             log.info("Authorization succeeded");
             String updateOperation = userInteraction.chooseUpdateOperation();
             String userToUpdate = userInteraction.chooseUserToUpdate();
@@ -95,14 +98,13 @@ public class RequestService {
                 case "PASSWORD":
                     String newPassword = userInteraction.getNewPassword();
                     return factory.createAdminChangePasswordRequest(updateOperation, userToUpdate, newPassword);
-                case "DELETE":
-                    return factory.createDeleteUserRequest(updateOperation, userToUpdate);
+                case "REMOVE":
+                    return factory.createUserRemoveRequest(updateOperation, userToUpdate);
                 case "ROLE":
                     User.Role newRole = userInteraction.chooseRole();
-                    return factory.createChangeRoleRequest(updateOperation, userToUpdate, newRole);
+                    return factory.createUserRoleChangeRequest(updateOperation, userToUpdate, newRole);
                 default:
                     log.warn("Unknown update operation: {}", updateOperation);
-                    return null;
             }
         }
         log.warn("Authorization failed");

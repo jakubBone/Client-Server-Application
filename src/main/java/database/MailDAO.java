@@ -45,6 +45,7 @@ public class MailDAO {
 
         List<Mail> mails = new ArrayList<>();
         for (Record record : records) {
+            System.out.println("in loop");
             Mail mail = convertRecordToMail(record);
             mails.add(mail);
         }

@@ -2,16 +2,11 @@ package shared;
 
 import lombok.extern.log4j.Log4j2;
 
-/**
- * The ResponseMessage enum defines various response
- * The messages is sent from the server to the client.
- */
 @Log4j2
-public enum ResponseMessage {
+public enum ResponseStatus {
 
     // General responses
     OPERATION_SUCCEEDED("Operation succeeded"),
-    OPERATION_FAILED("Operation failed"),
     FAILED_TO_FIND_USER("Failed to find user"),
 
     // Register responses
@@ -31,12 +26,12 @@ public enum ResponseMessage {
     AUTHORIZATION_FAILED("Authorization failed"),
 
     // Account switch responses
-    SWITCH_SUCCEEDED("Switch succeeded"),
+    SWITCH_SUCCEEDED_USER_ROLE_ADMIN_ROLE("Switch succeeded to user with admin role"),
+    SWITCH_SUCCEEDED_USER_NON_ADMIN_ROLE("Switch succeeded"),
     SWITCH_FAILED("Switch failed"),
 
     // Role change responses
     ROLE_CHANGE_SUCCEEDED("Role change succeeded"),
-    ROLE_CHANGE_FAILED("Role change failed"),
 
     // Mail responses
     SENDING_SUCCEEDED("Sending succeeded"),
@@ -52,7 +47,7 @@ public enum ResponseMessage {
 
     private final String RESPONSE;
 
-    ResponseMessage(String response){
+    ResponseStatus(String response) {
         this.RESPONSE = response;
     }
 
@@ -60,22 +55,26 @@ public enum ResponseMessage {
         return RESPONSE;
     }
 
- /**
-  * Converts a string to the corresponding ResponseMessage enum value
-  * Iterate over all the values in the ResponseMessage enum
-  * Check if the 'response' field of the current enum value matches the input text
-  * If a match is found, return the corresponding ResponseMessage enum value
-  */
- public static ResponseMessage fromString(String text) {
-        log.info("Converting text to OperationResponses: {}", text);
-        for (ResponseMessage message : ResponseMessage.values()) {
-            if (message.getResponse().equals(text)) {
-                log.info("Match found for text: {}", text);
+    /**
+     * Converts a string to the corresponding ResponseMessage enum value
+     * Iterate over all the values in the ResponseMessage enum
+     * Check if the 'response' field of the current enum value matches the input text
+     * If a match is found, return the corresponding ResponseMessage enum value
+     */
+    public static ResponseStatus fromString(String text) {
+        log.info("Converting text to OperationResponses");
+        for (ResponseStatus message : ResponseStatus.values()) {
+            if (isMailReading(text) || message.getResponse().equals(text)) {
+                log.info("Match found for response");
                 return message;
             }
         }
-        log.warn("No match found for text: {}", text);
+        log.warn("No match found for response:" + text);
         return UNKNOWN_RESPONSE;
+    }
+
+    static boolean isMailReading(String text) {
+        return text.startsWith("OPENED") || text.startsWith("UNREAD") || text.startsWith("SENT");
     }
 }
 

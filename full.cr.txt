@@ -110,7 +110,7 @@ import java.net.Socket;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
-import shared.ResponseMessage;
+import shared.ResponseStatus;
 import shared.JsonConverter;
 
 /**
@@ -534,7 +534,7 @@ FILE: AuthHandler.java
 package handler.auth;
 
 import lombok.extern.log4j.Log4j2;
-import shared.ResponseMessage;
+import shared.ResponseStatus;
 import user.manager.UserManager;
 
 /**
@@ -547,7 +547,7 @@ public class AuthHandler {
 
     /**
      * Processes authentication requests (REGISTER, LOGIN) and generates appropriate responses.
-     * @param requestCommand The command for the request (e.g., "REGISTER", "LOGIN")
+     * @param requestCommand The response for the request (e.g., "REGISTER", "LOGIN")
      */
      public String getResponse(String requestCommand, String username, String password, UserManager userManager)  {
          log.info("Processing authentication request: {}", requestCommand);
@@ -633,7 +633,7 @@ import java.util.List;
 import lombok.extern.log4j.Log4j2;
 import mail.Mail;
 import mail.MailService;
-import shared.ResponseMessage;
+import shared.ResponseStatus;
 
 /**
  * The MailboxHandler class handles mailbox operations such as reading and deleting mails.
@@ -646,7 +646,7 @@ public class MailboxHandler {
 
     /**
      * Processes mailbox operations (READ, DELETE) and generates appropriate responses.
-     * @param mailboxOperation The mailbox operation command (e.g., "READ", "DELETE")
+     * @param mailboxOperation The mailbox operation response (e.g., "READ", "DELETE")
      * @param boxType The type of mailbox (e.g., "UNREAD", "OPENED")
      */
     public String getResponse(String mailboxOperation, String boxType) throws IOException {
@@ -707,7 +707,7 @@ import java.io.IOException;
 
 import lombok.extern.log4j.Log4j2;
 import mail.MailService;
-import shared.ResponseMessage;
+import shared.ResponseStatus;
 import user.credential.User;
 import user.manager.UserManager;
 
@@ -759,7 +759,7 @@ package handler.server;
 
 import lombok.extern.log4j.Log4j2;
 import server.ServerDetails;
-import shared.ResponseMessage;
+import shared.ResponseStatus;
 
 /**
  * The ServerDetailsHandler class provides responses for server information requests.
@@ -771,7 +771,7 @@ public class ServerDetailsHandler {
     private final ServerDetails serverInfo = new ServerDetails();
 
     public String getResponse(String requestCommand) {
-        log.info("Received info request command: {}", requestCommand);
+        log.info("Received info request response: {}", requestCommand);
         return getFormattedServerInfo(requestCommand);
     }
 
@@ -807,7 +807,7 @@ FILE: PasswordChangeHandler.java
 package handler.user;
 
 import lombok.extern.log4j.Log4j2;
-import shared.ResponseMessage;
+import shared.ResponseStatus;
 import user.credential.User;
 import user.manager.UserManager;
 
@@ -844,7 +844,7 @@ FILE: RoleChangeHandler.java
 
 package handler.user;
 import lombok.extern.log4j.Log4j2;
-import shared.ResponseMessage;
+import shared.ResponseStatus;
 import user.credential.User;
 import user.manager.UserManager;
 
@@ -882,7 +882,7 @@ FILE: UserDeleteHandler.java
 package handler.user;
 
 import lombok.extern.log4j.Log4j2;
-import shared.ResponseMessage;
+import shared.ResponseStatus;
 import user.credential.User;
 import user.manager.UserManager;
 
@@ -921,7 +921,7 @@ FILE: UserSwitchHandler.java
 package handler.user;
 
 import lombok.extern.log4j.Log4j2;
-import shared.ResponseMessage;
+import shared.ResponseStatus;
 import user.credential.User;
 import user.manager.UserManager;
 
@@ -1094,7 +1094,7 @@ import lombok.extern.log4j.Log4j2;
 import user.credential.User;
 
 /**
- * The RequestFactory class creates different types of Request objects based on the command.
+ * The RequestFactory class creates different types of Request objects based on the response.
  * It includes methods for creating authentication, server details, mailbox, and account update requests.
  */
 
@@ -1116,23 +1116,23 @@ public class RequestFactory {
 
     public Request createLogoutRequest(String requestCommand) {
         request.setRequestCommand(requestCommand);
-        log.info("LogoutRequest created with command: {}", requestCommand);
+        log.info("LogoutRequest created with response: {}", requestCommand);
         return request;
     }
 
     /**
      * Creates a server details request.
-     * @param requestCommand The request command (e.g., "INFO", "UPTIME")
+     * @param requestCommand The request response (e.g., "INFO", "UPTIME")
      */
     public Request createServerDetailsRequest(String requestCommand) {
         request.setRequestCommand(requestCommand);
-        log.info("ServerDetailsRequest created with command: {}", requestCommand);
+        log.info("ServerDetailsRequest created with response: {}", requestCommand);
         return request;
     }
 
     /**
      * Creates a write (send mail) request.
-     * @param requestCommand The request command ("WRITE")
+     * @param requestCommand The request response ("WRITE")
      */
     public Request createWriteRequest(String requestCommand, String recipient, String message) {
         request.setRequestCommand(requestCommand);
@@ -1144,7 +1144,7 @@ public class RequestFactory {
 
     /**
      * Creates a boxType operation request.
-     * @param requestCommand The request command ("MAILBOX")
+     * @param requestCommand The request response ("MAILBOX")
      * @param boxOperation The boxType operation (e.g., "READ", "DELETE")
      * @param boxType The boxType type (e.g., "UNREAD", "SENT")
      */
@@ -1186,7 +1186,7 @@ public class RequestFactory {
 
     /**
      * Creates an admin switch user request.
-     * @param requestCommand The request command ("SWITCH")
+     * @param requestCommand The request response ("SWITCH")
      */
     public Request createSwitchUserRequest(String requestCommand, String userToSwitch) {
         request.setRequestCommand(requestCommand);
@@ -1231,7 +1231,7 @@ public class RequestService {
      * Delegates to the appropriate menu request handler.
      */
     public Request getRequest(String requestCommand) throws IOException {
-        log.info("Creating request for command: {}", requestCommand);
+        log.info("Creating request for response: {}", requestCommand);
 
         if(!connection.isLoggedIn()){
             return getLoginMenuRequest(requestCommand);
@@ -1560,16 +1560,16 @@ public class ServerRequestService {
     }
 
      public String processRequest(Request req) throws IOException{
-         String command = req.getRequestCommand().toUpperCase();
-         log.info("Handling request command: {}", command);
-         switch (command) {
+         String response = req.getRequestCommand().toUpperCase();
+         log.info("Handling request response: {}", response);
+         switch (response) {
              case "REGISTER":
              case "LOGIN":
-                 return handler.getAuthHandler().getResponse(command, req.getUsername(), req.getPassword(), userManager);
+                 return handler.getAuthHandler().getResponse(response, req.getUsername(), req.getPassword(), userManager);
              case "HELP":
              case "INFO":
              case "UPTIME":
-                 return handler.getServerInfoHandler().getResponse(command);
+                 return handler.getServerInfoHandler().getResponse(response);
              case "WRITE":
                  return handler.getWriteHandler().getResponse(req.getRecipient(), req.getMessage(), userManager);
              case "MAILBOX":
@@ -1585,8 +1585,8 @@ public class ServerRequestService {
              case "LOGOUT":
                  return handler.getLogoutHandler().getResponse(userManager);
              default:
-                 log.warn("Unknown request command: {}", command);
-                 return "Unknown request command";
+                 log.warn("Unknown request response: {}", response);
+                 return "Unknown request response";
          }
      }
 
@@ -1978,7 +1978,7 @@ package user.manager;
 
 import database.UserDAO;
 import lombok.extern.log4j.Log4j2;
-import shared.ResponseMessage;
+import shared.ResponseStatus;
 import user.credential.User;
 
 @Log4j2
@@ -2066,7 +2066,7 @@ import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
-import shared.ResponseMessage;
+import shared.ResponseStatus;
 import user.credential.Admin;
 import user.credential.User;
 
@@ -2179,7 +2179,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 
 import org.junit.jupiter.api.*;
-import shared.ResponseMessage;
+import shared.ResponseStatus;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -2421,7 +2421,7 @@ import org.jooq.impl.DSL;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import shared.ResponseMessage;
+import shared.ResponseStatus;
 import user.credential.Admin;
 import user.credential.User;
 import user.manager.UserManager;

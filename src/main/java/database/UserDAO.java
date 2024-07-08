@@ -58,7 +58,7 @@ public class UserDAO {
         return BCrypt.checkpw(typedPassword, hashed);
     }
 
-    public void deleteUserFromDB(String username) {
+    public void removeUserFromDB(String username) {
         create.deleteFrom(table(USERS_TABLE))
                 .where(field("username").eq(username))
                 .execute();

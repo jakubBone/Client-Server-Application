@@ -59,7 +59,7 @@ class ClientTest {
     void testHandleServerCommunication_LoggedIn_Authorized() {
         when(mockConnection.isConnected()).thenReturn(true);
         when(mockConnection.isLoggedIn()).thenReturn(true);
-        when(mockConnection.isAuthorized()).thenReturn(true);
+        when(mockConnection.isUserAuthorized()).thenReturn(true);
 
         // Mocking the static methods of the Screen class
         MockedStatic<Screen> mockScreen = mockStatic(Screen.class);

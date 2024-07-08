@@ -4,7 +4,7 @@ import database.UserDAO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import shared.ResponseMessage;
+import shared.ResponseStatus;
 import user.credential.User;
 import user.manager.AuthManager;
 import user.manager.UserManager;
@@ -36,7 +36,7 @@ public class AuthManagerTest {
 
         String response = authManager.registerAndGetResponse(username, password, userManager);
 
-        assertEquals(ResponseMessage.REGISTRATION_SUCCESSFUL.getResponse(), response);
+        assertEquals(ResponseStatus.REGISTRATION_SUCCESSFUL.getResponse(), response);
     }
 
     @Test
@@ -46,7 +46,7 @@ public class AuthManagerTest {
 
         String response = authManager.registerAndGetResponse(username, password, userManager);
 
-        assertEquals(ResponseMessage.REGISTRATION_FAILED_USER_EXISTS.getResponse(), response);
+        assertEquals(ResponseStatus.REGISTRATION_FAILED_USER_EXISTS.getResponse(), response);
     }
 
     @Test
@@ -57,7 +57,7 @@ public class AuthManagerTest {
 
         String response = authManager.loginAndGetResponse(username, password, userManager);
 
-        assertEquals(ResponseMessage.USER_LOGIN_SUCCEEDED.getResponse(), response);
+        assertEquals(ResponseStatus.USER_LOGIN_SUCCEEDED.getResponse(), response);
         assertEquals(user, UserManager.currentLoggedInUser);
     }
 
@@ -69,7 +69,7 @@ public class AuthManagerTest {
 
         String response = authManager.loginAndGetResponse(username, password, userManager);
 
-        assertEquals(ResponseMessage.LOGIN_FAILED_INCORRECT_PASSWORD.getResponse(), response);
+        assertEquals(ResponseStatus.LOGIN_FAILED_INCORRECT_PASSWORD.getResponse(), response);
         assertNotEquals(user, UserManager.currentLoggedInUser);
     }
 

@@ -5,11 +5,6 @@ import java.io.IOException;
 
 import user.credential.User.Role;
 
-/**
- * The UserInteraction class provides methods to interact with the user through the console.
- * It prompts the user for various inputs required for creating requests.
- */
-
 public class UserInteraction {
     private BufferedReader reader;
     public UserInteraction(BufferedReader reader) {
@@ -78,14 +73,14 @@ public class UserInteraction {
 
     public String chooseUpdateOperation() throws IOException {
         while (true) {
-            System.out.println("Update operations: PASSWORD / DELETE / ROLE");;
+            System.out.println("Update operations: PASSWORD / REMOVE / ROLE");;
             System.out.print("Select: ");;
             String input = reader.readLine();
             switch (input.toUpperCase()) {
                 case "PASSWORD":
                     return "PASSWORD";
                 case "DELETE":
-                    return "DELETE";
+                    return "REMOVE";
                 case "ROLE":
                     return "ROLE";
                 default:
@@ -101,7 +96,7 @@ public class UserInteraction {
 
     public Role chooseRole() throws IOException {
         System.out.print("Please type the new role (ADMIN / USER): ");
-        String newRole = reader.readLine();
+        String newRole = reader.readLine().toUpperCase();
         if(newRole.equals("ADMIN")){
             return Role.ADMIN;
         } else {

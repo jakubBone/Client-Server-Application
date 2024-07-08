@@ -9,14 +9,8 @@ import java.net.Socket;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
-import shared.ResponseMessage;
+import shared.ResponseStatus;
 import shared.JsonConverter;
-
-/**
- * The ClientConnection class manages the connection between the client and server.
- * It establishes, maintains, and handles communication through sockets.
- * Additionally, it manages login status and authorization checks.
- */
 
 @Log4j2
 @Getter
@@ -28,7 +22,7 @@ public class ClientConnection {
     private BufferedReader inFromServer;
     public static boolean loggedIn = false;
     private boolean isAuthorized = false;
-    private boolean  isAdminSwitchedAndAuthorized = false;
+    private boolean isAdminSwitchedAndAuthorized = false;
     public static int connectionAttempts = 0;
     private boolean connected = false;
 
@@ -38,10 +32,6 @@ public class ClientConnection {
         log.info("ClientConnection instance created");
     }
 
-    /**
-     * Attempts to connect to the server.
-     * If the initial connection fails, it tries to reconnect.
-     */
     public void connectToServer() {
         try {
             clientSocket = new Socket("localhost", PORT_NUMBER);
@@ -55,9 +45,6 @@ public class ClientConnection {
         }
     }
 
-    /**
-     * Retries connection to the server up to a maximum number of attempts.
-     */
     public void retryConnection() {
         if (connectionAttempts >= 2) {
             log.error("Max reconnection attempts reached. Giving up");
@@ -88,22 +75,16 @@ public class ClientConnection {
             while (!(jsonResponse = inFromServer.readLine()).equals("<<END>>")) {
                 String response = JsonConverter.deserializeMessage(jsonResponse);
                 checkResponseStatus(response);
-                System.out.println(JsonConverter.deserializeMessage(jsonResponse));
+                System.out.println("\n" + response);
             }
         } catch (IOException ex){
             log.error("Error reading response: {}", ex.getMessage());
         }
     }
 
-    /**
-     * Checks the status of the response from the server.
-     * Updates login and authorization status based on the response.
-     * @param response The response from the server
-     */
     public void checkResponseStatus(String response) {
-        ResponseMessage operationMessage = ResponseMessage.fromString(response);
-        System.out.println(operationMessage);
-        switch (operationMessage) {
+        ResponseStatus status = ResponseStatus.fromString(response);
+        switch (status) {
             case ADMIN_LOGIN_SUCCEEDED:
                 loggedIn = true;
                 isAuthorized = true;
@@ -127,13 +108,16 @@ public class ClientConnection {
                 isAuthorized = true;
                 log.info("User authorization succeeded");
                 break;
-            case SWITCH_SUCCEEDED:
+            case SWITCH_SUCCEEDED_USER_ROLE_ADMIN_ROLE:
+                isAuthorized = true;
+                log.info("Switch succeeded for user with admin role");
+                break;
+            case SWITCH_SUCCEEDED_USER_NON_ADMIN_ROLE:
                 isAuthorized = false;
-                isAdminSwitchedAndAuthorized = true;
-                log.info("Switch succeeded");
+                log.info("Switch succeeded for user with non-admin role");
                 break;
             default:
-                log.info("No response required to action");
+                log.info("No required to take an action");
         }
     }
 
@@ -158,9 +142,10 @@ public class ClientConnection {
         return loggedIn;
     }
 
-    public boolean isAuthorized() {
+    public boolean isUserAuthorized() {
         return isAuthorized;
     }
+
     public boolean isConnected(){
         return connected;
     }

@@ -4,7 +4,7 @@ import database.UserDAO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import shared.ResponseMessage;
+import shared.ResponseStatus;
 import user.credential.User;
 import user.manager.UserManager;
 
@@ -50,9 +50,9 @@ class UserMangerTest {
     @Test
     @DisplayName("Should test user deletion")
     void testDeleteUser() {
-        doNothing().when(mockUserDAO).deleteUserFromDB(username);
+        doNothing().when(mockUserDAO).removeUserFromDB(username);
 
-        userManager.deleteUser(user);
+        userManager.removeUser(user);
 
         User foundUser = userManager.getUserByUsername(username);
         assertNull(foundUser);
@@ -84,6 +84,6 @@ class UserMangerTest {
 
         assertNull(UserManager.currentLoggedInUser);
         assertFalse(UserManager.ifAdminSwitched);
-        assertEquals(ResponseMessage.LOGOUT_SUCCEEDED.getResponse(), response);
+        assertEquals(ResponseStatus.LOGOUT_SUCCEEDED.getResponse(), response);
     }
 }
