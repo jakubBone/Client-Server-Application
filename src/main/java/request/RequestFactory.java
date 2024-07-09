@@ -10,6 +10,7 @@ import request.mail.MailsReadRequest;
 import request.mail.ServerDetailsRequest;
 import request.user.UserChangePasswordRequest;
 import request.user.UserChangeRoleRequest;
+import request.user.UserRemoveRequest;
 import request.user.UserSwitchRequest;
 
 import shared.UserInteraction;
@@ -64,7 +65,7 @@ public class RequestFactory {
     public Request getMailboxRequest() throws IOException {
         String boxOperation = userInteraction.chooseBoxOperation();
         String boxType = userInteraction.chooseBoxType();
-        switch (boxOperation.toUpperCase()) {
+        switch (boxOperation) {
             case "READ":
                 return new MailsReadRequest(boxOperation, boxType);
             case "DELETE":
@@ -80,12 +81,12 @@ public class RequestFactory {
             log.info("Authorization succeeded");
             String update = userInteraction.chooseUpdateOperation();
             String userToUpdate = userInteraction.chooseUserToUpdate();
-            switch (update.toUpperCase()) {
+            switch (update) {
                 case "PASSWORD":
                     String newPassword = userInteraction.getNewPassword();
                     return new UserChangePasswordRequest(update, userToUpdate, newPassword);
                 case "REMOVE":
-                    return new request.UserRemoveRequest(update, userToUpdate);
+                    return new UserRemoveRequest(update, userToUpdate);
                 case "ROLE":
                     User.Role newRole = userInteraction.chooseRole();
                     return  new UserChangeRoleRequest(update, userToUpdate, newRole);
@@ -96,5 +97,4 @@ public class RequestFactory {
         log.warn("Authorization failed");
         return null;
     }
-
 }

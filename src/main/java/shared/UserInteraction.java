@@ -75,11 +75,11 @@ public class UserInteraction {
         while (true) {
             System.out.println("Update operations: PASSWORD / REMOVE / ROLE");;
             System.out.print("Select: ");;
-            String input = reader.readLine();
-            switch (input.toUpperCase()) {
+            String input = reader.readLine().toUpperCase();
+            switch (input) {
                 case "PASSWORD":
                     return "PASSWORD";
-                case "DELETE":
+                case "REMOVE":
                     return "REMOVE";
                 case "ROLE":
                     return "ROLE";

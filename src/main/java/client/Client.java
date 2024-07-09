@@ -54,12 +54,10 @@ public class Client {
         log.info("Handling user request: {}", request);
         try{
             RequestFactory factory = new RequestFactory(connection);
-            //RequestService requestService = new RequestService(connection);
-            Request request1 = factory.getRequest(request);
-            //Request requestType = requestService.getRequest(request);
+            Request requestType = factory.getRequest(request);
 
-            if (request1 != null) {
-                String jsonRequest = gson.toJson(request1);
+            if (requestType != null) {
+                String jsonRequest = gson.toJson(requestType);
                 connection.sendRequest(jsonRequest);
                 log.info("User attempted to {}", request);
                 connection.readResponse();
