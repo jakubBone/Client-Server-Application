@@ -15,8 +15,8 @@ class UserMangerTest {
     UserManager userManager;
     User user;
     UserDAO mockUserDAO;
-    String username = "exampleUsername";
-    String password = "examplePassword";
+    String username = "testUsername";
+    String password = "testPassword";
 
     @BeforeEach
     void setUp() {
@@ -29,9 +29,9 @@ class UserMangerTest {
     @Test
     @DisplayName("Should test user registration for the first time")
     void testGetUserByUsername() {
-        when(mockUserDAO.getUserFromDB("exampleUser")).thenReturn(user);
+        when(mockUserDAO.getUserFromDB("testUser")).thenReturn(user);
 
-        User foundUser = userManager.getUserByUsername("exampleUser");
+        User foundUser = userManager.getUserByUsername("testUser");
         assertEquals(user, foundUser);
     }
 
@@ -64,7 +64,7 @@ class UserMangerTest {
         userManager.switchUser(user);
 
         assertEquals(user, UserManager.currentLoggedInUser);
-        assertTrue(UserManager.ifAdminSwitched);
+        assertTrue(UserManager.ifSwitchedToNonAdminUser);
     }
 
     @Test
@@ -83,7 +83,7 @@ class UserMangerTest {
         String response = userManager.logoutAndGetResponse();
 
         assertNull(UserManager.currentLoggedInUser);
-        assertFalse(UserManager.ifAdminSwitched);
+        assertFalse(UserManager.ifSwitchedToNonAdminUser);
         assertEquals(ResponseStatus.LOGOUT_SUCCEEDED.getResponse(), response);
     }
 }

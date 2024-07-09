@@ -9,9 +9,9 @@ class JsonConverterTest {
     @Test
     @DisplayName("Should test message serializing to JSon")
     void testSerializeMessage() {
-        String message = "exampleMessage";
+        String message = "test message";
         JsonConverter converter = new JsonConverter(message);
-        String expectedFormat = "{\"message\":\"exampleMessage\"}\n<<END>>";
+        String expectedFormat = "{\"message\":\"test message\"}\n<<END>>";
 
         // Test JSON serialization
         String serializedMessage = converter.serializeMessage();
@@ -23,7 +23,7 @@ class JsonConverterTest {
     @Test
     @DisplayName("Should test message deserializing from JSon")
     void testDeserializeMessage() {
-        String message = "exampleMessage";
+        String message = "test message";
         JsonConverter converter = new JsonConverter(message);
 
         String serializedMessage = converter.serializeMessage();

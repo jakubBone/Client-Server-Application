@@ -42,7 +42,7 @@ class ClientCommunicationTest {
     @Test
     @DisplayName("Should test sending request")
     void testSendRequest() {
-        String request = "exampleRequest";
+        String request = "testRequest";
 
         clientConnection.sendRequest(request);
 

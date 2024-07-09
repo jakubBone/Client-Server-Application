@@ -44,7 +44,6 @@ class ServerConnectionTest {
         when(mockClientSocket.isConnected()).thenReturn(true);
         handler.startServer();
 
-        // Verify that the client is connected
         assertTrue(mockClientSocket.isConnected());
     }
 }

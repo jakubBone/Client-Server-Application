@@ -22,8 +22,8 @@ import user.credential.User;
 @Setter
 public class UserManager {
     public static User currentLoggedInUser;
-    public static boolean ifAdminSwitched;
-    public static boolean ifAdminSwitchedAndAuthorized;
+    public static boolean ifSwitchedToNonAdminUser;
+    public static boolean ifSwitchedToAdminUser;
     public Admin admin;
     private DSLContext create;
     private UserDAO userDAO;
@@ -75,9 +75,9 @@ public class UserManager {
             UserManager.currentLoggedInUser = user;
 
             if(isUserAdmin()){
-                UserManager.ifAdminSwitchedAndAuthorized = true;
+                UserManager.ifSwitchedToAdminUser = true;
             } else {
-                UserManager.ifAdminSwitched = true;
+                UserManager.ifSwitchedToNonAdminUser = true;
             }
 
         log.info("Switched to user: {}", user.getUsername());
@@ -95,7 +95,7 @@ public class UserManager {
     public String logoutAndGetResponse() {
         log.info("User logout requested");
 
-        ifAdminSwitched = false;
+        ifSwitchedToNonAdminUser = false;
         currentLoggedInUser = null;
 
         return ResponseStatus.LOGOUT_SUCCEEDED.getResponse();

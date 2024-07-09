@@ -12,7 +12,7 @@ class UserTest {
     User user;
     @BeforeEach
     void setUp() {
-        user = new User("exampleUser", "examplePassword", User.Role.USER);
+        user = new User("testUser", "testPassword", User.Role.USER);
     }
 
     @Test
@@ -20,14 +20,14 @@ class UserTest {
     void testHashPassword() {
         user.hashPassword();
 
-        assertTrue(BCrypt.checkpw("examplePassword", user.getHashedPassword()));
+        assertTrue(BCrypt.checkpw("testPassword", user.getHashedPassword()));
     }
     @Test
     @DisplayName("Should test password setting")
     void testSetPassword() {
-        user.setPassword("examplePassword");
+        user.setPassword("testPassword");
 
         assertNotNull(user.getPassword());
-        assertEquals("examplePassword", user.getPassword());
+        assertEquals("testPassword", user.getPassword());
     }
 }

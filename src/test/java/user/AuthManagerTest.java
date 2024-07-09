@@ -17,8 +17,8 @@ public class AuthManagerTest {
     AuthManager authManager;
     User user;
     UserDAO mockUserDAO;
-    String username = "exampleUsername";
-    String password = "examplePassword";
+    String username = "testUsername";
+    String password = "testPassword";
 
     @BeforeEach
     void setUp() {

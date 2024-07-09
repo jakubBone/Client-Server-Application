@@ -26,11 +26,11 @@ public class UserSwitchResponse implements Response {
 
         userManager.switchUser(user);
 
-        if (UserManager.ifAdminSwitchedAndAuthorized) {
+        if (UserManager.ifSwitchedToAdminUser) {
             return ResponseStatus.SWITCH_SUCCEEDED_USER_ROLE_ADMIN_ROLE.getResponse();
         }
 
-        if(UserManager.ifAdminSwitched) {
+        if(UserManager.ifSwitchedToNonAdminUser) {
             return ResponseStatus.SWITCH_SUCCEEDED_USER_NON_ADMIN_ROLE.getResponse();
         }
 

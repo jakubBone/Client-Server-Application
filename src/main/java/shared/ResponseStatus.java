@@ -26,8 +26,8 @@ public enum ResponseStatus {
     AUTHORIZATION_FAILED("Authorization failed"),
 
     // Account switch responses
-    SWITCH_SUCCEEDED_USER_ROLE_ADMIN_ROLE("Switch succeeded to user with admin role"),
-    SWITCH_SUCCEEDED_USER_NON_ADMIN_ROLE("Switch succeeded"),
+    SWITCH_SUCCEEDED_USER_ROLE_ADMIN_ROLE("Switch succeeded to admin role user"),
+    SWITCH_SUCCEEDED_USER_NON_ADMIN_ROLE("Switch succeeded to non-admin role user"),
     SWITCH_FAILED("Switch failed"),
 
     // Role change responses

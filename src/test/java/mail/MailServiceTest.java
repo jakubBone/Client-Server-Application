@@ -27,10 +27,10 @@ public class MailServiceTest {
         mockMailDAO = mock(MailDAO.class);
         mailService = new MailService();
         mailService.setMailDAO(mockMailDAO);
-        sender = new User("senderName", "examplePassword", User.Role.USER);
+        sender = new User("senderName", "testPassword", User.Role.USER);
         UserManager.currentLoggedInUser = sender;
-        recipient = new User("recipientName", "examplePassword", User.Role.USER);
-        mail = new Mail(sender, recipient, "Example message", Mail.Status.UNREAD);
+        recipient = new User("recipientName", "testPassword", User.Role.USER);
+        mail = new Mail(sender, recipient, "test message", Mail.Status.UNREAD);
     }
 
     @Test
