@@ -74,7 +74,7 @@ public class Client {
         if(!connection.isLoggedIn()) {
             Screen.printLoginMenu();
         } else {
-            if(connection.isUserAuthorized() || connection.isAdminSwitchedAndAuthorized()){
+            if(connection.isUserAuthorized()){
                 Screen.printAdminMailBoxMenu();
             } else{
                 Screen.printUserMailBoxMenu();

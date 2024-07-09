@@ -22,7 +22,6 @@ public class ClientConnection {
     private BufferedReader inFromServer;
     public static boolean loggedIn = false;
     private boolean isAuthorized = false;
-    private boolean isAdminSwitchedAndAuthorized = false;
     public static int connectionAttempts = 0;
     private boolean connected = false;
 
@@ -101,7 +100,6 @@ public class ClientConnection {
             case LOGOUT_SUCCEEDED:
                 loggedIn = false;
                 isAuthorized = false;
-                isAdminSwitchedAndAuthorized = false;
                 log.info("User logout succeeded");
                 break;
             case AUTHORIZATION_SUCCEEDED:

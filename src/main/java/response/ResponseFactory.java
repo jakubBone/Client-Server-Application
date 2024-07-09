@@ -46,7 +46,7 @@ public class ResponseFactory {
             case "PASSWORD":
                 return new UserPasswordChangeResponse(userManager);
             case "REMOVE":
-                return new UserRemoveResponse(userManager, mailService);
+                return new UserRemoveResponse(userManager);
             case "ROLE":
                 return new UserRoleChangeResponse(userManager);
             case "SWITCH":

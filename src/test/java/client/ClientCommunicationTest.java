@@ -90,17 +90,20 @@ class ClientCommunicationTest {
         clientConnection.checkResponseStatus(response);
         assertFalse(clientConnection.isLoggedIn());
         assertFalse(clientConnection.isUserAuthorized());
-        assertFalse(clientConnection.isAdminSwitchedAndAuthorized());
 
         // Test authorization succeeded
         response = ResponseStatus.AUTHORIZATION_SUCCEEDED.getResponse();
         clientConnection.checkResponseStatus(response);
         assertTrue(clientConnection.isUserAuthorized());
 
-        // Test operation failed response
-        response = ResponseStatus.SWITCH_SUCCEEDED.getResponse();
+        // Test switch operation succeeded for admin
+        response = ResponseStatus.SWITCH_SUCCEEDED_USER_ROLE_ADMIN_ROLE.getResponse();
+        clientConnection.checkResponseStatus(response);
+        assertTrue(clientConnection.isUserAuthorized());
+
+        // Test switch operation succeeded for non-admin user
+        response = ResponseStatus.SWITCH_SUCCEEDED_USER_NON_ADMIN_ROLE.getResponse();
         clientConnection.checkResponseStatus(response);
         assertFalse(clientConnection.isUserAuthorized());
-        assertTrue(clientConnection.isAdminSwitchedAndAuthorized());
     }
 }

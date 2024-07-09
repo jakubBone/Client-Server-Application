@@ -1,6 +1,5 @@
 package handler;
 
-import handler.user.PasswordChangeHandler;
 
 class AccountUpdateHandlerTest {
     /*asswordChangeHandler updateHandler;

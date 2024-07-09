@@ -1,6 +1,8 @@
 package request;
 
 import lombok.extern.log4j.Log4j2;
+import lombok.Getter;
+import lombok.Setter;
 import client.ClientConnection;
 import request.auth.AuthRequest;
 import request.auth.LogoutRequest;
@@ -21,6 +23,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 @Log4j2
+@Getter
+@Setter
 public class RequestFactory {
     private BufferedReader userInput;
     private UserInteraction userInteraction;
