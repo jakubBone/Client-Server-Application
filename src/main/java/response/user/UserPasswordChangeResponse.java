@@ -19,7 +19,6 @@ public class UserPasswordChangeResponse implements Response {
             if (user == null) {
                 return ResponseStatus.FAILED_TO_FIND_USER.getResponse();
             }
-
             userManager.changePassword(user, request.getNewPassword());
             return ResponseStatus.OPERATION_SUCCEEDED.getResponse();
         } else {

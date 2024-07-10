@@ -7,6 +7,5 @@ public class UserSwitchRequest extends Request {
     public UserSwitchRequest(String requestCommand, String userToSwitch) {
         setCommand(requestCommand);
         setUserToSwitch(userToSwitch);
-        log.info("Switch user request created for user: {}", userToSwitch);
     }
 }

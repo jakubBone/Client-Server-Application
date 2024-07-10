@@ -9,6 +9,5 @@ public class UserChangeRoleRequest extends Request {
         setCommand(updateOperation);
         setUserToUpdate(userToUpdate);
         setNewRole(role);
-        log.info("Role change request created for user: {} with new role: {}", userToUpdate, role);
     }
 }

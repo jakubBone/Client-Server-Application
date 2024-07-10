@@ -8,6 +8,5 @@ public class MailWriteRequest extends Request {
         setCommand(requestCommand);
         setRecipient(recipient);
         setMessage(message);
-        log.info("Write mails request created for recipient: {}", recipient);
     }
 }

@@ -38,7 +38,6 @@ public class MailService {
     }
 
     public List<Mail> getMails(String boxType) {
-        log.info("Entering getMails method with boxType: {}", boxType);
         return mailDAO.getMailsFromDB(boxType);
     }
 

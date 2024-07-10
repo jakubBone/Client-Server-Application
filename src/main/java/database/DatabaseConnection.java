@@ -38,7 +38,7 @@ public class DatabaseConnection {
             }
         } catch (SQLException ex) {
             log.error("Error during database connection: {}", ex.getMessage());
-            throw new RuntimeException("Error establishing database connection", ex);
+
         }
     }
 

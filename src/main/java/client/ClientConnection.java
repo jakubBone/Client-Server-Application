@@ -28,7 +28,7 @@ public class ClientConnection {
 
     public ClientConnection() {
         connectToServer();
-        log.info("ClientConnection instance created");
+
     }
 
     public void connectToServer() {

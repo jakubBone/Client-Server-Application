@@ -15,7 +15,7 @@ import request.user.UserChangePasswordRequest;
 import request.user.UserChangeRoleRequest;
 import request.user.UserRemoveRequest;
 import request.user.UserSwitchRequest;
-import shared.UserInteraction;
+import shared.UserInput;
 import client.ClientConnection;
 import user.credential.User;
 
@@ -24,23 +24,23 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class RequestFactoryTest {
-    UserInteraction mockUserInteraction;
+    UserInput mockUserInput;
     ClientConnection mockClientConnection;
     RequestFactory factory;
 
     @BeforeEach
     void setUp() {
-        mockUserInteraction = mock(UserInteraction.class);
+        mockUserInput = mock(UserInput.class);
         mockClientConnection = mock(ClientConnection.class);
         factory = new RequestFactory(mockClientConnection);
-        factory.setUserInteraction(mockUserInteraction);
+        factory.setUserInput(mockUserInput);
     }
 
     @Test
     @DisplayName("Should test authRequest return")
     public void testGetAuthRequest() throws IOException {
-        when(mockUserInteraction.getUsername()).thenReturn("testUser");
-        when(mockUserInteraction.getPassword()).thenReturn("testPassword");
+        when(mockUserInput.getUsername()).thenReturn("testUser");
+        when(mockUserInput.getPassword()).thenReturn("testPassword");
 
         AuthRequest request = (AuthRequest) factory.getRequest("LOGIN");
 
@@ -62,8 +62,8 @@ class RequestFactoryTest {
     @Test
     @DisplayName("Should test MailWriteRequest return")
     public void testGetMailWriteRequest() throws IOException {
-        when(mockUserInteraction.getRecipient()).thenReturn("recipient");
-        when(mockUserInteraction.getMessage()).thenReturn("message");
+        when(mockUserInput.getRecipient()).thenReturn("recipient");
+        when(mockUserInput.getMessage()).thenReturn("message");
 
         Request request = factory.getRequest("WRITE");
 
@@ -76,8 +76,8 @@ class RequestFactoryTest {
     @Test
     @DisplayName("Should test MailboxReadRequest return")
     public void testGetMailboxReadRequest() throws IOException {
-        when(mockUserInteraction.chooseBoxOperation()).thenReturn("READ");
-        when(mockUserInteraction.chooseBoxType()).thenReturn("OPENED");
+        when(mockUserInput.chooseBoxOperation()).thenReturn("READ");
+        when(mockUserInput.chooseBoxType()).thenReturn("OPENED");
 
         Request request = factory.getMailboxRequest();
 
@@ -88,8 +88,8 @@ class RequestFactoryTest {
     @Test
     @DisplayName("Should test MailboxDeleteRequest return")
     public void testGetMailboxDeleteRequest() throws IOException {
-        when(mockUserInteraction.chooseBoxOperation()).thenReturn("DELETE");
-        when(mockUserInteraction.chooseBoxType()).thenReturn("UNREAD");
+        when(mockUserInput.chooseBoxOperation()).thenReturn("DELETE");
+        when(mockUserInput.chooseBoxType()).thenReturn("UNREAD");
 
         Request request = factory.getMailboxRequest();
 
@@ -110,7 +110,7 @@ class RequestFactoryTest {
     @Test
     @DisplayName("Should test UserSwitchRequest return")
     public void testGetUserSwitchRequest() throws IOException {
-        when(mockUserInteraction.getUserToSwitch()).thenReturn("exampleUser");
+        when(mockUserInput.getUserToSwitch()).thenReturn("exampleUser");
 
         Request request = factory.getRequest("SWITCH");
 
@@ -122,10 +122,9 @@ class RequestFactoryTest {
     @Test
     @DisplayName("Should test UserChangePasswordRequest return")
     public void testGetUserChangePasswordRequest() throws IOException {
-        when(mockClientConnection.isUserAuthorized()).thenReturn(true);
-        when(mockUserInteraction.chooseUpdateOperation()).thenReturn("PASSWORD");
-        when(mockUserInteraction.chooseUserToUpdate()).thenReturn("exampleUser");
-        when(mockUserInteraction.getNewPassword()).thenReturn("newPassword");
+        when(mockUserInput.chooseUpdateOperation()).thenReturn("PASSWORD");
+        when(mockUserInput.chooseUserToUpdate()).thenReturn("exampleUser");
+        when(mockUserInput.getNewPassword()).thenReturn("newPassword");
 
         Request request = factory.getUpdateRequest();
 
@@ -138,9 +137,8 @@ class RequestFactoryTest {
     @Test
     @DisplayName("Should test UserRemoveRequest return")
     public void testGetUserRemoveRequest() throws IOException {
-        when(mockClientConnection.isUserAuthorized()).thenReturn(true);
-        when(mockUserInteraction.chooseUpdateOperation()).thenReturn("REMOVE");
-        when(mockUserInteraction.chooseUserToUpdate()).thenReturn("exampleUser");
+        when(mockUserInput.chooseUpdateOperation()).thenReturn("REMOVE");
+        when(mockUserInput.chooseUserToUpdate()).thenReturn("exampleUser");
 
         Request request = factory.getUpdateRequest();
 
@@ -152,10 +150,9 @@ class RequestFactoryTest {
     @Test
     @DisplayName("Should test UserChangeRoleRequest return")
     public void testGetUserChangeRoleRequest() throws IOException {
-        when(mockClientConnection.isUserAuthorized()).thenReturn(true);
-        when(mockUserInteraction.chooseUpdateOperation()).thenReturn("ROLE");
-        when(mockUserInteraction.chooseUserToUpdate()).thenReturn("exampleUser");
-        when(mockUserInteraction.chooseRole()).thenReturn(User.Role.ADMIN);
+        when(mockUserInput.chooseUpdateOperation()).thenReturn("ROLE");
+        when(mockUserInput.chooseUserToUpdate()).thenReturn("exampleUser");
+        when(mockUserInput.chooseRole()).thenReturn(User.Role.ADMIN);
 
         Request request = factory.getUpdateRequest();
 
@@ -165,12 +162,4 @@ class RequestFactoryTest {
         assertEquals(User.Role.ADMIN, userChangeRoleRequest.getNewRole());
     }
 
-    @Test
-    public void testGetUpdateRequestUnauthorized() throws IOException {
-        when(mockClientConnection.isUserAuthorized()).thenReturn(false);
-
-        Request request = factory.getUpdateRequest();
-
-        assertNull(request);
-    }
 }

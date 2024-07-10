@@ -8,7 +8,7 @@ import org.mockito.MockedStatic;
 import request.Request;
 import request.RequestFactory;
 import shared.Screen;
-import shared.UserInteraction;
+import shared.UserInput;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -18,7 +18,7 @@ class ClientTest {
     Client client;
     static ClientConnection mockConnection;
     BufferedReader mockUserInput;
-    UserInteraction mockUserInteraction;
+    UserInput mockUserInput;
     RequestFactory mockRequestFactory;
     Request mockRequestType;
 
@@ -29,7 +29,7 @@ class ClientTest {
         mockUserInput = mock(BufferedReader.class);
         client.setConnection(mockConnection);
         client.setUserInput(mockUserInput);
-        mockUserInteraction = mock(UserInteraction.class);
+        mockUserInput = mock(UserInput.class);
         mockRequestFactory = mock(RequestFactory.class);
         mockRequestType = mock(Request.class);
     }

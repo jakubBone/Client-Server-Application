@@ -29,7 +29,6 @@ public class Client {
         connection = new ClientConnection();
         gson = new Gson();
         userInput = new BufferedReader(new InputStreamReader(System.in));
-        log.info("Client instance created");
     }
 
     public void handleServerCommunication() {
@@ -40,7 +39,6 @@ public class Client {
                 String request = userInput.readLine();
                 if (request == null || request.equalsIgnoreCase("EXIT")) {
                     connection.disconnect();
-                    log.info("User exited the application");
                     return;
                 }
                     handleRequest(request);
@@ -62,7 +60,6 @@ public class Client {
                 log.info("User attempted to {}", request);
                 connection.readResponse();
             } else {
-                log.warn("Incorrect input from user: {}", request);
                 System.out.println("Incorrect input. Please, try again");
             }
         } catch (IOException ex){

@@ -6,6 +6,5 @@ import request.Request;
 public class LogoutRequest extends Request {
     public LogoutRequest(String requestCommand) {
         setCommand(requestCommand);
-        log.info("Server details request created with command: {}", requestCommand);
     }
 }

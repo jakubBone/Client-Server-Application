@@ -1,5 +1,5 @@
 package response;
-
+import lombok.extern.log4j.Log4j2;
 import response.auth.LoginResponse;
 import response.auth.LogoutResponse;
 import response.auth.RegisterResponse;
@@ -16,6 +16,7 @@ import server.ServerDetails;
 import user.manager.AuthManager;
 import user.manager.UserManager;
 
+@Log4j2
 public class ResponseFactory {
     private final AuthManager authManager;
     private final UserManager userManager;
@@ -56,7 +57,8 @@ public class ResponseFactory {
             case "UPTIME":
                 return new ServerDetailsResponse(serverDetails);
             default:
-                throw new IllegalArgumentException("Unknown command type: " + request);
+                log.warn("Unknown operation: {}", request);
+                return null;
         }
     }
 }

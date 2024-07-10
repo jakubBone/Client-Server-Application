@@ -8,6 +8,5 @@ public class UserChangePasswordRequest extends Request {
         setCommand(updateOperation);
         setUserToUpdate(userToUpdate);
         setNewPassword(newPassword);
-        log.info("Password change request created for user: {}", userToUpdate);
     }
 }

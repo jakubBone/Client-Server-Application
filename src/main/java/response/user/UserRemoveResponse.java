@@ -19,7 +19,6 @@ public class UserRemoveResponse implements Response {
             if (user == null) {
                 return ResponseStatus.FAILED_TO_FIND_USER.getResponse();
             }
-
             userManager.removeUser(user);
             return ResponseStatus.OPERATION_SUCCEEDED.getResponse();
         } else {

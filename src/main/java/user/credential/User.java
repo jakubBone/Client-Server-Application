@@ -26,9 +26,7 @@ public class User {
         this.password = password;
         this.role = role;
         this.hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
-        log.info("User instance created: {}", username);
     }
-
 
     public void hashPassword() {
         hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
@@ -36,7 +34,6 @@ public class User {
     }
 
     public void setPassword(String newPassword) {
-        log.info("Setting new password for user: {}", username);
         this.password = newPassword;
         hashPassword();
         log.info("New password set for user: {}", username);

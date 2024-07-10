@@ -11,12 +11,6 @@ import shared.ResponseStatus;
 import user.credential.Admin;
 import user.credential.User;
 
-
-/**
- * The UserManager class manages user accounts and operations such as registration, login, and role changes.
- * It interacts with the database to store and retrieve user information.
- */
-
 @Log4j2
 @Getter
 @Setter
@@ -45,7 +39,6 @@ public class UserManager {
             log.warn("User not found in database: {}", username);
             return null;
         }
-
         log.info("User found in database: {}", username);
         return user;
     }
@@ -57,8 +50,8 @@ public class UserManager {
 
         log.info("Attempting to upload database: {}", user.getUsername());
         userDAO.updateUserInDB(user);
-        log.info("Data base upload succeeded {}", user.getUsername());
 
+        log.info("Data base upload succeeded {}", user.getUsername());
         log.info("Password change succeeded for user: {}", user.getUsername());
     }
 
@@ -79,7 +72,6 @@ public class UserManager {
             } else {
                 UserManager.ifSwitchedToNonAdminUser = true;
             }
-
         log.info("Switched to user: {}", user.getUsername());
     }
 

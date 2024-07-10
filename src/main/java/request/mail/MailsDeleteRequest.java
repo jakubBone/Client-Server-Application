@@ -6,6 +6,5 @@ public class MailsDeleteRequest extends Request {
     public MailsDeleteRequest(String boxOperation, String boxType) {
         setCommand(boxOperation);
         setBoxType(boxType);
-        log.info("Delete mails request created with operation: {} for boxType: {}", boxOperation, boxType);
     }
 }

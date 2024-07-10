@@ -5,9 +5,9 @@ import java.io.IOException;
 
 import user.credential.User.Role;
 
-public class UserInteraction {
+public class UserInput {
     private BufferedReader reader;
-    public UserInteraction(BufferedReader reader) {
+    public UserInput(BufferedReader reader) {
         this.reader = reader;
     }
 

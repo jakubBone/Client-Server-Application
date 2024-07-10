@@ -24,7 +24,6 @@ public class AuthManager {
     public String loginAndGetResponse(String username, String password, UserManager userManager) {
         log.info("Login attempted for user: {}", username);
         User user = userManager.getUserDAO().getUserFromDB(username);
-        System.out.println("User role" + user.getRole());
         if (user == null) {
             log.info("Login attempt failed - user does not exist: {}", username);
             return ResponseStatus.FAILED_TO_FIND_USER.getResponse();
@@ -53,8 +52,6 @@ public class AuthManager {
 
         userManager.getUserDAO().addUserToDB(newUser);
         UserManager.currentLoggedInUser = newUser;
-
-        log.info("User registered: {}", username);
     }
 
     public void handleLogin(User existingUser) {
@@ -62,7 +59,6 @@ public class AuthManager {
     }
 
     public boolean ifPasswordCorrect(String password, User user, UserManager userManager) {
-        log.info("Checking password for user: {}", user.getUsername());
         return userManager.getUserDAO().checkPasswordInDB(password, user.getUsername());
     }
 }

@@ -6,6 +6,5 @@ import request.Request;
 public class ServerDetailsRequest extends Request{
     public ServerDetailsRequest(String requestCommand) {
         setCommand(requestCommand);
-        log.info("Server details request created with command: {}", requestCommand);
     }
 }

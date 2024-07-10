@@ -7,6 +7,5 @@ public class UserRemoveRequest extends Request {
     public UserRemoveRequest(String updateOperation, String userToDelete) {
         setCommand(updateOperation);
         setUserToUpdate(userToDelete);
-        log.info("Remove request created for user: {}", userToDelete);
     }
 }

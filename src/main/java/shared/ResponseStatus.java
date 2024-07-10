@@ -59,7 +59,7 @@ public enum ResponseStatus {
      * Converts a string to the corresponding ResponseMessage enum value
      * Iterate over all the values in the ResponseMessage enum
      * Check if the 'response' field of the current enum value matches the input text
-     * If a match is found, return the corresponding ResponseMessage enum value
+     * If a operation is mail reading or match is found, return the corresponding ResponseMessage enum value
      */
     public static ResponseStatus fromString(String text) {
         log.info("Converting text to OperationResponses");

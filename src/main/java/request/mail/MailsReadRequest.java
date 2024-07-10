@@ -7,6 +7,5 @@ public class MailsReadRequest extends Request {
     public MailsReadRequest(String boxOperation, String boxType) {
         setCommand(boxOperation);
         setBoxType(boxType);
-        log.info("Read mails request created with operation: {} for boxType: {}", boxOperation, boxType);
     }
 }

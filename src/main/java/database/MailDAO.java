@@ -98,14 +98,11 @@ public class MailDAO {
     }
 
     public void markAsReadInDB() {
-        log.info("Marking mails as read");
-
         create.update(table(MAILS_TABLE))
                 .set(field("status"), Mail.Status.OPENED.toString())
                 .where(field("recipient_name").eq(UserManager.currentLoggedInUser.getUsername()))
                 .and(field("status").eq(Mail.Status.UNREAD.toString()))
                 .execute();
 
-        log.info("Marked all unread mails as opened for user {}", UserManager.currentLoggedInUser.getUsername());
     }
 }

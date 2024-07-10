@@ -8,6 +8,5 @@ public class AuthRequest extends Request {
         setCommand(requestCommand);
         setUsername(username);
         setPassword(password);
-        log.info("Authorization request created for user: {}", username);
     }
 }
