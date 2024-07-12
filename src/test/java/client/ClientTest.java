@@ -17,7 +17,7 @@ import static shared.Screen.printAdminMailBoxMenu;
 class ClientTest {
     Client client;
     static ClientConnection mockConnection;
-    BufferedReader mockUserInput;
+    BufferedReader mockReader;
     UserInput mockUserInput;
     RequestFactory mockRequestFactory;
     Request mockRequestType;
@@ -26,9 +26,9 @@ class ClientTest {
     void setUp() {
         client = new Client();
         mockConnection = mock(ClientConnection.class);
-        mockUserInput = mock(BufferedReader.class);
+        mockReader = mock(BufferedReader.class);
         client.setConnection(mockConnection);
-        client.setUserInput(mockUserInput);
+        client.setUserInput(mockReader);
         mockUserInput = mock(UserInput.class);
         mockRequestFactory = mock(RequestFactory.class);
         mockRequestType = mock(Request.class);
@@ -44,7 +44,7 @@ class ClientTest {
     void testHandleServerCommunication_EXIT() throws IOException {
         when(mockConnection.isConnected()).thenReturn(true);
         when(mockConnection.isLoggedIn()).thenReturn(true);
-        when(mockUserInput.readLine()).thenReturn("EXIT");
+        when(mockReader.readLine()).thenReturn("EXIT");
 
         client.handleServerCommunication();
 
@@ -109,13 +109,13 @@ class ClientTest {
 
         // Verify that no actions are taken when the client is not connected
         verify(mockConnection, never()).isLoggedIn();
-        verify(mockUserInput, never()).readLine();
+        verify(mockReader, never()).readLine();
     }
 
     @Test
     @DisplayName("Should test request handling")
     void testHandleRequest() throws IOException {
-        when(mockUserInput.readLine()).thenReturn("LOGIN");
+        when(mockReader.readLine()).thenReturn("LOGIN");
         when(mockRequestFactory.getRequest("LOGIN")).thenReturn(mockRequestType);
 
         client.handleRequest("LOGIN");
