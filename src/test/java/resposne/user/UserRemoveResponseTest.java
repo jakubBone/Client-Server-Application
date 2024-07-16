@@ -1,10 +1,10 @@
-package resposne;
+package resposne.user;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import request.Request;
-import response.user.UserRoleChangeResponse;
+import response.user.UserRemoveResponse;
 import shared.ResponseStatus;
 import user.credential.User;
 import user.manager.UserManager;
@@ -12,15 +12,15 @@ import user.manager.UserManager;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
-class UserRoleChangeResponseTest {
+class UserRemoveResponseTest {
     UserManager mockUserManager;
-    UserRoleChangeResponse userRoleChangeResponse;
+    UserRemoveResponse userRemoveResponse;
     Request mockRequest;
 
     @BeforeEach
     void setUp() {
         mockUserManager = mock(UserManager.class);
-        userRoleChangeResponse = new UserRoleChangeResponse(mockUserManager);
+        userRemoveResponse = new UserRemoveResponse(mockUserManager);
         mockRequest = mock(Request.class);
     }
 
@@ -29,7 +29,7 @@ class UserRoleChangeResponseTest {
     void testExecuteAuthorizationFailed() {
         when(mockUserManager.isUserAdmin()).thenReturn(false);
 
-        String response = userRoleChangeResponse.execute(mockRequest);
+        String response = userRemoveResponse.execute(mockRequest);
 
         assertEquals(ResponseStatus.AUTHORIZATION_FAILED.getResponse(), response);
     }
@@ -41,23 +41,22 @@ class UserRoleChangeResponseTest {
         when(mockRequest.getUserToUpdate()).thenReturn("testUser");
         when(mockUserManager.getUserByUsername("testUser")).thenReturn(null);
 
-        String response = userRoleChangeResponse.execute(mockRequest);
+        String response = userRemoveResponse.execute(mockRequest);
 
         assertEquals(ResponseStatus.FAILED_TO_FIND_USER.getResponse(), response);
     }
 
     @Test
-    @DisplayName("Should test role change succeeded response return")
-    void testExecuteRoleChangeSucceeded() {
+    @DisplayName("Should test operation succeeded response return")
+    void testExecuteOperationSucceeded() {
         when(mockUserManager.isUserAdmin()).thenReturn(true);
         when(mockRequest.getUserToUpdate()).thenReturn("testUser");
         User mockUser = mock(User.class);
         when(mockUserManager.getUserByUsername("testUser")).thenReturn(mockUser);
-        when(mockRequest.getNewRole()).thenReturn(User.Role.ADMIN);
 
-        String response = userRoleChangeResponse.execute(mockRequest);
+        String response = userRemoveResponse.execute(mockRequest);
 
-        verify(mockUserManager).changeUserRole(mockUser, User.Role.ADMIN);
-        assertEquals(ResponseStatus.ROLE_CHANGE_SUCCEEDED.getResponse(), response);
+        verify(mockUserManager).removeUser(mockUser);
+        assertEquals(ResponseStatus.OPERATION_SUCCEEDED.getResponse(), response);
     }
 }

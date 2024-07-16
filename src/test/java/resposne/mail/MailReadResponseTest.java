@@ -1,4 +1,4 @@
-package response.mail;
+package resposne.mail;
 
 import mail.Mail;
 import mail.MailService;
@@ -6,6 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import request.Request;
+import response.mail.MailsReadResponse;
 import shared.ResponseStatus;
 import user.credential.User;
 

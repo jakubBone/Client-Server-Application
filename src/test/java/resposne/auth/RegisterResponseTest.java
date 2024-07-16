@@ -1,4 +1,4 @@
-package resposne;
+package resposne.auth;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

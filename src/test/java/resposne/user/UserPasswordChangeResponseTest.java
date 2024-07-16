@@ -1,25 +1,26 @@
-package resposne;
+package resposne.user;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import request.Request;
-import response.user.UserRemoveResponse;
+import response.user.UserPasswordChangeResponse;
 import shared.ResponseStatus;
 import user.credential.User;
 import user.manager.UserManager;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
-class UserRemoveTestResponseTest {
+
+class UserPasswordChangeResponseTest {
     UserManager mockUserManager;
-    UserRemoveResponse userRemoveResponse;
+    UserPasswordChangeResponse userPasswordChangeResponse;
     Request mockRequest;
 
     @BeforeEach
     void setUp() {
         mockUserManager = mock(UserManager.class);
-        userRemoveResponse = new UserRemoveResponse(mockUserManager);
+        userPasswordChangeResponse = new UserPasswordChangeResponse(mockUserManager);
         mockRequest = mock(Request.class);
     }
 
@@ -28,19 +29,19 @@ class UserRemoveTestResponseTest {
     void testExecuteAuthorizationFailed() {
         when(mockUserManager.isUserAdmin()).thenReturn(false);
 
-        String response = userRemoveResponse.execute(mockRequest);
+        String response = userPasswordChangeResponse.execute(mockRequest);
 
         assertEquals(ResponseStatus.AUTHORIZATION_FAILED.getResponse(), response);
     }
 
     @Test
-    @DisplayName("Should test return user not found response return")
+    @DisplayName("Should test user not found response return")
     void testExecuteUserNotFound() {
         when(mockUserManager.isUserAdmin()).thenReturn(true);
         when(mockRequest.getUserToUpdate()).thenReturn("testUser");
         when(mockUserManager.getUserByUsername("testUser")).thenReturn(null);
 
-        String response = userRemoveResponse.execute(mockRequest);
+        String response = userPasswordChangeResponse.execute(mockRequest);
 
         assertEquals(ResponseStatus.FAILED_TO_FIND_USER.getResponse(), response);
     }
@@ -52,10 +53,11 @@ class UserRemoveTestResponseTest {
         when(mockRequest.getUserToUpdate()).thenReturn("testUser");
         User mockUser = mock(User.class);
         when(mockUserManager.getUserByUsername("testUser")).thenReturn(mockUser);
+        when(mockRequest.getNewPassword()).thenReturn("newPassword");
 
-        String response = userRemoveResponse.execute(mockRequest);
+        String response = userPasswordChangeResponse.execute(mockRequest);
 
-        verify(mockUserManager).removeUser(mockUser);
+        verify(mockUserManager).changePassword(mockUser, "newPassword");
         assertEquals(ResponseStatus.OPERATION_SUCCEEDED.getResponse(), response);
     }
 }

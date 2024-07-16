@@ -1,4 +1,4 @@
-package resposne;
+package resposne.mail;
 
 import mail.MailService;
 import org.junit.jupiter.api.BeforeEach;
