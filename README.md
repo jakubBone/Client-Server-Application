@@ -8,21 +8,21 @@ with plans to add more features and improvements in future updates.
 ## Project Structure
 The project is divided into several key components:
 
-Client: The client-side application that establishes a connection with the server, sends requests, and receives responses.
+Client: handles user interactions and communicates with the server.
 
-Server: The server-side application that handles incoming client connections, processes requests, and sends back responses.
+Server: Manages client connections and processes requests.
 
-Utils: Various utility classes for handling tasks like JSON conversion, user interaction, and screen displaying.
+Database: Interfaces with the database for storing and retrieving data.
 
-User Management: Contains classes and functionality related to users, including user data, admin handling, and user management.
+Mail: Manages email-related functionalities.
 
-Mail System: Contains mail-related features, with classes that manage mail details and individual mailboxes.
+Request: Defines request types and factories.
 
-Handlers: Classes that process different types of client requests.
+Response: Handles responses to client requests.
 
-Database: Classes related to database connections and operations.
+Shared: Contains shared utilities and components.
 
-Requests: Classes for creating and processing client requests.
+User: Manages user credentials and roles.
 
 
 ## Project Overview
@@ -72,10 +72,14 @@ for user management.
 
 
 ## Additional Information
-Logging: The application uses the Log4j2 library for logging.
+PostgreSQL: Database used for storing user and email data.
 
-JSON Handling: The Gson library is used for JSON conversion of data between the client and server.
+Gson: Library used for JSON parsing.
 
-Unit Testing: The project includes JUnit tests for key components to ensure code quality and functionality.
+Log4j2: Logging framework for tracking application behavior.
 
-Database Integration: The application uses JOOQ for interacting with the database, enabling efficient and typesafe SQL query construction and execution.
+JUnit & Mockito: Libraries used for unit testing and mocking dependencies.
+
+JOOQ: Used for typesafe SQL query construction and execution.
+
+BCrypt: Used for securely hashing user passwords.
