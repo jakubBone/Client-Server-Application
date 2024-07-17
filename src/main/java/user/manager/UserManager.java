@@ -97,5 +97,4 @@ public class UserManager {
         log.info("Admin role checking for user: {}", currentLoggedInUser.getUsername());
         return currentLoggedInUser != null && currentLoggedInUser.getRole().equals(User.Role.ADMIN);
     }
-
 }

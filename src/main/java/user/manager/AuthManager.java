@@ -29,7 +29,7 @@ public class AuthManager {
             return ResponseStatus.FAILED_TO_FIND_USER.getResponse();
         }
 
-        if (!ifPasswordCorrect(password, user, userManager)) {
+        if (!isPasswordCorrect(password, user, userManager)) {
             log.info("Incorrect password attempt for user: {}", user.getUsername());
             return ResponseStatus.LOGIN_FAILED_INCORRECT_PASSWORD.getResponse();
         }
@@ -58,7 +58,7 @@ public class AuthManager {
         UserManager.currentLoggedInUser = existingUser;
     }
 
-    public boolean ifPasswordCorrect(String password, User user, UserManager userManager) {
+    public boolean isPasswordCorrect(String password, User user, UserManager userManager) {
         return userManager.getUserDAO().checkPasswordInDB(password, user.getUsername());
     }
 }

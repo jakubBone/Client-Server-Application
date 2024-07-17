@@ -71,7 +71,7 @@ public class ClientConnection {
         try{
             String jsonResponse;
             log.info("Reading response from server");
-            while (!(jsonResponse = inFromServer.readLine()).equals("<<END>>")) {
+            while (!"<<END>>".equals(jsonResponse = inFromServer.readLine())) {
                 String response = JsonConverter.deserializeMessage(jsonResponse);
                 checkResponseStatus(response);
                 System.out.println("\n" + response);

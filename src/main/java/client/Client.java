@@ -37,7 +37,7 @@ public class Client {
             while(connection.isConnected()){
                 printClientUI();
                 String request = userInput.readLine();
-                if (request == null || request.equalsIgnoreCase("EXIT")) {
+                if (request == null || "EXIT".equalsIgnoreCase(request)) {
                     connection.disconnect();
                     return;
                 }

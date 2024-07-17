@@ -98,7 +98,7 @@ public class AuthManagerTest {
     void testIfPasswordCorrect() {
         when(mockUserDAO.checkPasswordInDB(password, username)).thenReturn(true);
 
-        boolean isCorrect = authManager.ifPasswordCorrect(password, user, userManager);
+        boolean isCorrect = authManager.isPasswordCorrect(password, user, userManager);
 
         assertFalse(!isCorrect);
         assertTrue(isCorrect);
