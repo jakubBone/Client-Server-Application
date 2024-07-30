@@ -11,29 +11,36 @@ repositories {
 }
 
 dependencies {
-
+    // JUnit
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
-
     testImplementation 'org.junit.jupiter:junit-jupiter-params:5.8.1'
 
+    // Log4j and Gson
     implementation 'org.apache.logging.log4j:log4j-core:2.23.0'
     implementation 'com.google.code.gson:gson:2.8.8'
 
+    // Lombok
     compileOnly 'org.projectlombok:lombok:1.18.32'
     annotationProcessor 'org.projectlombok:lombok:1.18.32'
 
+    // Mockito
     testImplementation 'org.mockito:mockito-core:5.11.0'
     testImplementation 'org.mockito:mockito-junit-jupiter:5.11.0'
 
+    // BCrypt and SQLite
     implementation 'org.mindrot:jbcrypt:0.4'
+    implementation 'org.xerial:sqlite-jdbc:3.46.0.0'
 
-    implementation 'org.postgresql:postgresql:42.5.0'
-
+    // JOOQ
     implementation 'org.jooq:jooq:3.19.10'
     implementation 'org.jooq:jooq-meta:3.19.10'
     implementation 'org.jooq:jooq-codegen:3.19.10'
-    jooqGenerator 'org.postgresql:postgresql:42.2.24'
+    jooqGenerator 'org.xerial:sqlite-jdbc:3.46.0.0'
+    jooqGenerator 'org.slf4j:slf4j-simple:2.0.13'
+
+    // SLF4J Simple implementation
+    implementation 'org.slf4j:slf4j-simple:2.0.13'
 }
 
 jooq {
@@ -42,18 +49,13 @@ jooq {
         main {
             generationTool {
                 jdbc {
-                    driver = 'org.postgresql.Driver'
-                    url = 'jdbc:postgresql://localhost:5432/user_db'
-                    user = 'user_manager'
-                    password = 'user123'
+                    driver = 'org.sqlite.JDBC'
+                    url = 'jdbc:sqlite:src/main/resources/data/user_db.sqlite'
                 }
                 generator {
                     name = 'org.jooq.codegen.DefaultGenerator'
                     database {
-                        name = 'org.jooq.meta.postgres.PostgresDatabase'
-                        includes = '.*'
-                        excludes = ''
-                        inputSchema = 'public'
+                        name = 'org.jooq.meta.sqlite.SQLiteDatabase'
                     }
                     target {
                         packageName = 'jooq'
@@ -64,7 +66,6 @@ jooq {
         }
     }
 }
-
 
 test {
     useJUnitPlatform()
