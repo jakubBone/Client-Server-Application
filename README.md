@@ -72,7 +72,7 @@ for user management.
 
 
 ## Additional Information
-PostgreSQL: Database used for storing user and email data.
+SQLite: Database used for storing users and emails data.
 
 Gson: Library used for JSON parsing.
 
