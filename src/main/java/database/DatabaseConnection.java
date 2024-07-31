@@ -10,27 +10,17 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 public class DatabaseConnection {
 
-    private final String DATABASE_DIRECTORY = "src/main/resources/data";
+    private final String DATABASE_DIRECTORY = "src/main/resources/db";
     private final String DATABASE = DATABASE_DIRECTORY + "/user_db.sqlite";
     private final String URL = String.format("jdbc:sqlite:%s", DATABASE);
     private static DatabaseConnection instance;
     private static Connection connection;
 
     public DatabaseConnection() {
-        createDatabaseDirectory();
         connect();
     }
 
-    private void createDatabaseDirectory() {
-        File directory = new File(DATABASE_DIRECTORY);
-        if (!directory.exists()) {
-            if (directory.mkdirs()) {
-                log.info("Created directory for database at {}", DATABASE_DIRECTORY);
-            } else {
-                log.info("Failed to create directory for database at {}", DATABASE_DIRECTORY);
-            }
-        }
-    }
+
 
     public static synchronized DatabaseConnection getInstance() {
         if (instance == null) {
