@@ -11,7 +11,7 @@ import lombok.extern.log4j.Log4j2;
 public class DatabaseConnection {
 
     private final String DATABASE_DIRECTORY = "src/main/resources/db";
-    private final String DATABASE = DATABASE_DIRECTORY + "/user_db.sqlite";
+    private final String DATABASE = DATABASE_DIRECTORY + "/user_db.db";
     private final String URL = String.format("jdbc:sqlite:%s", DATABASE);
     private static DatabaseConnection instance;
     private static Connection connection;
@@ -19,8 +19,6 @@ public class DatabaseConnection {
     public DatabaseConnection() {
         connect();
     }
-
-
 
     public static synchronized DatabaseConnection getInstance() {
         if (instance == null) {
