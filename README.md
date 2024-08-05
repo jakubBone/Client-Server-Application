@@ -72,7 +72,7 @@ for user management.
 
 ## Logging
 The application uses Log4j2 for logging. The application intentionally generates a large amount of logs, 
-which are detailed and technical. These logs are useful for developers during debugging and troubleshooting.
+which are detailed and technical. These logs are useful for developers during troubleshooting.
 Access to the source code is essential for a full analysis and repair of potential issues.
 
 ## Additional Information
