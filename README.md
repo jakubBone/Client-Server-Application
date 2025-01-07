@@ -1,4 +1,4 @@
-# ✉️ Client-Server Application 
+# ✉️ Client-Server Mailing System
 
 Welcome to the Client-Server Mailing System! This project demonstrates a simple client-server architecture
 that imitates an email system, showcasing communication between a client and a server using socket connections. 
