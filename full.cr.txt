@@ -40,7 +40,7 @@ public class Client {
             while(connection.isConnected()){
                 printClientUI();
                 String request = userInput.readLine();
-                if (request == null || request.equalsIgnoreCase("EXIT")) {
+                if (request == null || "EXIT".equalsIgnoreCase(request)) {
                     connection.disconnect();
                     return;
                 }
@@ -159,10 +159,10 @@ public class ClientConnection {
         try{
             String jsonResponse;
             log.info("Reading response from server");
-            while (!(jsonResponse = inFromServer.readLine()).equals("<<END>>")) {
+            while (!"<<END>>".equals(jsonResponse = inFromServer.readLine())) {
                 String response = JsonConverter.deserializeMessage(jsonResponse);
                 checkResponseStatus(response);
-                System.out.println("\n" + response);
+                System.out.println("\nResponse: " + response);
             }
         } catch (IOException ex){
             log.error("Error reading response: {}", ex.getMessage());
@@ -242,6 +242,7 @@ FILE: DatabaseConnection.java
 
 package database;
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -250,7 +251,58 @@ import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 public class DatabaseConnection {
-    private final String USER = "user_manager";
+
+    private final String DATABASE_DIRECTORY = "src/main/resources/db";
+    private final String DATABASE = DATABASE_DIRECTORY + "/user_db.db";
+    private final String URL = String.format("jdbc:sqlite:%s", DATABASE);
+    private static DatabaseConnection instance;
+    private static Connection connection;
+
+    public DatabaseConnection() {
+        connect();
+    }
+
+    public static synchronized DatabaseConnection getInstance() {
+        if (instance == null) {
+            instance = new DatabaseConnection();
+        }
+        return instance;
+    }
+
+    public void connect() {
+        try {
+            log.info("Attempting to connect with data base");
+            connection = DriverManager.getConnection(URL);
+            if(connection != null){
+                log.info("Connection with database {} established", DATABASE);
+            } else {
+                log.info("Failed to connect with database {}", DATABASE);
+            }
+        } catch (SQLException ex) {
+            log.error("Error during database connection: {}", ex.getMessage());
+
+        }
+    }
+
+    public Connection getConnection(){
+        return connection;
+    }
+
+    public void disconnect() {
+        try {
+            if (connection != null) {
+                connection.close();
+                log.info("Database disconnected");
+            }
+        } catch(SQLException ex){
+            log.error("Error during database disconnection: {}", ex.getMessage());
+        }
+    }
+
+
+
+
+    /*private final String USER = "user_manager";
     private final String PASSWORD = "user123";
     private final String DATABASE = "user_db";
     private final int PORT_NUMBER = 5432;
@@ -297,7 +349,7 @@ public class DatabaseConnection {
         } catch(SQLException ex){
             log.error("Error during database disconnection: {}", ex.getMessage());
         }
-    }
+    }*/
 }
 
 ====================
@@ -1959,7 +2011,7 @@ public class AuthManager {
             return ResponseStatus.FAILED_TO_FIND_USER.getResponse();
         }
 
-        if (!ifPasswordCorrect(password, user, userManager)) {
+        if (!isPasswordCorrect(password, user, userManager)) {
             log.info("Incorrect password attempt for user: {}", user.getUsername());
             return ResponseStatus.LOGIN_FAILED_INCORRECT_PASSWORD.getResponse();
         }
@@ -1988,7 +2040,7 @@ public class AuthManager {
         UserManager.currentLoggedInUser = existingUser;
     }
 
-    public boolean ifPasswordCorrect(String password, User user, UserManager userManager) {
+    public boolean isPasswordCorrect(String password, User user, UserManager userManager) {
         return userManager.getUserDAO().checkPasswordInDB(password, user.getUsername());
     }
 }
@@ -2095,7 +2147,6 @@ public class UserManager {
         log.info("Admin role checking for user: {}", currentLoggedInUser.getUsername());
         return currentLoggedInUser != null && currentLoggedInUser.getRole().equals(User.Role.ADMIN);
     }
-
 }
 
 ====================
@@ -2352,9 +2403,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -2399,22 +2448,6 @@ public class DatabaseConnectionTest {
 
         assertTrue(connection.isClosed());
     }
-}
-
-====================
-FILE: MailDAOTest.java
-
-package database;
-
-public class MailDAOTest {
-}
-
-====================
-FILE: UserDAOTest.java
-
-package database;
-
-public class UserDAOTest {
 }
 
 ====================
@@ -2677,7 +2710,7 @@ class RequestFactoryTest {
 ====================
 FILE: LoginResponseTest.java
 
-package resposne;
+package resposne.auth;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -2722,7 +2755,7 @@ public class LoginResponseTest {
 ====================
 FILE: LogoutResponseTest.java
 
-package resposne;
+package resposne.auth;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -2758,9 +2791,54 @@ class LogoutResponseTest {
 }
 
 ====================
+FILE: RegisterResponseTest.java
+
+package resposne.auth;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import request.Request;
+import response.auth.RegisterResponse;
+import user.manager.AuthManager;
+import user.manager.UserManager;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+class RegisterResponseTest {
+    AuthManager mockAuthManager;
+    UserManager mockUserManager;
+    RegisterResponse registerResponse;
+    Request mockRequest;
+
+    @BeforeEach
+    void setUp() {
+        mockAuthManager = mock(AuthManager.class);
+        mockUserManager = mock(UserManager.class);
+        registerResponse = new RegisterResponse(mockAuthManager, mockUserManager);
+        mockRequest = mock(Request.class);
+    }
+
+    @Test
+    @DisplayName("Should test correct register response return")
+    void testExecute() {
+        when(mockRequest.getUsername()).thenReturn("testUser");
+        when(mockRequest.getPassword()).thenReturn("testPassword");
+        when(mockAuthManager.registerAndGetResponse("testUser", "testPassword", mockUserManager))
+                .thenReturn("Registration successful");
+
+        String response = registerResponse.execute(mockRequest);
+
+        assertEquals("Registration successful", response);
+    }
+}
+
+====================
 FILE: MailDeleteResponseTest.java
 
-package resposne;
+package resposne.mail;
 
 import mail.MailService;
 import org.junit.jupiter.api.BeforeEach;
@@ -2799,7 +2877,7 @@ class MailDeleteResponseTest {
 ====================
 FILE: MailReadResponseTest.java
 
-package response.mail;
+package resposne.mail;
 
 import mail.Mail;
 import mail.MailService;
@@ -2807,6 +2885,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import request.Request;
+import response.mail.MailsReadResponse;
 import shared.ResponseStatus;
 import user.credential.User;
 
@@ -2858,7 +2937,7 @@ class MailReadResponseTest {
 ====================
 FILE: MailWriteResponseTest.java
 
-package resposne;
+package resposne.mail;
 
 import mail.MailService;
 import org.junit.jupiter.api.BeforeEach;
@@ -2941,54 +3020,9 @@ class MailWriteResponseTest {
 }
 
 ====================
-FILE: RegisterResponseTest.java
-
-package resposne;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import request.Request;
-import response.auth.RegisterResponse;
-import user.manager.AuthManager;
-import user.manager.UserManager;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-class RegisterResponseTest {
-    AuthManager mockAuthManager;
-    UserManager mockUserManager;
-    RegisterResponse registerResponse;
-    Request mockRequest;
-
-    @BeforeEach
-    void setUp() {
-        mockAuthManager = mock(AuthManager.class);
-        mockUserManager = mock(UserManager.class);
-        registerResponse = new RegisterResponse(mockAuthManager, mockUserManager);
-        mockRequest = mock(Request.class);
-    }
-
-    @Test
-    @DisplayName("Should test correct register response return")
-    void testExecute() {
-        when(mockRequest.getUsername()).thenReturn("testUser");
-        when(mockRequest.getPassword()).thenReturn("testPassword");
-        when(mockAuthManager.registerAndGetResponse("testUser", "testPassword", mockUserManager))
-                .thenReturn("Registration successful");
-
-        String response = registerResponse.execute(mockRequest);
-
-        assertEquals("Registration successful", response);
-    }
-}
-
-====================
 FILE: ServerDetailsResponseTest.java
 
-package resposne;
+package resposne.server;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -3031,7 +3065,7 @@ class ServerDetailsResponseTest {
     @DisplayName("Should test server info return")
     void testExecuteInfo() {
         when(mockRequest.getCommand()).thenReturn("INFO");
-        when(mockServerDetails.getServerDetails()).thenReturn(Map.of("Version", "1.0.0", "Setup time", "2023-01-01 00:00:00"));
+        when(mockServerDetails.getServerDetails()).thenReturn(Map.of( "Setup time", "2023-01-01 00:00:00", "Version", "1.0.0"));
 
         String response = serverDetailsResponse.execute(mockRequest);
 
@@ -3055,7 +3089,7 @@ class ServerDetailsResponseTest {
 ====================
 FILE: UserPasswordChangeResponseTest.java
 
-package resposne;
+package resposne.user;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -3122,7 +3156,7 @@ class UserPasswordChangeResponseTest {
 ====================
 FILE: UserRemoveResponseTest.java
 
-package resposne;
+package resposne.user;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -3188,7 +3222,7 @@ class UserRemoveResponseTest {
 ====================
 FILE: UserRemoveTestResponseTest.java
 
-package resposne;
+package resposne.user;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -3253,7 +3287,7 @@ class UserRemoveTestResponseTest {
 ====================
 FILE: UserRoleChangeResponseTest.java
 
-package resposne;
+package resposne.user;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -3320,7 +3354,7 @@ class UserRoleChangeResponseTest {
 ====================
 FILE: UserSwitchResponseTest.java
 
-package resposne;
+package resposne.user;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -3602,7 +3636,7 @@ public class AuthManagerTest {
     void testIfPasswordCorrect() {
         when(mockUserDAO.checkPasswordInDB(password, username)).thenReturn(true);
 
-        boolean isCorrect = authManager.ifPasswordCorrect(password, user, userManager);
+        boolean isCorrect = authManager.isPasswordCorrect(password, user, userManager);
 
         assertFalse(!isCorrect);
         assertTrue(isCorrect);
