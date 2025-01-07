@@ -1,89 +1,109 @@
-# Client-Server Application 
+# ✉️ Client-Server Application 
 
-Welcome to the Client-Server Application with Java. This project demonstrates a simple client-server architecture in Java, 
-showcasing communication between a client and a server through socket connections. The project is under continuous development, 
-with plans to add more features and improvements in future updates.
+Welcome to the Client-Server Mailing System! This project demonstrates a simple client-server architecture
+that imitates an email system, showcasing communication between a client and a server using socket connections. 
+It offers robust features such as user management, mailbox operations, and message handling.
 
 
-## Project Structure
+## 🎯 Features
 The project is divided into several key components:
 
-Client: handles user interactions and communicates with the server.
+- **User Management**: Registration, login, password changes, user remove
 
-Server: Manages client connections and processes requests.
+- **Mailbox Operations**: Send, read, delete emails, and manage mailbox capacity
 
-Database: Interfaces with the database for storing and retrieving data.
+- **Roles and Permissions**: Admin and User roles with different access rights
 
-Mail: Manages email-related functionalities.
+- **Client-Server Communication**: Real-time interaction via sockets
 
-Request: Defines request types and factories.
-
-Response: Handles responses to client requests.
-
-Shared: Contains shared utilities and components.
-
-User: Manages user credentials and roles.
+- **Database Integration**: User and email data persisted in an SQLite database
 
 
-## Project Overview
-The application allows the client to send various requests to the server, which processes them and responds accordingly. 
-Here are the main features:
+## 🚀 Technologies Used
 
-Authentication: The client can register, log in, and log out. The server handles authentication and authorization.
+**Java 17**: Core programming language for client-server logic
 
-Mailbox Operations: The client can send messages, read from the mailbox, and perform other related operations.
+**SQLite**: Database for persisting user and email data
 
-Admin Functions: The server includes admin capabilities for updating user data, managing user roles, and other administrative tasks.
+**jOOQ**: Library for database interactions
 
-Database Operations: The application uses a database to manage user data and mailbox information, leveraging JOOQ for efficient database interaction.
+**Log4j2**: Logging system for debugging and monitoring
 
-Server Information: The server can provide information such as uptime, version, and available commands.
+**JUnit**: Unit testing 
 
-
-## How to Run
-
-To run the client-server application, ensure you have the Java Development Kit (JDK) installed on your system. 
-Follow these steps:
-
-### Clone this repository to your computer:
-<https://github.com/jakubBone/Client-Server>
-
-### Navigate to the project directory:
-cd Client-Server
-
-### Compile and run the server:
-javac Server.java
-java Server
-
-### Compile and run the client:
-javac Client.java
-java Client
+**BCrypt**: Secure password hashing
 
 
-## Requirements
-To compile and run the application, you'll need Java Development Kit (JDK) installed on your system
+## 📂 Project Structure
 
+```
+src
+├── client                # Client-side logic
+├── server                # Server-side logic
+├── database              # Database access and operations
+├── mail                  # Email handling logic
+├── request               # Request creation and handling
+├── response              # Response creation and processing
+├── shared                # Common utilities and components
+└── user                  # User management and authentication
+``` 
 
-## Future Developments
-This project is a work in progress, with ongoing updates focused on enhancing functionality. 
-Future updates will aim to improve the security, and add more advanced features such as
-enhanced error handling and logging, more robust mailbox operations, additional admin functionalities 
-for user management.
+## 🚀 Getting Started
 
-## Logging
-The application uses Log4j2 for logging. The application intentionally generates a large amount of logs, 
-which are detailed and technical. These logs are useful for developers during troubleshooting.
-Access to the source code is essential for a full analysis and repair of potential issues.
+Follow these steps to set up and run the project:
 
-## Additional Information
-SQLite: Database used for storing users and emails data.
+### Ensure you have the following tools installed:
+- **Java Development Kit (JDK)** 17 or higher
+- **Gradle** for dependency management
+- **SQLite** database library
 
-Gson: Library used for JSON parsing.
+### Setup Instructions
 
-Log4j2: Logging framework for tracking application behavior.
+1. **Clone the Repository**  
+   Download the project files to your local machine:
+   ```bash
+   git clone https://github.com/your-username/Client-Server.git
+   cd Client-Server
 
-JUnit & Mockito: Libraries used for unit testing and mocking dependencies.
+2. **Configure the Database**  
+   - Ensure the database directory exists: src/main/resources/db
+   - SQLite database will automatically be initialized during the first run
+   
+3. **Build the Project**   
+   Use Gradle to build the project:
+   ```bash
+   ./gradlew build
 
-JOOQ: Used for typesafe SQL query construction and execution.
+4. **Run the Server** to handle client requests:   
+   Start the server to manage plane communications:
+   ```bash
+   java -cp build/classes/java/main server.Server
 
-BCrypt: Used for securely hashing user passwords.
+5. **Run the Client** to connect to the server:
+   Simulate planes connecting to the server:
+   ```bash
+   java -cp build/classes/java/main/client.Client
+ 
+## ✨ Key Functionalities
+
+### Client
+- Displays menu based on login status and role
+- Allows operations like login, registration, mailbox handling, and user management
+
+### Server
+- Processes client requests using a factory-based architecture
+- Manages user authentication, email transactions, and administrative operations
+
+### Database
+- Handles user credentials and emails
+- Enforces mailbox size limits for efficient management
+
+## 📧 Contact
+
+If you have any questions, feedback, or suggestions, feel free to reach out to me:
+
+- **Email**: [jakub.bone1990@gmail.com](mailto:jakub.bone1990@gmail,com)
+- **Blog**: [javamPokaze.pl](https://javampokaze.pl)  
+- **LinkedIn**: [Jakub Bone](https://www.linkedin.com/in/jakub-bone)  
+
+Let's connect and discuss this project further! 🚀
