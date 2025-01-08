@@ -1,4 +1,4 @@
-# ✉️ Client-Server Mailing System
+# ✉️ Client-Server Application
 
 [![Watch the video](src/main/resources/images/logo.png)](https://www.youtube.com/watch?v=dmwIVkuxnnA&t=253s)
 
