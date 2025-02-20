@@ -5,6 +5,7 @@ import lombok.extern.log4j.Log4j2;
 import org.jooq.Condition;
 import org.jooq.DSLContext;
 import org.jooq.Record;
+import org.jooq.impl.DSL;
 import user.credential.User;
 import user.manager.UserManager;
 
@@ -13,22 +14,41 @@ import java.util.List;
 
 import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.table;
+import static org.jooq.impl.SQLDataType.VARCHAR;
+import static org.jooq.impl.SQLDataType.INTEGER;
 
 @Log4j2
 public class MailDAO {
     private final DSLContext create;
-    private final String MAILS_TABLE = "mails";
     private final UserDAO userDAO;
 
     public MailDAO(DSLContext create, UserDAO userDAO) {
         this.create = create;
         this.userDAO = userDAO;
+        createTable();
+    }
+
+    public void createTable(){
+        create.createTableIfNotExists("mail")
+                .column("id", INTEGER.identity(true))
+                .column("sender", VARCHAR(255).nullable(false))
+                .column("recipient", VARCHAR(255).nullable(false))
+                .column("message", VARCHAR(255).nullable(false))
+                .column("status", VARCHAR(50).nullable(false))
+                .constraints(
+                        DSL.constraint("PK_MAIL").primaryKey("id")
+                )
+                .execute();
+    }
+
+    public void clearTable(){
+        create.truncate("mail").restartIdentity().execute();
     }
 
     public void saveMailToDB(Mail mail) {
-        create.insertInto(table(MAILS_TABLE),
-                        field("sender_name"),
-                        field("recipient_name"),
+        create.insertInto(table("mail"),
+                        field("sender"),
+                        field("recipient"),
                         field("message"),
                         field("status"))
                 .values(mail.getSender().getUsername(),
@@ -39,7 +59,7 @@ public class MailDAO {
     }
 
     public List<Mail> getMailsFromDB(String boxType) {
-        List<Record> records = create.selectFrom(MAILS_TABLE)
+        List<Record> records = create.selectFrom("mail")
                 .where(getMailboxCondition(boxType))
                 .fetch();
 
@@ -53,15 +73,15 @@ public class MailDAO {
     }
 
     public void deleteMailsFromDB(String boxType) {
-        create.deleteFrom(table(MAILS_TABLE))
+        create.deleteFrom(table("mail"))
                 .where(getMailboxCondition(boxType))
                 .execute();
     }
 
     public Mail convertRecordToMail(Record record) {
         String message = record.getValue("message", String.class);
-        String senderUsername = record.getValue("sender_name", String.class);
-        String recipientUsername = record.getValue("recipient_name", String.class);
+        String senderUsername = record.getValue("sender", String.class);
+        String recipientUsername = record.getValue("recipient", String.class);
         Mail.Status status = Mail.Status.valueOf(record.getValue("status", String.class));
 
         User sender = userDAO.getUserFromDB(senderUsername);
@@ -75,10 +95,10 @@ public class MailDAO {
         Condition condition;
 
         if (boxType.equals(Mail.Status.SENT.toString())) {
-            condition = field("sender_name").eq(username)
+            condition = field("sender").eq(username)
                     .and(field("status").eq(boxType));
         } else {
-            condition = field("recipient_name").eq(username)
+            condition = field("recipient").eq(username)
                     .and(field("status").eq(boxType));
         }
 
@@ -88,8 +108,8 @@ public class MailDAO {
     public boolean isMailboxFullInDB(User recipient){
         String unread = Mail.Status.UNREAD.toString();
 
-        int messageCount = create.selectFrom(table(MAILS_TABLE))
-                .where(field("recipient_name").eq(recipient.getUsername())
+        int messageCount = create.selectFrom(table("mail"))
+                .where(field("recipient").eq(recipient.getUsername())
                         .and(field("status").eq(unread)))
                 .fetch()
                 .size();
@@ -98,9 +118,9 @@ public class MailDAO {
     }
 
     public void markAsReadInDB() {
-        create.update(table(MAILS_TABLE))
+        create.update(table("mail"))
                 .set(field("status"), Mail.Status.OPENED.toString())
-                .where(field("recipient_name").eq(UserManager.currentLoggedInUser.getUsername()))
+                .where(field("recipient").eq(UserManager.currentLoggedInUser.getUsername()))
                 .and(field("status").eq(Mail.Status.UNREAD.toString()))
                 .execute();
 
