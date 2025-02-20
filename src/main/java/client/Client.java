@@ -9,7 +9,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
 import request.*;
-import shared.Screen;
+import ui.Screen;
 
 @Log4j2
 @Getter
@@ -68,12 +68,12 @@ public class Client {
 
     public void printClientUI(){
         if(!connection.isLoggedIn()) {
-            Screen.printLoginMenu();
+            Screen.printMainScreen();
         } else {
             if(connection.isUserAuthorized()){
-                Screen.printAdminMailBoxMenu();
+                Screen.printAdminScreen();
             } else{
-                Screen.printUserMailBoxMenu();
+                Screen.printUserScreen();
             }
         }
     }

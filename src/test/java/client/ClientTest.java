@@ -7,12 +7,12 @@ import org.junit.jupiter.api.*;
 import org.mockito.MockedStatic;
 import request.Request;
 import request.RequestFactory;
-import shared.Screen;
-import shared.UserInput;
+import ui.Screen;
+import ui.UserInput;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-import static shared.Screen.printAdminMailBoxMenu;
+import static ui.Screen.printAdminScreen;
 
 class ClientTest {
     Client client;
@@ -66,7 +66,7 @@ class ClientTest {
         client.handleServerCommunication();
 
         // Verify that the mailbox menu is displayed when the user is logged in
-        mockScreen.verify(() -> printAdminMailBoxMenu());
+        mockScreen.verify(() -> printAdminScreen());
         mockScreen.close();
     }
 
@@ -81,7 +81,7 @@ class ClientTest {
         client.handleServerCommunication();
 
         // Verify that the mailbox menu is displayed when the user is logged in
-        mockScreen.verify(() -> Screen.printUserMailBoxMenu());
+        mockScreen.verify(() -> Screen.printUserScreen());
         mockScreen.close();
     }
 
@@ -96,7 +96,7 @@ class ClientTest {
         client.handleServerCommunication();
 
         // Verify that the login menu is displayed when the user is not logged in
-        mockScreen.verify(() -> Screen.printLoginMenu());
+        mockScreen.verify(() -> Screen.printMainScreen());
         mockScreen.close();
     }
 

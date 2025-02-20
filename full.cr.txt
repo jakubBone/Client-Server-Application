@@ -12,7 +12,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
 import request.*;
-import shared.Screen;
+import ui.Screen;
 
 
 @Log4j2
@@ -766,7 +766,7 @@ import request.user.UserChangeRoleRequest;
 import request.user.UserRemoveRequest;
 import request.user.UserSwitchRequest;
 
-import shared.UserInput;
+import ui.UserInput;
 import user.credential.User;
 
 import java.io.BufferedReader;
@@ -2274,12 +2274,12 @@ import org.junit.jupiter.api.*;
 import org.mockito.MockedStatic;
 import request.Request;
 import request.RequestFactory;
-import shared.Screen;
-import shared.UserInput;
+import ui.Screen;
+import ui.UserInput;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-import static shared.Screen.printAdminMailBoxMenu;
+import static ui.Screen.printAdminMailBoxMenu;
 
 class ClientTest {
     Client client;
@@ -2558,7 +2558,7 @@ import request.user.UserChangePasswordRequest;
 import request.user.UserChangeRoleRequest;
 import request.user.UserRemoveRequest;
 import request.user.UserSwitchRequest;
-import shared.UserInput;
+import ui.UserInput;
 import client.ClientConnection;
 import user.credential.User;
 

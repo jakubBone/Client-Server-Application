@@ -15,7 +15,7 @@ import request.user.UserChangePasswordRequest;
 import request.user.UserChangeRoleRequest;
 import request.user.UserRemoveRequest;
 import request.user.UserSwitchRequest;
-import shared.UserInput;
+import ui.UserInput;
 import client.ClientConnection;
 import user.credential.User;
 
@@ -39,8 +39,8 @@ class RequestFactoryTest {
     @Test
     @DisplayName("Should test authRequest return")
     public void testGetAuthRequest() throws IOException {
-        when(mockUserInput.getUsername()).thenReturn("testUser");
-        when(mockUserInput.getPassword()).thenReturn("testPassword");
+        when(mockUserInput.promptUsername()).thenReturn("testUser");
+        when(mockUserInput.promptPassword()).thenReturn("testPassword");
 
         AuthRequest request = (AuthRequest) factory.getRequest("LOGIN");
 
@@ -62,8 +62,8 @@ class RequestFactoryTest {
     @Test
     @DisplayName("Should test MailWriteRequest return")
     public void testGetMailWriteRequest() throws IOException {
-        when(mockUserInput.getRecipient()).thenReturn("recipient");
-        when(mockUserInput.getMessage()).thenReturn("message");
+        when(mockUserInput.promptRecipient()).thenReturn("recipient");
+        when(mockUserInput.promptMessage()).thenReturn("message");
 
         Request request = factory.getRequest("WRITE");
 
@@ -124,7 +124,7 @@ class RequestFactoryTest {
     public void testGetUserChangePasswordRequest() throws IOException {
         when(mockUserInput.chooseUpdateOperation()).thenReturn("PASSWORD");
         when(mockUserInput.chooseUserToUpdate()).thenReturn("exampleUser");
-        when(mockUserInput.getNewPassword()).thenReturn("newPassword");
+        when(mockUserInput.promptNewPassword()).thenReturn("newPassword");
 
         Request request = factory.getUpdateRequest();
 

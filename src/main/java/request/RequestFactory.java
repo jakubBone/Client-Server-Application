@@ -15,7 +15,7 @@ import request.user.UserChangeRoleRequest;
 import request.user.UserRemoveRequest;
 import request.user.UserSwitchRequest;
 
-import shared.UserInput;
+import ui.UserInput;
 import user.credential.User;
 
 import java.io.BufferedReader;
@@ -40,11 +40,11 @@ public class RequestFactory {
         switch (command.toUpperCase()) {
             case "REGISTER":
             case "LOGIN":
-                return new AuthRequest(command, userInput.getUsername(), userInput.getPassword());
+                return new AuthRequest(command, userInput.promptUsername(), userInput.promptPassword());
             case "LOGOUT":
                 return new LogoutRequest(command);
             case "WRITE":
-                return new MailWriteRequest(command, userInput.getRecipient(), userInput.getMessage());
+                return new MailWriteRequest(command, userInput.promptRecipient(), userInput.promptMessage());
             case "MAILBOX":
                 return getMailboxRequest();
             case "HELP":
@@ -80,7 +80,7 @@ public class RequestFactory {
             String userToUpdate = userInput.chooseUserToUpdate();
             switch (update) {
                 case "PASSWORD":
-                    String newPassword = userInput.getNewPassword();
+                    String newPassword = userInput.promptNewPassword();
                     return new UserChangePasswordRequest(update, userToUpdate, newPassword);
                 case "REMOVE":
                     return new UserRemoveRequest(update, userToUpdate);
