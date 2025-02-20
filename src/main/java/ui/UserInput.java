@@ -2,31 +2,34 @@ package ui;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+
 
 public class UserInput {
-    private BufferedReader reader;
-    public UserInput(BufferedReader reader) {
-        this.reader = reader;
+    private static BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+
+    public String getRequest() throws IOException {
+        return reader.readLine();
     }
 
     public String promptUsername() throws IOException {
         System.out.print("Username: ");
-        return reader.readLine();
+        return reader.readLine().toUpperCase();
     }
 
     public String promptPassword() throws IOException {
         System.out.print("Password: ");
-        return reader.readLine();
+        return reader.readLine().toUpperCase();
     }
 
     public String promptNewPassword() throws IOException{
         System.out.print("New password: ");
-        return reader.readLine();
+        return reader.readLine().toUpperCase();
     }
 
     public String promptRecipient() throws IOException {
         System.out.print("Send to: ");
-        return reader.readLine();
+        return reader.readLine().toUpperCase();
     }
 
     public String promptMessage() throws IOException {
@@ -36,7 +39,7 @@ public class UserInput {
 
     public String promptNewRole() throws IOException {
         System.out.print("New role (ADMIN / USER): ");
-        return reader.readLine();
+        return reader.readLine().toUpperCase();
     }
 
     /*if(newRole.equals("ADMIN")){

@@ -33,7 +33,7 @@ public class RequestFactory {
     public RequestFactory(ClientConnection clientConnection) {
         this.connection = clientConnection;
         this.reader = new BufferedReader(new InputStreamReader(System.in));
-        this.userInput = new UserInput(reader);
+        this.userInput = new UserInput();
     }
 
     public Request getRequest(String command) throws IOException {

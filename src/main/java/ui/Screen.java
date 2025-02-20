@@ -6,6 +6,18 @@ import java.util.List;
 
 public class Screen {
 
+    public void printClientUI(boolean isLogged, boolean isAuthorized){
+        if(!isLogged) {
+            Screen.printMainScreen();
+        } else {
+            if(isAuthorized){
+                Screen.printAdminScreen();
+            } else{
+                Screen.printUserScreen();
+            }
+        }
+    }
+
     public static void printMainScreen() {
         System.out.println("+---------------------------------------------+\n" +
                 "|              WELCOME IN MAILBOX!               |\n" +
@@ -68,16 +80,13 @@ public class Screen {
 
     public static void printUsers(List<User> users) {
         System.out.println("+---------------------------------------------+\n" +
-                "|                     ADMIN                     |\n" +
-                "|                                               |\n" +
-                "| Select:                                       |\n" +
-                "|                                               |\n" +
-                "|1. Change password                             |\n" +
-                "|2. Change role                                 |\n" +
-                "|3. Remove user                                 |\n" +
-                "|4. Switch user                                 |\n" +
-                "|5. Return                                      |\n" +
+                "|                     ADMIN                   |\n" +
+                "|                                             |\n" +
+                "| List of Users:                              |\n" +
                 "+---------------------------------------------+");
-        System.out.print("Select an option: ");
+        for (User user : users) {
+            System.out.println(" - " + user.getUsername());
+        }
+        System.out.print("Select user: ");
     }
 }
