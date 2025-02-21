@@ -1,7 +1,7 @@
 package user.manager;
 
 import lombok.extern.log4j.Log4j2;
-import shared.ResponseStatus;
+import utils.ResponseStatus;
 import user.credential.User;
 
 @Log4j2

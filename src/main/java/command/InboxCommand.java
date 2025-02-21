@@ -11,7 +11,5 @@ public class InboxCommand implements Command {
 
     @Override
     public String execute() {
-        // Pobieramy wiadomości z wybranej skrzynki
-        return "Wyświetlam wiadomości z " + boxType;
     }
 }

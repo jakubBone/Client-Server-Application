@@ -7,7 +7,7 @@ import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
-import shared.ResponseStatus;
+import utils.ResponseStatus;
 import user.credential.Admin;
 import user.credential.User;
 
@@ -93,8 +93,13 @@ public class UserManager {
         return ResponseStatus.LOGOUT_SUCCEEDED.getResponse();
     }
 
-    public boolean isUserAdmin(){
+
+    public boolean isLoggedIn() {
+        return currentLoggedInUser != null;
+    }
+
+    public boolean isUserAdmin() {
         log.info("Admin role checking for user: {}", currentLoggedInUser.getUsername());
-        return currentLoggedInUser != null && currentLoggedInUser.getRole().equals(User.Role.ADMIN);
+        return isLoggedIn() && currentLoggedInUser.getRole() == User.Role.ADMIN;
     }
 }

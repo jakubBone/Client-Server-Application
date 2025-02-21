@@ -3,12 +3,12 @@ package response.mail;
 import response.Response;
 import mail.MailService;
 import request.Request;
-import shared.ResponseStatus;
+import utils.ResponseStatus;
 
-public class MailsDeleteResponse implements Response {
+public class DeleteMailServerCommand implements Response {
     private final MailService mailService;
 
-    public MailsDeleteResponse(MailService mailService) {
+    public DeleteMailServerCommand(MailService mailService) {
         this.mailService = mailService;
     }
     @Override

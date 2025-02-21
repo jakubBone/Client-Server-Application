@@ -4,8 +4,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import request.Request;
-import response.user.UserPasswordChangeResponse;
-import shared.ResponseStatus;
+import response.user.EditServerCommand;
+import utils.ResponseStatus;
 import user.credential.User;
 import user.manager.UserManager;
 
@@ -14,13 +14,13 @@ import static org.mockito.Mockito.*;
 
 class UserPasswordChangeResponseTest {
     UserManager mockUserManager;
-    UserPasswordChangeResponse userPasswordChangeResponse;
+    EditServerCommand userPasswordChangeResponse;
     Request mockRequest;
 
     @BeforeEach
     void setUp() {
         mockUserManager = mock(UserManager.class);
-        userPasswordChangeResponse = new UserPasswordChangeResponse(mockUserManager);
+        userPasswordChangeResponse = new EditServerCommand(mockUserManager);
         mockRequest = mock(Request.class);
     }
 

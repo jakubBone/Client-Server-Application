@@ -5,8 +5,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import request.Request;
-import response.mail.MailWriteResponse;
-import shared.ResponseStatus;
+import response.mail.NewMailServerCommand;
+import utils.ResponseStatus;
 import user.credential.User;
 import user.manager.UserManager;
 
@@ -16,14 +16,14 @@ import static org.mockito.Mockito.*;
 class MailWriteResponseTest {
     MailService mockMailService;
     UserManager mockUserManager;
-    MailWriteResponse mailWriteResponse;
+    NewMailServerCommand mailWriteResponse;
     Request mockRequest;
 
     @BeforeEach
     void setUp() {
         mockMailService = mock(MailService.class);
         mockUserManager = mock(UserManager.class);
-        mailWriteResponse = new MailWriteResponse(mockMailService, mockUserManager);
+        mailWriteResponse = new NewMailServerCommand(mockMailService, mockUserManager);
         mockRequest = mock(Request.class);
     }
 

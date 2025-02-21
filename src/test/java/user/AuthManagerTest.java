@@ -4,7 +4,7 @@ import database.UserDAO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import shared.ResponseStatus;
+import utils.ResponseStatus;
 import user.credential.User;
 import user.manager.AuthManager;
 import user.manager.UserManager;

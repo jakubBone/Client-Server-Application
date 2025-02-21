@@ -1,18 +1,15 @@
-package command;
+package servercommand;
 
-import ui.UserInput;
 import user.manager.AuthManager;
 import user.manager.UserManager;
 
-import java.io.IOException;
-
-public class RegisterCommand implements Command{
+public class LoginServerCommand {
     private final String username;
     private final String password;
     private final AuthManager authManager;
     private final UserManager userManager;
 
-    public RegisterCommand(String username, String password, AuthManager authManager, UserManager userManager) {
+    public LoginServerCommand(String username, String password, AuthManager authManager, UserManager userManager) {
         this.username = username;
         this.password = password;
         this.authManager = authManager;
@@ -21,6 +18,6 @@ public class RegisterCommand implements Command{
 
     @Override
     public String execute() {
-        return authManager.registerAndGetResponse(username, password, userManager);
+        return authManager.loginAndGetResponse(username, password, userManager);
     }
 }

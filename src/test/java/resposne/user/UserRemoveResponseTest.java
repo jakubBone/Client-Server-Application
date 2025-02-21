@@ -5,7 +5,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import request.Request;
 import response.user.UserRemoveResponse;
-import shared.ResponseStatus;
+import utils.ResponseStatus;
 import user.credential.User;
 import user.manager.UserManager;
 

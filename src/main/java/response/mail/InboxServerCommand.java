@@ -4,13 +4,13 @@ import response.Response;
 import mail.Mail;
 import mail.MailService;
 import request.Request;
-import shared.ResponseStatus;
+import utils.ResponseStatus;
 
 import java.util.List;
-public class MailsReadResponse implements Response {
+public class InboxServerCommand implements Response {
     private final MailService mailService;
 
-    public MailsReadResponse(MailService mailService) {
+    public InboxServerCommand(MailService mailService) {
         this.mailService = mailService;
     }
 

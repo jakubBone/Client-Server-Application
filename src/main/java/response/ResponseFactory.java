@@ -1,13 +1,13 @@
 package response;
 import lombok.extern.log4j.Log4j2;
-import response.auth.LoginResponse;
-import response.auth.LogoutResponse;
-import response.auth.RegisterResponse;
-import response.mail.MailsDeleteResponse;
-import response.mail.MailsReadResponse;
-import response.mail.MailWriteResponse;
-import response.server.ServerDetailsResponse;
-import response.user.UserPasswordChangeResponse;
+import response.auth.LoginServerCommand;
+import response.auth.LogoutServerCommand;
+import response.auth.RegisterServerCommand;
+import response.mail.DeleteMailServerCommand;
+import response.mail.InboxServerCommand;
+import response.mail.NewMailServerCommand;
+import response.server.UptimeServerCommand;
+import response.user.EditServerCommand;
 import response.user.UserRoleChangeResponse;
 import response.user.UserRemoveResponse;
 import response.user.UserSwitchResponse;
@@ -33,19 +33,19 @@ public class ResponseFactory {
     public Response getResponse(String request)  {
         switch (request.toUpperCase()) {
             case "REGISTER":
-                return new RegisterResponse(authManager, userManager);
+                return new RegisterServerCommand(authManager, userManager);
             case "LOGIN":
-                return new LoginResponse(authManager, userManager);
+                return new LoginServerCommand(authManager, userManager);
             case "LOGOUT":
-                return new LogoutResponse(userManager);
+                return new LogoutServerCommand(userManager);
             case "WRITE":
-                return new MailWriteResponse(mailService, userManager);
+                return new NewMailServerCommand(mailService, userManager);
             case "READ":
-                return new MailsReadResponse(mailService);
+                return new InboxServerCommand(mailService);
             case "DELETE":
-                return new MailsDeleteResponse(mailService);
+                return new DeleteMailServerCommand(mailService);
             case "PASSWORD":
-                return new UserPasswordChangeResponse(userManager);
+                return new EditServerCommand(userManager);
             case "REMOVE":
                 return new UserRemoveResponse(userManager);
             case "ROLE":
@@ -55,7 +55,7 @@ public class ResponseFactory {
             case "HELP":
             case "INFO":
             case "UPTIME":
-                return new ServerDetailsResponse(serverDetails);
+                return new UptimeServerCommand(serverDetails);
             default:
                 log.warn("Unknown operation: {}", request);
                 return null;

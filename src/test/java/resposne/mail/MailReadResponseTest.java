@@ -6,8 +6,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import request.Request;
-import response.mail.MailsReadResponse;
-import shared.ResponseStatus;
+import response.mail.InboxServerCommand;
+import utils.ResponseStatus;
 import user.credential.User;
 
 import java.util.ArrayList;
@@ -18,13 +18,13 @@ import static org.mockito.Mockito.*;
 
 class MailReadResponseTest {
     MailService mockMailService;
-    MailsReadResponse mailsReadResponse;
+    InboxServerCommand mailsReadResponse;
     Request mockRequest;
 
     @BeforeEach
     void setUp() {
         mockMailService = mock(MailService.class);
-        mailsReadResponse = new MailsReadResponse(mockMailService);
+        mailsReadResponse = new InboxServerCommand(mockMailService);
         mockRequest = mock(Request.class);
     }
 

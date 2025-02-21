@@ -46,7 +46,7 @@ src
 ├── mail                  # Email handling logic
 ├── request               # Request creation and handling
 ├── response              # Response creation and processing
-├── shared                # Common utilities and components
+├── utils                # Common utilities and components
 └── user                  # User management and authentication
 ``` 
 

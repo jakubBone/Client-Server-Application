@@ -1,72 +1,64 @@
 package server;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.PrintWriter;
 
-import com.google.gson.Gson;
+import network.CommunicationGateway;
 import response.Response;
 import response.ResponseFactory;
 import lombok.extern.log4j.Log4j2;
 import mail.MailService;
-import request.Request;
-import shared.JsonConverter;
 import user.manager.AuthManager;
 import user.manager.UserManager;
 
 @Log4j2
 public class ServerRequestService {
-    private final PrintWriter outToClient;
-    private final BufferedReader inFromClient;
+    private final CommunicationGateway gateway;
+    private final AuthManager authManager;
     private final UserManager userManager;
-    private Gson gson;
-    private JsonConverter jsonResponse;
-    private AuthManager authManager;
-    private ServerDetails serverDetails;
-    private MailService mailService;
+    private final MailService mailService;
+    private final ServerDetails serverDetails;
 
-
-    public ServerRequestService(PrintWriter outToClient, BufferedReader inFromClient) {
-        this.outToClient = outToClient;
-        this.inFromClient = inFromClient;
-        this.userManager = new UserManager();
-        this.gson = new Gson();
-
+    public ServerRequestService(CommunicationGateway gateway) {
+        this.gateway = gateway;
         this.authManager = new AuthManager();
+        this.userManager = new UserManager();
         this.mailService = new MailService();
         this.serverDetails = new ServerDetails();
     }
 
     public void handleClientRequest() {
-        String request;
         try {
-            while ((request = inFromClient.readLine()) != null) {
-                Request req = getParseRequest(request);
-                String response = processRequest(req);
-                sendResponse(response);
+            while (true) {
+                String jsonRequest = gateway.receiveMessage();
+                if (jsonRequest == null || jsonRequest.isEmpty()) break;
+                log.info("Received JSON request: {}", jsonRequest);
+                ServerRequest request = JsonUtil.deserialize(jsonRequest, ServerRequest.class);
+                ServerCommand command = commandFactory.createCommand(request);
+                String result = command.execute();
+                String jsonResponse = JsonUtil.serialize(result) + "\n<<END>>";
+                gateway.sendMessage(jsonResponse);
+
+
+                /*String jsonRequest = gateway.receiveMessage();
+                if (jsonRequest == null || jsonRequest.isEmpty()) break;
+                log.info("Received JSON request: {}", jsonRequest);
+                String request = JsonConverter.deserialize(jsonRequest, String.class);
+                String response = processRequest(request)
+                String jsonResponse = JsonConverter.serialize(response) + "\n<<END>>";
+                gateway.sendMessage(jsonResponse);*/
             }
-        } catch (IOException ex) {
-            log.error("IOException occurred while processing the request: {}. Error: ", ex.getMessage());
+        } catch (IOException e) {
+            log.error("Error handling client request: {}", e.getMessage());
+        } finally {
+            gateway.disconnect();
         }
     }
 
-    public Request getParseRequest(String request){
-        log.info("Parsing request: {}", request);
-        return gson.fromJson(request, Request.class);
-    }
-
-     public String processRequest(Request req) throws IOException{
-         String requestCommand = req.getCommand().toUpperCase();
+     public String processRequest(String request) throws IOException{
+         String requestCommand = request.toUpperCase();
          ResponseFactory factory = new ResponseFactory(authManager, userManager,mailService, serverDetails);
          Response command = factory.getResponse(requestCommand);
          log.info("Handling request command: {}", command.toString());
          return command.execute(req);
      }
-
-    public void sendResponse(String response){
-        jsonResponse = new JsonConverter(response);
-        String json = jsonResponse.serializeMessage();
-        outToClient.println(json);
-        log.info("Response sent: {}", json);
-    }
 }

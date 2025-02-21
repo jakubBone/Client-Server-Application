@@ -5,21 +5,21 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import request.Request;
-import response.mail.MailsDeleteResponse;
-import shared.ResponseStatus;
+import response.mail.DeleteMailServerCommand;
+import utils.ResponseStatus;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
 class MailDeleteResponseTest {
     MailService mockMailService;
-    MailsDeleteResponse mailsDeleteResponse;
+    DeleteMailServerCommand mailsDeleteResponse;
     Request mockRequest;
 
     @BeforeEach
     void setUp() {
         mockMailService = mock(MailService.class);
-        mailsDeleteResponse = new MailsDeleteResponse(mockMailService);
+        mailsDeleteResponse = new DeleteMailServerCommand(mockMailService);
         mockRequest = mock(Request.class);
     }
     @Test

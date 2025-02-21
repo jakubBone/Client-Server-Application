@@ -3,15 +3,15 @@ package response.mail;
 import response.Response;
 import mail.MailService;
 import request.Request;
-import shared.ResponseStatus;
+import utils.ResponseStatus;
 import user.credential.User;
 import user.manager.UserManager;
 
-public class MailWriteResponse implements Response {
+public class NewMailServerCommand implements Response {
     private final MailService mailService;
     private final UserManager userManager;
 
-    public MailWriteResponse(MailService mailService, UserManager userManager) {
+    public NewMailServerCommand(MailService mailService, UserManager userManager) {
         this.mailService = mailService;
         this.userManager = userManager;
     }

@@ -4,17 +4,17 @@ import response.Response;
 import request.Request;
 import user.manager.AuthManager;
 import user.manager.UserManager;
-
-public class LoginResponse implements Response {
+public class RegisterServerCommand implements Response {
     private final AuthManager authManager;
     private final UserManager userManager;
 
-    public LoginResponse(AuthManager authManager, UserManager userManager) {
+    public RegisterServerCommand(AuthManager authManager, UserManager userManager) {
         this.authManager = authManager;
         this.userManager = userManager;
     }
+
     @Override
     public String execute(Request request) {
-        return authManager.loginAndGetResponse(request.getUsername(), request.getPassword(), userManager);
+        return authManager.registerAndGetResponse(request.getUsername(), request.getPassword(), userManager);
     }
 }

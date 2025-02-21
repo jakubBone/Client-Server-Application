@@ -1,11 +1,12 @@
 package controller;
 
-import com.google.gson.Gson;
-import client.ClientConnection;
-import command.CommandDispatcher;
+import command.Command;
+import command.CommandFactory;
 import mail.MailService;
-import request.Request;
-import request.RequestFactory;
+
+import network.CommunicationGateway;
+import network.SocketGateway;
+import utils.JsonConverter;
 import ui.Screen;
 import ui.UserInput;
 import user.manager.AuthManager;
@@ -18,41 +19,54 @@ public class ClientController {
     private final AuthManager authManager;
     private final UserManager userManager;
     private final MailService mailService;
-    private final CommandDispatcher dispatcher;
+    private final CommandFactory commandFactory;
+    private final CommunicationGateway gateway;
 
-    public ClientController() {
+    public ClientController() throws IOException {
         this.userInput = new UserInput();
         this.authManager = new AuthManager();
         this.userManager = new UserManager();
         this.mailService = new MailService();
-        this.dispatcher = new CommandDispatcher(userInput, authManager, userManager, mailService);
+        this.commandFactory = new CommandFactory(userInput, authManager, userManager, mailService, Collections.emptyList());
+        this.gateway = new SocketGateway("localhost", 5000);
     }
 
     public void start() {
         boolean running = true;
         while (running) {
-            printScreen();
-            String input = userInput.getRequest();
-            String result = dispatcher.dispatch(input);
-            if ("EXIT".equals(result)) {
-                System.out.println("Wychodzenie z aplikacji...");
-                running = false;
-            } else {
-                System.out.println(result);
+            printUI();
+            try {
+                String input = userInput.getRequest();
+                if ("EXIT".equalsIgnoreCase(input)) {
+                    System.out.println("Exiting application.");
+                    gateway.disconnect();
+                    running = false;
+                    continue;
+                }
+                Command command = commandFactory.createCommand(input);
+                if (command == null) {
+                    System.out.println("Unknown command. Try again.");
+                } else {
+                    String commandResult = command.execute();
+                    String jsonRequest = JsonConverter.serialize(commandResult) + "\n<<END>>";
+                    gateway.sendMessage(jsonRequest);
+                    String jsonResponse = gateway.receiveMessage();
+                    String response = JsonConverter.deserialize(jsonResponse, String.class);
+                    System.out.println("Server Response: " + response);
+                }
+            } catch (IOException e) {
+                System.err.println("Error: " + e.getMessage());
             }
         }
     }
 
-    private void printScreen() {
-        // Wyświetlanie menu zależnie od stanu zalogowania oraz roli użytkownika
+    private void printUI() {
         if (!userManager.isLoggedIn()) {
             Screen.printMainScreen();
+        } else if (userManager.isUserAdmin()) {
+            Screen.printAdminScreen();
         } else {
-            if (userManager.isUserAdmin()) {
-                Screen.printAdminScreen();
-            } else {
-                Screen.printUserScreen();
-            }
+            Screen.printUserScreen();
         }
     }
 }

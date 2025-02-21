@@ -11,7 +11,6 @@ public class SentCommand implements Command {
 
     @Override
     public String execute() {
-        // Pobieramy wysłane wiadomości
-        return "Wyświetlam wysłane wiadomości.";
+
     }
 }

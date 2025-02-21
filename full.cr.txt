@@ -97,8 +97,8 @@ import java.net.Socket;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
-import shared.ResponseStatus;
-import shared.JsonConverter;
+import utils.ResponseStatus;
+import utils.JsonConverter;
 
 @Log4j2
 @Getter
@@ -999,7 +999,7 @@ package response.mail;
 import response.Response;
 import mail.MailService;
 import request.Request;
-import shared.ResponseStatus;
+import utils.ResponseStatus;
 
 public class MailsDeleteResponse implements Response {
     private final MailService mailService;
@@ -1024,7 +1024,7 @@ import response.Response;
 import mail.Mail;
 import mail.MailService;
 import request.Request;
-import shared.ResponseStatus;
+import utils.ResponseStatus;
 
 import java.util.List;
 public class MailsReadResponse implements Response {
@@ -1068,7 +1068,7 @@ package response.mail;
 import response.Response;
 import mail.MailService;
 import request.Request;
-import shared.ResponseStatus;
+import utils.ResponseStatus;
 import user.credential.User;
 import user.manager.UserManager;
 
@@ -1119,14 +1119,14 @@ FILE: ResponseFactory.java
 
 package response;
 import lombok.extern.log4j.Log4j2;
-import response.auth.LoginResponse;
-import response.auth.LogoutResponse;
-import response.auth.RegisterResponse;
-import response.mail.MailsDeleteResponse;
-import response.mail.MailsReadResponse;
-import response.mail.MailWriteResponse;
-import response.server.ServerDetailsResponse;
-import response.user.UserPasswordChangeResponse;
+import response.auth.LoginServerCommand;
+import response.auth.LogoutServerCommand;
+import response.auth.RegisterServerCommand;
+import response.mail.DeleteMailServerCommand;
+import response.mail.InboxServerCommand;
+import response.mail.NewMailServerCommand;
+import response.server.UptimeServerCommand;
+import response.user.EditServerCommand;
 import response.user.UserRoleChangeResponse;
 import response.user.UserRemoveResponse;
 import response.user.UserSwitchResponse;
@@ -1190,7 +1190,7 @@ package response.server;
 import response.Response;
 import request.Request;
 import server.ServerDetails;
-import shared.ResponseStatus;
+import utils.ResponseStatus;
 
 public class ServerDetailsResponse implements Response {
     private final ServerDetails serverDetails;
@@ -1232,7 +1232,7 @@ package response.user;
 
 import response.Response;
 import request.Request;
-import shared.ResponseStatus;
+import utils.ResponseStatus;
 import user.credential.User;
 import user.manager.UserManager;
 public class UserPasswordChangeResponse implements Response {
@@ -1264,7 +1264,7 @@ package response.user;
 
 import response.Response;
 import request.Request;
-import shared.ResponseStatus;
+import utils.ResponseStatus;
 import user.credential.User;
 import user.manager.UserManager;
 public class UserRemoveResponse implements Response {
@@ -1296,7 +1296,7 @@ package response.user;
 
 import response.Response;
 import request.Request;
-import shared.ResponseStatus;
+import utils.ResponseStatus;
 import user.credential.User;
 import user.manager.UserManager;
 public class UserRoleChangeResponse implements Response {
@@ -1329,7 +1329,7 @@ package response.user;
 
 import response.Response;
 import request.Request;
-import shared.ResponseStatus;
+import utils.ResponseStatus;
 import user.credential.User;
 import user.manager.UserManager;
 
@@ -1556,7 +1556,7 @@ import response.ResponseFactory;
 import lombok.extern.log4j.Log4j2;
 import mail.MailService;
 import request.Request;
-import shared.JsonConverter;
+import utils.JsonConverter;
 import user.manager.AuthManager;
 import user.manager.UserManager;
 
@@ -1620,7 +1620,7 @@ public class ServerRequestService {
 ====================
 FILE: JsonConverter.java
 
-package shared;
+package utils;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
@@ -1669,7 +1669,7 @@ public class JsonConverter {
 ====================
 FILE: ResponseStatus.java
 
-package shared;
+package utils;
 
 import lombok.extern.log4j.Log4j2;
 
@@ -1753,7 +1753,7 @@ public enum ResponseStatus {
 ====================
 FILE: Screen.java
 
-package shared;
+package utils;
 
 public class Screen {
 
@@ -1805,7 +1805,7 @@ public class Screen {
 ====================
 FILE: UserInput.java
 
-package shared;
+package utils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -1983,7 +1983,7 @@ FILE: AuthManager.java
 package user.manager;
 
 import lombok.extern.log4j.Log4j2;
-import shared.ResponseStatus;
+import utils.ResponseStatus;
 import user.credential.User;
 
 @Log4j2
@@ -2057,7 +2057,7 @@ import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
-import shared.ResponseStatus;
+import utils.ResponseStatus;
 import user.credential.Admin;
 import user.credential.User;
 
@@ -2160,7 +2160,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 
 import org.junit.jupiter.api.*;
-import shared.ResponseStatus;
+import utils.ResponseStatus;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -2716,7 +2716,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import request.Request;
-import response.auth.LoginResponse;
+import response.auth.LoginServerCommand;
 import user.manager.AuthManager;
 import user.manager.UserManager;
 
@@ -2761,7 +2761,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import request.Request;
-import response.auth.LogoutResponse;
+import response.auth.LogoutServerCommand;
 import user.manager.UserManager;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -2799,7 +2799,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import request.Request;
-import response.auth.RegisterResponse;
+import response.auth.RegisterServerCommand;
 import user.manager.AuthManager;
 import user.manager.UserManager;
 
@@ -2845,8 +2845,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import request.Request;
-import response.mail.MailsDeleteResponse;
-import shared.ResponseStatus;
+import response.mail.DeleteMailServerCommand;
+import utils.ResponseStatus;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
@@ -2885,8 +2885,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import request.Request;
-import response.mail.MailsReadResponse;
-import shared.ResponseStatus;
+import response.mail.InboxServerCommand;
+import utils.ResponseStatus;
 import user.credential.User;
 
 import java.util.ArrayList;
@@ -2944,8 +2944,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import request.Request;
-import response.mail.MailWriteResponse;
-import shared.ResponseStatus;
+import response.mail.NewMailServerCommand;
+import utils.ResponseStatus;
 import user.credential.User;
 import user.manager.UserManager;
 
@@ -3028,7 +3028,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import request.Request;
-import response.server.ServerDetailsResponse;
+import response.server.UptimeServerCommand;
 import server.ServerDetails;
 
 import java.util.Map;
@@ -3095,8 +3095,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import request.Request;
-import response.user.UserPasswordChangeResponse;
-import shared.ResponseStatus;
+import response.user.EditServerCommand;
+import utils.ResponseStatus;
 import user.credential.User;
 import user.manager.UserManager;
 
@@ -3163,7 +3163,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import request.Request;
 import response.user.UserRemoveResponse;
-import shared.ResponseStatus;
+import utils.ResponseStatus;
 import user.credential.User;
 import user.manager.UserManager;
 
@@ -3229,7 +3229,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import request.Request;
 import response.user.UserRemoveResponse;
-import shared.ResponseStatus;
+import utils.ResponseStatus;
 import user.credential.User;
 import user.manager.UserManager;
 
@@ -3294,7 +3294,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import request.Request;
 import response.user.UserRoleChangeResponse;
-import shared.ResponseStatus;
+import utils.ResponseStatus;
 import user.credential.User;
 import user.manager.UserManager;
 
@@ -3361,7 +3361,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import request.Request;
 import response.user.UserSwitchResponse;
-import shared.ResponseStatus;
+import utils.ResponseStatus;
 import user.credential.User;
 import user.manager.UserManager;
 
@@ -3492,7 +3492,7 @@ class ServerConnectionTest {
 ====================
 FILE: JsonConverterTest.java
 
-package shared;
+package utils;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -3542,7 +3542,7 @@ import database.UserDAO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import shared.ResponseStatus;
+import utils.ResponseStatus;
 import user.credential.User;
 import user.manager.AuthManager;
 import user.manager.UserManager;
@@ -3654,7 +3654,7 @@ import database.UserDAO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import shared.ResponseStatus;
+import utils.ResponseStatus;
 import user.credential.User;
 import user.manager.UserManager;
 

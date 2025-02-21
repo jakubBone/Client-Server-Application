@@ -2,7 +2,7 @@ package response.user;
 
 import response.Response;
 import request.Request;
-import shared.ResponseStatus;
+import utils.ResponseStatus;
 import user.credential.User;
 import user.manager.UserManager;
 

@@ -4,7 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import request.Request;
-import response.auth.LoginResponse;
+import response.auth.LoginServerCommand;
 import user.manager.AuthManager;
 import user.manager.UserManager;
 
@@ -15,14 +15,14 @@ import static org.mockito.Mockito.when;
 public class LoginResponseTest {
     AuthManager mockAuthManager;
     UserManager mockUserManager;
-    LoginResponse loginResponse;
+    LoginServerCommand loginResponse;
     private Request mockRequest;
 
     @BeforeEach
     void setUp() {
         mockAuthManager = mock(AuthManager.class);
         mockUserManager = mock(UserManager.class);
-        loginResponse = new LoginResponse(mockAuthManager, mockUserManager);
+        loginResponse = new LoginServerCommand(mockAuthManager, mockUserManager);
         mockRequest = mock(Request.class);
     }
 

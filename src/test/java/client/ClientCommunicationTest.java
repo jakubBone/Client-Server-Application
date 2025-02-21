@@ -6,9 +6,8 @@ import java.io.PrintWriter;
 import java.net.Socket;
 
 import org.junit.jupiter.api.*;
-import shared.ResponseStatus;
+import utils.ResponseStatus;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class ClientCommunicationTest {

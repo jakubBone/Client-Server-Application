@@ -2,13 +2,13 @@ package response.user;
 
 import response.Response;
 import request.Request;
-import shared.ResponseStatus;
+import utils.ResponseStatus;
 import user.credential.User;
 import user.manager.UserManager;
-public class UserPasswordChangeResponse implements Response {
+public class EditServerCommand implements Response {
     private final UserManager userManager;
 
-    public UserPasswordChangeResponse(UserManager userManager) {
+    public EditServerCommand(UserManager userManager) {
         this.userManager = userManager;
     }
 

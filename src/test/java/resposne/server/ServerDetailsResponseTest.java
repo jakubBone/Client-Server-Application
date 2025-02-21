@@ -4,7 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import request.Request;
-import response.server.ServerDetailsResponse;
+import response.server.UptimeServerCommand;
 import server.ServerDetails;
 
 import java.util.Map;
@@ -15,13 +15,13 @@ import static org.mockito.Mockito.when;
 
 class ServerDetailsResponseTest {
     ServerDetails mockServerDetails;
-    ServerDetailsResponse serverDetailsResponse;
+    UptimeServerCommand serverDetailsResponse;
     Request mockRequest;
 
     @BeforeEach
     void setUp() {
         mockServerDetails = mock(ServerDetails.class);
-        serverDetailsResponse = new ServerDetailsResponse(mockServerDetails);
+        serverDetailsResponse = new UptimeServerCommand(mockServerDetails);
         mockRequest = mock(Request.class);
     }
 

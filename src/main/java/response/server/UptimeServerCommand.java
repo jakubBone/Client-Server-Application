@@ -3,11 +3,11 @@ package response.server;
 import response.Response;
 import request.Request;
 import server.ServerDetails;
-import shared.ResponseStatus;
+import utils.ResponseStatus;
 
-public class ServerDetailsResponse implements Response {
+public class UptimeServerCommand implements Response {
     private final ServerDetails serverDetails;
-    public ServerDetailsResponse(ServerDetails serverDetails) {
+    public UptimeServerCommand(ServerDetails serverDetails) {
         this.serverDetails = serverDetails;
     }
     @Override
