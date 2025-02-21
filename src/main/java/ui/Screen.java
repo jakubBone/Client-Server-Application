@@ -65,6 +65,7 @@ public class Screen {
         System.out.print("Select an option: ");
     }
 
+
     public static void printEditScreen() {
         System.out.println("+---------------------------------------------+\n" +
                 "|                     ADMIN                     |\n" +
