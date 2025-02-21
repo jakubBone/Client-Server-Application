@@ -18,7 +18,7 @@ import user.manager.UserManager;
 
 @Log4j2
 public class ResponseFactory {
-    private final AuthManager authManager;
+    /*private final AuthManager authManager;
     private final UserManager userManager;
     private final MailService mailService;
     private final ServerDetails serverDetails;
@@ -60,5 +60,5 @@ public class ResponseFactory {
                 log.warn("Unknown operation: {}", request);
                 return null;
         }
-    }
+    }*/
 }

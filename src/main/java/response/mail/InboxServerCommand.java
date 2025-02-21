@@ -4,10 +4,11 @@ import response.Response;
 import mail.Mail;
 import mail.MailService;
 import request.Request;
+import servercommand.ServerCommand;
 import utils.ResponseStatus;
 
 import java.util.List;
-public class InboxServerCommand implements Response {
+public class InboxServerCommand implements ServerCommand {
     private final MailService mailService;
 
     public InboxServerCommand(MailService mailService) {

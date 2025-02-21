@@ -19,7 +19,6 @@ public class SocketServerGateway implements CommunicationGateway{
     public SocketServerGateway(int port) throws IOException {
         serverSocket = new ServerSocket(port);
         log.info("Server started on port {}", port);
-        // Akceptujemy pierwsze połączenie – w prostym projekcie obsługujemy jednego klienta
         clientSocket = serverSocket.accept();
         log.info("Client connected: {}", clientSocket.getRemoteSocketAddress());
         out = new PrintWriter(clientSocket.getOutputStream(), true);

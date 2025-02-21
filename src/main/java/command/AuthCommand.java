@@ -2,7 +2,6 @@ package command;
 
 import ui.UserInput;
 
-
 public class AuthCommand implements Command {
     private final String command;
     private UserInput input;

@@ -47,11 +47,11 @@ public class ClientController {
                 if (command == null) {
                     System.out.println("Unknown command. Try again.");
                 } else {
-                    String commandResult = command.execute();
+                    String commandResult = command.buildCommandMessage()
                     String jsonRequest = JsonConverter.serialize(commandResult) + "\n<<END>>";
                     gateway.sendMessage(jsonRequest);
                     String jsonResponse = gateway.receiveMessage();
-                    String response = JsonConverter.deserialize(jsonResponse, String.class);
+                    String response = JsonConverter.deserialize(jsonResponse);
                     System.out.println("Server Response: " + response);
                 }
             } catch (IOException e) {

@@ -9,6 +9,7 @@ import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
 import user.credential.User;
 import user.manager.UserManager;
+import utils.ResponseStatus;
 
 import java.util.List;
 
@@ -33,6 +34,7 @@ public class MailService {
 
         Mail mailToRecipient = new Mail(mailToSender.getSender(), recipient, message, Mail.Status.UNREAD);
         mailDAO.saveMailToDB(mailToRecipient);
+
 
         log.info("Mail successfully sent to {}", recipient.getUsername());
     }

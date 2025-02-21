@@ -1,11 +1,10 @@
 package response.user;
 
-import response.Response;
-import request.Request;
-import utils.ResponseStatus;
+import command.CommandMessage;
+import servercommand.ServerCommand;
 import user.credential.User;
 import user.manager.UserManager;
-public class EditServerCommand implements Response {
+public class EditServerCommand implements ServerCommand {
     private final UserManager userManager;
 
     public EditServerCommand(UserManager userManager) {
@@ -13,16 +12,56 @@ public class EditServerCommand implements Response {
     }
 
     @Override
-    public String execute(Request request) {
-        if (userManager.isUserAdmin()) {
-            User user = userManager.getUserByUsername(request.getUserToUpdate());
-            if (user == null) {
-                return ResponseStatus.FAILED_TO_FIND_USER.getResponse();
+    public String execute(CommandMessage commandMessage) {
+        String subCommand = (String) commandMessage.getPayload().get("subCommand");
+        switch (subCommand.toUpperCase()) {
+            case "CHANGE" -> {
+                String username = (String) commandMessage.getPayload().get("username");
+                String newPassword = (String) commandMessage.getPayload().get("newPassword");
+                User user = userManager.getUserByUsername(username);
+                if (user == null) {
+                    return "User not found: " + username;
+                }
+                userManager.changePassword(user, newPassword);
+                return "Password changed successfully for " + username;
             }
-            userManager.changePassword(user, request.getNewPassword());
-            return ResponseStatus.OPERATION_SUCCEEDED.getResponse();
-        } else {
-            return ResponseStatus.AUTHORIZATION_FAILED.getResponse();
+            case "ASSIGN" -> {
+                String username = (String) commandMessage.getPayload().get("username");
+                String newRoleStr = (String) commandMessage.getPayload().get("newRole");
+                User user = userManager.getUserByUsername(username);
+                if (user == null) {
+                    return "User not found: " + username;
+                }
+                try {
+                    User.Role newRole = User.Role.valueOf(newRoleStr.toUpperCase());
+                    userManager.changeUserRole(user, newRole);
+                    return "Role changed successfully for " + username;
+                } catch (IllegalArgumentException e) {
+                    return "Invalid role specified: " + newRoleStr;
+                }
+            }
+            case "REMOVE" -> {
+                String username = (String) commandMessage.getPayload().get("username");
+                User user = userManager.getUserByUsername(username);
+                if (user == null) {
+                    return "User not found: " + username;
+                }
+                userManager.removeUser(user);
+                return "User " + username + " removed successfully.";
+            }
+            case "SWITCH" -> {
+                String username = (String) commandMessage.getPayload().get("username");
+                User user = userManager.getUserByUsername(username);
+                if (user == null) {
+                    return "User not found: " + username;
+                }
+                userManager.switchUser(user);
+                return "Switched to user: " + username;
+            }
+            default -> {
+                return "Unknown subCommand: " + subCommand;
+            }
         }
     }
+}
 }

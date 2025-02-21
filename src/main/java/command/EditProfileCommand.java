@@ -15,41 +15,33 @@ public class EditProfileCommand implements Command {
     @Override
     public CommandMessage buildCommandMessage() throws IOException {
         Screen.printEditScreen();
-        String subCommand = input .getRequest();
+        String subCommand = input.getRequest().trim().toUpperCase();
+        // Zawsze wysyłamy główny typ EDIT wraz z podkomendą
+        CommandMessage.Builder builder = new CommandMessage.Builder()
+                .commandType("EDIT")
+                .addPayload("subCommand", subCommand);
+
         switch (subCommand) {
             case "CHANGE" -> {
                 String username = input.promptUsername();
-                String newPassword = input .promptNewPassword();
-                return new CommandMessage.Builder()
-                        .commandType("CHANGE")
-                        .addPayload("username", username)
-                        .addPayload("newPassword", newPassword)
-                        .build();
+                String newPassword = input.promptNewPassword();
+                builder.addPayload("username", username)
+                        .addPayload("newPassword", newPassword);
             }
-            case "ASSING" -> {
+            case "ASSIGN" -> {
                 String username = input.promptUsername();
-                String newRole = input .promptNewRole();
-                return new CommandMessage.Builder()
-                        .commandType("ASSIGN")
-                        .addPayload("username", username)
-                        .addPayload("newRole", newRole)
-                        .build()
+                String newRole = input.promptNewRole();
+                builder.addPayload("username", username)
+                        .addPayload("newRole", newRole);
             }
-            case "REMOVE" -> {
+            case "REMOVE", "SWITCH" -> {
                 String username = input.promptUsername();
-                return new CommandMessage.Builder()
-                        .commandType("REMOVE")
-                        .addPayload("username", username)
-                        .build()
+                builder.addPayload("username", username);
             }
-            case "SWITCH" -> {
-                String username = input.promptUsername();
-                return  new CommandMessage.Builder()
-                        .commandType("SWITCH")
-                        .addPayload("username", username)
-                        .build()
+            default -> {
+                builder.addPayload("error", "Nieznana operacja: " + subCommand);
             }
-            default:
         }
+        return builder.build();
     }
 }

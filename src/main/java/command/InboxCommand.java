@@ -1,6 +1,5 @@
 package command;
 
-import mail.MailService;
 
 public class InboxCommand implements Command {
 

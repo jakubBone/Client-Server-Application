@@ -1,20 +1,21 @@
 package response.server;
 
+import command.CommandMessage;
 import response.Response;
 import request.Request;
 import server.ServerDetails;
+import servercommand.ServerCommand;
 import utils.ResponseStatus;
 
-public class UptimeServerCommand implements Response {
+public class UptimeServerCommand implements ServerCommand {
     private final ServerDetails serverDetails;
     public UptimeServerCommand(ServerDetails serverDetails) {
         this.serverDetails = serverDetails;
     }
     @Override
-    public String execute(Request request) {
-        String serverRequest = request.getCommand().toUpperCase();
+    public String execute(CommandMessage commandMessage) {
+        String serverRequest = commandMessage.getCommandType();
         StringBuilder builder = new StringBuilder();
-        
         switch (serverRequest) {
             case "UPTIME":
                 builder.append("Uptime:\n");
