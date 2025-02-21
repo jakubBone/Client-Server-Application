@@ -5,7 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import request.Request;
-import response.mail.DeleteMailServerCommand;
+import servercommand.DeleteMailServerCommand;
 import utils.ResponseStatus;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

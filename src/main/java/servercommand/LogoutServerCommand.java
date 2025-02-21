@@ -11,7 +11,7 @@ public class LogoutServerCommand implements ServerCommand {
     }
 
     @Override
-    public String execute() {
+    public String execute(CommandMessage commandMessage) {
         return userManager.logoutAndGetResponse();
     }
 }

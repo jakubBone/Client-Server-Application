@@ -1122,8 +1122,8 @@ import lombok.extern.log4j.Log4j2;
 import response.auth.LoginServerCommand;
 import response.auth.LogoutServerCommand;
 import response.auth.RegisterServerCommand;
-import response.mail.DeleteMailServerCommand;
-import response.mail.InboxServerCommand;
+import servercommand.DeleteMailServerCommand;
+import servercommand.InboxServerCommand;
 import response.mail.NewMailServerCommand;
 import response.server.UptimeServerCommand;
 import response.user.EditServerCommand;
@@ -2845,7 +2845,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import request.Request;
-import response.mail.DeleteMailServerCommand;
+import servercommand.DeleteMailServerCommand;
 import utils.ResponseStatus;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -2885,7 +2885,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import request.Request;
-import response.mail.InboxServerCommand;
+import servercommand.InboxServerCommand;
 import utils.ResponseStatus;
 import user.credential.User;
 

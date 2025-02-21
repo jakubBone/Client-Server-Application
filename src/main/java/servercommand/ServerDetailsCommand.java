@@ -5,11 +5,11 @@ import server.ServerDetails;
 
 import java.util.Map;
 
-public class ServerDetailsCommand {
+public class ServerDetailsCommand implements ServerCommand{
     private final ServerDetails serverDetails;
 
-    public ServerDetailsCommand(ServerDetails serverDetails) {
-        this.serverDetails = serverDetails;
+    public ServerDetailsCommand() {
+        this.serverDetails = new ServerDetails();
     }
 
     @Override

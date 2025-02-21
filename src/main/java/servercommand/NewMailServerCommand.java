@@ -4,7 +4,7 @@ import command.CommandMessage;
 import mail.MailService;
 import user.manager.UserManager;
 
-public class NewMailServerCommand implements ServerCommand{
+public class NewMailServerCommand implements ServerCommand {
     private final MailService mailService;
     private final UserManager userManager;
 

@@ -1,14 +1,9 @@
 package servercommand;
 
 import mail.MailService;
-import response.mail.InboxServerCommand;
 import response.mail.NewMailServerCommand;
-import response.mail.DeleteMailServerCommand;
 import response.server.UptimeServerCommand;
 import response.user.EditServerCommand;
-import response.user.UserRemoveResponse;
-import response.user.UserRoleChangeResponse;
-import response.user.UserSwitchResponse;
 import server.ServerDetails;
 import user.manager.AuthManager;
 import user.manager.UserManager;
@@ -30,7 +25,7 @@ public class ServerCommandFactory {
         switch (request.toUpperCase()) {
             case "REGISTER", "LOGIN" -> { return new AuthServerCommand(authManager, userManager); }
             case "LOGOUT" -> { return new LogoutServerCommand(userManager); }
-            case "HELP", "INFO", "UPTIME" -> { return new UptimeServerCommand(serverDetails); }
+            case "HELP", "INFO", "UPTIME" -> { return new ServerDetailsCommand(); }
             case "NEW" -> return new NewMailServerCommand(mailService, userManager);
             case "INBOX" -> { return new InboxServerCommand(mailService); }
             case "SENT" -> { return new SentServerCommand(mailService); }
