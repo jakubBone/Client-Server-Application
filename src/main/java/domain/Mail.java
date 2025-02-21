@@ -1,8 +1,8 @@
-package mail;
+package domain;
 
 import lombok.Getter;
 import lombok.Setter;
-import user.credential.User;
+import domain.User;
 @Getter
 @Setter
 public class Mail {

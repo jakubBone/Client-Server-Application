@@ -5,21 +5,21 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import request.Request;
 import response.user.UserRemoveResponse;
+import service.UserService;
 import utils.ResponseStatus;
-import user.credential.User;
-import user.manager.UserManager;
+import domain.User;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
 class UserRemoveResponseTest {
-    UserManager mockUserManager;
+    UserService mockUserManager;
     UserRemoveResponse userRemoveResponse;
     Request mockRequest;
 
     @BeforeEach
     void setUp() {
-        mockUserManager = mock(UserManager.class);
+        mockUserManager = mock(UserService.class);
         userRemoveResponse = new UserRemoveResponse(mockUserManager);
         mockRequest = mock(Request.class);
     }

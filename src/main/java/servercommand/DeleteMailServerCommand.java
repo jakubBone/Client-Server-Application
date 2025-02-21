@@ -1,7 +1,7 @@
 package servercommand;
 
 import command.CommandMessage;
-import mail.MailService;
+import service.MailService;
 
 public class DeleteMailServerCommand implements ServerCommand {
     private final MailService mailService;

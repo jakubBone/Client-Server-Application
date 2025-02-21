@@ -1,14 +1,14 @@
 package servercommand;
 
 import command.CommandMessage;
-import user.manager.AuthManager;
-import user.manager.UserManager;
+import service.AuthService;
+import service.UserService;
 
 public class AuthServerCommand implements ServerCommand {
-    private final AuthManager authManager;
-    private final UserManager userManager;
+    private final AuthService authManager;
+    private final UserService userManager;
 
-    public AuthServerCommand(AuthManager authManager, UserManager userManager) {
+    public AuthServerCommand(AuthService authManager, UserService userManager) {
         this.authManager = authManager;
         this.userManager = userManager;
     }

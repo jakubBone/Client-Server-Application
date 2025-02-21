@@ -6,20 +6,20 @@ import org.junit.jupiter.api.Test;
 import request.Request;
 import response.user.EditServerCommand;
 import utils.ResponseStatus;
-import user.credential.User;
-import user.manager.UserManager;
+import domain.User;
+import service.UserService;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
 class UserPasswordChangeResponseTest {
-    UserManager mockUserManager;
+    UserService mockUserManager;
     EditServerCommand userPasswordChangeResponse;
     Request mockRequest;
 
     @BeforeEach
     void setUp() {
-        mockUserManager = mock(UserManager.class);
+        mockUserManager = mock(UserService.class);
         userPasswordChangeResponse = new EditServerCommand(mockUserManager);
         mockRequest = mock(Request.class);
     }

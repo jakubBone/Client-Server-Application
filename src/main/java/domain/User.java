@@ -1,4 +1,4 @@
-package user.credential;
+package domain;
 
 import org.mindrot.jbcrypt.BCrypt;
 

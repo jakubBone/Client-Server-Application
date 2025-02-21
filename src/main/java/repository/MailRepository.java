@@ -1,13 +1,13 @@
-package database;
+package repository;
 
-import mail.Mail;
+import domain.Mail;
 import lombok.extern.log4j.Log4j2;
 import org.jooq.Condition;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.impl.DSL;
-import user.credential.User;
-import user.manager.UserManager;
+import domain.User;
+import service.UserService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,11 +18,11 @@ import static org.jooq.impl.SQLDataType.VARCHAR;
 import static org.jooq.impl.SQLDataType.INTEGER;
 
 @Log4j2
-public class MailDAO {
+public class MailRepository {
     private final DSLContext create;
-    private final UserDAO userDAO;
+    private final UserRepository userDAO;
 
-    public MailDAO(DSLContext create, UserDAO userDAO) {
+    public MailRepository(DSLContext create, UserRepository userDAO) {
         this.create = create;
         this.userDAO = userDAO;
         createTable();
@@ -91,7 +91,7 @@ public class MailDAO {
     }
 
     public Condition getMailboxCondition(String boxType) {
-        String username = UserManager.currentLoggedInUser.getUsername();
+        String username = UserService.currentLoggedInUser.getUsername();
         Condition condition;
 
         if (boxType.equals(Mail.Status.SENT.toString())) {
@@ -120,7 +120,7 @@ public class MailDAO {
     public void markAsReadInDB() {
         create.update(table("mail"))
                 .set(field("status"), Mail.Status.OPENED.toString())
-                .where(field("recipient").eq(UserManager.currentLoggedInUser.getUsername()))
+                .where(field("recipient").eq(UserService.currentLoggedInUser.getUsername()))
                 .and(field("status").eq(Mail.Status.UNREAD.toString()))
                 .execute();
 

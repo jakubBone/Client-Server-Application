@@ -5,23 +5,23 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import request.Request;
 import response.auth.RegisterServerCommand;
-import user.manager.AuthManager;
-import user.manager.UserManager;
+import service.AuthService;
+import service.UserService;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class RegisterResponseTest {
-    AuthManager mockAuthManager;
-    UserManager mockUserManager;
+    AuthService mockAuthManager;
+    UserService mockUserManager;
     RegisterServerCommand registerResponse;
     Request mockRequest;
 
     @BeforeEach
     void setUp() {
-        mockAuthManager = mock(AuthManager.class);
-        mockUserManager = mock(UserManager.class);
+        mockAuthManager = mock(AuthService.class);
+        mockUserManager = mock(UserService.class);
         registerResponse = new RegisterServerCommand(mockAuthManager, mockUserManager);
         mockRequest = mock(Request.class);
     }

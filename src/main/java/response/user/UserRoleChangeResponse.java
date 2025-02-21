@@ -3,12 +3,12 @@ package response.user;
 import response.Response;
 import request.Request;
 import utils.ResponseStatus;
-import user.credential.User;
-import user.manager.UserManager;
+import domain.User;
+import service.UserService;
 public class UserRoleChangeResponse implements Response {
-    private final UserManager userManager;
+    private final UserService userManager;
 
-    public UserRoleChangeResponse(UserManager userManager) {
+    public UserRoleChangeResponse(UserService userManager) {
         this.userManager = userManager;
     }
     @Override

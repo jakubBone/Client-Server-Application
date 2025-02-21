@@ -12,13 +12,13 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 public class DatabaseConnectionTest {
-    static DatabaseConnection databaseConnection;
+    static DataSource databaseConnection;
     static Connection mockConnection;
 
 
     @BeforeEach
     void setUp() {
-        databaseConnection  = DatabaseConnection.getInstance();
+        databaseConnection  = DataSource.getInstance();
         mockConnection = mock(Connection.class);
     }
 

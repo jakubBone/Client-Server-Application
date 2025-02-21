@@ -1,20 +1,19 @@
 package servercommand;
 
-import mail.MailService;
+import service.AuthService;
+import service.MailService;
 import response.mail.NewMailServerCommand;
-import response.server.UptimeServerCommand;
 import response.user.EditServerCommand;
 import server.ServerDetails;
-import user.manager.AuthManager;
-import user.manager.UserManager;
+import service.UserService;
 
 public class ServerCommandFactory {
-    private final AuthManager authManager;
-    private final UserManager userManager;
+    private final AuthService authManager;
+    private final UserService userManager;
     private final MailService mailService;
     private final ServerDetails serverDetails;
 
-    public ServerCommandFactory(AuthManager authManager, UserManager userManager, MailService mailService, ServerDetails serverDetails) {
+    public ServerCommandFactory(AuthService authManager, UserService userManager, MailService mailService, ServerDetails serverDetails) {
         this.authManager = authManager;
         this.userManager = userManager;
         this.mailService = mailService;

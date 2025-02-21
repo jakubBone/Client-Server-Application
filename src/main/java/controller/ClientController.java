@@ -2,30 +2,30 @@ package controller;
 
 import command.Command;
 import command.CommandFactory;
-import mail.MailService;
+import service.AuthService;
+import service.MailService;
 
 import network.CommunicationGateway;
 import network.SocketGateway;
 import utils.JsonConverter;
 import ui.Screen;
 import ui.UserInput;
-import user.manager.AuthManager;
-import user.manager.UserManager;
+import service.UserService;
 
 import java.io.IOException;
 
 public class ClientController {
     private final UserInput userInput;
-    private final AuthManager authManager;
-    private final UserManager userManager;
+    private final AuthService authManager;
+    private final UserService userManager;
     private final MailService mailService;
     private final CommandFactory commandFactory;
     private final CommunicationGateway gateway;
 
     public ClientController() throws IOException {
         this.userInput = new UserInput();
-        this.authManager = new AuthManager();
-        this.userManager = new UserManager();
+        this.authManager = new AuthService();
+        this.userManager = new UserService();
         this.mailService = new MailService();
         this.commandFactory = new CommandFactory(userInput);
         this.gateway = new SocketGateway("localhost", 5000);

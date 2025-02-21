@@ -1,7 +1,5 @@
 package command;
 
-import user.manager.UserManager;
-
 public class LogoutCommand implements Command {
 
     @Override

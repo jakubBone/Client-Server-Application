@@ -1,28 +1,28 @@
 package resposne.mail;
 
-import mail.MailService;
+import service.MailService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import request.Request;
 import response.mail.NewMailServerCommand;
 import utils.ResponseStatus;
-import user.credential.User;
-import user.manager.UserManager;
+import domain.User;
+import service.UserService;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
 class MailWriteResponseTest {
     MailService mockMailService;
-    UserManager mockUserManager;
+    UserService mockUserManager;
     NewMailServerCommand mailWriteResponse;
     Request mockRequest;
 
     @BeforeEach
     void setUp() {
         mockMailService = mock(MailService.class);
-        mockUserManager = mock(UserManager.class);
+        mockUserManager = mock(UserService.class);
         mailWriteResponse = new NewMailServerCommand(mockMailService, mockUserManager);
         mockRequest = mock(Request.class);
     }

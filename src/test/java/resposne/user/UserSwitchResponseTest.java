@@ -5,21 +5,21 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import request.Request;
 import response.user.UserSwitchResponse;
+import service.UserService;
 import utils.ResponseStatus;
-import user.credential.User;
-import user.manager.UserManager;
+import domain.User;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
 class UserSwitchResponseTest {
-    UserManager mockUserManager;
+    UserService mockUserManager;
     UserSwitchResponse userSwitchResponse;
     Request mockRequest;
 
     @BeforeEach
     void setUp() {
-        mockUserManager = mock(UserManager.class);
+        mockUserManager = mock(UserService.class);
         userSwitchResponse = new UserSwitchResponse(mockUserManager);
         mockRequest = mock(Request.class);
     }
@@ -55,7 +55,7 @@ class UserSwitchResponseTest {
         when(mockRequest.getUserToSwitch()).thenReturn("testUser");
         when(mockUserManager.getUserByUsername("testUser")).thenReturn(mockUser);
         when(mockUserManager.isUserAdmin()).thenReturn(true);
-        UserManager.ifSwitchedToAdminUser = true;
+        UserService.ifSwitchedToAdminUser = true;
 
         String response = userSwitchResponse.execute(mockRequest);
 
@@ -70,8 +70,8 @@ class UserSwitchResponseTest {
         when(mockRequest.getUserToSwitch()).thenReturn("testUser");
         when(mockUserManager.getUserByUsername("testUser")).thenReturn(mockUser);
         when(mockUserManager.isUserAdmin()).thenReturn(true);
-        UserManager.ifSwitchedToAdminUser = false;
-        UserManager.ifSwitchedToNonAdminUser = true;
+        UserService.ifSwitchedToAdminUser = false;
+        UserService.ifSwitchedToNonAdminUser = true;
 
         String response = userSwitchResponse.execute(mockRequest);
 

@@ -5,19 +5,19 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import request.Request;
 import response.auth.LogoutServerCommand;
-import user.manager.UserManager;
+import service.UserService;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 class LogoutResponseTest {
-    UserManager mockUserManager;
+    UserService mockUserManager;
     LogoutServerCommand logoutResponse;
     Request mockRequest;
 
     @BeforeEach
     void setUp() {
-        mockUserManager = mock(UserManager.class);
+        mockUserManager = mock(UserService.class);
         logoutResponse = new LogoutServerCommand(mockUserManager);
         mockRequest = mock(Request.class);
     }

@@ -1,6 +1,6 @@
 package ui;
 
-import user.credential.User;
+import domain.User;
 
 import java.util.List;
 

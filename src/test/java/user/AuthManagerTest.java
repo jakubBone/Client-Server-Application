@@ -1,31 +1,31 @@
 package user;
 
-import database.UserDAO;
+import repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import service.AuthService;
+import service.UserService;
 import utils.ResponseStatus;
-import user.credential.User;
-import user.manager.AuthManager;
-import user.manager.UserManager;
+import domain.User;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 public class AuthManagerTest {
-    UserManager userManager;
-    AuthManager authManager;
+    UserService userManager;
+    AuthService authManager;
     User user;
-    UserDAO mockUserDAO;
+    UserRepository mockUserDAO;
     String username = "testUsername";
     String password = "testPassword";
 
     @BeforeEach
     void setUp() {
-        userManager = new UserManager();
-        authManager = new AuthManager();
+        userManager = new UserService();
+        authManager = new AuthService();
         user = new User(username, password, User.Role.USER);
-        mockUserDAO = mock(UserDAO.class);
+        mockUserDAO = mock(UserRepository.class);
         userManager.setUserDAO(mockUserDAO);
     }
 
@@ -58,7 +58,7 @@ public class AuthManagerTest {
         String response = authManager.loginAndGetResponse(username, password, userManager);
 
         assertEquals(ResponseStatus.USER_LOGIN_SUCCEEDED.getResponse(), response);
-        assertEquals(user, UserManager.currentLoggedInUser);
+        assertEquals(user, UserService.currentLoggedInUser);
     }
 
     @Test
@@ -70,7 +70,7 @@ public class AuthManagerTest {
         String response = authManager.loginAndGetResponse(username, password, userManager);
 
         assertEquals(ResponseStatus.LOGIN_FAILED_INCORRECT_PASSWORD.getResponse(), response);
-        assertNotEquals(user, UserManager.currentLoggedInUser);
+        assertNotEquals(user, UserService.currentLoggedInUser);
     }
 
     @Test
@@ -89,8 +89,8 @@ public class AuthManagerTest {
     void testHandleLogin() {
         authManager.handleLogin(user);
 
-        assertFalse(!UserManager.currentLoggedInUser.equals(user));
-        assertTrue(UserManager.currentLoggedInUser.equals(user));
+        assertFalse(!UserService.currentLoggedInUser.equals(user));
+        assertTrue(UserService.currentLoggedInUser.equals(user));
     }
 
     @Test

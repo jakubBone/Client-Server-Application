@@ -1,28 +1,28 @@
 package user;
 
-import database.UserDAO;
+import repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import service.UserService;
 import utils.ResponseStatus;
-import user.credential.User;
-import user.manager.UserManager;
+import domain.User;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class UserMangerTest {
-    UserManager userManager;
+    UserService userManager;
     User user;
-    UserDAO mockUserDAO;
+    UserRepository mockUserDAO;
     String username = "testUsername";
     String password = "testPassword";
 
     @BeforeEach
     void setUp() {
-        userManager = new UserManager();
+        userManager = new UserService();
         user = new User(username, password, User.Role.USER);
-        mockUserDAO = mock(UserDAO.class);
+        mockUserDAO = mock(UserRepository.class);
         userManager.setUserDAO(mockUserDAO);
     }
 
@@ -63,8 +63,8 @@ class UserMangerTest {
     void testSwitchUser() {
         userManager.switchUser(user);
 
-        assertEquals(user, UserManager.currentLoggedInUser);
-        assertTrue(UserManager.ifSwitchedToNonAdminUser);
+        assertEquals(user, UserService.currentLoggedInUser);
+        assertTrue(UserService.ifSwitchedToNonAdminUser);
     }
 
     @Test
@@ -82,8 +82,8 @@ class UserMangerTest {
     void testLogoutAndGetResponse(){
         String response = userManager.logoutAndGetResponse();
 
-        assertNull(UserManager.currentLoggedInUser);
-        assertFalse(UserManager.ifSwitchedToNonAdminUser);
+        assertNull(UserService.currentLoggedInUser);
+        assertFalse(UserService.ifSwitchedToNonAdminUser);
         assertEquals(ResponseStatus.LOGOUT_SUCCEEDED.getResponse(), response);
     }
 }

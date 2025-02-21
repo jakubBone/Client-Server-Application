@@ -2,13 +2,13 @@ package response.user;
 
 import response.Response;
 import request.Request;
+import service.UserService;
 import utils.ResponseStatus;
-import user.credential.User;
-import user.manager.UserManager;
+import domain.User;
 
 public class UserSwitchResponse implements Response {
-    private final UserManager userManager;
-    public UserSwitchResponse(UserManager userManager) {
+    private final UserService userManager;
+    public UserSwitchResponse(UserService userManager) {
         this.userManager = userManager;
     }
 
@@ -26,11 +26,11 @@ public class UserSwitchResponse implements Response {
 
         userManager.switchUser(user);
 
-        if (UserManager.ifSwitchedToAdminUser) {
+        if (UserService.ifSwitchedToAdminUser) {
             return ResponseStatus.SWITCH_SUCCEEDED_USER_ROLE_ADMIN_ROLE.getResponse();
         }
 
-        if(UserManager.ifSwitchedToNonAdminUser) {
+        if(UserService.ifSwitchedToNonAdminUser) {
             return ResponseStatus.SWITCH_SUCCEEDED_USER_NON_ADMIN_ROLE.getResponse();
         }
 

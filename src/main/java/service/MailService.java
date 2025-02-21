@@ -1,15 +1,14 @@
-package mail;
+package service;
 
-import database.DatabaseConnection;
-import database.MailDAO;
-import database.UserDAO;
+import database.DataSource;
+import domain.Mail;
+import repository.MailRepository;
+import repository.UserRepository;
 import lombok.extern.log4j.Log4j2;
 import lombok.Setter;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
-import user.credential.User;
-import user.manager.UserManager;
-import utils.ResponseStatus;
+import domain.User;
 
 import java.util.List;
 
@@ -17,19 +16,19 @@ import java.util.List;
 @Setter
 public class MailService {
     private final DSLContext create;
-    private MailDAO mailDAO;
-    private UserDAO userDAO;
+    private MailRepository mailDAO;
+    private UserRepository userDAO;
 
     public MailService() {
-        this.create = DSL.using(DatabaseConnection.getInstance().getConnection());
-        this.userDAO = new UserDAO(create);
-        this.mailDAO = new MailDAO(create, userDAO);
+        this.create = DSL.using(DataSource.getInstance().getConnection());
+        this.userDAO = new UserRepository(create);
+        this.mailDAO = new MailRepository(create, userDAO);
     }
 
     public void sendMail(User recipient, String message) {
-        log.info("Mail sending to {} from {}", recipient, UserManager.currentLoggedInUser);
+        log.info("Mail sending to {} from {}", recipient, UserService.currentLoggedInUser);
 
-        Mail mailToSender = new Mail(UserManager.currentLoggedInUser, recipient, message, Mail.Status.SENT);
+        Mail mailToSender = new Mail(UserService.currentLoggedInUser, recipient, message, Mail.Status.SENT);
         mailDAO.saveMailToDB(mailToSender);
 
         Mail mailToRecipient = new Mail(mailToSender.getSender(), recipient, message, Mail.Status.UNREAD);
@@ -53,7 +52,7 @@ public class MailService {
 
         mailDAO.deleteMailsFromDB(boxType);
 
-        log.info("{} mails deleted for user {}", boxType, UserManager.currentLoggedInUser.getUsername());
+        log.info("{} mails deleted for user {}", boxType, UserService.currentLoggedInUser.getUsername());
     }
 
     public void markAsRead() {
@@ -61,6 +60,6 @@ public class MailService {
 
         mailDAO.markAsReadInDB();
 
-        log.info("Marked all unread mails as opened for user {}", UserManager.currentLoggedInUser.getUsername());
+        log.info("Marked all unread mails as opened for user {}", UserService.currentLoggedInUser.getUsername());
     }
 }

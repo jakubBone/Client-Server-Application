@@ -2,13 +2,14 @@ package response.user;
 
 import response.Response;
 import request.Request;
+import service.UserService;
 import utils.ResponseStatus;
-import user.credential.User;
-import user.manager.UserManager;
-public class UserRemoveResponse implements Response {
-    private final UserManager userManager;
+import domain.User;
 
-    public UserRemoveResponse(UserManager userManager) {
+public class UserRemoveResponse implements Response {
+    private final UserService userManager;
+
+    public UserRemoveResponse(UserService userManager) {
         this.userManager = userManager;
     }
 

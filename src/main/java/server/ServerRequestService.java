@@ -6,22 +6,22 @@ import network.CommunicationGateway;
 import response.Response;
 import response.ResponseFactory;
 import lombok.extern.log4j.Log4j2;
-import mail.MailService;
-import user.manager.AuthManager;
-import user.manager.UserManager;
+import service.AuthService;
+import service.MailService;
+import service.UserService;
 
 @Log4j2
 public class ServerRequestService {
     private final CommunicationGateway gateway;
-    private final AuthManager authManager;
-    private final UserManager userManager;
+    private final AuthService authManager;
+    private final UserService userManager;
     private final MailService mailService;
     private final ServerDetails serverDetails;
 
     public ServerRequestService(CommunicationGateway gateway) {
         this.gateway = gateway;
-        this.authManager = new AuthManager();
-        this.userManager = new UserManager();
+        this.authManager = new AuthService();
+        this.userManager = new UserService();
         this.mailService = new MailService();
         this.serverDetails = new ServerDetails();
     }

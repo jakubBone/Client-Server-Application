@@ -1,15 +1,13 @@
 package servercommand;
 
 import command.CommandMessage;
-import user.credential.User;
-import user.manager.UserManager;
-
-import java.util.Map;
+import domain.User;
+import service.UserService;
 
 public class EditServerCommand implements ServerCommand{
-    private final UserManager userManager;
+    private final UserService userManager;
 
-    public EditServerCommand(UserManager userManager) {
+    public EditServerCommand(UserService userManager) {
         this.userManager = userManager;
     }
 

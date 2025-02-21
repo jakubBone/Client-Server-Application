@@ -1,11 +1,11 @@
-package database;
+package repository;
 
 import lombok.extern.log4j.Log4j2;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.impl.DSL;
 import org.mindrot.jbcrypt.BCrypt;
-import user.credential.User;
+import domain.User;
 
 import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.table;
@@ -13,10 +13,10 @@ import static org.jooq.impl.SQLDataType.VARCHAR;
 import static org.jooq.impl.SQLDataType.INTEGER;
 
 @Log4j2
-public class UserDAO {
+public class UserRepository {
     private final DSLContext create;
 
-    public UserDAO(DSLContext create) {
+    public UserRepository(DSLContext create) {
         this.create = create;
         createTable();
     }

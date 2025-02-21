@@ -17,7 +17,7 @@ import request.user.RemoveUserRequest;
 import request.user.SwitchUserRequest;
 import ui.UserInput;
 import client.ClientConnection;
-import user.credential.User;
+import domain.User;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;

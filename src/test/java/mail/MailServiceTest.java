@@ -1,11 +1,13 @@
 package mail;
 
-import database.MailDAO;
+import domain.Mail;
+import repository.MailRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import user.credential.User;
-import user.manager.UserManager;
+import domain.User;
+import service.MailService;
+import service.UserService;
 
 import java.util.List;
 
@@ -20,15 +22,15 @@ public class MailServiceTest {
     User recipient;
     Mail mail;
     MailService mailService;
-    MailDAO mockMailDAO;
+    MailRepository mockMailDAO;
 
     @BeforeEach
     void setUp() {
-        mockMailDAO = mock(MailDAO.class);
+        mockMailDAO = mock(MailRepository.class);
         mailService = new MailService();
         mailService.setMailDAO(mockMailDAO);
         sender = new User("senderName", "testPassword", User.Role.USER);
-        UserManager.currentLoggedInUser = sender;
+        UserService.currentLoggedInUser = sender;
         recipient = new User("recipientName", "testPassword", User.Role.USER);
         mail = new Mail(sender, recipient, "test message", Mail.Status.UNREAD);
     }

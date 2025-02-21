@@ -1,8 +1,8 @@
 package servercommand;
 
 import command.CommandMessage;
-import mail.Mail;
-import mail.MailService;
+import domain.Mail;
+import service.MailService;
 
 
 import java.util.List;

@@ -1,14 +1,14 @@
 package servercommand;
 
 import command.CommandMessage;
-import mail.MailService;
-import user.manager.UserManager;
+import service.MailService;
+import service.UserService;
 
 public class NewMailServerCommand implements ServerCommand {
     private final MailService mailService;
-    private final UserManager userManager;
+    private final UserService userManager;
 
-    public NewMailServerCommand(MailService mailService, UserManager userManager) {
+    public NewMailServerCommand(MailService mailService, UserService userManager) {
         this.mailService = mailService;
         this.userManager = userManager;
     }

@@ -8,14 +8,14 @@ import java.sql.SQLException;
 import lombok.extern.log4j.Log4j2;
 
 @Log4j2
-public class DatabaseConnection {
+public class DataSource {
     private final String DATABASE_DIRECTORY = "src/main/resources/db";
     private final String DATABASE = "/user_db.db";
     private final String URL = String.format("jdbc:sqlite:%s", DATABASE_DIRECTORY + DATABASE);
-    private static DatabaseConnection instance;
+    private static DataSource instance;
     private static Connection connection;
 
-    public DatabaseConnection() {
+    public DataSource() {
         createDatabaseDirectory();
         connect();
     }
@@ -31,9 +31,9 @@ public class DatabaseConnection {
         }
     }
 
-    public static synchronized DatabaseConnection getInstance() {
+    public static synchronized DataSource getInstance() {
         if (instance == null) {
-            instance = new DatabaseConnection();
+            instance = new DataSource();
         }
         return instance;
     }

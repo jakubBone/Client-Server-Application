@@ -1,33 +1,33 @@
-package user.manager;
+package service;
 
-import database.DatabaseConnection;
-import database.UserDAO;
+import database.DataSource;
+import repository.UserRepository;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
 import utils.ResponseStatus;
-import user.credential.Admin;
-import user.credential.User;
+import domain.Admin;
+import domain.User;
 
 @Log4j2
 @Getter
 @Setter
-public class UserManager {
+public class UserService {
     public static User currentLoggedInUser;
     public static boolean ifSwitchedToNonAdminUser;
     public static boolean ifSwitchedToAdminUser;
     public Admin admin;
     private DSLContext create;
-    private UserDAO userDAO;
-    private AuthManager authManager;
+    private UserRepository userDAO;
+    private AuthService authManager;
 
-    public UserManager() {
-        this.create = DSL.using(DatabaseConnection.getInstance().getConnection());
-        this.userDAO = new UserDAO(create);
+    public UserService() {
+        this.create = DSL.using(DataSource.getInstance().getConnection());
+        this.userDAO = new UserRepository(create);
         this.admin = new Admin();
-        this.authManager = new AuthManager();
+        this.authManager = new AuthService();
     }
 
     public User getUserByUsername(String username) {
@@ -65,12 +65,12 @@ public class UserManager {
 
     public void switchUser(User user) {
         log.info("Attempting to switch to user: {}", user.getUsername());
-            UserManager.currentLoggedInUser = user;
+            UserService.currentLoggedInUser = user;
 
             if(isUserAdmin()){
-                UserManager.ifSwitchedToAdminUser = true;
+                UserService.ifSwitchedToAdminUser = true;
             } else {
-                UserManager.ifSwitchedToNonAdminUser = true;
+                UserService.ifSwitchedToNonAdminUser = true;
             }
         log.info("Switched to user: {}", user.getUsername());
     }

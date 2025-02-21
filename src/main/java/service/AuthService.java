@@ -1,13 +1,13 @@
-package user.manager;
+package service;
 
 import lombok.extern.log4j.Log4j2;
 import utils.ResponseStatus;
-import user.credential.User;
+import domain.User;
 
 @Log4j2
-public class AuthManager {
+public class AuthService {
 
-    public String registerAndGetResponse(String username, String password, UserManager userManager) {
+    public String registerAndGetResponse(String username, String password, UserService userManager) {
         log.info("Registration attempted for user: {}", username);
         User user = userManager.getUserDAO().getUserFromDB(username);
 
@@ -21,7 +21,7 @@ public class AuthManager {
         return ResponseStatus.REGISTRATION_SUCCESSFUL.getResponse();
     }
 
-    public String loginAndGetResponse(String username, String password, UserManager userManager) {
+    public String loginAndGetResponse(String username, String password, UserService userManager) {
         log.info("Login attempted for user: {}", username);
         User user = userManager.getUserDAO().getUserFromDB(username);
         if (user == null) {
@@ -47,18 +47,18 @@ public class AuthManager {
         }
     }
 
-    public void handleRegister(String username, String password, UserManager userManager) throws IllegalArgumentException {
+    public void handleRegister(String username, String password, UserService userManager) throws IllegalArgumentException {
         User newUser = new User(username, password, User.Role.USER);
 
         userManager.getUserDAO().addUserToDB(newUser);
-        UserManager.currentLoggedInUser = newUser;
+        UserService.currentLoggedInUser = newUser;
     }
 
     public void handleLogin(User existingUser) {
-        UserManager.currentLoggedInUser = existingUser;
+        UserService.currentLoggedInUser = existingUser;
     }
 
-    public boolean isPasswordCorrect(String password, User user, UserManager userManager) {
+    public boolean isPasswordCorrect(String password, User user, UserService userManager) {
         return userManager.getUserDAO().checkPasswordInDB(password, user.getUsername());
     }
 }

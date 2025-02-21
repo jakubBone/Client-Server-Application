@@ -1,12 +1,12 @@
 package servercommand;
 
 import command.CommandMessage;
-import user.manager.UserManager;
+import service.UserService;
 
 public class LogoutServerCommand implements ServerCommand {
-    private final UserManager userManager;
+    private final UserService userManager;
 
-    public LogoutServerCommand(UserManager userManager) {
+    public LogoutServerCommand(UserService userManager) {
         this.userManager = userManager;
     }
 

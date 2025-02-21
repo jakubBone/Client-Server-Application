@@ -5,21 +5,21 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import request.Request;
 import response.user.UserRoleChangeResponse;
+import service.UserService;
 import utils.ResponseStatus;
-import user.credential.User;
-import user.manager.UserManager;
+import domain.User;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
 class UserRoleChangeResponseTest {
-    UserManager mockUserManager;
+    UserService mockUserManager;
     UserRoleChangeResponse userRoleChangeResponse;
     Request mockRequest;
 
     @BeforeEach
     void setUp() {
-        mockUserManager = mock(UserManager.class);
+        mockUserManager = mock(UserService.class);
         userRoleChangeResponse = new UserRoleChangeResponse(mockUserManager);
         mockRequest = mock(Request.class);
     }
