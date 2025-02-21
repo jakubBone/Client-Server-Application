@@ -8,13 +8,9 @@ public class ServerDetailsCommand implements Command{
     }
 
     @Override
-    public String execute() {
-        if("UPTIME".equals(command)){
-
-        } else if ("INFO".equals(command)) {
-
-        } else {
-
-        }
+    public CommandMessage buildCommandMessage() {
+        return new CommandMessage.Builder()
+                .commandType(command) //  "UPTIME", "INFO" or "HELP"
+                .build();
     }
 }

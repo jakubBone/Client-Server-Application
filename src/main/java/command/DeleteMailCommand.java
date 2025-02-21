@@ -2,11 +2,11 @@ package command;
 
 public class DeleteMailCommand implements Command {
 
-    public DeleteMailCommand() {
-
-    }
-
     @Override
-    public String execute() {
+    public CommandMessage buildCommandMessage() {
+        return new CommandMessage.Builder()
+                .commandType("DELETE")
+                .build();
+
     }
 }

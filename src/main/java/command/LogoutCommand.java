@@ -4,11 +4,10 @@ import user.manager.UserManager;
 
 public class LogoutCommand implements Command {
 
-    public LogoutCommand() {
-    }
-
     @Override
-    public String execute() {
-
+    public CommandMessage buildCommandMessage() {
+        return new CommandMessage.Builder()
+                .commandType("LOGOUT")
+                .build();
     }
 }

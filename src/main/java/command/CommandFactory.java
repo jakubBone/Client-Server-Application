@@ -1,27 +1,22 @@
 package command;
 
-import mail.MailService;
+import lombok.extern.log4j.Log4j2;
 import ui.UserInput;
-import user.credential.User;
-import user.manager.AuthManager;
-import user.manager.UserManager;
 
 import java.io.IOException;
-import java.util.List;
 
+@Log4j2
 public class CommandFactory {
-    private final UserInput userInput;
+    private final UserInput input;
 
-    public CommandFactory(UserInput userInput) {
-        this.userInput = userInput;
+    public CommandFactory(UserInput input) {
+        this.input = input;
     }
 
     public Command createCommand(String command) throws IOException {
         switch (command.toUpperCase()) {
             case "LOGIN", "REGISTER" -> {
-                String username = userInput.promptUsername();
-                String password = userInput.promptPassword();
-                return new AuthCommand(command, username, password);
+                return new AuthCommand(command, input);
             }
             case "LOGOUT" -> {
                 return new LogoutCommand();
@@ -30,21 +25,19 @@ public class CommandFactory {
                 return new ServerDetailsCommand(command);
             }
             case "NEW" -> {
-                String recipient = userInput.promptRecipient();
-                String message = userInput.promptMessage();
-                return new NewMailCommand(recipient, message);
+                return new NewMailCommand(input);
             }
             case "INBOX" -> {
                 return new InboxCommand();
             }
             case "SENT" -> {
-                return new SentCommand();
+                return new SentCommand(input);
             }
             case "DELETE" -> {
-                return new DeleteMailCommand();
+                return new DeleteMailCommand(input);
             }
             case "EDIT" -> {
-                return new EditProfileCommand(userInput)
+                return new EditProfileCommand(input)
             }
             default:
                 log.warn("Unknown operation: {}", command);

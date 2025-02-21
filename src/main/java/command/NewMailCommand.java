@@ -1,21 +1,25 @@
 package command;
 
-import mail.MailService;
 import ui.UserInput;
-import user.manager.UserManager;
+
+import java.io.IOException;
 
 public class NewMailCommand implements Command{
-    private final String recipient;
-    private final String message;
 
-    public NewMailCommand(String recipient, String message) {
-        this.recipient = recipient;
-        this.message = message;
+    private UserInput input;
 
+    public NewMailCommand(UserInput input) {
+        this.input = input;
     }
 
     @Override
-    public String execute() {
-
+    public CommandMessage buildCommandMessage() throws IOException {
+        String recipient = input.promptRecipient();
+        String message = input.promptMessage();
+        return new CommandMessage.Builder()
+                .commandType("NEW")
+                .addPayload("recipient", recipient)
+                .addPayload("message", message)
+                .build();
     }
 }

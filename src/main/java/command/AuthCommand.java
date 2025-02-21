@@ -1,25 +1,26 @@
 package command;
 
-import user.manager.AuthManager;
-import user.manager.UserManager;
+import ui.UserInput;
+
 
 public class AuthCommand implements Command {
     private final String command;
-    private final String username;
-    private final String password;
+    private UserInput input;
 
-    public AuthCommand(String command, String username, String password) {
+    public AuthCommand(String command, UserInput input) {
         this.command = command;
-        this.username = username;
-        this.password = password;
+        this.input = input;
     }
 
     @Override
-    public String execute() {
-        if("REGISTER".equals(command)){
-
-        } else{
-
-        }
+    public CommandMessage buildCommandMessage() {
+        UserInput userInput = new UserInput();
+        String username = userInput.promptUsername();
+        String password = userInput.promptPassword();
+        return new CommandMessage.Builder()
+                .commandType(command)
+                .addPayload("username", username)
+                .addPayload("password", password)
+                .build();
     }
 }

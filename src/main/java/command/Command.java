@@ -1,6 +1,7 @@
 package command;
 
+import java.io.IOException;
+
 public interface Command {
-    // Perform operation and return String tu user
-    String execute();
+    CommandMessage buildCommandMessage() throws IOException;
 }

@@ -27,7 +27,7 @@ public class ClientController {
         this.authManager = new AuthManager();
         this.userManager = new UserManager();
         this.mailService = new MailService();
-        this.commandFactory = new CommandFactory(userInput, authManager, userManager, mailService, Collections.emptyList());
+        this.commandFactory = new CommandFactory(userInput);
         this.gateway = new SocketGateway("localhost", 5000);
     }
 
