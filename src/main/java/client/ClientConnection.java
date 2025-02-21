@@ -25,7 +25,6 @@ public class ClientConnection {
     public static int connectionAttempts = 0;
     private boolean connected = false;
 
-
     public ClientConnection() {
         connectToServer();
 

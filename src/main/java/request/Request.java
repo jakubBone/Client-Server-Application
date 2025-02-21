@@ -10,12 +10,8 @@ public class Request {
     private String command;
     private String username;
     private String password;
-    private String recipient;
-    private String message;
-    private String mailboxOperation;
-    private String boxType;
-    private String userToUpdate;
     private String newPassword;
-    private String userToSwitch;
+    private String message;
+    private String user;
     private User.Role newRole;
 }

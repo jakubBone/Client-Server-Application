@@ -7,14 +7,14 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import request.auth.AuthRequest;
 import request.auth.LogoutRequest;
-import request.mail.MailWriteRequest;
-import request.mail.MailsDeleteRequest;
-import request.mail.MailsReadRequest;
+import request.mail.InboxRequest;
+import request.mail.NewMailRequest;
+import request.mail.DeleteMailRequest;
 import request.mail.ServerDetailsRequest;
-import request.user.UserChangePasswordRequest;
-import request.user.UserChangeRoleRequest;
-import request.user.UserRemoveRequest;
-import request.user.UserSwitchRequest;
+import request.user.ChangePasswordRequest;
+import request.user.AssignRoleRequest;
+import request.user.RemoveUserRequest;
+import request.user.SwitchUserRequest;
 import ui.UserInput;
 import client.ClientConnection;
 import user.credential.User;
@@ -67,7 +67,7 @@ class RequestFactoryTest {
 
         Request request = factory.getRequest("WRITE");
 
-        MailWriteRequest mailWriteRequest = (MailWriteRequest) request;
+        NewMailRequest mailWriteRequest = (NewMailRequest) request;
         assertEquals("WRITE", mailWriteRequest.getCommand());
         assertEquals("recipient", mailWriteRequest.getRecipient());
         assertEquals("message", mailWriteRequest.getMessage());
@@ -81,7 +81,7 @@ class RequestFactoryTest {
 
         Request request = factory.getMailboxRequest();
 
-        MailsReadRequest mailsReadRequest = (MailsReadRequest) request;
+        InboxRequest mailsReadRequest = (InboxRequest) request;
         assertEquals("READ", mailsReadRequest.getCommand());
         assertEquals("OPENED", mailsReadRequest.getBoxType());
     }
@@ -93,7 +93,7 @@ class RequestFactoryTest {
 
         Request request = factory.getMailboxRequest();
 
-        MailsDeleteRequest mailsDeleteRequest = (MailsDeleteRequest) request;
+        DeleteMailRequest mailsDeleteRequest = (DeleteMailRequest) request;
         assertEquals("DELETE", mailsDeleteRequest.getCommand());
         assertEquals("UNREAD", mailsDeleteRequest.getBoxType());
     }
@@ -114,7 +114,7 @@ class RequestFactoryTest {
 
         Request request = factory.getRequest("SWITCH");
 
-        UserSwitchRequest userSwitchRequest = (UserSwitchRequest) request;
+        SwitchUserRequest userSwitchRequest = (SwitchUserRequest) request;
         assertEquals("SWITCH", userSwitchRequest.getCommand());
         assertEquals("exampleUser", userSwitchRequest.getUserToSwitch());
     }
@@ -128,7 +128,7 @@ class RequestFactoryTest {
 
         Request request = factory.getUpdateRequest();
 
-        UserChangePasswordRequest userChangePasswordRequest = (UserChangePasswordRequest) request;
+        ChangePasswordRequest userChangePasswordRequest = (ChangePasswordRequest) request;
         assertEquals("PASSWORD", userChangePasswordRequest.getCommand());
         assertEquals("exampleUser", userChangePasswordRequest.getUserToUpdate());
         assertEquals("newPassword", userChangePasswordRequest.getNewPassword());
@@ -142,7 +142,7 @@ class RequestFactoryTest {
 
         Request request = factory.getUpdateRequest();
 
-        UserRemoveRequest userRemoveRequest = (UserRemoveRequest) request;
+        RemoveUserRequest userRemoveRequest = (RemoveUserRequest) request;
         assertEquals("REMOVE", userRemoveRequest.getCommand());
         assertEquals("exampleUser", userRemoveRequest.getUserToUpdate());
     }
@@ -156,7 +156,7 @@ class RequestFactoryTest {
 
         Request request = factory.getUpdateRequest();
 
-        UserChangeRoleRequest userChangeRoleRequest = (UserChangeRoleRequest) request;
+        AssignRoleRequest userChangeRoleRequest = (AssignRoleRequest) request;
         assertEquals("ROLE", userChangeRoleRequest.getCommand());
         assertEquals("exampleUser", userChangeRoleRequest.getUserToUpdate());
         assertEquals(User.Role.ADMIN, userChangeRoleRequest.getNewRole());

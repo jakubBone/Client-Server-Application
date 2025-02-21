@@ -40,9 +40,11 @@ public class Screen {
                 "|                                               |\n" +
                 "| Select:                                       |\n" +
                 "|                                               |\n" +
-                "|1. Write mail                                  |\n" +
-                "|2. Mailbox                                     |\n" +
-                "|3. Logout                                      |\n" +
+                "|1. New e-mail                                  |\n" +
+                "|2. Inbox                                       |\n" +
+                "|3. Sent                                        |\n" +
+                "|4. Delete                                      |\n" +
+                "|4. Logout                                      |\n" +
                 "+---------------------------------------------+");
         System.out.print("Select an option: ");
     }
@@ -70,7 +72,7 @@ public class Screen {
                 "| Select:                                       |\n" +
                 "|                                               |\n" +
                 "|1. Change password                             |\n" +
-                "|2. Change role                                 |\n" +
+                "|2. Assign role                                 |\n" +
                 "|3. Remove user                                 |\n" +
                 "|4. Switch user                                 |\n" +
                 "|5. Return                                      |\n" +

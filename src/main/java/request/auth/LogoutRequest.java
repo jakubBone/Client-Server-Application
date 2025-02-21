@@ -4,7 +4,6 @@ import request.Request;
 
 @Log4j2
 public class LogoutRequest extends Request {
-    public LogoutRequest(String requestCommand) {
-        setCommand(requestCommand);
+    public LogoutRequest() {
     }
 }
