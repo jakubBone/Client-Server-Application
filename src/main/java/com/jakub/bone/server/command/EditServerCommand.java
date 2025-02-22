@@ -3,7 +3,7 @@ package com.jakub.bone.server.command;
 import com.jakub.bone.client.command.CommandMessage;
 import com.jakub.bone.domain.model.User;
 import com.jakub.bone.application.service.UserService;
-import com.jakub.bone.utils.ResponseStatus;
+import com.jakub.bone.utils.*;
 
 public class EditServerCommand implements ServerCommand{
     private final UserService userManager;
