@@ -16,7 +16,7 @@ public class JsonConverter {
     public static String serialize(Object obj) {
         try {
             gson = new Gson();
-            return gson.toJson(obj) + "\n<<END>>";
+            return gson.toJson(obj);
         } catch (Exception e) {
             throw new IllegalStateException("Error - failed to serialize JsonResponse to JSON", e);
         }

@@ -51,11 +51,13 @@ public class ClientController {
                 }
 
                 CommandMessage commandResult = command.buildCommandMessage();
-                String jsonRequest = JsonConverter.serialize(commandResult);
+                String jsonRequest = JsonConverter.serialize(commandResult) + "\n<<END>>";
                 gateway.sendMessage(jsonRequest);
+
                 String jsonResponse = gateway.receiveMessage();
                 String response = JsonConverter.deserialize(jsonResponse, String.class);
-                System.out.println("Server Response: " + response);
+
+                printResponse(response);
             } catch (IOException e) {
                 System.err.println("Error: " + e.getMessage());
             }
@@ -69,6 +71,15 @@ public class ClientController {
             Screen.printAdminScreen();
         } else {
             Screen.printUserScreen();
+        }
+    }
+
+    private void printResponse(String response){
+        Screen.printResponse(response);
+        try{
+            Thread.sleep(2000);
+        } catch (InterruptedException e){
+            e.getMessage();
         }
     }
 }

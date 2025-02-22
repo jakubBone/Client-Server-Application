@@ -24,22 +24,6 @@ public class ServerDetails {
     public ServerDetails() {
         setCommands();
         setServerDetails();
-        setUptime();
-    }
-
-   public void setUptime(){
-       Date currentTime = new Date();
-       long uptimeInMillis = currentTime.getTime() - SocketServerGateway.startTime.getTime();
-
-       long days = TimeUnit.MILLISECONDS.toDays(uptimeInMillis);
-       long hours = TimeUnit.MILLISECONDS.toHours(uptimeInMillis) % 24;
-       long minutes = TimeUnit.MILLISECONDS.toMinutes(uptimeInMillis) % 60;
-       long seconds = TimeUnit.MILLISECONDS.toSeconds(uptimeInMillis) % 60;
-
-       uptime.put("Days", days);
-       uptime.put("Hours", hours);
-       uptime.put("Minutes", minutes);
-       uptime.put("Seconds", seconds);
     }
 
     public void setCommands() {
@@ -57,5 +41,38 @@ public class ServerDetails {
         String setupTimeFormatted = dateFormat.format(SocketServerGateway.startTime);
         serverDetails.put("Version", VERSION);
         serverDetails.put("Setup time", setupTimeFormatted);
+    }
+
+    public String getUptime() {
+        long diff = new Date().getTime() - SocketServerGateway.startTime.getTime();
+        long days = TimeUnit.MILLISECONDS.toDays(diff);
+        long hours = TimeUnit.MILLISECONDS.toHours(diff) % 24;
+        long minutes = TimeUnit.MILLISECONDS.toMinutes(diff) % 60;
+        long seconds = TimeUnit.MILLISECONDS.toSeconds(diff) % 60;
+        return String.format("Uptime: %d days, %d hours, %d minutes, %d seconds",
+                days, hours, minutes, seconds);
+    }
+
+    public String getInfo() {
+        StringBuilder builder = new StringBuilder();
+        for (Map.Entry<String, String> entry : serverDetails.entrySet()) {
+            builder.append(entry.getKey()).append(": ").append(entry.getValue()).append("\n");
+        }
+        // Remove last sign if '\n'
+        if (builder.length() > 0 && builder.charAt(builder.length() - 1) == '\n') {
+            builder.setLength(builder.length() - 1);
+        }
+        return builder.toString();
+    }
+
+    public String getHelp() {
+        StringBuilder builder = new StringBuilder();
+        for (Map.Entry<String, String> entry : commands.entrySet()) {
+            builder.append(entry.getKey()).append(" - ").append(entry.getValue()).append("\n");
+        }
+        if (builder.length() > 0 && builder.charAt(builder.length() - 1) == '\n') {
+            builder.setLength(builder.length() - 1);
+        }
+        return builder.toString();
     }
 }

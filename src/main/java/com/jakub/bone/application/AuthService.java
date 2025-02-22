@@ -7,7 +7,7 @@ import com.jakub.bone.domain.model.User;
 @Log4j2
 public class AuthService {
 
-    public String registerAndGetResponse(String username, String password, UserService userManager) {
+    public String register(String username, String password, UserService userManager) {
         log.info("Registration attempted for user: {}", username);
         User user = userManager.getUserDAO().getUserFromDB(username);
 
@@ -21,7 +21,7 @@ public class AuthService {
         return ResponseStatus.REGISTRATION_SUCCESSFUL.getResponse();
     }
 
-    public String loginAndGetResponse(String username, String password, UserService userManager) {
+    public String login(String username, String password, UserService userManager) {
         log.info("Login attempted for user: {}", username);
         User user = userManager.getUserDAO().getUserFromDB(username);
         if (user == null) {

@@ -81,6 +81,12 @@ public class Screen {
         System.out.print("Select an option: ");
     }
 
+    public static void printResponse(String response) {
+        System.out.println("===============================================");
+        System.out.println(response);
+        System.out.println("===============================================\n");
+    }
+
     public static void printUsers(List<User> users) {
         System.out.println("+---------------------------------------------+\n" +
                 "|                     ADMIN                   |\n" +

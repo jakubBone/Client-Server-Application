@@ -17,10 +17,10 @@ public class AuthServerCommand implements ServerCommand {
     public String execute(CommandMessage commandMessage) {
         String username = (String) commandMessage.getPayload().get("username");
         String password = (String) commandMessage.getPayload().get("password");
-        if ("REGISTER".equals(commandMessage.getCommandType())){
-            return authManager.registerAndGetResponse(username, password, userManager);
+        if ("REGISTER".equalsIgnoreCase(commandMessage.getCommandType())){
+            return authManager.register(username, password, userManager);
         } else {
-            return authManager.loginAndGetResponse(username, password, userManager);
+            return authManager.login(username, password, userManager);
         }
     }
 }

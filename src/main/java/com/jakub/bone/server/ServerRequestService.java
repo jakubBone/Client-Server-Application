@@ -22,7 +22,6 @@ public class ServerRequestService {
     private final ServerDetails serverDetails;
     private final ServerCommandFactory factory;
 
-
     public ServerRequestService(CommunicationGateway gateway) {
         this.gateway = gateway;
         this.authManager = new AuthService();
@@ -35,21 +34,19 @@ public class ServerRequestService {
     public void handleClientRequest() {
         try {
             while (true) {
+                System.out.println("5");
                 String jsonRequest = gateway.receiveMessage();
-                if (jsonRequest == null || jsonRequest.isEmpty()) break;
+                if (jsonRequest == null || jsonRequest.isEmpty()){
+                    System.out.println(jsonRequest);
+                    break;
+                }
                 log.info("Received JSON request: {}", jsonRequest);
-
-                // 2. Deserializujemy JSON do CommandMessage (zamiast do String)
                 CommandMessage commandMessage = JsonConverter.deserialize(jsonRequest, CommandMessage.class);
 
-                // 3. Tworzymy odpowiedni ServerCommand na podstawie commandType
-                //    (dodaj w ServerCommandFactory metodę createCommand(CommandMessage) lub wywołuj createCommand(commandMessage.getCommandType()))
                 ServerCommand serverCommand = factory.createCommand(commandMessage);
 
-                // 4. Wykonujemy logikę i otrzymujemy wynik
                 String result = serverCommand.execute(commandMessage);
 
-                // 5. Wysyłamy wynik z powrotem do klienta, serializując go do JSON
                 String jsonResponse = JsonConverter.serialize(result) + "\n<<END>>";
                 gateway.sendMessage(jsonResponse);
             }
