@@ -1,9 +1,10 @@
-package com.jakub.bone.application.service;
+package com.jakub.bone.application;
 
 import com.jakub.bone.database.DataSource;
 import com.jakub.bone.domain.model.Mail;
 import com.jakub.bone.repository.MailRepository;
 import com.jakub.bone.repository.UserRepository;
+import com.jakub.bone.utils.ResponseStatus;
 import lombok.extern.log4j.Log4j2;
 import lombok.Setter;
 import org.jooq.DSLContext;
@@ -25,7 +26,7 @@ public class MailService {
         this.mailDAO = new MailRepository(create, userDAO);
     }
 
-    public void sendMail(User recipient, String message) {
+    public String sendMail(User recipient, String message) {
         log.info("Mail sending to {} from {}", recipient, UserService.currentLoggedInUser);
 
         Mail mailToSender = new Mail(UserService.currentLoggedInUser, recipient, message, Mail.Status.SENT);
@@ -34,8 +35,8 @@ public class MailService {
         Mail mailToRecipient = new Mail(mailToSender.getSender(), recipient, message, Mail.Status.UNREAD);
         mailDAO.saveMailToDB(mailToRecipient);
 
-
         log.info("Mail successfully sent to {}", recipient.getUsername());
+        return ResponseStatus.SENDING_SUCCEEDED.getResponse();
     }
 
     public List<Mail> getMails(String boxType) {

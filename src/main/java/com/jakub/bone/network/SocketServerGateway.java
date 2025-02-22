@@ -38,7 +38,7 @@ public class SocketServerGateway implements CommunicationGateway{
         try {
             StringBuilder response = new StringBuilder();
             String line;
-            while ((line = in.readLine()) != null)) {
+            while ((line = in.readLine()) != null) {
                 response.append(line);
             }
             return response.toString();

@@ -22,11 +22,21 @@ public class JsonConverter {
         }
     }
 
-    public static String deserialize(String json) {
+    /*public static String deserialize(String json) {
         try {
             JsonConverter jsonConverter = gson.fromJson(json, JsonConverter.class);
             log.info("Deserialized message: {}", json);
             return jsonConverter.toString();
+        } catch (JsonSyntaxException e) {
+            log.error("Deserialization error: {}", e.getMessage());
+            throw new IllegalArgumentException("Błędny format JSON", e);
+        }
+    }*/
+
+    public static <T> T deserialize(String json, Class<T> classOfT) {
+        try {
+            Gson gson = new Gson();
+            return gson.fromJson(json, classOfT);
         } catch (JsonSyntaxException e) {
             log.error("Deserialization error: {}", e.getMessage());
             throw new IllegalArgumentException("Błędny format JSON", e);

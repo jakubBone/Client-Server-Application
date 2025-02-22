@@ -31,17 +31,18 @@ public class CommandFactory {
                 return new InboxCommand();
             }
             case "SENT" -> {
-                return new SentCommand(input);
+                return new SentCommand();
             }
             case "DELETE" -> {
-                return new DeleteMailCommand(input);
+                return new DeleteMailCommand();
             }
             case "EDIT" -> {
-                return new EditProfileCommand(input)
+                return new EditProfileCommand(input);
             }
-            default:
+            default ->{
                 log.warn("Unknown operation: {}", command);
                 return null;
+            }
         }
     }
 }

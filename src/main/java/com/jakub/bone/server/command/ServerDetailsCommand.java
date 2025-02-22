@@ -6,7 +6,7 @@ import com.jakub.bone.utils.ResponseStatus;
 
 import java.util.Map;
 
-public class ServerDetailsCommand implements ServerCommand{
+public class ServerDetailsCommand implements ServerCommand {
     private final ServerDetails serverDetails;
 
     public ServerDetailsCommand(ServerDetails serverDetails) {
@@ -39,5 +39,5 @@ public class ServerDetailsCommand implements ServerCommand{
                 return ResponseStatus.UNKNOWN_REQUEST.getResponse();
         }
         return builder.toString();
-
+    }
 }

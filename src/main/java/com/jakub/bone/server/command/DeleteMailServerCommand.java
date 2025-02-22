@@ -1,7 +1,7 @@
 package com.jakub.bone.server.command;
 
 import com.jakub.bone.client.command.CommandMessage;
-import com.jakub.bone.application.service.MailService;
+import com.jakub.bone.application.MailService;
 
 public class DeleteMailServerCommand implements ServerCommand {
     private final MailService mailService;

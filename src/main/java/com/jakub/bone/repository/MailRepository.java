@@ -7,7 +7,7 @@ import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.impl.DSL;
 import com.jakub.bone.domain.model.User;
-import com.jakub.bone.application.service.UserService;
+import com.jakub.bone.application.UserService;
 
 import java.util.ArrayList;
 import java.util.List;

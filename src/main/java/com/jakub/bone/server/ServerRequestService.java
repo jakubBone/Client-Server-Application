@@ -5,14 +5,13 @@ import java.io.IOException;
 import com.jakub.bone.client.command.CommandMessage;
 import com.jakub.bone.network.CommunicationGateway;
 
-import com.jakub.bone.server.command.AuthServerCommand;
 import com.jakub.bone.server.command.ServerCommand;
 import com.jakub.bone.server.command.ServerCommandFactory;
 import com.jakub.bone.utils.JsonConverter;
 import lombok.extern.log4j.Log4j2;
-import com.jakub.bone.application.service.AuthService;
-import com.jakub.bone.application.service.MailService;
-import com.jakub.bone.application.service.UserService;
+import com.jakub.bone.application.AuthService;
+import com.jakub.bone.application.MailService;
+import com.jakub.bone.application.UserService;
 
 @Log4j2
 public class ServerRequestService {
@@ -40,19 +39,21 @@ public class ServerRequestService {
                 if (jsonRequest == null || jsonRequest.isEmpty()) break;
                 log.info("Received JSON request: {}", jsonRequest);
 
-                CommandMessage commandMessage = JsonConverter.deserialize(jsonRequest);
-                ServerCommand serverCommand = factory.createCommand(commandMessage);
-                // ?????
+                // 2. Deserializujemy JSON do CommandMessage (zamiast do String)
+                CommandMessage commandMessage = JsonConverter.deserialize(jsonRequest, CommandMessage.class);
 
-                /*String jsonRequest = gateway.receiveMessage();
-                if (jsonRequest == null || jsonRequest.isEmpty()) break;
-                log.info("Received JSON request: {}", jsonRequest);
-                String request = JsonConverter.deserialize(jsonRequest, String.class);
-                String response = processRequest(request)
-                String jsonResponse = JsonConverter.serialize(response) + "\n<<END>>";
-                gateway.sendMessage(jsonResponse);*/
+                // 3. Tworzymy odpowiedni ServerCommand na podstawie commandType
+                //    (dodaj w ServerCommandFactory metodę createCommand(CommandMessage) lub wywołuj createCommand(commandMessage.getCommandType()))
+                ServerCommand serverCommand = factory.createCommand(commandMessage);
+
+                // 4. Wykonujemy logikę i otrzymujemy wynik
+                String result = serverCommand.execute(commandMessage);
+
+                // 5. Wysyłamy wynik z powrotem do klienta, serializując go do JSON
+                String jsonResponse = JsonConverter.serialize(result) + "\n<<END>>";
+                gateway.sendMessage(jsonResponse);
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             log.error("Error handling client request: {}", e.getMessage());
         } finally {
             gateway.disconnect();

@@ -1,12 +1,13 @@
 package com.jakub.bone.server.command;
 
-import com.jakub.bone.application.service.AuthService;
-import com.jakub.bone.application.service.MailService;
+import com.jakub.bone.application.AuthService;
+import com.jakub.bone.application.MailService;
+import com.jakub.bone.client.command.CommandMessage;
 import com.jakub.bone.server.ServerDetails;
-import response.mail.NewMailServerCommand;
-import response.user.EditServerCommand;
-import com.jakub.bone.application.service.UserService;
+import lombok.extern.log4j.Log4j2;
+import com.jakub.bone.application.UserService;
 
+@Log4j2
 public class ServerCommandFactory {
     private final AuthService authManager;
     private final UserService userManager;
@@ -20,19 +21,21 @@ public class ServerCommandFactory {
         this.serverDetails = serverDetails;
     }
 
-    public ServerCommand createCommand(String request)  {
-        switch (request.toUpperCase()) {
+    public ServerCommand createCommand(CommandMessage commandMessage)  {
+        String command = commandMessage.getCommandType().toUpperCase();
+        switch (command) {
             case "REGISTER", "LOGIN" -> { return new AuthServerCommand(authManager, userManager); }
             case "LOGOUT" -> { return new LogoutServerCommand(userManager); }
             case "HELP", "INFO", "UPTIME" -> { return new ServerDetailsCommand(serverDetails); }
-            case "NEW" -> return new NewMailServerCommand(mailService, userManager);
+            case "NEW" -> { return new NewMailServerCommand(mailService, userManager); }
             case "INBOX" -> { return new InboxServerCommand(mailService); }
             case "SENT" -> { return new SentServerCommand(mailService); }
             case "DELETE" -> { return new DeleteMailServerCommand(mailService); }
             case "CHANGE", "REMOVE", "ROLE", "SWITCH" -> { return new EditServerCommand(userManager); }
-            default:
-                log.warn("Unknown operation: {}", request);
+            default -> {
+                log.warn("Unknown operation: {}", command);
                 return null;
+            }
         }
     }
 }

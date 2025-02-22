@@ -2,7 +2,7 @@ package com.jakub.bone.server.command;
 
 import com.jakub.bone.client.command.CommandMessage;
 import com.jakub.bone.domain.model.User;
-import com.jakub.bone.application.service.UserService;
+import com.jakub.bone.application.UserService;
 import com.jakub.bone.utils.*;
 
 public class EditServerCommand implements ServerCommand{
@@ -26,7 +26,6 @@ public class EditServerCommand implements ServerCommand{
                 }
                 userManager.changePassword(user, newPassword);
                 return ResponseStatus.OPERATION_SUCCEEDED.getResponse();
-                return "Password changed successfully for " + username;
             }
             case "ASSIGN" -> {
                 String username = (String) commandMessage.getPayload().get("username");
@@ -38,7 +37,7 @@ public class EditServerCommand implements ServerCommand{
                 try {
                     User.Role newRole = User.Role.valueOf(newRoleStr.toUpperCase());
                     userManager.changeUserRole(user, newRole);
-                    return ResponseStatus.ROLE_CHANGE_SUCCEEDED.getResponse()
+                    return ResponseStatus.ROLE_CHANGE_SUCCEEDED.getResponse();
                 } catch (IllegalArgumentException e) {
                     return "Invalid role specified: " + newRoleStr;
                 }

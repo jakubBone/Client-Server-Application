@@ -1,8 +1,8 @@
 package com.jakub.bone.server.command;
 
 import com.jakub.bone.client.command.CommandMessage;
-import com.jakub.bone.application.service.AuthService;
-import com.jakub.bone.application.service.UserService;
+import com.jakub.bone.application.AuthService;
+import com.jakub.bone.application.UserService;
 
 public class AuthServerCommand implements ServerCommand {
     private final AuthService authManager;
@@ -17,7 +17,7 @@ public class AuthServerCommand implements ServerCommand {
     public String execute(CommandMessage commandMessage) {
         String username = (String) commandMessage.getPayload().get("username");
         String password = (String) commandMessage.getPayload().get("password");
-        if ("REGISTER".equals(commandMessage.getCommandType()){
+        if ("REGISTER".equals(commandMessage.getCommandType())){
             return authManager.registerAndGetResponse(username, password, userManager);
         } else {
             return authManager.loginAndGetResponse(username, password, userManager);

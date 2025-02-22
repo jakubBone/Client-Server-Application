@@ -1,4 +1,4 @@
-package com.jakub.bone.application.service;
+package com.jakub.bone.application;
 
 import com.jakub.bone.database.DataSource;
 import com.jakub.bone.repository.UserRepository;

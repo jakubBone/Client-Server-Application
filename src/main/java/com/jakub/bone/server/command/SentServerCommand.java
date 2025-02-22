@@ -2,7 +2,7 @@ package com.jakub.bone.server.command;
 
 import com.jakub.bone.client.command.CommandMessage;
 import com.jakub.bone.domain.model.Mail;
-import com.jakub.bone.application.service.MailService;
+import com.jakub.bone.application.MailService;
 
 import java.util.List;
 

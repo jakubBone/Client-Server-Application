@@ -2,6 +2,8 @@ package com.jakub.bone.client.command;
 
 import com.jakub.bone.ui.UserInput;
 
+import java.io.IOException;
+
 public class AuthCommand implements Command {
     private final String command;
     private UserInput input;
@@ -12,7 +14,7 @@ public class AuthCommand implements Command {
     }
 
     @Override
-    public CommandMessage buildCommandMessage() {
+    public CommandMessage buildCommandMessage() throws IOException {
         UserInput userInput = new UserInput();
         String username = userInput.promptUsername();
         String password = userInput.promptPassword();

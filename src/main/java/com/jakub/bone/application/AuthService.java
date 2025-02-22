@@ -1,4 +1,4 @@
-package com.jakub.bone.application.service;
+package com.jakub.bone.application;
 
 import lombok.extern.log4j.Log4j2;
 import com.jakub.bone.utils.ResponseStatus;

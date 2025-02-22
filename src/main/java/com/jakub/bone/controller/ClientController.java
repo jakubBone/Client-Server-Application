@@ -2,8 +2,8 @@ package com.jakub.bone.controller;
 
 import com.jakub.bone.client.command.Command;
 import com.jakub.bone.client.command.CommandFactory;
-import com.jakub.bone.application.service.AuthService;
-import com.jakub.bone.application.service.MailService;
+import com.jakub.bone.application.AuthService;
+import com.jakub.bone.application.MailService;
 
 import com.jakub.bone.client.command.CommandMessage;
 import com.jakub.bone.network.CommunicationGateway;
@@ -11,7 +11,7 @@ import com.jakub.bone.network.SocketGateway;
 import com.jakub.bone.utils.JsonConverter;
 import com.jakub.bone.ui.Screen;
 import com.jakub.bone.ui.UserInput;
-import com.jakub.bone.application.service.UserService;
+import com.jakub.bone.application.UserService;
 
 import java.io.IOException;
 
@@ -47,14 +47,15 @@ public class ClientController {
                 Command command = commandFactory.createCommand(input);
                 if (command == null) {
                     System.out.println("Unknown command. Try again.");
-                } else {
-                    CommandMessage commandResult = command.buildCommandMessage();
-                    String jsonRequest = JsonConverter.serialize(commandResult) + "\n<<END>>";
-                    gateway.sendMessage(jsonRequest);
-                    String jsonResponse = gateway.receiveMessage();
-                    String response = JsonConverter.deserialize(jsonResponse);
-                    System.out.println("Server Response: " + response);
+                    continue;
                 }
+
+                CommandMessage commandResult = command.buildCommandMessage();
+                String jsonRequest = JsonConverter.serialize(commandResult);
+                gateway.sendMessage(jsonRequest);
+                String jsonResponse = gateway.receiveMessage();
+                String response = JsonConverter.deserialize(jsonResponse, String.class);
+                System.out.println("Server Response: " + response);
             } catch (IOException e) {
                 System.err.println("Error: " + e.getMessage());
             }
