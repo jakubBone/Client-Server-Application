@@ -13,6 +13,7 @@ import com.jakub.bone.utils.JsonConverter;
 import com.jakub.bone.ui.Screen;
 import com.jakub.bone.ui.UserInput;
 import com.jakub.bone.application.UserService;
+import com.jakub.bone.utils.ResponseStatus;
 
 import java.io.IOException;
 
@@ -23,6 +24,8 @@ public class ClientController {
     private final MailService mailService;
     private final CommandFactory commandFactory;
     private final CommunicationGateway gateway;
+    private boolean isLoggedIn = false;
+    private boolean isAdmin = false;
 
     public ClientController() throws IOException {
         this.userInput = new UserInput();
@@ -58,6 +61,7 @@ public class ClientController {
                 String jsonResponse = gateway.receiveMessage();
                 String response = JsonConverter.deserialize(jsonResponse, String.class);
 
+                updateState(response);
                 printResponse(response);
             } catch (IOException e) {
                 System.err.println("Error: " + e.getMessage());
@@ -65,13 +69,27 @@ public class ClientController {
         }
     }
 
+    private void updateState(String response) {
+        if (response.equals(ResponseStatus.USER_LOGIN_SUCCEEDED.getResponse())) {
+            isLoggedIn = true;
+        } else if (response.equals(ResponseStatus.ADMIN_LOGIN_SUCCEEDED.getResponse())) {
+            isLoggedIn = true;
+            isAdmin = true;
+        } else if (response.equals(ResponseStatus.LOGOUT_SUCCEEDED.getResponse())) {
+            isLoggedIn = false;
+            isAdmin = false;
+        }
+    }
+
     private void printUI() {
-        if (!SessionManager.getInstance().isLoggedIn()) {
+        if (!isLoggedIn) {
             Screen.printMainScreen();
-        } else if (SessionManager.getInstance().isAdmin()) {
-            Screen.printAdminScreen();
         } else {
-            Screen.printUserScreen();
+            if (isAdmin) {
+                Screen.printAdminScreen();
+            } else {
+                Screen.printUserScreen();
+            }
         }
     }
 

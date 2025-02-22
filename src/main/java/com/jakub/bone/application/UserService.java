@@ -16,7 +16,6 @@ import com.jakub.bone.domain.User;
 @Getter
 @Setter
 public class UserService {
-
     public Admin admin;
     private DSLContext create;
     private UserRepository userDAO;
