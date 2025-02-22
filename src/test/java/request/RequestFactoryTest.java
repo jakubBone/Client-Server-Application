@@ -15,9 +15,9 @@ import request.user.ChangePasswordRequest;
 import request.user.AssignRoleRequest;
 import request.user.RemoveUserRequest;
 import request.user.SwitchUserRequest;
-import ui.UserInput;
+import com.jakub.bone.ui.UserInput;
 import client.ClientConnection;
-import domain.User;
+import com.jakub.bone.domain.model.User;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;

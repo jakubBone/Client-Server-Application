@@ -1,13 +1,13 @@
 package mail;
 
-import domain.Mail;
-import repository.MailRepository;
+import com.jakub.bone.domain.model.Mail;
+import com.jakub.bone.repository.MailRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import domain.User;
-import service.MailService;
-import service.UserService;
+import com.jakub.bone.domain.model.User;
+import com.jakub.bone.application.service.MailService;
+import com.jakub.bone.application.service.UserService;
 
 import java.util.List;
 

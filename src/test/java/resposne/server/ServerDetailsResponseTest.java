@@ -5,7 +5,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import request.Request;
 import response.server.UptimeServerCommand;
-import server.ServerDetails;
+import com.jakub.bone.server.ServerDetails;
 
 import java.util.Map;
 

@@ -5,8 +5,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import request.Request;
 import response.auth.LoginServerCommand;
-import service.AuthService;
-import service.UserService;
+import com.jakub.bone.application.service.AuthService;
+import com.jakub.bone.application.service.UserService;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;

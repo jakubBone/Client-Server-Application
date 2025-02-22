@@ -5,9 +5,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import request.Request;
 import response.user.UserRemoveResponse;
-import service.UserService;
-import utils.ResponseStatus;
-import domain.User;
+import com.jakub.bone.application.service.UserService;
+import com.jakub.bone.utils.ResponseStatus;
+import com.jakub.bone.domain.model.User;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;

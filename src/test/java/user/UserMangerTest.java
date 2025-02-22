@@ -1,12 +1,12 @@
 package user;
 
-import repository.UserRepository;
+import com.jakub.bone.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import service.UserService;
-import utils.ResponseStatus;
-import domain.User;
+import com.jakub.bone.application.service.UserService;
+import com.jakub.bone.utils.ResponseStatus;
+import com.jakub.bone.domain.model.User;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;

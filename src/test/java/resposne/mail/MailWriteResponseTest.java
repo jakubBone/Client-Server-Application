@@ -1,14 +1,14 @@
 package resposne.mail;
 
-import service.MailService;
+import com.jakub.bone.application.service.MailService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import request.Request;
 import response.mail.NewMailServerCommand;
-import utils.ResponseStatus;
-import domain.User;
-import service.UserService;
+import com.jakub.bone.utils.ResponseStatus;
+import com.jakub.bone.domain.model.User;
+import com.jakub.bone.application.service.UserService;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;

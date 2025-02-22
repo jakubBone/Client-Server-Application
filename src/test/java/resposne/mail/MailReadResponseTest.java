@@ -1,14 +1,14 @@
 package resposne.mail;
 
-import domain.Mail;
-import service.MailService;
+import com.jakub.bone.domain.model.Mail;
+import com.jakub.bone.application.service.MailService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import request.Request;
-import servercommand.InboxServerCommand;
-import utils.ResponseStatus;
-import domain.User;
+import com.jakub.bone.server.command.InboxServerCommand;
+import com.jakub.bone.utils.ResponseStatus;
+import com.jakub.bone.domain.model.User;
 
 import java.util.ArrayList;
 import java.util.List;

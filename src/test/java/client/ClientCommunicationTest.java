@@ -6,7 +6,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 
 import org.junit.jupiter.api.*;
-import utils.ResponseStatus;
+import com.jakub.bone.utils.ResponseStatus;
 
 import static org.mockito.Mockito.*;
 

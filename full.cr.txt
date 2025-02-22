@@ -357,12 +357,12 @@ FILE: MailDAO.java
 
 package database;
 
-import domain.Mail;
+import domain.model.Mail;
 import lombok.extern.log4j.Log4j2;
 import org.jooq.Condition;
 import org.jooq.DSLContext;
 import org.jooq.Record;
-import domain.User;
+import domain.model.User;
 import service.UserService;
 
 import java.util.ArrayList;
@@ -474,7 +474,7 @@ import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.impl.DSL;
 import org.mindrot.jbcrypt.BCrypt;
-import domain.User;
+import domain.model.User;
 
 import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.table;
@@ -554,7 +554,7 @@ package mail;
 
 import lombok.Getter;
 import lombok.Setter;
-import domain.User;
+import domain.model.User;
 @Getter
 @Setter
 public class Mail {
@@ -590,7 +590,7 @@ import lombok.extern.log4j.Log4j2;
 import lombok.Setter;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
-import domain.User;
+import domain.model.User;
 import service.UserService;
 
 import java.util.List;
@@ -728,7 +728,7 @@ package request;
 
 import lombok.Getter;
 import lombok.Setter;
-import domain.User;
+import domain.model.User;
 
 @Getter
 @Setter
@@ -767,7 +767,7 @@ import request.user.RemoveUserRequest;
 import request.user.SwitchUserRequest;
 
 import ui.UserInput;
-import domain.User;
+import domain.model.User;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -881,7 +881,7 @@ FILE: UserChangeRoleRequest.java
 package request.user;
 import lombok.extern.log4j.Log4j2;
 import request.Request;
-import domain.User;
+import domain.model.User;
 
 @Log4j2
 public class UserChangeRoleRequest extends Request {
@@ -1021,7 +1021,7 @@ FILE: MailsReadResponse.java
 package response.mail;
 
 import response.Response;
-import domain.Mail;
+import domain.model.Mail;
 import service.MailService;
 import request.Request;
 import utils.ResponseStatus;
@@ -1069,7 +1069,7 @@ import response.Response;
 import service.MailService;
 import request.Request;
 import utils.ResponseStatus;
-import domain.User;
+import domain.model.User;
 import service.UserService;
 
 public class MailWriteResponse implements Response {
@@ -1122,8 +1122,8 @@ import lombok.extern.log4j.Log4j2;
 import response.auth.LoginServerCommand;
 import response.auth.LogoutServerCommand;
 import response.auth.RegisterServerCommand;
-import servercommand.DeleteMailServerCommand;
-import servercommand.InboxServerCommand;
+import command.DeleteMailServerCommand;
+import command.InboxServerCommand;
 import response.mail.NewMailServerCommand;
 import response.server.UptimeServerCommand;
 import response.user.EditServerCommand;
@@ -1233,7 +1233,7 @@ package response.user;
 import response.Response;
 import request.Request;
 import utils.ResponseStatus;
-import domain.User;
+import domain.model.User;
 import service.UserService;
 public class UserPasswordChangeResponse implements Response {
     private final UserManager userManager;
@@ -1265,7 +1265,7 @@ package response.user;
 import response.Response;
 import request.Request;
 import utils.ResponseStatus;
-import domain.User;
+import domain.model.User;
 import service.UserService;
 public class UserRemoveResponse implements Response {
     private final UserManager userManager;
@@ -1297,7 +1297,7 @@ package response.user;
 import response.Response;
 import request.Request;
 import utils.ResponseStatus;
-import domain.User;
+import domain.model.User;
 import service.UserService;
 public class UserRoleChangeResponse implements Response {
     private final UserManager userManager;
@@ -1330,7 +1330,7 @@ package response.user;
 import response.Response;
 import request.Request;
 import utils.ResponseStatus;
-import domain.User;
+import domain.model.User;
 import service.UserService;
 
 public class UserSwitchResponse implements Response {
@@ -1810,7 +1810,7 @@ package utils;
 import java.io.BufferedReader;
 import java.io.IOException;
 
-import domain.User.Role;
+import domain.model.User.Role;
 
 public class UserInput {
     private BufferedReader reader;
@@ -1984,7 +1984,7 @@ package user.manager;
 
 import lombok.extern.log4j.Log4j2;
 import utils.ResponseStatus;
-import domain.User;
+import domain.model.User;
 
 @Log4j2
 public class AuthManager {
@@ -2058,8 +2058,8 @@ import lombok.extern.log4j.Log4j2;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
 import utils.ResponseStatus;
-import domain.Admin;
-import domain.User;
+import domain.model.Admin;
+import domain.model.User;
 
 @Log4j2
 @Getter
@@ -2459,7 +2459,7 @@ import repository.MailRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import domain.User;
+import domain.model.User;
 import service.UserService;
 
 import java.util.List;
@@ -2560,7 +2560,7 @@ import request.user.RemoveUserRequest;
 import request.user.SwitchUserRequest;
 import ui.UserInput;
 import client.ClientConnection;
-import domain.User;
+import domain.model.User;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
@@ -2845,7 +2845,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import request.Request;
-import servercommand.DeleteMailServerCommand;
+import command.DeleteMailServerCommand;
 import utils.ResponseStatus;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -2879,15 +2879,15 @@ FILE: MailReadResponseTest.java
 
 package resposne.mail;
 
-import domain.Mail;
+import domain.model.Mail;
 import service.MailService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import request.Request;
-import servercommand.InboxServerCommand;
+import command.InboxServerCommand;
 import utils.ResponseStatus;
-import domain.User;
+import domain.model.User;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -2946,7 +2946,7 @@ import org.junit.jupiter.api.Test;
 import request.Request;
 import response.mail.NewMailServerCommand;
 import utils.ResponseStatus;
-import domain.User;
+import domain.model.User;
 import service.UserService;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -3097,7 +3097,7 @@ import org.junit.jupiter.api.Test;
 import request.Request;
 import response.user.EditServerCommand;
 import utils.ResponseStatus;
-import domain.User;
+import domain.model.User;
 import service.UserService;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -3164,7 +3164,7 @@ import org.junit.jupiter.api.Test;
 import request.Request;
 import response.user.UserRemoveResponse;
 import utils.ResponseStatus;
-import domain.User;
+import domain.model.User;
 import service.UserService;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -3230,7 +3230,7 @@ import org.junit.jupiter.api.Test;
 import request.Request;
 import response.user.UserRemoveResponse;
 import utils.ResponseStatus;
-import domain.User;
+import domain.model.User;
 import service.UserService;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -3295,7 +3295,7 @@ import org.junit.jupiter.api.Test;
 import request.Request;
 import response.user.UserRoleChangeResponse;
 import utils.ResponseStatus;
-import domain.User;
+import domain.model.User;
 import service.UserService;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -3362,7 +3362,7 @@ import org.junit.jupiter.api.Test;
 import request.Request;
 import response.user.UserSwitchResponse;
 import utils.ResponseStatus;
-import domain.User;
+import domain.model.User;
 import service.UserService;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -3543,7 +3543,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import utils.ResponseStatus;
-import domain.User;
+import domain.model.User;
 import service.AuthService;
 import service.UserService;
 
@@ -3655,7 +3655,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import utils.ResponseStatus;
-import domain.User;
+import domain.model.User;
 import service.UserService;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -3747,7 +3747,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mindrot.jbcrypt.BCrypt;
-import domain.User;
+import domain.model.User;
 
 import static org.junit.jupiter.api.Assertions.*;
 

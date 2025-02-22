@@ -1,12 +1,12 @@
 package resposne.mail;
 
-import service.MailService;
+import com.jakub.bone.application.service.MailService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import request.Request;
-import servercommand.DeleteMailServerCommand;
-import utils.ResponseStatus;
+import com.jakub.bone.server.command.DeleteMailServerCommand;
+import com.jakub.bone.utils.ResponseStatus;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;

@@ -7,12 +7,11 @@ import org.junit.jupiter.api.*;
 import org.mockito.MockedStatic;
 import request.Request;
 import request.RequestFactory;
-import ui.Screen;
-import ui.UserInput;
+import com.jakub.bone.ui.Screen;
+import com.jakub.bone.ui.UserInput;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-import static ui.Screen.printAdminScreen;
+import static com.jakub.bone.ui.Screen.printAdminScreen;
 
 class ClientTest {
     Client client;
