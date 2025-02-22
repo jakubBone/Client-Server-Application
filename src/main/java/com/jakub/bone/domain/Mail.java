@@ -1,4 +1,4 @@
-package com.jakub.bone.domain.model;
+package com.jakub.bone.domain;
 
 import lombok.Getter;
 import lombok.Setter;

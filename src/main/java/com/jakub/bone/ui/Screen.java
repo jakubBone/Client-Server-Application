@@ -1,6 +1,6 @@
 package com.jakub.bone.ui;
 
-import com.jakub.bone.domain.model.User;
+import com.jakub.bone.domain.User;
 
 import java.util.List;
 

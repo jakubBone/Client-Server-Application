@@ -5,7 +5,7 @@ import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.impl.DSL;
 import org.mindrot.jbcrypt.BCrypt;
-import com.jakub.bone.domain.model.User;
+import com.jakub.bone.domain.User;
 
 import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.table;

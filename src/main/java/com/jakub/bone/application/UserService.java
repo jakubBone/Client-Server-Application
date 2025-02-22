@@ -2,22 +2,21 @@ package com.jakub.bone.application;
 
 import com.jakub.bone.database.DataSource;
 import com.jakub.bone.repository.UserRepository;
+import com.jakub.bone.session.SessionManager;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
 import com.jakub.bone.utils.ResponseStatus;
-import com.jakub.bone.domain.model.Admin;
-import com.jakub.bone.domain.model.User;
+import com.jakub.bone.domain.Admin;
+import com.jakub.bone.domain.User;
 
 @Log4j2
 @Getter
 @Setter
 public class UserService {
-    public static User currentLoggedInUser;
-    public static boolean ifSwitchedToNonAdminUser;
-    public static boolean ifSwitchedToAdminUser;
+
     public Admin admin;
     private DSLContext create;
     private UserRepository userDAO;
@@ -65,13 +64,7 @@ public class UserService {
 
     public void switchUser(User user) {
         log.info("Attempting to switch to user: {}", user.getUsername());
-            UserService.currentLoggedInUser = user;
 
-            if(isUserAdmin()){
-                UserService.ifSwitchedToAdminUser = true;
-            } else {
-                UserService.ifSwitchedToNonAdminUser = true;
-            }
         log.info("Switched to user: {}", user.getUsername());
     }
 
@@ -87,19 +80,8 @@ public class UserService {
     public String logoutAndGetResponse() {
         log.info("User logout requested");
 
-        ifSwitchedToNonAdminUser = false;
-        currentLoggedInUser = null;
+        SessionManager.getInstance().setCurrentUser(null);
 
         return ResponseStatus.LOGOUT_SUCCEEDED.getResponse();
-    }
-
-
-    public boolean isLoggedIn() {
-        return currentLoggedInUser != null;
-    }
-
-    public boolean isUserAdmin() {
-        log.info("Admin role checking for user: {}", currentLoggedInUser.getUsername());
-        return isLoggedIn() && currentLoggedInUser.getRole() == User.Role.ADMIN;
     }
 }

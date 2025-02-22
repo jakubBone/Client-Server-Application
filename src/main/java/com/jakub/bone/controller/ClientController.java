@@ -8,6 +8,7 @@ import com.jakub.bone.application.MailService;
 import com.jakub.bone.client.command.CommandMessage;
 import com.jakub.bone.network.CommunicationGateway;
 import com.jakub.bone.network.SocketGateway;
+import com.jakub.bone.session.SessionManager;
 import com.jakub.bone.utils.JsonConverter;
 import com.jakub.bone.ui.Screen;
 import com.jakub.bone.ui.UserInput;
@@ -65,9 +66,9 @@ public class ClientController {
     }
 
     private void printUI() {
-        if (!userManager.isLoggedIn()) {
+        if (!SessionManager.getInstance().isLoggedIn()) {
             Screen.printMainScreen();
-        } else if (userManager.isUserAdmin()) {
+        } else if (SessionManager.getInstance().isAdmin()) {
             Screen.printAdminScreen();
         } else {
             Screen.printUserScreen();

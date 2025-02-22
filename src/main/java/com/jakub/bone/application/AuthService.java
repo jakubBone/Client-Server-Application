@@ -1,8 +1,9 @@
 package com.jakub.bone.application;
 
+import com.jakub.bone.session.SessionManager;
 import lombok.extern.log4j.Log4j2;
 import com.jakub.bone.utils.ResponseStatus;
-import com.jakub.bone.domain.model.User;
+import com.jakub.bone.domain.User;
 
 @Log4j2
 public class AuthService {
@@ -18,18 +19,19 @@ public class AuthService {
 
         handleRegister(username, password, userManager);
         log.info("Registration successful for new user: {}", username);
+
         return ResponseStatus.REGISTRATION_SUCCESSFUL.getResponse();
     }
 
-    public String login(String username, String password, UserService userManager) {
+    public String login(String username, String password, UserService userService) {
         log.info("Login attempted for user: {}", username);
-        User user = userManager.getUserDAO().getUserFromDB(username);
+        User user = userService.getUserDAO().getUserFromDB(username);
         if (user == null) {
             log.info("Login attempt failed - user does not exist: {}", username);
             return ResponseStatus.FAILED_TO_FIND_USER.getResponse();
         }
 
-        if (!isPasswordCorrect(password, user, userManager)) {
+        if (!isPasswordCorrect(password, user, userService)) {
             log.info("Incorrect password attempt for user: {}", user.getUsername());
             return ResponseStatus.LOGIN_FAILED_INCORRECT_PASSWORD.getResponse();
         }
@@ -40,7 +42,7 @@ public class AuthService {
 
         log.info("User login succeeded: {}", user.getUsername());
 
-        if (userManager.isUserAdmin()) {
+        if (SessionManager.getInstance().isAdmin()) {
             return ResponseStatus.ADMIN_LOGIN_SUCCEEDED.getResponse();
         } else {
             return ResponseStatus.USER_LOGIN_SUCCEEDED.getResponse();
@@ -48,14 +50,19 @@ public class AuthService {
     }
 
     public void handleRegister(String username, String password, UserService userManager) throws IllegalArgumentException {
-        User newUser = new User(username, password, User.Role.USER);
+        /*User newUser = new User(username, password, User.Role.USER);
 
         userManager.getUserDAO().addUserToDB(newUser);
-        UserService.currentLoggedInUser = newUser;
+        UserService.currentLoggedInUser = newUser;*/
+        User newUser = new User(username, password, User.Role.USER);
+        userManager.getUserDAO().addUserToDB(newUser);
+        SessionManager.getInstance().setCurrentUser(newUser);
+
     }
 
     public void handleLogin(User existingUser) {
-        UserService.currentLoggedInUser = existingUser;
+        SessionManager.getInstance().setCurrentUser(existingUser);
+        //UserService.currentLoggedInUser = existingUser;
     }
 
     public boolean isPasswordCorrect(String password, User user, UserService userManager) {

@@ -1,4 +1,4 @@
-package com.jakub.bone.domain.model;
+package com.jakub.bone.domain;
 
 import lombok.extern.log4j.Log4j2;
 

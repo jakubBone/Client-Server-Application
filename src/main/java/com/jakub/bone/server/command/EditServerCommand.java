@@ -1,7 +1,7 @@
 package com.jakub.bone.server.command;
 
 import com.jakub.bone.client.command.CommandMessage;
-import com.jakub.bone.domain.model.User;
+import com.jakub.bone.domain.User;
 import com.jakub.bone.application.UserService;
 import com.jakub.bone.utils.*;
 

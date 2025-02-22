@@ -1,12 +1,13 @@
 package com.jakub.bone.repository;
 
-import com.jakub.bone.domain.model.Mail;
+import com.jakub.bone.domain.Mail;
+import com.jakub.bone.session.SessionManager;
 import lombok.extern.log4j.Log4j2;
 import org.jooq.Condition;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.impl.DSL;
-import com.jakub.bone.domain.model.User;
+import com.jakub.bone.domain.User;
 import com.jakub.bone.application.UserService;
 
 import java.util.ArrayList;
@@ -91,7 +92,7 @@ public class MailRepository {
     }
 
     public Condition getMailboxCondition(String boxType) {
-        String username = UserService.currentLoggedInUser.getUsername();
+        String username = SessionManager.getInstance().getCurrentUser().getUsername();
         Condition condition;
 
         if (boxType.equals(Mail.Status.SENT.toString())) {
@@ -120,7 +121,7 @@ public class MailRepository {
     public void markAsReadInDB() {
         create.update(table("mail"))
                 .set(field("status"), Mail.Status.OPENED.toString())
-                .where(field("recipient").eq(UserService.currentLoggedInUser.getUsername()))
+                .where(field("recipient").eq(SessionManager.getInstance().getCurrentUser().getUsername()))
                 .and(field("status").eq(Mail.Status.UNREAD.toString()))
                 .execute();
 
