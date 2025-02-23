@@ -43,12 +43,10 @@ public class ClientController {
                     continue;
                 }
 
-                CommandMessage commandResult = command.buildCommandMessage();
-                String jsonRequest = JsonConverter.serialize(commandResult) + "\n<<END>>";
-                messenger.send(jsonRequest);
+                CommandMessage commandMessage = command.buildCommandMessage();
+                messenger.send(commandMessage);
 
-                String jsonResponse = messenger.receive();
-                String response = JsonConverter.deserialize(jsonResponse, String.class);
+                String response = messenger.receive(String.class);
 
                 updateState(response);
                 printResponse(response);

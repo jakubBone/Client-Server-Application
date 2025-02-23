@@ -1,5 +1,7 @@
 package com.jakub.bone.network;
 
+import com.jakub.bone.utils.JsonConverter;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -13,11 +15,13 @@ public class Messenger {
         this.in = in;
     }
 
-    public void send(String message) {
-        out.println(message);
+    public void send(Object message) {
+        String json = JsonConverter.serialize(message) + "\n<<END>>";
+        out.println(json);
     }
 
-    public String receive() {
+
+    public <T> T receive(Class<T> clazz) {
         StringBuilder builder = new StringBuilder();
         String line;
         try {
@@ -27,7 +31,15 @@ public class Messenger {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return builder.toString();
+        String json = builder.toString();
+        return JsonConverter.deserialize(json, clazz);
     }
+
+    /*// Deserialization
+    public <T> T receiveObject(Class<T> clazz) {
+        String json = receive();
+        return JsonConverter.deserialize(json, clazz);
+    }
+}*/
 }
 

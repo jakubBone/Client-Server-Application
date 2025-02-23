@@ -35,20 +35,16 @@ public class ServerRequestHandler {
     public void start() {
         try {
             while (true) {
-                String jsonRequest = messenger.receive();
-                if (jsonRequest == null || jsonRequest.isEmpty()){
-                    System.out.println(jsonRequest);
+                CommandMessage commandMessage = messenger.receive(CommandMessage.class);;
+                if (commandMessage == null) {
                     break;
                 }
-                log.info("Received JSON request: {}", jsonRequest);
-                CommandMessage commandMessage = JsonConverter.deserialize(jsonRequest, CommandMessage.class);
+                log.info("Received JSON request: {}", commandMessage);
 
                 ServerCommand serverCommand = factory.createCommand(commandMessage);
+                String response = serverCommand.execute(commandMessage);
 
-                String result = serverCommand.execute(commandMessage);
-
-                String jsonResponse = JsonConverter.serialize(result) + "\n<<END>>";
-                messenger.send(jsonResponse);
+                messenger.send(response);
             }
         } catch (Exception e) {
             log.error("Error handling client request: {}", e.getMessage());
