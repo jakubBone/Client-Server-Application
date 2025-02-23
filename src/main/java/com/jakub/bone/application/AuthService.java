@@ -38,9 +38,10 @@ public class AuthService {
 
         log.info("User password correct: {}", user.getUsername());
 
-        handleLogin(user);
 
         log.info("User login succeeded: {}", user.getUsername());
+
+        SessionManager.getInstance().setCurrentUser(user);
 
         if (SessionManager.getInstance().isAdmin()) {
             return ResponseStatus.ADMIN_LOGIN_SUCCEEDED.getResponse();
@@ -56,16 +57,15 @@ public class AuthService {
         UserService.currentLoggedInUser = newUser;*/
         User newUser = new User(username, password, User.Role.USER);
         userManager.getUserDAO().addUserToDB(newUser);
-        SessionManager.getInstance().setCurrentUser(newUser);
-
-    }
-
-    public void handleLogin(User existingUser) {
-        SessionManager.getInstance().setCurrentUser(existingUser);
-        //UserService.currentLoggedInUser = existingUser;
     }
 
     public boolean isPasswordCorrect(String password, User user, UserService userManager) {
         return userManager.getUserDAO().checkPasswordInDB(password, user.getUsername());
     }
+
+    public String logout() {
+        SessionManager.getInstance().setCurrentUser(null);
+        return ResponseStatus.LOGOUT_SUCCEEDED.getResponse();
+    }
+
 }

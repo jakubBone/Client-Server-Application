@@ -25,7 +25,7 @@ public class ServerCommandFactory {
         String command = commandMessage.getCommandType().toUpperCase();
         switch (command) {
             case "REGISTER", "LOGIN" -> { return new AuthServerCommand(authManager, userManager); }
-            case "LOGOUT" -> { return new LogoutServerCommand(userManager); }
+            case "LOGOUT" -> { return new LogoutServerCommand(authManager); }
             case "HELP", "INFO", "UPTIME" -> { return new ServerDetailsCommand(serverDetails); }
             case "NEW" -> { return new NewMailServerCommand(mailService, userManager); }
             case "INBOX" -> { return new InboxServerCommand(mailService); }

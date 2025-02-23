@@ -34,7 +34,6 @@ public class ServerRequestService {
     public void handleClientRequest() {
         try {
             while (true) {
-                System.out.println("5");
                 String jsonRequest = gateway.receiveMessage();
                 if (jsonRequest == null || jsonRequest.isEmpty()){
                     System.out.println(jsonRequest);

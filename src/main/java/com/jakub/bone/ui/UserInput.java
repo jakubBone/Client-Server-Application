@@ -14,22 +14,22 @@ public class UserInput {
 
     public String promptUsername() throws IOException {
         System.out.print("Username: ");
-        return reader.readLine().toUpperCase();
+        return reader.readLine();
     }
 
     public String promptPassword() throws IOException {
         System.out.print("Password: ");
-        return reader.readLine().toUpperCase();
+        return reader.readLine();
     }
 
     public String promptNewPassword() throws IOException{
         System.out.print("New password: ");
-        return reader.readLine().toUpperCase();
+        return reader.readLine();
     }
 
     public String promptRecipient() throws IOException {
         System.out.print("Send to: ");
-        return reader.readLine().toUpperCase();
+        return reader.readLine();
     }
 
     public String promptMessage() throws IOException {
@@ -39,6 +39,6 @@ public class UserInput {
 
     public String promptNewRole() throws IOException {
         System.out.print("New role (ADMIN / USER): ");
-        return reader.readLine().toUpperCase();
+        return reader.readLine();
     }
 }
