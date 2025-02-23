@@ -21,7 +21,7 @@ public class AuthCommand implements Command {
         String username = userInput.promptUsername();
         String password = userInput.promptPassword();
         return new CommandDTO.Builder()
-                .commandType(command)
+                .commandType(command.toUpperCase())
                 .addPayload("username", username)
                 .addPayload("password", password)
                 .build();

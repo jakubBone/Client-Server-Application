@@ -1,7 +1,6 @@
 package com.jakub.bone.command.client;
 
 import com.jakub.bone.command.common.Command;
-import com.jakub.bone.command.client.*;
 import lombok.extern.log4j.Log4j2;
 import com.jakub.bone.ui.UserInput;
 
@@ -16,35 +15,19 @@ public class CommandFactory {
     }
 
     public Command createCommand(String command) throws IOException {
-        switch (command.toUpperCase()) {
-            case "LOGIN", "REGISTER" -> {
-                return new AuthCommand(command, input);
-            }
-            case "LOGOUT" -> {
-                return new LogoutCommand();
-            }
-            case "UPTIME", "INFO", "HELP" -> {
-                return new ServerInfoCommand(command);
-            }
-            case "NEW" -> {
-                return new NewMailCommand(input);
-            }
-            case "INBOX" -> {
-                return new InboxCommand();
-            }
-            case "SENT" -> {
-                return new SentMailCommand();
-            }
-            case "DELETE" -> {
-                return new DeleteMailCommand();
-            }
-            case "EDIT" -> {
-                return new EditProfileCommand(input);
-            }
-            default ->{
+        return switch (command.toUpperCase()) {
+            case "LOGIN", "REGISTER" -> new AuthCommand(command, input);
+            case "LOGOUT" -> new LogoutCommand();
+            case "UPTIME", "INFO", "HELP" -> new ServerInfoCommand(command);
+            case "NEW" -> new NewMailCommand(input);
+            case "INBOX" -> new InboxCommand();
+            case "SENT" -> new SentMailCommand();
+            case "DELETE" -> new DeleteMailCommand();
+            case "EDIT" -> new EditProfileCommand(input);
+            default -> {
                 log.warn("Unknown operation: {}", command);
-                return null;
+                yield null;
             }
-        }
+        };
     }
 }

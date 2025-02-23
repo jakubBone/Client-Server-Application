@@ -23,19 +23,19 @@ public class CommandHandlerFactory {
 
     public CommandHandler createCommand(CommandDTO commandDTO)  {
         String command = commandDTO.getCommandType().toUpperCase();
-        switch (command) {
-            case "REGISTER", "LOGIN" -> { return new AuthHandler(authManager, userManager); }
-            case "LOGOUT" -> { return new LogoutHandler(authManager); }
-            case "HELP", "INFO", "UPTIME" -> { return new ServerInfoHandler(serverInfo); }
-            case "NEW" -> { return new NewMailHandler(mailService, userManager); }
-            case "INBOX" -> { return new InboxHandler(mailService); }
-            case "SENT" -> { return new SentMailHandler(mailService); }
-            case "DELETE" -> { return new DeleteMailHandler(mailService); }
-            case "CHANGE", "REMOVE", "ROLE", "SWITCH" -> { return new EditProfileHandler(userManager); }
+        return switch (command) {
+            case "REGISTER", "LOGIN" -> new AuthHandler(authManager, userManager);
+            case "LOGOUT" -> new LogoutHandler(authManager);
+            case "HELP", "INFO", "UPTIME" -> new ServerInfoHandler(serverInfo);
+            case "NEW" -> new NewMailHandler(mailService, userManager);
+            case "INBOX" -> new InboxHandler(mailService);
+            case "SENT" -> new SentMailHandler(mailService);
+            case "DELETE" -> new DeleteMailHandler(mailService);
+            case "CHANGE", "REMOVE", "ROLE", "SWITCH" -> new EditProfileHandler(userManager);
             default -> {
                 log.warn("Unknown operation: {}", command);
-                return null;
+                yield null;
             }
-        }
+        };
     }
 }

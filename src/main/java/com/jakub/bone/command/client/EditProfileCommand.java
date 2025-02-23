@@ -18,7 +18,6 @@ public class EditProfileCommand implements Command {
     public CommandDTO buildCommandMessage() throws IOException {
         Screen.printEditScreen();
         String subCommand = input.getRequest().trim().toUpperCase();
-        // Zawsze wysyłamy główny typ EDIT wraz z podkomendą
         CommandDTO.Builder builder = new CommandDTO.Builder()
                 .commandType("EDIT")
                 .addPayload("subCommand", subCommand);

@@ -13,7 +13,7 @@ public class ServerInfoCommand implements Command {
     @Override
     public CommandDTO buildCommandMessage() {
         return new CommandDTO.Builder()
-                .commandType(command) //  "UPTIME", "INFO" or "HELP"
+                .commandType(command.toUpperCase()) //  "UPTIME", "INFO" or "HELP"
                 .build();
     }
 }
