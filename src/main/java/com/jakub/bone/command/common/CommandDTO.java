@@ -1,13 +1,13 @@
-package com.jakub.bone.client.command;
+package com.jakub.bone.command.common;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class CommandMessage {
+public class CommandDTO {
     private String commandType;
     private Map<String, Object> payload;
 
-    private CommandMessage(Builder builder) {
+    private CommandDTO(Builder builder) {
         this.commandType = builder.commandType;
         this.payload = builder.payload;
     }
@@ -34,8 +34,8 @@ public class CommandMessage {
             return this;
         }
 
-        public CommandMessage build() {
-            return new CommandMessage(this);
+        public CommandDTO build() {
+            return new CommandDTO(this);
         }
     }
 }

@@ -1,5 +1,7 @@
-package com.jakub.bone.client.command;
+package com.jakub.bone.command.client;
 
+import com.jakub.bone.command.common.Command;
+import com.jakub.bone.command.common.CommandDTO;
 import com.jakub.bone.ui.UserInput;
 
 import java.io.IOException;
@@ -14,11 +16,11 @@ public class AuthCommand implements Command {
     }
 
     @Override
-    public CommandMessage buildCommandMessage() throws IOException {
+    public CommandDTO buildCommandMessage() throws IOException {
         UserInput userInput = new UserInput();
         String username = userInput.promptUsername();
         String password = userInput.promptPassword();
-        return new CommandMessage.Builder()
+        return new CommandDTO.Builder()
                 .commandType(command)
                 .addPayload("username", username)
                 .addPayload("password", password)

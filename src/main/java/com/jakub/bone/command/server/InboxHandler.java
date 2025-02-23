@@ -1,22 +1,23 @@
-package com.jakub.bone.server.command;
+package com.jakub.bone.command.server;
 
-import com.jakub.bone.client.command.CommandMessage;
+import com.jakub.bone.command.common.CommandDTO;
+import com.jakub.bone.command.server.CommandHandler;
 import com.jakub.bone.domain.Mail;
 import com.jakub.bone.application.MailService;
 
 
 import java.util.List;
-public class InboxServerCommand implements ServerCommand {
+public class InboxHandler implements CommandHandler {
     private final MailService mailService;
 
-    public InboxServerCommand(MailService mailService) {
+    public InboxHandler(MailService mailService) {
         this.mailService = mailService;
     }
 
     @Override
-    public String execute(CommandMessage commandMessage) {
+    public String execute(CommandDTO commandDTO) {
         // Pobieramy typ skrzynki z payload; domyślnie przyjmujemy "INBOX"
-        String boxType = (String) commandMessage.getPayload().get("boxType");
+        String boxType = (String) commandDTO.getPayload().get("boxType");
         if (boxType == null || boxType.isEmpty()) {
             boxType = "INBOX";
         }

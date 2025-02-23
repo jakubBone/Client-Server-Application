@@ -5,7 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import request.Request;
-import com.jakub.bone.server.command.DeleteMailServerCommand;
+import com.jakub.bone.command.server.DeleteMailHandler;
 import com.jakub.bone.utils.ResponseStatus;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -13,13 +13,13 @@ import static org.mockito.Mockito.*;
 
 class MailDeleteResponseTest {
     MailService mockMailService;
-    DeleteMailServerCommand mailsDeleteResponse;
+    DeleteMailHandler mailsDeleteResponse;
     Request mockRequest;
 
     @BeforeEach
     void setUp() {
         mockMailService = mock(MailService.class);
-        mailsDeleteResponse = new DeleteMailServerCommand(mockMailService);
+        mailsDeleteResponse = new DeleteMailHandler(mockMailService);
         mockRequest = mock(Request.class);
     }
     @Test

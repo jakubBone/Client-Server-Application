@@ -1,24 +1,25 @@
-package com.jakub.bone.server.command;
+package com.jakub.bone.command.server;
 
-import com.jakub.bone.client.command.CommandMessage;
+import com.jakub.bone.command.common.CommandDTO;
+import com.jakub.bone.command.server.CommandHandler;
 import com.jakub.bone.domain.User;
 import com.jakub.bone.application.UserService;
 import com.jakub.bone.utils.*;
 
-public class EditServerCommand implements ServerCommand{
+public class EditProfileHandler implements CommandHandler {
     private final UserService userManager;
 
-    public EditServerCommand(UserService userManager) {
+    public EditProfileHandler(UserService userManager) {
         this.userManager = userManager;
     }
 
     @Override
-    public String execute(CommandMessage commandMessage) {
-        String subCommand = (String) commandMessage.getPayload().get("subCommand");
+    public String execute(CommandDTO commandDTO) {
+        String subCommand = (String) commandDTO.getPayload().get("subCommand");
         switch (subCommand.toUpperCase()) {
             case "CHANGE" -> {
-                String username = (String) commandMessage.getPayload().get("username");
-                String newPassword = (String) commandMessage.getPayload().get("newPassword");
+                String username = (String) commandDTO.getPayload().get("username");
+                String newPassword = (String) commandDTO.getPayload().get("newPassword");
                 User user = userManager.getUserByUsername(username);
                 if (user == null) {
                     //return "User not found: " + username;
@@ -28,8 +29,8 @@ public class EditServerCommand implements ServerCommand{
                 return ResponseStatus.OPERATION_SUCCEEDED.getResponse();
             }
             case "ASSIGN" -> {
-                String username = (String) commandMessage.getPayload().get("username");
-                String newRoleStr = (String) commandMessage.getPayload().get("newRole");
+                String username = (String) commandDTO.getPayload().get("username");
+                String newRoleStr = (String) commandDTO.getPayload().get("newRole");
                 User user = userManager.getUserByUsername(username);
                 if (user == null) {
                     return ResponseStatus.FAILED_TO_FIND_USER.getResponse();
@@ -43,7 +44,7 @@ public class EditServerCommand implements ServerCommand{
                 }
             }
             case "REMOVE" -> {
-                String username = (String) commandMessage.getPayload().get("username");
+                String username = (String) commandDTO.getPayload().get("username");
                 User user = userManager.getUserByUsername(username);
                 if (user == null) {
                     return ResponseStatus.FAILED_TO_FIND_USER.getResponse();
@@ -52,7 +53,7 @@ public class EditServerCommand implements ServerCommand{
                 return "User " + username + " removed successfully.";
             }
             case "SWITCH" -> {
-                String username = (String) commandMessage.getPayload().get("username");
+                String username = (String) commandDTO.getPayload().get("username");
                 User user = userManager.getUserByUsername(username);
                 if (user == null) {
                     return "User not found: " + username;

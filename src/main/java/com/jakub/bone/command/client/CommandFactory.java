@@ -1,5 +1,7 @@
-package com.jakub.bone.client.command;
+package com.jakub.bone.command.client;
 
+import com.jakub.bone.command.common.Command;
+import com.jakub.bone.command.client.*;
 import lombok.extern.log4j.Log4j2;
 import com.jakub.bone.ui.UserInput;
 
@@ -22,7 +24,7 @@ public class CommandFactory {
                 return new LogoutCommand();
             }
             case "UPTIME", "INFO", "HELP" -> {
-                return new ServerDetailsCommand(command);
+                return new ServerInfoCommand(command);
             }
             case "NEW" -> {
                 return new NewMailCommand(input);
@@ -31,7 +33,7 @@ public class CommandFactory {
                 return new InboxCommand();
             }
             case "SENT" -> {
-                return new SentCommand();
+                return new SentMailCommand();
             }
             case "DELETE" -> {
                 return new DeleteMailCommand();

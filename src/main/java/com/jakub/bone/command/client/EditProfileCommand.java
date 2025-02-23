@@ -1,5 +1,7 @@
-package com.jakub.bone.client.command;
+package com.jakub.bone.command.client;
 
+import com.jakub.bone.command.common.Command;
+import com.jakub.bone.command.common.CommandDTO;
 import com.jakub.bone.ui.Screen;
 import com.jakub.bone.ui.UserInput;
 
@@ -13,11 +15,11 @@ public class EditProfileCommand implements Command {
     }
 
     @Override
-    public CommandMessage buildCommandMessage() throws IOException {
+    public CommandDTO buildCommandMessage() throws IOException {
         Screen.printEditScreen();
         String subCommand = input.getRequest().trim().toUpperCase();
         // Zawsze wysyłamy główny typ EDIT wraz z podkomendą
-        CommandMessage.Builder builder = new CommandMessage.Builder()
+        CommandDTO.Builder builder = new CommandDTO.Builder()
                 .commandType("EDIT")
                 .addPayload("subCommand", subCommand);
 

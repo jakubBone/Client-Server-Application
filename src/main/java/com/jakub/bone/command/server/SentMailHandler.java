@@ -1,20 +1,21 @@
-package com.jakub.bone.server.command;
+package com.jakub.bone.command.server;
 
-import com.jakub.bone.client.command.CommandMessage;
+import com.jakub.bone.command.common.CommandDTO;
+import com.jakub.bone.command.server.CommandHandler;
 import com.jakub.bone.domain.Mail;
 import com.jakub.bone.application.MailService;
 
 import java.util.List;
 
-public class SentServerCommand implements ServerCommand {
+public class SentMailHandler implements CommandHandler {
     private final MailService mailService;
 
-    public SentServerCommand(MailService mailService) {
+    public SentMailHandler(MailService mailService) {
         this.mailService = mailService;
     }
 
     @Override
-    public String execute(CommandMessage commandMessage) {
+    public String execute(CommandDTO commandDTO) {
         List<Mail> mails = mailService.getMails("SENT");
         if (mails.isEmpty()) {
             return "No sent mails.";

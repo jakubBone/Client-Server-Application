@@ -1,11 +1,10 @@
 package com.jakub.bone.server;
 
-import com.jakub.bone.client.command.CommandMessage;
+import com.jakub.bone.command.common.CommandDTO;
 
 import com.jakub.bone.network.Messenger;
-import com.jakub.bone.server.command.ServerCommand;
-import com.jakub.bone.server.command.ServerCommandFactory;
-import com.jakub.bone.utils.JsonConverter;
+import com.jakub.bone.command.server.CommandHandler;
+import com.jakub.bone.command.server.CommandHandlerFactory;
 import lombok.extern.log4j.Log4j2;
 import com.jakub.bone.application.AuthService;
 import com.jakub.bone.application.MailService;
@@ -20,7 +19,7 @@ public class ServerRequestHandler {
     private final UserService userManager;
     private final MailService mailService;
     private final ServerDetails serverDetails;
-    private final ServerCommandFactory factory;
+    private final CommandHandlerFactory factory;
     private final Messenger messenger;
 
     public ServerRequestHandler(PrintWriter out, BufferedReader in) {
@@ -28,21 +27,21 @@ public class ServerRequestHandler {
         this.userManager = new UserService();
         this.mailService = new MailService();
         this.serverDetails = new ServerDetails();
-        this.factory = new ServerCommandFactory(authManager, userManager, mailService, serverDetails);
+        this.factory = new CommandHandlerFactory(authManager, userManager, mailService, serverDetails);
         this.messenger = new Messenger(out, in);
     }
 
     public void start() {
         try {
             while (true) {
-                CommandMessage commandMessage = messenger.receive(CommandMessage.class);;
-                if (commandMessage == null) {
+                CommandDTO commandDTO = messenger.receive(CommandDTO.class);;
+                if (commandDTO == null) {
                     break;
                 }
-                log.info("Received JSON request: {}", commandMessage);
+                log.info("Received JSON request: {}", commandDTO);
 
-                ServerCommand serverCommand = factory.createCommand(commandMessage);
-                String response = serverCommand.execute(commandMessage);
+                CommandHandler commandHandler = factory.createCommand(commandDTO);
+                String response = commandHandler.execute(commandDTO);
 
                 messenger.send(response);
             }

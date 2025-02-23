@@ -1,13 +1,12 @@
 package com.jakub.bone.controller;
 
-import com.jakub.bone.client.command.Command;
-import com.jakub.bone.client.command.CommandFactory;
+import com.jakub.bone.command.common.Command;
+import com.jakub.bone.command.client.CommandFactory;
 
-import com.jakub.bone.client.command.CommandMessage;
+import com.jakub.bone.command.common.CommandDTO;
 
 import com.jakub.bone.network.Messenger;
 
-import com.jakub.bone.utils.JsonConverter;
 import com.jakub.bone.ui.Screen;
 import com.jakub.bone.ui.UserInput;
 import com.jakub.bone.utils.ResponseStatus;
@@ -43,8 +42,8 @@ public class ClientController {
                     continue;
                 }
 
-                CommandMessage commandMessage = command.buildCommandMessage();
-                messenger.send(commandMessage);
+                CommandDTO commandDTO = command.buildCommandMessage();
+                messenger.send(commandDTO);
 
                 String response = messenger.receive(String.class);
 

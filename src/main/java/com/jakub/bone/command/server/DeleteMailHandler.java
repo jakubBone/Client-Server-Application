@@ -1,19 +1,20 @@
-package com.jakub.bone.server.command;
+package com.jakub.bone.command.server;
 
-import com.jakub.bone.client.command.CommandMessage;
+import com.jakub.bone.command.common.CommandDTO;
 import com.jakub.bone.application.MailService;
+import com.jakub.bone.command.server.CommandHandler;
 
-public class DeleteMailServerCommand implements ServerCommand {
+public class DeleteMailHandler implements CommandHandler {
     private final MailService mailService;
 
-    public DeleteMailServerCommand(MailService mailService) {
+    public DeleteMailHandler(MailService mailService) {
         this.mailService = mailService;
     }
 
     @Override
-    public String execute(CommandMessage commandMessage) {
+    public String execute(CommandDTO commandDTO) {
         // Odczytujemy typ skrzynki z payload, np. "INBOX" lub "SENT"
-        String boxType = (String) commandMessage.getPayload().get("boxType");
+        String boxType = (String) commandDTO.getPayload().get("boxType");
         if (boxType == null || boxType.isEmpty()) {
             return "Brakuje parametru boxType.";
         }
