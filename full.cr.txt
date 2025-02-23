@@ -1140,13 +1140,13 @@ public class ResponseFactory {
     private final AuthManager authManager;
     private final UserManager userManager;
     private final MailService mailService;
-    private final ServerDetails serverDetails;
+    private final ServerDetails serverInfo;
 
-    public ResponseFactory(AuthManager authManager, UserManager userManager, MailService mailService, ServerDetails serverDetails) {
+    public ResponseFactory(AuthManager authManager, UserManager userManager, MailService mailService, ServerDetails serverInfo) {
         this.authManager = authManager;
         this.userManager = userManager;
         this.mailService = mailService;
-        this.serverDetails = serverDetails;
+        this.serverInfo = serverInfo;
     }
 
     public Response getResponse(String request)  {
@@ -1174,7 +1174,7 @@ public class ResponseFactory {
             case "HELP":
             case "INFO":
             case "UPTIME":
-                return new ServerDetailsResponse(serverDetails);
+                return new ServerDetailsResponse(serverInfo);
             default:
                 log.warn("Unknown operation: {}", request);
                 return null;
@@ -1193,9 +1193,9 @@ import server.ServerDetails;
 import utils.ResponseStatus;
 
 public class ServerDetailsResponse implements Response {
-    private final ServerDetails serverDetails;
-    public ServerDetailsResponse(ServerDetails serverDetails) {
-        this.serverDetails = serverDetails;
+    private final ServerDetails serverInfo;
+    public ServerDetailsResponse(ServerDetails serverInfo) {
+        this.serverInfo = serverInfo;
     }
     @Override
     public String execute(Request request) {
@@ -1206,18 +1206,18 @@ public class ServerDetailsResponse implements Response {
             case "UPTIME":
                 builder.append("Uptime:\n");
                 builder.append(String.format("%d days, %d hours, %d minutes, %d seconds",
-                        serverDetails.getUptime().get("Days"),
-                        serverDetails.getUptime().get("Hours"),
-                        serverDetails.getUptime().get("Minutes"),
-                        serverDetails.getUptime().get("Seconds")));
+                        serverInfo.getUptime().get("Days"),
+                        serverInfo.getUptime().get("Hours"),
+                        serverInfo.getUptime().get("Minutes"),
+                        serverInfo.getUptime().get("Seconds")));
                 return builder.toString();
             case "INFO":
                 builder.append("Server Info:\n");
-                serverDetails.getServerDetails().forEach((key, value) -> builder.append(key).append(" = ").append(value).append("\n"));
+                serverInfo.getServerDetails().forEach((key, value) -> builder.append(key).append(" = ").append(value).append("\n"));
                 return builder.toString();
             case "HELP":
                 builder.append("Available Commands:\n");
-                serverDetails.getCommands().forEach((key, value) -> builder.append(key).append(" - ").append(value).append("\n"));
+                serverInfo.getCommands().forEach((key, value) -> builder.append(key).append(" - ").append(value).append("\n"));
                 return builder.toString();
             default:
                 return ResponseStatus.UNKNOWN_REQUEST.getResponse();
@@ -1499,7 +1499,7 @@ import lombok.extern.log4j.Log4j2;
 public class ServerDetails {
     private final String VERSION = "1.0.0";
     private Map<String, String> commands = new LinkedHashMap<>();
-    private Map<String, String> serverDetails = new LinkedHashMap<>();
+    private Map<String, String> serverInfo = new LinkedHashMap<>();
     private Map<String, Long> uptime = new LinkedHashMap<>();
 
     public ServerDetails() {
@@ -1536,8 +1536,8 @@ public class ServerDetails {
     public void setServerDetails() {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
         String setupTimeFormatted = dateFormat.format(ServerConnection.serverTimeCreation);
-        serverDetails.put("Version", VERSION);
-        serverDetails.put("Setup time", setupTimeFormatted);
+        serverInfo.put("Version", VERSION);
+        serverInfo.put("Setup time", setupTimeFormatted);
     }
 }
 
@@ -1568,7 +1568,7 @@ public class ServerRequestService {
     private Gson gson;
     private JsonConverter jsonResponse;
     private AuthManager authManager;
-    private ServerDetails serverDetails;
+    private ServerDetails serverInfo;
     private MailService mailService;
 
 
@@ -1580,7 +1580,7 @@ public class ServerRequestService {
 
         this.authManager = new AuthManager();
         this.mailService = new MailService();
-        this.serverDetails = new ServerDetails();
+        this.serverInfo = new ServerDetails();
     }
 
     public void handleClientRequest() {
@@ -1603,7 +1603,7 @@ public class ServerRequestService {
 
      public String processRequest(Request req) throws IOException{
          String requestCommand = req.getCommand().toUpperCase();
-         ResponseFactory factory = new ResponseFactory(authManager, userManager,mailService, serverDetails);
+         ResponseFactory factory = new ResponseFactory(authManager, userManager,mailService, serverInfo);
          Response command = factory.getResponse(requestCommand);
          log.info("Handling request command: {}", command.toString());
          return command.execute(req);

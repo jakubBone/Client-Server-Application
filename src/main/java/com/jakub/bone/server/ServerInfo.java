@@ -15,13 +15,13 @@ import lombok.extern.log4j.Log4j2;
 @Getter
 @Setter
 @Log4j2
-public class ServerDetails {
+public class ServerInfo {
     private final String VERSION = "1.0.0";
     private Map<String, String> commands = new LinkedHashMap<>();
     private Map<String, String> serverDetails = new LinkedHashMap<>();
     private Map<String, Long> uptime = new LinkedHashMap<>();
 
-    public ServerDetails() {
+    public ServerInfo() {
         setCommands();
         setServerDetails();
     }

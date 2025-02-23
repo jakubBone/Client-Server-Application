@@ -14,21 +14,22 @@ import java.io.BufferedReader;
 import java.io.PrintWriter;
 
 @Log4j2
-public class ServerRequestHandler {
+public class RequestProcessor {
+    private final Messenger messenger;
     private final AuthService authManager;
     private final UserService userManager;
     private final MailService mailService;
-    private final ServerDetails serverDetails;
+    private final ServerInfo serverInfo;
     private final CommandHandlerFactory factory;
-    private final Messenger messenger;
 
-    public ServerRequestHandler(PrintWriter out, BufferedReader in) {
+    public RequestProcessor(PrintWriter out, BufferedReader in) {
+        this.messenger = new Messenger(out, in);
         this.authManager = new AuthService();
         this.userManager = new UserService();
         this.mailService = new MailService();
-        this.serverDetails = new ServerDetails();
-        this.factory = new CommandHandlerFactory(authManager, userManager, mailService, serverDetails);
-        this.messenger = new Messenger(out, in);
+        this.serverInfo = new ServerInfo();
+        this.factory = new CommandHandlerFactory(authManager, userManager, mailService, serverInfo);
+
     }
 
     public void start() {

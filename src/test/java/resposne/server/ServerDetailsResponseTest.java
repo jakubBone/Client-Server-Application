@@ -1,11 +1,11 @@
 package resposne.server;
 
+import com.jakub.bone.server.ServerInfo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import request.Request;
 import response.server.UptimeServerCommand;
-import com.jakub.bone.server.ServerDetails;
 
 import java.util.Map;
 
@@ -14,14 +14,14 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class ServerDetailsResponseTest {
-    ServerDetails mockServerDetails;
+    ServerInfo mockServerInfo;
     UptimeServerCommand serverDetailsResponse;
     Request mockRequest;
 
     @BeforeEach
     void setUp() {
-        mockServerDetails = mock(ServerDetails.class);
-        serverDetailsResponse = new UptimeServerCommand(mockServerDetails);
+        mockServerInfo = mock(ServerInfo.class);
+        serverDetailsResponse = new UptimeServerCommand(mockServerInfo);
         mockRequest = mock(Request.class);
     }
 
@@ -29,7 +29,7 @@ class ServerDetailsResponseTest {
     @DisplayName("Should test server uptime return")
     void testExecuteUptime() {
         when(mockRequest.getCommand()).thenReturn("UPTIME");
-        when(mockServerDetails.getUptime()).thenReturn(Map.of("Days", 1L, "Hours", 2L, "Minutes", 3L, "Seconds", 4L));
+        when(mockServerInfo.getUptime()).thenReturn(Map.of("Days", 1L, "Hours", 2L, "Minutes", 3L, "Seconds", 4L));
 
         String response = serverDetailsResponse.execute(mockRequest);
 
@@ -41,7 +41,7 @@ class ServerDetailsResponseTest {
     @DisplayName("Should test server info return")
     void testExecuteInfo() {
         when(mockRequest.getCommand()).thenReturn("INFO");
-        when(mockServerDetails.getServerDetails()).thenReturn(Map.of( "Setup time", "2023-01-01 00:00:00", "Version", "1.0.0"));
+        when(mockServerInfo.getServerDetails()).thenReturn(Map.of( "Setup time", "2023-01-01 00:00:00", "Version", "1.0.0"));
 
         String response = serverDetailsResponse.execute(mockRequest);
 
@@ -53,7 +53,7 @@ class ServerDetailsResponseTest {
     @DisplayName("Should test server help return")
     void testExecuteHelp() {
         when(mockRequest.getCommand()).thenReturn("HELP");
-        when(mockServerDetails.getCommands()).thenReturn(Map.of("Register", "Create a new user account", "Login", "Login to your account"));
+        when(mockServerInfo.getCommands()).thenReturn(Map.of("Register", "Create a new user account", "Login", "Login to your account"));
 
         String response = serverDetailsResponse.execute(mockRequest);
 

@@ -1,15 +1,14 @@
 package com.jakub.bone.command.server;
 
 import com.jakub.bone.command.common.CommandDTO;
-import com.jakub.bone.command.server.CommandHandler;
-import com.jakub.bone.server.ServerDetails;
+import com.jakub.bone.server.ServerInfo;
 import com.jakub.bone.utils.ResponseStatus;
 
 public class ServerInfoHandler implements CommandHandler {
-    private final ServerDetails serverDetails;
+    private final ServerInfo serverInfo;
 
-    public ServerInfoHandler(ServerDetails serverDetails) {
-        this.serverDetails = serverDetails;
+    public ServerInfoHandler(ServerInfo serverInfo) {
+        this.serverInfo = serverInfo;
     }
 
     @Override
@@ -17,11 +16,11 @@ public class ServerInfoHandler implements CommandHandler {
         String command = commandDTO.getCommandType().toUpperCase();
         switch (command) {
             case "UPTIME":
-                return serverDetails.getUptime();
+                return serverInfo.getUptime();
             case "INFO":
-                return serverDetails.getInfo();
+                return serverInfo.getInfo();
             case "HELP":
-                return serverDetails.getHelp();
+                return serverInfo.getHelp();
             default:
                 return ResponseStatus.UNKNOWN_REQUEST.getResponse();
         }
