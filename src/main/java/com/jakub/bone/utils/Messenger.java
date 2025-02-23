@@ -1,4 +1,4 @@
-package com.jakub.bone.network;
+package com.jakub.bone.utils;
 
 import com.jakub.bone.utils.JsonConverter;
 

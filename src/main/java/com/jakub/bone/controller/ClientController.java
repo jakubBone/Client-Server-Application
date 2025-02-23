@@ -5,7 +5,7 @@ import com.jakub.bone.command.client.CommandFactory;
 
 import com.jakub.bone.command.common.CommandDTO;
 
-import com.jakub.bone.network.Messenger;
+import com.jakub.bone.utils.Messenger;
 
 import com.jakub.bone.ui.Screen;
 import com.jakub.bone.ui.UserInput;

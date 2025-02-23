@@ -1,7 +1,7 @@
 package com.jakub.bone.controller;
 
 import com.jakub.bone.network.ClientConnectionManager;
-import com.jakub.bone.network.Messenger;
+import com.jakub.bone.utils.Messenger;
 
 import java.io.IOException;
 

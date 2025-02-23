@@ -1,6 +1,6 @@
 package com.jakub.bone.application;
 
-import com.jakub.bone.database.DataSource;
+import com.jakub.bone.data.DataSource;
 import com.jakub.bone.domain.Mail;
 import com.jakub.bone.repository.MailRepository;
 import com.jakub.bone.repository.UserRepository;

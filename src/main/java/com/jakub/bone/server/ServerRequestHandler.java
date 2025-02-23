@@ -2,7 +2,7 @@ package com.jakub.bone.server;
 
 import com.jakub.bone.command.common.CommandDTO;
 
-import com.jakub.bone.network.Messenger;
+import com.jakub.bone.utils.Messenger;
 import com.jakub.bone.command.server.CommandHandler;
 import com.jakub.bone.command.server.CommandHandlerFactory;
 import lombok.extern.log4j.Log4j2;

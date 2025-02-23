@@ -1,4 +1,4 @@
-package com.jakub.bone.database;
+package com.jakub.bone.data;
 
 import java.io.File;
 import java.sql.Connection;
