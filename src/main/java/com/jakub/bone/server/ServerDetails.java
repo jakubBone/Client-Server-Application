@@ -7,7 +7,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import com.jakub.bone.network.SocketServerGateway;
+import com.jakub.bone.network.ServerConnectionManager;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
@@ -38,13 +38,13 @@ public class ServerDetails {
 
     public void setServerDetails() {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
-        String setupTimeFormatted = dateFormat.format(SocketServerGateway.startTime);
+        String setupTimeFormatted = dateFormat.format(ServerConnectionManager.startTime);
         serverDetails.put("Version", VERSION);
         serverDetails.put("Setup time", setupTimeFormatted);
     }
 
     public String getUptime() {
-        long diff = new Date().getTime() - SocketServerGateway.startTime.getTime();
+        long diff = new Date().getTime() - ServerConnectionManager.startTime.getTime();
         long days = TimeUnit.MILLISECONDS.toDays(diff);
         long hours = TimeUnit.MILLISECONDS.toHours(diff) % 24;
         long minutes = TimeUnit.MILLISECONDS.toMinutes(diff) % 60;

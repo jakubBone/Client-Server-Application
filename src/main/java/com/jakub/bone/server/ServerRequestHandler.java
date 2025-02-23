@@ -1,10 +1,8 @@
 package com.jakub.bone.server;
 
-import java.io.IOException;
-
 import com.jakub.bone.client.command.CommandMessage;
-import com.jakub.bone.network.CommunicationGateway;
 
+import com.jakub.bone.network.Messenger;
 import com.jakub.bone.server.command.ServerCommand;
 import com.jakub.bone.server.command.ServerCommandFactory;
 import com.jakub.bone.utils.JsonConverter;
@@ -13,28 +11,31 @@ import com.jakub.bone.application.AuthService;
 import com.jakub.bone.application.MailService;
 import com.jakub.bone.application.UserService;
 
+import java.io.BufferedReader;
+import java.io.PrintWriter;
+
 @Log4j2
-public class ServerRequestService {
-    private final CommunicationGateway gateway;
+public class ServerRequestHandler {
     private final AuthService authManager;
     private final UserService userManager;
     private final MailService mailService;
     private final ServerDetails serverDetails;
     private final ServerCommandFactory factory;
+    private final Messenger messenger;
 
-    public ServerRequestService(CommunicationGateway gateway) {
-        this.gateway = gateway;
+    public ServerRequestHandler(PrintWriter out, BufferedReader in) {
         this.authManager = new AuthService();
         this.userManager = new UserService();
         this.mailService = new MailService();
         this.serverDetails = new ServerDetails();
         this.factory = new ServerCommandFactory(authManager, userManager, mailService, serverDetails);
+        this.messenger = new Messenger(out, in);
     }
 
-    public void handleClientRequest() {
+    public void start() {
         try {
             while (true) {
-                String jsonRequest = gateway.receiveMessage();
+                String jsonRequest = messenger.receive();
                 if (jsonRequest == null || jsonRequest.isEmpty()){
                     System.out.println(jsonRequest);
                     break;
@@ -47,12 +48,10 @@ public class ServerRequestService {
                 String result = serverCommand.execute(commandMessage);
 
                 String jsonResponse = JsonConverter.serialize(result) + "\n<<END>>";
-                gateway.sendMessage(jsonResponse);
+                messenger.send(jsonResponse);
             }
         } catch (Exception e) {
             log.error("Error handling client request: {}", e.getMessage());
-        } finally {
-            gateway.disconnect();
         }
     }
 }
