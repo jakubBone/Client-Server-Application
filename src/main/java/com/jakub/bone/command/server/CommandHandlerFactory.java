@@ -28,8 +28,7 @@ public class CommandHandlerFactory {
             case "LOGOUT" -> new LogoutHandler(authManager);
             case "HELP", "INFO", "UPTIME" -> new ServerInfoHandler(serverInfo);
             case "NEW" -> new NewMailHandler(mailService, userManager);
-            case "INBOX" -> new InboxHandler(mailService);
-            case "SENT" -> new SentMailHandler(mailService);
+            case "READ" -> new ReadMailHandler(mailService);
             case "DELETE" -> new DeleteMailHandler(mailService);
             case "CHANGE", "REMOVE", "ROLE", "SWITCH" -> new EditProfileHandler(userManager);
             default -> {

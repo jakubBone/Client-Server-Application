@@ -22,8 +22,6 @@ public class Screen {
         System.out.println("+---------------------------------------------+\n" +
                 "|              WELCOME IN MAILBOX!               |\n" +
                 "|                                                |\n" +
-                "| Select:                                        |\n" +
-                "|                                                |\n" +
                 "| 1. Register                                    |\n" +
                 "| 2. Login                                       |\n" +
                 "| 3. Uptime                                      |\n" +
@@ -38,12 +36,9 @@ public class Screen {
         System.out.println("+---------------------------------------------+\n" +
                 "|                     USER                      |\n" +
                 "|                                               |\n" +
-                "| Select:                                       |\n" +
-                "|                                               |\n" +
                 "|1. New e-mail                                  |\n" +
-                "|2. Inbox                                       |\n" +
-                "|3. Sent                                        |\n" +
-                "|4. Delete                                      |\n" +
+                "|2. Read e-mails                                |\n" +
+                "|3. Delete e-mails                              |\n" +
                 "|4. Logout                                      |\n" +
                 "+---------------------------------------------+");
         System.out.print("Select: ");
@@ -53,14 +48,11 @@ public class Screen {
         System.out.println("+---------------------------------------------+\n" +
                 "|                     ADMIN                     |\n" +
                 "|                                               |\n" +
-                "| Select:                                       |\n" +
-                "|                                               |\n" +
                 "|1. New e-mail                                  |\n" +
-                "|2. Inbox                                       |\n" +
-                "|3. Sent                                        |\n" +
-                "|4. Delete                                      |\n" +
-                "|5. Edit profile                                |\n" +
-                "|6. Logout                                      |\n" +
+                "|2. Read e-mails                                |\n" +
+                "|3. Delete e-mails                              |\n" +
+                "|4. Edit profile                                |\n" +
+                "|5. Logout                                      |\n" +
                 "+---------------------------------------------+");
         System.out.print("Select: ");
     }
@@ -70,13 +62,21 @@ public class Screen {
         System.out.println("+---------------------------------------------+\n" +
                 "|                     ADMIN                     |\n" +
                 "|                                               |\n" +
-                "| Select:                                       |\n" +
-                "|                                               |\n" +
                 "|1. Change password                             |\n" +
                 "|2. Assign role                                 |\n" +
                 "|3. Remove user                                 |\n" +
                 "|4. Switch user                                 |\n" +
                 "|5. Return                                      |\n" +
+                "+---------------------------------------------+");
+        System.out.print("Select: ");
+    }
+
+    public static void printMailboxScreen() {
+        System.out.println("+---------------------------------------------+\n" +
+                "|                  MAILBOXES                    |\n" +
+                "|                                               |\n" +
+                "|1. Inbox                                       |\n" +
+                "|2. Sent                                        |\n" +
                 "+---------------------------------------------+");
         System.out.print("Select: ");
     }

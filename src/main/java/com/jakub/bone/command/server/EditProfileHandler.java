@@ -14,22 +14,21 @@ public class EditProfileHandler implements CommandHandler {
 
     @Override
     public String execute(CommandDTO commandDTO) {
-        String subCommand = (String) commandDTO.getPayload().get("subCommand");
+        String subCommand = commandDTO.getPayload().get("subCommand");
         switch (subCommand.toUpperCase()) {
             case "CHANGE" -> {
-                String username = (String) commandDTO.getPayload().get("username");
-                String newPassword = (String) commandDTO.getPayload().get("newPassword");
+                String username = commandDTO.getPayload().get("username");
+                String newPassword = commandDTO.getPayload().get("newPassword");
                 User user = userManager.findUserByUsername(username);
                 if (user == null) {
-                    //return "User not found: " + username;
                     return ResponseStatus.FAILED_TO_FIND_USER.getResponse();
                 }
                 userManager.changePassword(user, newPassword);
                 return ResponseStatus.OPERATION_SUCCEEDED.getResponse();
             }
             case "ASSIGN" -> {
-                String username = (String) commandDTO.getPayload().get("username");
-                String newRoleStr = (String) commandDTO.getPayload().get("newRole");
+                String username = commandDTO.getPayload().get("username");
+                String newRoleStr = commandDTO.getPayload().get("newRole");
                 User user = userManager.findUserByUsername(username);
                 if (user == null) {
                     return ResponseStatus.FAILED_TO_FIND_USER.getResponse();
@@ -43,7 +42,7 @@ public class EditProfileHandler implements CommandHandler {
                 }
             }
             case "REMOVE" -> {
-                String username = (String) commandDTO.getPayload().get("username");
+                String username = commandDTO.getPayload().get("username");
                 User user = userManager.findUserByUsername(username);
                 if (user == null) {
                     return ResponseStatus.FAILED_TO_FIND_USER.getResponse();
@@ -52,7 +51,7 @@ public class EditProfileHandler implements CommandHandler {
                 return "User " + username + " removed successfully.";
             }
             case "SWITCH" -> {
-                String username = (String) commandDTO.getPayload().get("username");
+                String username = commandDTO.getPayload().get("username");
                 User user = userManager.findUserByUsername(username);
                 if (user == null) {
                     return "User not found: " + username;

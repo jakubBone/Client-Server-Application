@@ -20,8 +20,7 @@ public class CommandFactory {
             case "LOGOUT" -> new LogoutCommand();
             case "UPTIME", "INFO", "HELP" -> new ServerInfoCommand(command);
             case "NEW" -> new NewMailCommand(input);
-            case "INBOX" -> new InboxCommand();
-            case "SENT" -> new SentMailCommand();
+            case "READ" -> new ReadMailCommand(input);
             case "DELETE" -> new DeleteMailCommand();
             case "EDIT" -> new EditProfileCommand(input);
             default -> {
