@@ -21,7 +21,7 @@ public class CommandFactory {
             case "UPTIME", "INFO", "HELP" -> new ServerInfoCommand(command);
             case "NEW" -> new NewMailCommand(input);
             case "READ" -> new ReadMailCommand(input);
-            case "DELETE" -> new DeleteMailCommand();
+            case "DELETE" -> new DeleteMailCommand(input);
             case "EDIT" -> new EditProfileCommand(input);
             default -> {
                 log.warn("Unknown operation: {}", command);

@@ -16,6 +16,9 @@ public class ReadMailHandler implements CommandHandler {
     @Override
     public String execute(CommandDTO commandDTO) {
         String boxType = commandDTO.getPayload().get("boxType");
+        if (boxType == null || boxType.isEmpty()) {
+            return ResponseStatus.UNKNOWN_REQUEST.getResponse();
+        }
 
         List<Mail> mails = mailService.getMails(boxType);
         if (mails.isEmpty()) {
