@@ -41,7 +41,7 @@ public class RequestProcessor {
                 }
                 log.info("Received JSON request: {}", commandDTO);
 
-                CommandHandler commandHandler = factory.createCommand(commandDTO);
+                CommandHandler commandHandler = factory.createHandler(commandDTO);
                 String response = commandHandler.execute(commandDTO);
 
                 messenger.send(response);

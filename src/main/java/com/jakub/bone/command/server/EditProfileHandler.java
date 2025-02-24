@@ -1,7 +1,6 @@
 package com.jakub.bone.command.server;
 
 import com.jakub.bone.command.common.CommandDTO;
-import com.jakub.bone.command.server.CommandHandler;
 import com.jakub.bone.domain.User;
 import com.jakub.bone.application.UserService;
 import com.jakub.bone.utils.*;
@@ -20,7 +19,7 @@ public class EditProfileHandler implements CommandHandler {
             case "CHANGE" -> {
                 String username = (String) commandDTO.getPayload().get("username");
                 String newPassword = (String) commandDTO.getPayload().get("newPassword");
-                User user = userManager.getUserByUsername(username);
+                User user = userManager.findUserByUsername(username);
                 if (user == null) {
                     //return "User not found: " + username;
                     return ResponseStatus.FAILED_TO_FIND_USER.getResponse();
@@ -31,7 +30,7 @@ public class EditProfileHandler implements CommandHandler {
             case "ASSIGN" -> {
                 String username = (String) commandDTO.getPayload().get("username");
                 String newRoleStr = (String) commandDTO.getPayload().get("newRole");
-                User user = userManager.getUserByUsername(username);
+                User user = userManager.findUserByUsername(username);
                 if (user == null) {
                     return ResponseStatus.FAILED_TO_FIND_USER.getResponse();
                 }
@@ -45,7 +44,7 @@ public class EditProfileHandler implements CommandHandler {
             }
             case "REMOVE" -> {
                 String username = (String) commandDTO.getPayload().get("username");
-                User user = userManager.getUserByUsername(username);
+                User user = userManager.findUserByUsername(username);
                 if (user == null) {
                     return ResponseStatus.FAILED_TO_FIND_USER.getResponse();
                 }
@@ -54,7 +53,7 @@ public class EditProfileHandler implements CommandHandler {
             }
             case "SWITCH" -> {
                 String username = (String) commandDTO.getPayload().get("username");
-                User user = userManager.getUserByUsername(username);
+                User user = userManager.findUserByUsername(username);
                 if (user == null) {
                     return "User not found: " + username;
                 }

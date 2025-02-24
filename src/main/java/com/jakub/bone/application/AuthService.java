@@ -9,23 +9,22 @@ import com.jakub.bone.domain.User;
 public class AuthService {
 
     public String register(String username, String password, UserService userManager) {
-        log.info("Registration attempted for user: {}", username);
-        User user = userManager.getUserDAO().getUserFromDB(username);
+        User user = userManager.getUserRepository().findUserByUsername(username);
 
         if (user != null) {
             log.info("Registration attempt failed - user already exists: {}", username);
             return ResponseStatus.REGISTRATION_FAILED_USER_EXISTS.getResponse();
         }
 
-        handleRegister(username, password, userManager);
+        User newUser = new User(username, password, User.Role.USER);
+        userManager.getUserRepository().createUser(newUser);
         log.info("Registration successful for new user: {}", username);
 
         return ResponseStatus.REGISTRATION_SUCCESSFUL.getResponse();
     }
 
     public String login(String username, String password, UserService userService) {
-        log.info("Login attempted for user: {}", username);
-        User user = userService.getUserDAO().getUserFromDB(username);
+        User user = userService.getUserRepository().findUserByUsername(username);
         if (user == null) {
             log.info("Login attempt failed - user does not exist: {}", username);
             return ResponseStatus.FAILED_TO_FIND_USER.getResponse();
@@ -36,12 +35,8 @@ public class AuthService {
             return ResponseStatus.LOGIN_FAILED_INCORRECT_PASSWORD.getResponse();
         }
 
-        log.info("User password correct: {}", user.getUsername());
-
-
-        log.info("User login succeeded: {}", user.getUsername());
-
         SessionManager.getInstance().setCurrentUser(user);
+        log.info("Login success for user: {}", user.getUsername());
 
         if (SessionManager.getInstance().isAdmin()) {
             return ResponseStatus.ADMIN_LOGIN_SUCCEEDED.getResponse();
@@ -50,21 +45,14 @@ public class AuthService {
         }
     }
 
-    public void handleRegister(String username, String password, UserService userManager) throws IllegalArgumentException {
-        /*User newUser = new User(username, password, User.Role.USER);
-
-        userManager.getUserDAO().addUserToDB(newUser);
-        UserService.currentLoggedInUser = newUser;*/
-        User newUser = new User(username, password, User.Role.USER);
-        userManager.getUserDAO().addUserToDB(newUser);
-    }
-
     public boolean isPasswordCorrect(String password, User user, UserService userManager) {
-        return userManager.getUserDAO().checkPasswordInDB(password, user.getUsername());
+        return userManager.getUserRepository().verifyUserPassword(password, user.getUsername());
     }
 
     public String logout() {
         SessionManager.getInstance().setCurrentUser(null);
+        log.info("Logout success {}", user.getUsername());
+
         return ResponseStatus.LOGOUT_SUCCEEDED.getResponse();
     }
 

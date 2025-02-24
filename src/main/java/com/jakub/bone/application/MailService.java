@@ -17,43 +17,40 @@ import java.util.List;
 @Log4j2
 @Setter
 public class MailService {
-    private final DSLContext create;
-    private MailRepository mailDAO;
-    private UserRepository userDAO;
+    private final DSLContext context;
+    private MailRepository mailRepository;
+    private UserRepository userRepository;
 
     public MailService() {
-        this.create = DSL.using(DataSource.getInstance().getConnection());
-        this.userDAO = new UserRepository(create);
-        this.mailDAO = new MailRepository(create, userDAO);
+        this.context = DSL.using(DataSource.getInstance().getConnection());
+        this.userRepository = new UserRepository(context);
+        this.mailRepository = new MailRepository(context, userRepository);
     }
 
     public String sendMail(User recipient, String message) {
-        log.info("Mail sending to {} from {}", recipient, SessionManager.getInstance().getCurrentUser());
+        Mail mail = new Mail(SessionManager.getInstance().getCurrentUser(), recipient, message, Mail.Status.SENT);
+        mailRepository.createMail(mail);
 
-        //Mail mailToSender = new Mail(UserService.currentLoggedInUser, recipient, message, Mail.Status.SENT);
-        Mail mailToSender = new Mail(SessionManager.getInstance().getCurrentUser(), recipient, message, Mail.Status.SENT);
-        mailDAO.saveMailToDB(mailToSender);
-
-        Mail mailToRecipient = new Mail(mailToSender.getSender(), recipient, message, Mail.Status.UNREAD);
-        mailDAO.saveMailToDB(mailToRecipient);
+        Mail mailToRecipient = new Mail(mail.getSender(), recipient, message, Mail.Status.UNREAD);
+        mailRepository.createMail(mailToRecipient);
 
         log.info("Mail successfully sent to {}", recipient.getUsername());
         return ResponseStatus.SENDING_SUCCEEDED.getResponse();
     }
 
     public List<Mail> getMails(String boxType) {
-        return mailDAO.getMailsFromDB(boxType);
+        return mailRepository.findMails(boxType);
     }
 
     public boolean isMailboxFull(User recipient){
-        return mailDAO.isMailboxFullInDB(recipient);
+        return mailRepository.isMailboxFull(recipient);
     }
 
 
     public void deleteMails(String boxType) {
         log.info("Deleting mails from box: {}", boxType);
 
-        mailDAO.deleteMailsFromDB(boxType);
+        mailRepository.deleteMails(boxType);
 
         //log.info("{} mails deleted for user {}", boxType, UserService.currentLoggedInUser.getUsername());
         log.info("{} mails deleted for user {}", boxType, SessionManager.getInstance().getCurrentUser());
@@ -62,7 +59,7 @@ public class MailService {
     public void markAsRead() {
         log.info("Marking mails as read");
 
-        mailDAO.markAsReadInDB();
+        mailRepository.markAsReadInDB();
 
         //log.info("Marked all unread mails as opened for user {}", UserService.currentLoggedInUser.getUsername());
         log.info("Marked all unread mails as opened for user {}", SessionManager.getInstance().getCurrentUser());

@@ -32,7 +32,7 @@ public class AuthManagerTest {
     @Test
     @DisplayName("Should test user registration response with non-existent user in database")
     void testRegisterAndGetResponse() {
-        when(mockUserDAO.getUserFromDB(username)).thenReturn(null);
+        when(mockUserDAO.findUserByUsername(username)).thenReturn(null);
 
         String response = authManager.registerAndGetResponse(username, password, userManager);
 
@@ -42,7 +42,7 @@ public class AuthManagerTest {
     @Test
     @DisplayName("Should test user registration response with existing user in database")
     void testRegisterAndGetResponse_UserExists() {
-        when(mockUserDAO.getUserFromDB(username)).thenReturn(user);
+        when(mockUserDAO.findUserByUsername(username)).thenReturn(user);
 
         String response = authManager.registerAndGetResponse(username, password, userManager);
 
@@ -52,8 +52,8 @@ public class AuthManagerTest {
     @Test
     @DisplayName("Should test user login response with existing user in database")
     void testLoginAndGetResponse() {
-        when(mockUserDAO.getUserFromDB(username)).thenReturn(user);
-        when(mockUserDAO.checkPasswordInDB(password, username)).thenReturn(true);
+        when(mockUserDAO.findUserByUsername(username)).thenReturn(user);
+        when(mockUserDAO.verifyUserPassword(password, username)).thenReturn(true);
 
         String response = authManager.loginAndGetResponse(username, password, userManager);
 
@@ -64,8 +64,8 @@ public class AuthManagerTest {
     @Test
     @DisplayName("Should test user login response with incorrect password in database")
     void testLoginAndGetResponse_IncorrectPassword() {
-        when(mockUserDAO.getUserFromDB(username)).thenReturn(user);
-        when(mockUserDAO.checkPasswordInDB(username,password)).thenReturn(false);
+        when(mockUserDAO.findUserByUsername(username)).thenReturn(user);
+        when(mockUserDAO.verifyUserPassword(username,password)).thenReturn(false);
 
         String response = authManager.loginAndGetResponse(username, password, userManager);
 
@@ -76,8 +76,8 @@ public class AuthManagerTest {
     @Test
     @DisplayName("Should test user registration handling")
     void testHandleRegister() {
-        doNothing().when(mockUserDAO).addUserToDB(user);
-        when(mockUserDAO.getUserFromDB(username)).thenReturn(user);
+        doNothing().when(mockUserDAO).createUser(user);
+        when(mockUserDAO.findUserByUsername(username)).thenReturn(user);
 
         authManager.handleRegister(username, password, userManager);
 
@@ -96,7 +96,7 @@ public class AuthManagerTest {
     @Test
     @DisplayName("Should test user registration handling")
     void testIfPasswordCorrect() {
-        when(mockUserDAO.checkPasswordInDB(password, username)).thenReturn(true);
+        when(mockUserDAO.verifyUserPassword(password, username)).thenReturn(true);
 
         boolean isCorrect = authManager.isPasswordCorrect(password, user, userManager);
 

@@ -15,8 +15,8 @@ public class AuthHandler implements CommandHandler {
 
     @Override
     public String execute(CommandDTO commandDTO) {
-        String username = (String) commandDTO.getPayload().get("username");
-        String password = (String) commandDTO.getPayload().get("password");
+        String username = commandDTO.getPayload().get("username");
+        String password = commandDTO.getPayload().get("password");
         if ("REGISTER".equalsIgnoreCase(commandDTO.getCommandType())){
             return authManager.register(username, password, userManager);
         } else {

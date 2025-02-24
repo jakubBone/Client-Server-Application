@@ -29,7 +29,7 @@ class UserMangerTest {
     @Test
     @DisplayName("Should test user registration for the first time")
     void testGetUserByUsername() {
-        when(mockUserDAO.getUserFromDB("testUser")).thenReturn(user);
+        when(mockUserDAO.findUserByUsername("testUser")).thenReturn(user);
 
         User foundUser = userManager.getUserByUsername("testUser");
         assertEquals(user, foundUser);
@@ -39,7 +39,7 @@ class UserMangerTest {
     @DisplayName("Should test user registration for the first time")
     void testPasswordChange() {
         String newPassword = "newPassword";
-        when(mockUserDAO.getUserFromDB(password)).thenReturn(user);
+        when(mockUserDAO.findUserByUsername(password)).thenReturn(user);
 
         userManager.changePassword(user, newPassword);
 
@@ -50,7 +50,7 @@ class UserMangerTest {
     @Test
     @DisplayName("Should test user deletion")
     void testDeleteUser() {
-        doNothing().when(mockUserDAO).removeUserFromDB(username);
+        doNothing().when(mockUserDAO).removeUser(username);
 
         userManager.removeUser(user);
 
@@ -70,7 +70,7 @@ class UserMangerTest {
     @Test
     @DisplayName("Should test user role change")
     void testChangeRole() {
-        when(mockUserDAO.getUserFromDB(username)).thenReturn(user);
+        when(mockUserDAO.findUserByUsername(username)).thenReturn(user);
 
         userManager.changeUserRole(user, User.Role.ADMIN);
 

@@ -5,7 +5,7 @@ import java.util.Map;
 
 public class CommandDTO {
     private String commandType;
-    private Map<String, Object> payload;
+    private Map<String, String> payload;
 
     private CommandDTO(Builder builder) {
         this.commandType = builder.commandType;
@@ -16,20 +16,20 @@ public class CommandDTO {
         return commandType;
     }
 
-    public Map<String, Object> getPayload() {
+    public Map<String, String> getPayload() {
         return payload;
     }
 
     public static class Builder {
         private String commandType;
-        private Map<String, Object> payload = new HashMap<>();
+        private Map<String, String> payload = new HashMap<>();
 
         public Builder commandType(String commandType) {
             this.commandType = commandType;
             return this;
         }
 
-        public Builder addPayload(String key, Object value) {
+        public Builder addPayload(String key, String value) {
             this.payload.put(key, value);
             return this;
         }

@@ -2,13 +2,11 @@ package com.jakub.bone.application;
 
 import com.jakub.bone.data.DataSource;
 import com.jakub.bone.repository.UserRepository;
-import com.jakub.bone.session.SessionManager;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
-import com.jakub.bone.utils.ResponseStatus;
 import com.jakub.bone.domain.Admin;
 import com.jakub.bone.domain.User;
 
@@ -18,26 +16,21 @@ import com.jakub.bone.domain.User;
 public class UserService {
     public Admin admin;
     private DSLContext create;
-    private UserRepository userDAO;
+    private UserRepository userRepository;
     private AuthService authManager;
 
     public UserService() {
         this.create = DSL.using(DataSource.getInstance().getConnection());
-        this.userDAO = new UserRepository(create);
+        this.userRepository = new UserRepository(create);
         this.admin = new Admin();
         this.authManager = new AuthService();
     }
 
-    public User getUserByUsername(String username) {
-        log.info("Searching for user in the database: {}", username);
-
-        User user = userDAO.getUserFromDB(username);
-
+    public User findUserByUsername(String username) {
+        User user = userRepository.findUserByUsername(username);
         if (user == null) {
             log.warn("User not found in database: {}", username);
-            return null;
         }
-        log.info("User found in database: {}", username);
         return user;
     }
 
@@ -47,7 +40,7 @@ public class UserService {
         user.setPassword(newPassword);
 
         log.info("Attempting to upload database: {}", user.getUsername());
-        userDAO.updateUserInDB(user);
+        userRepository.updateUser(user);
 
         log.info("Data base upload succeeded {}", user.getUsername());
         log.info("Password change succeeded for user: {}", user.getUsername());
@@ -56,7 +49,7 @@ public class UserService {
     public void removeUser(User user) {
         log.info("Attempting to remove user: {}", user.getUsername());
 
-        userDAO.removeUserFromDB(user.getUsername());
+        userRepository.removeUser(user.getUsername());
 
         log.info("User removal succeeded: {}", user.getUsername());
     }
@@ -71,16 +64,8 @@ public class UserService {
         log.info("Attempting to role change for user: {}", user.getUsername());
 
         user.setRole(role);
-        userDAO.changeUserRoleInDB(user, role);
+        userRepository.changeUserRole(user, role);
 
         log.info("Role change succeeded for user: {} to {}", user.getUsername(), role);
-    }
-
-    public String logoutAndGetResponse() {
-        log.info("User logout requested");
-
-        SessionManager.getInstance().setCurrentUser(null);
-
-        return ResponseStatus.LOGOUT_SUCCEEDED.getResponse();
     }
 }

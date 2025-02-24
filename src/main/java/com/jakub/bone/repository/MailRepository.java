@@ -19,17 +19,17 @@ import static org.jooq.impl.SQLDataType.INTEGER;
 
 @Log4j2
 public class MailRepository {
-    private final DSLContext create;
-    private final UserRepository userDAO;
+    private final DSLContext context;
+    private final UserRepository userRepository;
 
-    public MailRepository(DSLContext create, UserRepository userDAO) {
-        this.create = create;
-        this.userDAO = userDAO;
+    public MailRepository(DSLContext context, UserRepository userRepository) {
+        this.context = context;
+        this.userRepository = userRepository;
         createTable();
     }
 
     public void createTable(){
-        create.createTableIfNotExists("mail")
+        context.createTableIfNotExists("mail")
                 .column("id", INTEGER.identity(true))
                 .column("sender", VARCHAR(255).nullable(false))
                 .column("recipient", VARCHAR(255).nullable(false))
@@ -42,11 +42,11 @@ public class MailRepository {
     }
 
     public void clearTable(){
-        create.truncate("mail").restartIdentity().execute();
+        context.truncate("mail").restartIdentity().execute();
     }
 
-    public void saveMailToDB(Mail mail) {
-        create.insertInto(table("mail"),
+    public void createMail(Mail mail) {
+        context.insertInto(table("mail"),
                         field("sender"),
                         field("recipient"),
                         field("message"),
@@ -58,34 +58,34 @@ public class MailRepository {
                 .execute();
     }
 
-    public List<Mail> getMailsFromDB(String boxType) {
-        List<Record> records = create.selectFrom("mail")
+    public List<Mail> findMails(String boxType) {
+        List<Record> records = context.selectFrom("mail")
                 .where(getMailboxCondition(boxType))
                 .fetch();
 
         List<Mail> mails = new ArrayList<>();
         for (Record record : records) {
             System.out.println("in loop");
-            Mail mail = convertRecordToMail(record);
+            Mail mail = mapRecordToMail(record);
             mails.add(mail);
         }
         return mails;
     }
 
-    public void deleteMailsFromDB(String boxType) {
-        create.deleteFrom(table("mail"))
+    public void deleteMails(String boxType) {
+        context.deleteFrom(table("mail"))
                 .where(getMailboxCondition(boxType))
                 .execute();
     }
 
-    public Mail convertRecordToMail(Record record) {
+    public Mail mapRecordToMail(Record record) {
         String message = record.getValue("message", String.class);
         String senderUsername = record.getValue("sender", String.class);
         String recipientUsername = record.getValue("recipient", String.class);
         Mail.Status status = Mail.Status.valueOf(record.getValue("status", String.class));
 
-        User sender = userDAO.getUserFromDB(senderUsername);
-        User recipient = userDAO.getUserFromDB(recipientUsername);
+        User sender = userRepository.findUserByUsername(senderUsername);
+        User recipient = userRepository.findUserByUsername(recipientUsername);
 
         return new Mail(sender, recipient, message, status);
     }
@@ -105,10 +105,10 @@ public class MailRepository {
         return condition;
     }
 
-    public boolean isMailboxFullInDB(User recipient){
+    public boolean isMailboxFull(User recipient){
         String unread = Mail.Status.UNREAD.toString();
 
-        int messageCount = create.selectFrom(table("mail"))
+        int messageCount = context.selectFrom(table("mail"))
                 .where(field("recipient").eq(recipient.getUsername())
                         .and(field("status").eq(unread)))
                 .fetch()
@@ -118,7 +118,7 @@ public class MailRepository {
     }
 
     public void markAsReadInDB() {
-        create.update(table("mail"))
+        context.update(table("mail"))
                 .set(field("status"), Mail.Status.OPENED.toString())
                 .where(field("recipient").eq(SessionManager.getInstance().getCurrentUser().getUsername()))
                 .and(field("status").eq(Mail.Status.UNREAD.toString()))

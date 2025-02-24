@@ -21,7 +21,7 @@ public class CommandHandlerFactory {
         this.serverInfo = serverInfo;
     }
 
-    public CommandHandler createCommand(CommandDTO commandDTO)  {
+    public CommandHandler createHandler(CommandDTO commandDTO)  {
         String command = commandDTO.getCommandType().toUpperCase();
         return switch (command) {
             case "REGISTER", "LOGIN" -> new AuthHandler(authManager, userManager);

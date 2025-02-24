@@ -14,15 +14,15 @@ import static org.jooq.impl.SQLDataType.INTEGER;
 
 @Log4j2
 public class UserRepository {
-    private final DSLContext create;
+    private final DSLContext context;
 
-    public UserRepository(DSLContext create) {
-        this.create = create;
+    public UserRepository(DSLContext context) {
+        this.context = context;
         createTable();
     }
 
     public void createTable(){
-        create.createTableIfNotExists("user")
+        context.createTableIfNotExists("user")
                 .column("id", INTEGER.identity(true))
                 .column("username", VARCHAR(255).nullable(false))
                 .column("password", VARCHAR(255).nullable(false))
@@ -35,8 +35,8 @@ public class UserRepository {
                 .execute();
     }
 
-    public void addUserToDB(User user)  {
-        create.insertInto(table("user"),
+    public void createUser(User user)  {
+        context.insertInto(table("user"),
                         field("username"),
                         field("password"),
                         field("role"),
@@ -48,8 +48,8 @@ public class UserRepository {
                 .execute();
     }
 
-    public User getUserFromDB(String username) {
-        Record record = create.selectFrom("user")
+    public User findUserByUsername(String username) {
+        Record record = context.selectFrom("user")
                 .where(DSL.field("username").eq(username))
                 .fetchOne();
 
@@ -64,8 +64,8 @@ public class UserRepository {
         );
     }
 
-    public boolean checkPasswordInDB(String typedPassword, String username) {
-        Record record = create.selectFrom("user")
+    public boolean verifyUserPassword(String typedPassword, String username) {
+        Record record = context.selectFrom("user")
                 .where(DSL.field("username").eq(username))
                 .fetchOne();
 
@@ -74,18 +74,18 @@ public class UserRepository {
         return BCrypt.checkpw(typedPassword, hashed);
     }
 
-    public void removeUserFromDB(String username) {
-        create.deleteFrom(table("user"))
+    public void removeUser(String username) {
+        context.deleteFrom(table("user"))
                 .where(field("username").eq(username))
                 .execute();
     }
 
-    public void changeUserRoleInDB(User user, User.Role role) {
-        updateUserInDB(user);
+    public void changeUserRole(User user, User.Role role) {
+        updateUser(user);
     }
 
-    public void updateUserInDB(User user) {
-        create.update(table("user"))
+    public void updateUser(User user) {
+        context.update(table("user"))
                 .set(field("password"), user.getPassword())
                 .set(field("role"), user.getRole().toString())
                 .set(field("hashed_password"), user.getHashedPassword())

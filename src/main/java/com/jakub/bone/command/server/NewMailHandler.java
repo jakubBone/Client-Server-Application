@@ -3,7 +3,6 @@ package com.jakub.bone.command.server;
 import com.jakub.bone.command.common.CommandDTO;
 import com.jakub.bone.application.MailService;
 import com.jakub.bone.application.UserService;
-import com.jakub.bone.command.server.CommandHandler;
 
 public class NewMailHandler implements CommandHandler {
     private final MailService mailService;
@@ -16,8 +15,8 @@ public class NewMailHandler implements CommandHandler {
 
     @Override
     public String execute(CommandDTO commandDTO) {
-        String recipient = (String) commandDTO.getPayload().get("recipient");
-        String message = (String) commandDTO.getPayload().get("message");
-        return mailService.sendMail(userManager.getUserByUsername(recipient), message);
+        String recipient = commandDTO.getPayload().get("recipient");
+        String message = commandDTO.getPayload().get("message");
+        return mailService.sendMail(userManager.findUserByUsername(recipient), message);
     }
 }

@@ -14,7 +14,7 @@ public class DeleteMailHandler implements CommandHandler {
     @Override
     public String execute(CommandDTO commandDTO) {
         // Odczytujemy typ skrzynki z payload, np. "INBOX" lub "SENT"
-        String boxType = (String) commandDTO.getPayload().get("boxType");
+        String boxType = commandDTO.getPayload().get("boxType");
         if (boxType == null || boxType.isEmpty()) {
             return "Brakuje parametru boxType.";
         }

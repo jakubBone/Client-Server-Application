@@ -41,7 +41,7 @@ public class MailServiceTest {
         mailService.sendMail(recipient, "message");
 
         // verify if mail has been saved in DB
-        verify(mockMailDAO, times(2)).saveMailToDB(any(Mail.class));
+        verify(mockMailDAO, times(2)).createMail(any(Mail.class));
     }
 
     @Test
@@ -50,7 +50,7 @@ public class MailServiceTest {
         String mailbox = "UNREAD";
         List<Mail> expectedMails = List.of(mail);
 
-        when(mockMailDAO.getMailsFromDB(mailbox)).thenReturn(expectedMails);
+        when(mockMailDAO.findMails(mailbox)).thenReturn(expectedMails);
 
         List<Mail> mails = mailService.getMails(mailbox);
 
@@ -73,7 +73,7 @@ public class MailServiceTest {
 
         mailService.deleteMails(mailbox);
 
-        verify(mockMailDAO,times(1)).deleteMailsFromDB(mailbox);
+        verify(mockMailDAO,times(1)).deleteMails(mailbox);
     }
 
     @Test
