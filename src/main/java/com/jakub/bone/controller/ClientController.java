@@ -5,6 +5,8 @@ import com.jakub.bone.command.client.CommandFactory;
 
 import com.jakub.bone.command.common.CommandDTO;
 
+import com.jakub.bone.domain.User;
+import com.jakub.bone.session.SessionManager;
 import com.jakub.bone.utils.Messenger;
 
 import com.jakub.bone.ui.Screen;
@@ -12,6 +14,8 @@ import com.jakub.bone.ui.UserInput;
 import com.jakub.bone.utils.ResponseStatus;
 
 import java.io.IOException;
+
+import static com.jakub.bone.domain.User.Role.ADMIN;
 
 public class ClientController {
     private final UserInput userInput;
@@ -64,6 +68,10 @@ public class ClientController {
         } else if (response.equals(ResponseStatus.LOGOUT_SUCCEEDED.getResponse())) {
             isLoggedIn = false;
             isAdmin = false;
+        } else if(response.equals(ResponseStatus.SWITCH_SUCCEEDED.getResponse())){
+            if(!SessionManager.getInstance().isAdmin()){
+                isAdmin = false;
+            }
         }
     }
 

@@ -2,6 +2,7 @@ package com.jakub.bone.application;
 
 import com.jakub.bone.data.DataSource;
 import com.jakub.bone.repository.UserRepository;
+import com.jakub.bone.session.SessionManager;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
@@ -56,7 +57,7 @@ public class UserService {
 
     public void switchUser(User user) {
         log.info("Attempting to switch to user: {}", user.getUsername());
-
+        SessionManager.getInstance().setCurrentUser(user);
         log.info("Switched to user: {}", user.getUsername());
     }
 

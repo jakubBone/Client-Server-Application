@@ -39,7 +39,7 @@ public class MailRepository {
                 .column("recipient", VARCHAR(255).nullable(false))
                 .column("message", VARCHAR(255).nullable(false))
                 .column("send_time", VARCHAR(255).nullable(false))
-                .column("deleted_by_sender", INTEGER.nullable(false).defaultValue(0)) // 0 = false
+                .column("deleted_by_sender", INTEGER.nullable(false).defaultValue(0)) // default false
                 .column("deleted_by_receiver", INTEGER.nullable(false).defaultValue(0))
                 .constraints(
                         DSL.constraint("PK_MAIL").primaryKey("id")
@@ -66,7 +66,7 @@ public class MailRepository {
                         mail.getRecipient().getUsername(),
                         mail.getMessage(),
                         formattedDate,
-                        0, 0)  // deletion set false
+                        0, 0)  // set false
                 .execute();
     }
 

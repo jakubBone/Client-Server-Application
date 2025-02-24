@@ -51,7 +51,7 @@ public class Screen {
                 "|1. New e-mail                                  |\n" +
                 "|2. Read e-mails                                |\n" +
                 "|3. Delete e-mails                              |\n" +
-                "|4. Edit profile                                |\n" +
+                "|4. Edit users                                  |\n" +
                 "|5. Logout                                      |\n" +
                 "+---------------------------------------------+");
         System.out.print("Select: ");

@@ -15,69 +15,37 @@ public class EditProfileHandler implements CommandHandler {
     @Override
     public String execute(CommandDTO commandDTO) {
         String subCommand = commandDTO.getPayload().get("subCommand");
+        String username = commandDTO.getPayload().get("username");
+
+        User user = userManager.findUserByUsername(username);
+        if (user == null) {
+            return ResponseStatus.FAILED_TO_FIND_USER.getResponse();
+        }
+
         switch (subCommand.toUpperCase()) {
             case "CHANGE" -> {
-                String username = commandDTO.getPayload().get("username");
                 String newPassword = commandDTO.getPayload().get("newPassword");
-                User user = userManager.findUserByUsername(username);
-                if (user == null) {
-                    return ResponseStatus.FAILED_TO_FIND_USER.getResponse();
-                }
                 userManager.changePassword(user, newPassword);
                 return ResponseStatus.OPERATION_SUCCEEDED.getResponse();
             }
             case "ASSIGN" -> {
-                String username = commandDTO.getPayload().get("username");
-                String newRoleStr = commandDTO.getPayload().get("newRole");
-                User user = userManager.findUserByUsername(username);
-                if (user == null) {
-                    return ResponseStatus.FAILED_TO_FIND_USER.getResponse();
-                }
-                try {
-                    User.Role newRole = User.Role.valueOf(newRoleStr.toUpperCase());
-                    userManager.changeUserRole(user, newRole);
-                    return ResponseStatus.ROLE_CHANGE_SUCCEEDED.getResponse();
-                } catch (IllegalArgumentException e) {
-                    return "Invalid role specified: " + newRoleStr;
-                }
+                String newRole = commandDTO.getPayload().get("newRole");
+                User.Role role = User.Role.valueOf(newRole.toUpperCase());
+                userManager.changeUserRole(user, role);
+                return ResponseStatus.ROLE_CHANGE_SUCCEEDED.getResponse();
+
             }
             case "REMOVE" -> {
-                String username = commandDTO.getPayload().get("username");
-                User user = userManager.findUserByUsername(username);
-                if (user == null) {
-                    return ResponseStatus.FAILED_TO_FIND_USER.getResponse();
-                }
                 userManager.removeUser(user);
-                return "User " + username + " removed successfully.";
+                return ResponseStatus.USER_DELETE_SUCCEEDED.getResponse();
             }
             case "SWITCH" -> {
-                String username = commandDTO.getPayload().get("username");
-                User user = userManager.findUserByUsername(username);
-                if (user == null) {
-                    return "User not found: " + username;
-                }
                 userManager.switchUser(user);
-                return "Switched to user: " + username;
+                return ResponseStatus.SWITCH_SUCCEEDED.getResponse();
             }
             default -> {
-                return "Unknown subCommand: " + subCommand;
+               return ResponseStatus.UNKNOWN_REQUEST.getResponse();
             }
         }
     }
-
-    /*if (!userManager.isUserAdmin()) {
-            return ResponseStatus.SWITCH_FAILED.getResponse() + ": user not authorized";
-        }
-
-        userManager.switchUser(user);
-
-        if (UserService.ifSwitchedToAdminUser) {
-            return ResponseStatus.SWITCH_SUCCEEDED_USER_ROLE_ADMIN_ROLE.getResponse();
-        }
-
-        if(UserService.ifSwitchedToNonAdminUser) {
-            return ResponseStatus.SWITCH_SUCCEEDED_USER_NON_ADMIN_ROLE.getResponse();
-        }
-
-        return ResponseStatus.SWITCH_FAILED.getResponse();*/
 }
