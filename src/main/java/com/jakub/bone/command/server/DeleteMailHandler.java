@@ -2,8 +2,6 @@ package com.jakub.bone.command.server;
 
 import com.jakub.bone.command.common.CommandDTO;
 import com.jakub.bone.application.MailService;
-import com.jakub.bone.command.server.CommandHandler;
-import com.jakub.bone.domain.Mail;
 import com.jakub.bone.utils.ResponseStatus;
 
 import java.util.List;

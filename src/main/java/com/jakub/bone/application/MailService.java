@@ -46,6 +46,6 @@ public class MailService {
 
     public void deleteMails(String boxType) {
         mailRepository.deleteMails(boxType);
-        log.info("{} mails deleted for user {}", boxType, SessionManager.getInstance().getCurrentUser());
+        log.info("{} mails soft-deleted for user {}", boxType, SessionManager.getInstance().getCurrentUser());
     }
 }

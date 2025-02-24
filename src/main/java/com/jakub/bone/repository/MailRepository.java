@@ -23,6 +23,8 @@ import static org.jooq.impl.SQLDataType.INTEGER;
 public class MailRepository {
     private final DSLContext context;
     private final UserRepository userRepository;
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
 
     public MailRepository(DSLContext context, UserRepository userRepository) {
         this.context = context;
@@ -36,27 +38,35 @@ public class MailRepository {
                 .column("sender", VARCHAR(255).nullable(false))
                 .column("recipient", VARCHAR(255).nullable(false))
                 .column("message", VARCHAR(255).nullable(false))
-                .column("send_time", org.jooq.impl.SQLDataType.TIMESTAMP.nullable(false))
+                .column("send_time", VARCHAR(255).nullable(false))
+                .column("deleted_by_sender", INTEGER.nullable(false).defaultValue(0)) // 0 = false
+                .column("deleted_by_receiver", INTEGER.nullable(false).defaultValue(0))
                 .constraints(
                         DSL.constraint("PK_MAIL").primaryKey("id")
                 )
                 .execute();
     }
 
+
     public void clearTable(){
         context.truncate("mail").restartIdentity().execute();
     }
 
     public void createMail(Mail mail) {
+        // Date format: yyyy-MM-dd HH:mm:ss
+        String formattedDate = mail.getSendTime().format(formatter);
         context.insertInto(table("mail"),
                         field("sender"),
                         field("recipient"),
                         field("message"),
-                        field("send_time"))
+                        field("send_time"),
+                        field("deleted_by_sender"),
+                        field("deleted_by_receiver"))
                 .values(mail.getSender().getUsername(),
                         mail.getRecipient().getUsername(),
                         mail.getMessage(),
-                        mail.getSendTime().toString())
+                        formattedDate,
+                        0, 0)  // deletion set false
                 .execute();
     }
 
@@ -64,9 +74,11 @@ public class MailRepository {
         String username = SessionManager.getInstance().getCurrentUser().getUsername();
         Condition condition;
         if (boxType.equalsIgnoreCase("SENT")) {
-            condition = field("sender").eq(username);
+            condition = field("sender").eq(username)
+                    .and(field("deleted_by_sender").eq(0)); // Only undeleted by sender
         } else { // INBOX
-            condition = field("recipient").eq(username);
+            condition = field("recipient").eq(username)
+                    .and(field("deleted_by_receiver").eq(0)); // Only undeleted by receiver
         }
         List<Record> records = context.selectFrom("mail")
                 .where(condition)
@@ -84,11 +96,13 @@ public class MailRepository {
     public void deleteMails(String boxType) {
         String username = SessionManager.getInstance().getCurrentUser().getUsername();
         if (boxType.equalsIgnoreCase("SENT")) {
-            context.deleteFrom(table("mail"))
+            context.update(table("mail"))
+                    .set(field("deleted_by_sender"), 1)
                     .where(field("sender").eq(username))
                     .execute();
         } else { // INBOX
-            context.deleteFrom(table("mail"))
+            context.update(table("mail"))
+                    .set(field("deleted_by_receiver"), 1)
                     .where(field("recipient").eq(username))
                     .execute();
         }
@@ -100,7 +114,6 @@ public class MailRepository {
         String recipientUsername = record.getValue("recipient", String.class);
         String sendTimeStr = record.getValue("send_time", String.class);
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
         LocalDateTime sendTime = LocalDateTime.parse(sendTimeStr, formatter);
 
         User sender = userRepository.findUserByUsername(senderUsername);
