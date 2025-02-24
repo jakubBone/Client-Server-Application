@@ -34,12 +34,5 @@ public class Messenger {
         String json = builder.toString();
         return JsonConverter.deserialize(json, clazz);
     }
-
-    /*// Deserialization
-    public <T> T receiveObject(Class<T> clazz) {
-        String json = receive();
-        return JsonConverter.deserialize(json, clazz);
-    }
-}*/
 }
 

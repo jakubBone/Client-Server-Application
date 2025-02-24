@@ -31,7 +31,7 @@ public class Screen {
                 "| 5. Help                                        |\n" +
                 "| 6. Exit                                        |\n" +
                 "+---------------------------------------------+");
-        System.out.print("Select an option: ");
+        System.out.print("Select: ");
     }
 
     public static void printUserScreen() {
@@ -46,7 +46,7 @@ public class Screen {
                 "|4. Delete                                      |\n" +
                 "|4. Logout                                      |\n" +
                 "+---------------------------------------------+");
-        System.out.print("Select an option: ");
+        System.out.print("Select: ");
     }
 
     public static void printAdminScreen() {
@@ -62,7 +62,7 @@ public class Screen {
                 "|5. Edit profile                                |\n" +
                 "|6. Logout                                      |\n" +
                 "+---------------------------------------------+");
-        System.out.print("Select an option: ");
+        System.out.print("Select: ");
     }
 
 
@@ -78,7 +78,7 @@ public class Screen {
                 "|4. Switch user                                 |\n" +
                 "|5. Return                                      |\n" +
                 "+---------------------------------------------+");
-        System.out.print("Select an option: ");
+        System.out.print("Select: ");
     }
 
     public static void printResponse(String response) {

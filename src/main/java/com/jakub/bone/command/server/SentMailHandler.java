@@ -20,10 +20,10 @@ public class SentMailHandler implements CommandHandler {
         if (mails.isEmpty()) {
             return "No sent mails.";
         }
-        StringBuilder response = new StringBuilder("Sent Mails:\n");
+        StringBuilder response = new StringBuilder("Sent messages:\n");
         for (Mail mail : mails) {
-            response.append("To: ").append(mail.getRecipient().getUsername())
-                    .append(" - Message: ").append(mail.getMessage()).append("\n");
+            response.append("To: ").append(mail.getRecipient().getUsername()).append("\n")
+                    .append(" Message: ").append(mail.getMessage()).append("\n");
         }
         return response.toString();
     }

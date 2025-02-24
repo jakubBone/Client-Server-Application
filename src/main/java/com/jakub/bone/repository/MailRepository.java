@@ -10,6 +10,7 @@ import org.jooq.impl.DSL;
 import com.jakub.bone.domain.User;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -98,7 +99,9 @@ public class MailRepository {
         String senderUsername = record.getValue("sender", String.class);
         String recipientUsername = record.getValue("recipient", String.class);
         String sendTimeStr = record.getValue("send_time", String.class);
-        LocalDateTime sendTime = LocalDateTime.parse(sendTimeStr);
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
+        LocalDateTime sendTime = LocalDateTime.parse(sendTimeStr, formatter);
 
         User sender = userRepository.findUserByUsername(senderUsername);
         User recipient = userRepository.findUserByUsername(recipientUsername);
