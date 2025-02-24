@@ -12,6 +12,7 @@ import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
 import com.jakub.bone.domain.User;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Log4j2
@@ -28,12 +29,8 @@ public class MailService {
     }
 
     public String sendMail(User recipient, String message) {
-        Mail mail = new Mail(SessionManager.getInstance().getCurrentUser(), recipient, message, Mail.Status.SENT);
+        Mail mail = new Mail(SessionManager.getInstance().getCurrentUser(), recipient, message, LocalDateTime.now());
         mailRepository.createMail(mail);
-
-        Mail mailToRecipient = new Mail(mail.getSender(), recipient, message, Mail.Status.UNREAD);
-        mailRepository.createMail(mailToRecipient);
-
         log.info("Mail successfully sent to {}", recipient.getUsername());
         return ResponseStatus.SENDING_SUCCEEDED.getResponse();
     }
@@ -48,20 +45,7 @@ public class MailService {
 
 
     public void deleteMails(String boxType) {
-        log.info("Deleting mails from box: {}", boxType);
-
         mailRepository.deleteMails(boxType);
-
-        //log.info("{} mails deleted for user {}", boxType, UserService.currentLoggedInUser.getUsername());
         log.info("{} mails deleted for user {}", boxType, SessionManager.getInstance().getCurrentUser());
-    }
-
-    public void markAsRead() {
-        log.info("Marking mails as read");
-
-        mailRepository.markAsReadInDB();
-
-        //log.info("Marked all unread mails as opened for user {}", UserService.currentLoggedInUser.getUsername());
-        log.info("Marked all unread mails as opened for user {}", SessionManager.getInstance().getCurrentUser());
     }
 }

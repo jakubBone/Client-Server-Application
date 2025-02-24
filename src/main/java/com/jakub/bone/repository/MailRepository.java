@@ -9,6 +9,7 @@ import org.jooq.Record;
 import org.jooq.impl.DSL;
 import com.jakub.bone.domain.User;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,7 +35,7 @@ public class MailRepository {
                 .column("sender", VARCHAR(255).nullable(false))
                 .column("recipient", VARCHAR(255).nullable(false))
                 .column("message", VARCHAR(255).nullable(false))
-                .column("status", VARCHAR(50).nullable(false))
+                .column("send_time", org.jooq.impl.SQLDataType.TIMESTAMP.nullable(false))
                 .constraints(
                         DSL.constraint("PK_MAIL").primaryKey("id")
                 )
@@ -50,22 +51,29 @@ public class MailRepository {
                         field("sender"),
                         field("recipient"),
                         field("message"),
-                        field("status"))
+                        field("send_time"))
                 .values(mail.getSender().getUsername(),
                         mail.getRecipient().getUsername(),
                         mail.getMessage(),
-                        mail.getStatus().toString())
+                        mail.getSendTime().toString())
                 .execute();
     }
 
     public List<Mail> findMails(String boxType) {
+        String username = SessionManager.getInstance().getCurrentUser().getUsername();
+        Condition condition;
+        if (boxType.equalsIgnoreCase("SENT")) {
+            condition = field("sender").eq(username);
+        } else { // INBOX
+            condition = field("recipient").eq(username);
+        }
         List<Record> records = context.selectFrom("mail")
-                .where(getMailboxCondition(boxType))
+                .where(condition)
+                .orderBy(field("send_time").desc())
                 .fetch();
 
         List<Mail> mails = new ArrayList<>();
         for (Record record : records) {
-            System.out.println("in loop");
             Mail mail = mapRecordToMail(record);
             mails.add(mail);
         }
@@ -73,56 +81,37 @@ public class MailRepository {
     }
 
     public void deleteMails(String boxType) {
-        context.deleteFrom(table("mail"))
-                .where(getMailboxCondition(boxType))
-                .execute();
+        String username = SessionManager.getInstance().getCurrentUser().getUsername();
+        if (boxType.equalsIgnoreCase("SENT")) {
+            context.deleteFrom(table("mail"))
+                    .where(field("sender").eq(username))
+                    .execute();
+        } else { // INBOX
+            context.deleteFrom(table("mail"))
+                    .where(field("recipient").eq(username))
+                    .execute();
+        }
     }
 
     public Mail mapRecordToMail(Record record) {
         String message = record.getValue("message", String.class);
         String senderUsername = record.getValue("sender", String.class);
         String recipientUsername = record.getValue("recipient", String.class);
-        Mail.Status status = Mail.Status.valueOf(record.getValue("status", String.class));
+        String sendTimeStr = record.getValue("send_time", String.class);
+        LocalDateTime sendTime = LocalDateTime.parse(sendTimeStr);
 
         User sender = userRepository.findUserByUsername(senderUsername);
         User recipient = userRepository.findUserByUsername(recipientUsername);
 
-        return new Mail(sender, recipient, message, status);
+        return new Mail(sender, recipient, message, sendTime);
     }
 
-    public Condition getMailboxCondition(String boxType) {
-        String username = SessionManager.getInstance().getCurrentUser().getUsername();
-        Condition condition;
-
-        if (boxType.equals(Mail.Status.SENT.toString())) {
-            condition = field("sender").eq(username)
-                    .and(field("status").eq(boxType));
-        } else {
-            condition = field("recipient").eq(username)
-                    .and(field("status").eq(boxType));
-        }
-
-        return condition;
-    }
-
-    public boolean isMailboxFull(User recipient){
-        String unread = Mail.Status.UNREAD.toString();
-
+    public boolean isMailboxFull(User recipient) {
         int messageCount = context.selectFrom(table("mail"))
-                .where(field("recipient").eq(recipient.getUsername())
-                        .and(field("status").eq(unread)))
+                .where(field("recipient").eq(recipient.getUsername()))
                 .fetch()
                 .size();
 
         return messageCount > 5;
-    }
-
-    public void markAsReadInDB() {
-        context.update(table("mail"))
-                .set(field("status"), Mail.Status.OPENED.toString())
-                .where(field("recipient").eq(SessionManager.getInstance().getCurrentUser().getUsername()))
-                .and(field("status").eq(Mail.Status.UNREAD.toString()))
-                .execute();
-
     }
 }

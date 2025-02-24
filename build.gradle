@@ -50,7 +50,7 @@ jooq {
             generationTool {
                 jdbc {
                     driver = 'org.sqlite.JDBC'
-                    url = 'jdbc:sqlite:src/main/resources/db/user_db.db'
+                    url = 'jdbc:sqlite:src/main/resources/data/user_db.db'
                 }
                 generator {
                     name = 'org.jooq.codegen.DefaultGenerator'

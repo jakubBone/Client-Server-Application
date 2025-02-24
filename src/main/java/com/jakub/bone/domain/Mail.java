@@ -3,25 +3,20 @@ package com.jakub.bone.domain;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 public class Mail {
-
-    public enum Status{
-        UNREAD,
-        OPENED,
-        SENT;
-    }
-
     private User sender;
     private User recipient;
     private String message;
-    private Status status;
+    private LocalDateTime sendTime;
 
-    public Mail(User sender, User recipient, String message, Status status) {
+    public Mail(User sender, User recipient, String message, LocalDateTime sendTime) {
         this.sender = sender;
         this.recipient = recipient;
         this.message = message;
-        this.status = status;
+        this.sendTime = sendTime;
     }
 }

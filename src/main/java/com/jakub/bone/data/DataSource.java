@@ -9,7 +9,7 @@ import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 public class DataSource {
-    private final String DATABASE_DIRECTORY = "src/main/resources/db";
+    private final String DATABASE_DIRECTORY = "src/main/resources/data";
     private final String DATABASE = "/user_db.db";
     private final String URL = String.format("jdbc:sqlite:%s", DATABASE_DIRECTORY + DATABASE);
     private static DataSource instance;

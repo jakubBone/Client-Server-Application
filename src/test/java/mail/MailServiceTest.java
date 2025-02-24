@@ -76,11 +76,4 @@ public class MailServiceTest {
         verify(mockMailDAO,times(1)).deleteMails(mailbox);
     }
 
-    @Test
-    @DisplayName("Should test if message is marked as read in the database")
-    void testMarkAsRead() {
-        mailService.markAsRead();
-
-        verify(mockMailDAO,times(1)).markAsReadInDB();
-    }
 }

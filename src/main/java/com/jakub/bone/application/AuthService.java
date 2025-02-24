@@ -51,7 +51,7 @@ public class AuthService {
 
     public String logout() {
         SessionManager.getInstance().setCurrentUser(null);
-        log.info("Logout success {}", user.getUsername());
+        log.info("Logout successful");
 
         return ResponseStatus.LOGOUT_SUCCEEDED.getResponse();
     }
