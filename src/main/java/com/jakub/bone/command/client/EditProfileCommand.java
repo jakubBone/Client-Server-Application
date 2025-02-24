@@ -40,7 +40,7 @@ public class EditProfileCommand implements Command {
                 builder.addPayload("username", username);
             }
             default -> {
-                builder.addPayload("error", "Nieznana operacja: " + subCommand);
+                builder.addPayload("error", "Unknown operation: " + subCommand);
             }
         }
         return builder.build();

@@ -16,16 +16,12 @@ public class ReadMailHandler implements CommandHandler {
     @Override
     public String execute(CommandDTO commandDTO) {
         String boxType = commandDTO.getPayload().get("boxType");
-        System.out.println(boxType);
-        if (boxType == null || boxType.isEmpty()) {
-            boxType = "INBOX";
-        }
-        System.out.println("0");
+
         List<Mail> mails = mailService.getMails(boxType);
         if (mails.isEmpty()) {
             return ResponseStatus.MAILBOX_EMPTY.getResponse();
         }
-        System.out.println("1");
+
         StringBuilder response = new StringBuilder("\nMessages (" + boxType + "):\n\n");
         for (Mail mail : mails) {
             if("SENT".equals(boxType)){
