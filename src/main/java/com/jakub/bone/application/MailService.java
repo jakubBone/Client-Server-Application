@@ -14,6 +14,7 @@ import com.jakub.bone.domain.User;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static com.jakub.bone.utils.ResponseStatus.SENDING_FAILED_BOX_FULL;
 import static com.jakub.bone.utils.ResponseStatus.SENDING_SUCCEEDED;
 
 @Log4j2
@@ -31,6 +32,11 @@ public class MailService {
 
     public String sendMail(User recipient, String message) {
         Mail mail = new Mail(SessionManager.getInstance().getCurrentUser(), recipient, message, LocalDateTime.now());
+
+        if(mailRepository.isMailboxFull(recipient);){
+            return SENDING_FAILED_BOX_FULL.getResponse();
+        }
+
         mailRepository.createMail(mail);
         log.info("Mail successfully sent to {}", recipient.getUsername());
         return SENDING_SUCCEEDED.getResponse();
@@ -39,11 +45,6 @@ public class MailService {
     public List<Mail> getMails(String boxType) {
         return mailRepository.findMails(boxType);
     }
-
-    public boolean isMailboxFull(User recipient){
-        return mailRepository.isMailboxFull(recipient);
-    }
-
 
     public void deleteMails(String boxType) {
         mailRepository.deleteMails(boxType);
