@@ -5,9 +5,11 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
+import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
 
 @Log4j2
+@Getter
 public class DataSource {
     private final String DATABASE_DIRECTORY = "src/main/resources/data";
     private final String DATABASE = "/user_db.db";
@@ -18,6 +20,13 @@ public class DataSource {
     public DataSource() {
         createDatabaseDirectory();
         connect();
+    }
+
+    public static synchronized DataSource getInstance() {
+        if (instance == null) {
+            instance = new DataSource();
+        }
+        return instance;
     }
 
     private void createDatabaseDirectory() {
@@ -31,12 +40,6 @@ public class DataSource {
         }
     }
 
-    public static synchronized DataSource getInstance() {
-        if (instance == null) {
-            instance = new DataSource();
-        }
-        return instance;
-    }
 
     public void connect() {
         try {

@@ -31,7 +31,6 @@ public class CommandHandlerFactory {
             case "READ" -> new ReadMailHandler(mailService);
             case "DELETE" -> new DeleteMailHandler(mailService);
             case "EDIT" -> new EditProfileHandler(userManager);
-            //case "CHANGE", "REMOVE", "ROLE", "SWITCH" -> new EditProfileHandler(userManager);
             default -> {
                 log.warn("Unknown operation: {}", command);
                 yield null;

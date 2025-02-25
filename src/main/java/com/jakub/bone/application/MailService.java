@@ -5,7 +5,6 @@ import com.jakub.bone.domain.Mail;
 import com.jakub.bone.repository.MailRepository;
 import com.jakub.bone.repository.UserRepository;
 import com.jakub.bone.session.SessionManager;
-import com.jakub.bone.utils.ResponseStatus;
 import lombok.extern.log4j.Log4j2;
 import lombok.Setter;
 import org.jooq.DSLContext;
@@ -14,6 +13,8 @@ import com.jakub.bone.domain.User;
 
 import java.time.LocalDateTime;
 import java.util.List;
+
+import static com.jakub.bone.utils.ResponseStatus.SENDING_SUCCEEDED;
 
 @Log4j2
 @Setter
@@ -32,7 +33,7 @@ public class MailService {
         Mail mail = new Mail(SessionManager.getInstance().getCurrentUser(), recipient, message, LocalDateTime.now());
         mailRepository.createMail(mail);
         log.info("Mail successfully sent to {}", recipient.getUsername());
-        return ResponseStatus.SENDING_SUCCEEDED.getResponse();
+        return SENDING_SUCCEEDED.getResponse();
     }
 
     public List<Mail> getMails(String boxType) {

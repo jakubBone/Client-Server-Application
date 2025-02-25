@@ -5,17 +5,15 @@ import com.jakub.bone.command.client.CommandFactory;
 
 import com.jakub.bone.command.common.CommandDTO;
 
-import com.jakub.bone.domain.User;
-import com.jakub.bone.session.SessionManager;
 import com.jakub.bone.utils.Messenger;
 
 import com.jakub.bone.ui.Screen;
 import com.jakub.bone.ui.UserInput;
-import com.jakub.bone.utils.ResponseStatus;
 
 import java.io.IOException;
 
-import static com.jakub.bone.domain.User.Role.ADMIN;
+import static com.jakub.bone.utils.ResponseStatus.*;
+
 
 public class ClientController {
     private final UserInput userInput;
@@ -60,15 +58,15 @@ public class ClientController {
     }
 
     private void updateState(String response) {
-        if (response.equals(ResponseStatus.USER_LOGIN_SUCCEEDED.getResponse())) {
+        if (response.equals(USER_LOGIN_SUCCEEDED.getResponse())) {
             isLoggedIn = true;
-        } else if (response.equals(ResponseStatus.ADMIN_LOGIN_SUCCEEDED.getResponse())) {
+        } else if (response.equals(ADMIN_LOGIN_SUCCEEDED.getResponse())) {
             isLoggedIn = true;
             isAdmin = true;
-        } else if (response.equals(ResponseStatus.LOGOUT_SUCCEEDED.getResponse())) {
+        } else if (response.equals(LOGOUT_SUCCEEDED.getResponse())) {
             isLoggedIn = false;
             isAdmin = false;
-        } else if (response.equals(ResponseStatus.USER_SWITCH_SUCCEEDED.getResponse())) {
+        } else if (response.equals(USER_SWITCH_SUCCEEDED.getResponse())) {
             isAdmin = false;
         }
     }

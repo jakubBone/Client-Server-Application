@@ -19,10 +19,6 @@ public class SessionManager {
         return instance;
     }
 
-    public boolean isLoggedIn() {
-        return currentUser != null;
-    }
-
     public boolean isAdmin() {
         return currentUser != null && currentUser.getRole() == User.Role.ADMIN;
     }

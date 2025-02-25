@@ -3,7 +3,7 @@ package com.jakub.bone.command.server;
 import com.jakub.bone.application.MailService;
 import com.jakub.bone.command.common.CommandDTO;
 import com.jakub.bone.domain.Mail;
-import com.jakub.bone.utils.ResponseStatus;
+import static com.jakub.bone.utils.ResponseStatus.*;
 
 import java.util.List;
 
@@ -17,12 +17,12 @@ public class ReadMailHandler implements CommandHandler {
     public String execute(CommandDTO commandDTO) {
         String boxType = commandDTO.getPayload().get("boxType");
         if (boxType == null || boxType.isEmpty()) {
-            return ResponseStatus.UNKNOWN_REQUEST.getResponse();
+            return UNKNOWN_REQUEST.getResponse();
         }
 
         List<Mail> mails = mailService.getMails(boxType);
         if (mails.isEmpty()) {
-            return ResponseStatus.MAILBOX_EMPTY.getResponse();
+            return MAILBOX_EMPTY.getResponse();
         }
 
         StringBuilder response = new StringBuilder("\nMessages (" + boxType + "):\n\n");
