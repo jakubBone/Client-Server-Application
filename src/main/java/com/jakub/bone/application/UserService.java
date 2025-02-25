@@ -69,4 +69,6 @@ public class UserService {
 
         log.info("Role change succeeded for user: {} to {}", user.getUsername(), role);
     }
+
+
 }

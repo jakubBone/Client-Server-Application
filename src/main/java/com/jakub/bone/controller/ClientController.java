@@ -68,10 +68,8 @@ public class ClientController {
         } else if (response.equals(ResponseStatus.LOGOUT_SUCCEEDED.getResponse())) {
             isLoggedIn = false;
             isAdmin = false;
-        } else if(response.equals(ResponseStatus.SWITCH_SUCCEEDED.getResponse())){
-            if(!SessionManager.getInstance().isAdmin()){
-                isAdmin = false;
-            }
+        } else if (response.equals(ResponseStatus.USER_SWITCH_SUCCEEDED.getResponse())) {
+            isAdmin = false;
         }
     }
 
