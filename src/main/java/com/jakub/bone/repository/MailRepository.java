@@ -62,7 +62,7 @@ public class MailRepository {
 
     }
 
-    public void createMail(Mail mail) {
+    public void saveMail(Mail mail) {
         try {
             // Date format: yyyy-MM-dd HH:mm:ss
             String formattedDate = mail.getSendTime().format(formatter);
@@ -80,8 +80,8 @@ public class MailRepository {
                             0, 0)  // set false
                     .execute();
         } catch (Exception e) {
-            log.error("Error while creating mail from {}: {}", mail.getSender(), e.getMessage());
-            throw new RuntimeException("Failed to crate mail from" + mail.getSender(), e);
+            log.error("Error while creating mail from {}: {}", mail.getSender().getUsername(), e.getMessage());
+            throw new RuntimeException("Failed to create mail from" + mail.getSender(), e);
         }
     }
 
@@ -108,8 +108,8 @@ public class MailRepository {
             }
             return mails;
         } catch (Exception e) {
-            log.error("Error while finding {} mails: {}", boxType, e.getMessage());
-            throw new RuntimeException("Failed to find mails: " + boxType , e);
+            log.error("Error while retrieving {} emails: {}", boxType, e.getMessage());
+            throw new RuntimeException("Failed to retrieve mails: " + boxType , e);
         }
     }
 

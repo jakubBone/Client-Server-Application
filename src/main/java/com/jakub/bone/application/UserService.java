@@ -38,39 +38,24 @@ public class UserService {
     }
 
     public void changePassword(User user, String newPassword) {
-        log.info("Attempting to password change for user: {}", user.getUsername());
-
         user.setPassword(newPassword);
-
-        log.info("Attempting to upload database: {}", user.getUsername());
         userRepository.updateUser(user);
-
-        log.info("Data base upload succeeded {}", user.getUsername());
-        log.info("Password change succeeded for user: {}", user.getUsername());
+        log.info("Password successfully changed for user: {}", user.getUsername());
     }
 
     public void removeUser(User user) {
-        log.info("Attempting to remove user: {}", user.getUsername());
-
         userRepository.removeUser(user.getUsername());
-
-        log.info("User removal succeeded: {}", user.getUsername());
+        log.info("User remove successfully: {}", user.getUsername());
     }
 
     public void switchUser(User user) {
-        log.info("Attempting to switch to user: {}", user.getUsername());
         sessionManager.setCurrentUser(user);
-        log.info("Switched to user: {}", user.getUsername());
+        log.info("User switched successfully: {}", user.getUsername());
     }
 
     public void changeUserRole(User user, User.Role role) {
-        log.info("Attempting to role change for user: {}", user.getUsername());
-
         user.setRole(role);
         userRepository.changeUserRole(user, role);
-
-        log.info("Role change succeeded for user: {} to {}", user.getUsername(), role);
+        log.info("Role changed successfully: {} to {}", user.getUsername(), role);
     }
-
-
 }

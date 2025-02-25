@@ -41,7 +41,7 @@ public class MailServiceTest {
         mailService.sendMail(recipient, "message");
 
         // verify if mail has been saved in DB
-        verify(mockMailDAO, times(2)).createMail(any(Mail.class));
+        verify(mockMailDAO, times(2)).saveMail(any(Mail.class));
     }
 
     @Test

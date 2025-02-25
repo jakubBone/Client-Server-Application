@@ -7,10 +7,10 @@ import lombok.extern.log4j.Log4j2;
 
 import static com.jakub.bone.utils.ResponseStatus.*;
 @Log4j2
-public class EditProfileHandler implements CommandHandler {
+public class EditUserHandler implements CommandHandler {
     private final UserService userManager;
 
-    public EditProfileHandler(UserService userManager) {
+    public EditUserHandler(UserService userManager) {
         this.userManager = userManager;
     }
 

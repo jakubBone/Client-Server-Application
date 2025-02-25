@@ -24,6 +24,7 @@ public class ClientApp {
             if (connManager != null) {
                 try {
                     connManager.disconnect();
+                    log.info("Client disconnected successfully");
                 } catch (Exception e) {
                     log.error("Error during client disconnect: {}", e.getMessage(), e);
                 }

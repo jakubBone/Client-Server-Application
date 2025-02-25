@@ -22,7 +22,7 @@ public class ServerLauncher {
                     connManager.disconnect();
                     log.info("Server disconnected successfully");
                 } catch (Exception e) {
-                    log.error("Error disconnecting server: {}", e.getMessage(), e);
+                    log.error("Error during server disconnect: {}", e.getMessage(), e);
                 }
             }
         }

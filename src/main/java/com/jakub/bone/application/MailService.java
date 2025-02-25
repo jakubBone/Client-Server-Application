@@ -39,8 +39,8 @@ public class MailService {
             return SENDING_FAILED_BOX_FULL.getResponse();
         }
 
-        mailRepository.createMail(mail);
-        log.info("Mail successfully sent to {}", recipient.getUsername());
+        mailRepository.saveMail(mail);
+        log.info("Mail sent successfully to {}", recipient.getUsername());
         return SENDING_SUCCEEDED.getResponse();
     }
 
@@ -50,6 +50,6 @@ public class MailService {
 
     public void deleteMails(String boxType) {
         mailRepository.deleteMails(boxType, sessionManager);
-        log.info("{} mails soft-deleted for user {}", boxType, sessionManager.getCurrentUser());
+        log.info("Soft-deleted {} emails for user {}", boxType, sessionManager.getCurrentUser().getUsername());
     }
 }

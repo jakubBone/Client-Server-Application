@@ -42,15 +42,14 @@ public class RequestProcessor {
                 if (commandDTO == null) {
                     break;
                 }
-                log.info("Received JSON request: {}", commandDTO);
-
+                log.debug("Received JSON request: {}", commandDTO);
                 CommandHandler commandHandler = factory.createHandler(commandDTO);
                 String response = commandHandler.execute(commandDTO);
 
                 messenger.send(response);
             }
         } catch (Exception e) {
-            log.error("Error handling client request: {}", e.getMessage());
+            log.error("Error while handling client request: {}", e.getMessage());
 
         }
     }

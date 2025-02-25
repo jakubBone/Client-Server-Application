@@ -43,17 +43,16 @@ public class DataSource {
 
     public void connect() {
         try {
-            log.info("Attempting to connect with data base");
+            log.debug("Attempting to connect to the database...");
             connection = DriverManager.getConnection(URL);
             if(connection != null){
-                log.info("Connection with database {} established", DATABASE);
+                log.info("Database connection established: {}", DATABASE);
             } else {
-                log.warn("Connection with database {} failed", DATABASE);
+                log.warn("Failed to establish connection to the database: {}", DATABASE);
             }
         } catch (SQLException e) {
-            log.error("Error during database connection: {}", e.getMessage());
-            throw new RuntimeException("Error connecting to the database", e);
-
+            log.error("Database connection error: {}", e.getMessage());
+            throw new RuntimeException("Error while connecting to the database", e);
         }
     }
 
@@ -65,10 +64,10 @@ public class DataSource {
         try {
             if (connection != null) {
                 connection.close();
-                log.info("Database disconnected");
+                log.info("Database disconnected successfully");
             }
         } catch(SQLException e){
-            log.error("Error during database disconnection: {}", e.getMessage());
+            log.error("Error while disconnecting database: {}", e.getMessage());
         }
     }
 }
