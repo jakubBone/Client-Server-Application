@@ -3,9 +3,10 @@ package com.jakub.bone.command.server;
 import com.jakub.bone.command.common.CommandDTO;
 import com.jakub.bone.domain.User;
 import com.jakub.bone.application.UserService;
+import lombok.extern.log4j.Log4j2;
 
 import static com.jakub.bone.utils.ResponseStatus.*;
-
+@Log4j2
 public class EditProfileHandler implements CommandHandler {
     private final UserService userManager;
 
@@ -50,7 +51,8 @@ public class EditProfileHandler implements CommandHandler {
 
             }
             default -> {
-               return UNKNOWN_REQUEST.getResponse();
+                log.warn("Unknown operation: {}", subCommand);
+                return UNKNOWN_REQUEST.getResponse();
             }
         }
     }

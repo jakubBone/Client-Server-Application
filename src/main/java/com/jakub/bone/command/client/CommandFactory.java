@@ -6,6 +6,8 @@ import com.jakub.bone.ui.UserInput;
 
 import java.io.IOException;
 
+import static com.jakub.bone.utils.ResponseStatus.UNKNOWN_REQUEST;
+
 @Log4j2
 public class CommandFactory {
     private final UserInput input;

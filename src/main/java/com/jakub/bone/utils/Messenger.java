@@ -1,11 +1,12 @@
 package com.jakub.bone.utils;
 
-import com.jakub.bone.utils.JsonConverter;
+import lombok.extern.log4j.Log4j2;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+@Log4j2
 public class Messenger {
     private PrintWriter out;
     private BufferedReader in;
@@ -29,7 +30,8 @@ public class Messenger {
                 builder.append(line);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Error while reading from input stream: {}", e.getMessage());
+            throw new RuntimeException("Error reading message", e);
         }
         String json = builder.toString();
         return JsonConverter.deserialize(json, clazz);

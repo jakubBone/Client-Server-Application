@@ -36,9 +36,8 @@ public class ServerConnectionManager implements ConnectionManager{
         try {
             if (clientSocket != null) clientSocket.close();
             if (serverSocket != null) serverSocket.close();
-            log.info("Server disconnected");
         } catch (IOException e) {
-            log.error("Error disconnecting: {}", e.getMessage());
+            log.error("Error while closing server sockets: {}", e.getMessage());
         }
     }
 }

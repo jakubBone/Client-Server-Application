@@ -21,63 +21,89 @@ public class UserRepository {
         createTable();
     }
 
-    public void createTable(){
-        context.createTableIfNotExists("user")
-                .column("id", INTEGER.identity(true))
-                .column("username", VARCHAR(255).nullable(false))
-                .column("password", VARCHAR(255).nullable(false))
-                .column("role", VARCHAR(50).nullable(false))
-                .column("hashed_password", VARCHAR(255).nullable(false))
-                .constraints(
-                        DSL.constraint("pk_user").primaryKey("id"),
-                        DSL.constraint("uk_user_username").unique("username")
-                )
-                .execute();
+    public void createTable() {
+        try {
+            context.createTableIfNotExists("user")
+                    .column("id", INTEGER.identity(true))
+                    .column("username", VARCHAR(255).nullable(false))
+                    .column("password", VARCHAR(255).nullable(false))
+                    .column("role", VARCHAR(50).nullable(false))
+                    .column("hashed_password", VARCHAR(255).nullable(false))
+                    .constraints(
+                            DSL.constraint("pk_user").primaryKey("id"),
+                            DSL.constraint("uk_user_username").unique("username")
+                    )
+                    .execute();
+        } catch (Exception e) {
+            log.error("Error while 'user' table creating: {}", e.getMessage());
+            throw new RuntimeException("Failed to create 'user' table ", e);
+        }
     }
 
-    public void createUser(User user)  {
-        context.insertInto(table("user"),
-                        field("username"),
-                        field("password"),
-                        field("role"),
-                        field("hashed_password"))
-                .values(user.getUsername(),
-                        user.getPassword(),
-                        user.getRole().toString(),
-                        user.getHashedPassword())
-                .execute();
+    public void createUser(User user) {
+        try {
+            context.insertInto(table("user"),
+                            field("username"),
+                            field("password"),
+                            field("role"),
+                            field("hashed_password"))
+                    .values(user.getUsername(),
+                            user.getPassword(),
+                            user.getRole().toString(),
+                            user.getHashedPassword())
+                    .execute();
+        } catch (Exception e) {
+            log.error("Error while creating user {}: {}", user.getUsername(), e.getMessage());
+            throw new RuntimeException("Failed to create user " + user.getUsername(), e);
+        }
     }
 
     public User findUserByUsername(String username) {
-        Record record = context.selectFrom("user")
-                .where(DSL.field("username").eq(username))
-                .fetchOne();
+        try {
+            Record record = context.selectFrom("user")
+                    .where(DSL.field("username").eq(username))
+                    .fetchOne();
 
-        if (record == null) {
-            return null;
+            if (record == null) {
+                return null;
+            }
+
+            return new User(
+                    record.getValue("username", String.class),
+                    record.getValue("password", String.class),
+                    User.Role.valueOf(record.getValue("role", String.class).toUpperCase())
+            );
+        } catch (Exception e) {
+            log.error("Error while finding user {}: {}", username, e.getMessage());
+            throw new RuntimeException("Failed to find user " + username, e);
         }
-
-        return new User(
-                record.getValue("username", String.class),
-                record.getValue("password", String.class),
-                User.Role.valueOf(record.getValue("role", String.class).toUpperCase())
-        );
     }
 
     public boolean verifyUserPassword(String typedPassword, String username) {
-        Record record = context.selectFrom("user")
-                .where(DSL.field("username").eq(username))
-                .fetchOne();
+        try {
+            Record record = context.selectFrom("user")
+                    .where(DSL.field("username").eq(username))
+                    .fetchOne();
 
-        String hashed = record.getValue("hashed_password", String.class);
+            String hashed = record.getValue("hashed_password", String.class);
 
-        return BCrypt.checkpw(typedPassword, hashed);
+            return BCrypt.checkpw(typedPassword, hashed);
+        } catch (Exception e) {
+            log.error("Error while verifying password for user {}: {}", username, e.getMessage());
+            throw new RuntimeException("Failed to verify password for user " + username, e);
+        }
+
     }
 
     public void removeUser(String username) {
-        context.deleteFrom(table("user"))
-                .where(field("username").eq(username))
-                .execute();
+        try {
+            context.deleteFrom(table("user"))
+                    .where(field("username").eq(username))
+                    .execute();
+        } catch (Exception e) {
+            log.error("Error while deleting user {}: {}", username, e.getMessage());
+            throw new RuntimeException("Failed to delete user " + username, e);
+        }
     }
 
     public void changeUserRole(User user, User.Role role) {
@@ -85,11 +111,16 @@ public class UserRepository {
     }
 
     public void updateUser(User user) {
-        context.update(table("user"))
-                .set(field("password"), user.getPassword())
-                .set(field("role"), user.getRole().toString())
-                .set(field("hashed_password"), user.getHashedPassword())
-                .where(field("username").eq(user.getUsername()))
-                .execute();
+        try {
+            context.update(table("user"))
+                    .set(field("password"), user.getPassword())
+                    .set(field("role"), user.getRole().toString())
+                    .set(field("hashed_password"), user.getHashedPassword())
+                    .where(field("username").eq(user.getUsername()))
+                    .execute();
+        } catch (Exception e) {
+            log.error("Error while updating user {}: {}", user.getUsername(), e.getMessage());
+            throw new RuntimeException("Failed to update user " + user.getUsername(), e);
+        }
     }
 }

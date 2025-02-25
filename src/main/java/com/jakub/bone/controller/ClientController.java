@@ -9,12 +9,13 @@ import com.jakub.bone.utils.Messenger;
 
 import com.jakub.bone.ui.Screen;
 import com.jakub.bone.ui.UserInput;
+import lombok.extern.log4j.Log4j2;
 
 import java.io.IOException;
 
 import static com.jakub.bone.utils.ResponseStatus.*;
 
-
+@Log4j2
 public class ClientController {
     private final UserInput userInput;
     private final CommandFactory commandFactory;
@@ -40,7 +41,7 @@ public class ClientController {
                 }
                 Command command = commandFactory.createCommand(input);
                 if (command == null) {
-                    System.out.println("Unknown command. Try again.");
+                    System.out.println("Unknown command. Try again");
                     continue;
                 }
 
@@ -52,7 +53,8 @@ public class ClientController {
                 updateState(response);
                 printResponse(response);
             } catch (IOException e) {
-                System.err.println("Error: " + e.getMessage());
+                log.error("Error processing command: {}", e.getMessage());
+                System.err.println("An error occurred while processing your command: " + e.getMessage());
             }
         }
     }
@@ -88,7 +90,8 @@ public class ClientController {
         try{
             Thread.sleep(2000);
         } catch (InterruptedException e){
-            e.getMessage();
+            log.error("Sleep interrupted: {}", e.getMessage(), e);
+            Thread.currentThread().interrupt();
         }
     }
 }

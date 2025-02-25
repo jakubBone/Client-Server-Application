@@ -1,9 +1,5 @@
 package com.jakub.bone.ui;
 
-import com.jakub.bone.domain.User;
-
-import java.util.List;
-
 public class Screen {
 
     public void printClientUI(boolean isLogged, boolean isAuthorized){
@@ -66,7 +62,6 @@ public class Screen {
                 "|2. Assign role                                 |\n" +
                 "|3. Remove user                                 |\n" +
                 "|4. Switch user                                 |\n" +
-                "|5. Return                                      |\n" +
                 "+---------------------------------------------+");
         System.out.print("Select: ");
     }
@@ -85,17 +80,5 @@ public class Screen {
         System.out.println("===============================================");
         System.out.println(response);
         System.out.println("===============================================\n");
-    }
-
-    public static void printUsers(List<User> users) {
-        System.out.println("+---------------------------------------------+\n" +
-                "|                     ADMIN                   |\n" +
-                "|                                             |\n" +
-                "| List of Users:                              |\n" +
-                "+---------------------------------------------+");
-        for (User user : users) {
-            System.out.println(" - " + user.getUsername());
-        }
-        System.out.print("Select user: ");
     }
 }

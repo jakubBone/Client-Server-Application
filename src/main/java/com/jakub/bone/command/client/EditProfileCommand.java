@@ -2,6 +2,7 @@ package com.jakub.bone.command.client;
 
 import com.jakub.bone.command.common.Command;
 import com.jakub.bone.command.common.CommandDTO;
+import com.jakub.bone.domain.User;
 import com.jakub.bone.ui.Screen;
 import com.jakub.bone.ui.UserInput;
 
@@ -18,6 +19,13 @@ public class EditProfileCommand implements Command {
     public CommandDTO buildCommandMessage() throws IOException {
         Screen.printEditScreen();
         String subCommand = input.getRequest().trim().toUpperCase();
+
+        while (!isValidSubCommand(subCommand)) {
+            Screen.printEditScreen();
+            System.out.println("Unknown command. Try again");
+            subCommand = input.getRequest().trim().toUpperCase();
+        }
+
         CommandDTO.Builder builder = new CommandDTO.Builder()
                 .commandType("EDIT")
                 .addPayload("subCommand", subCommand);
@@ -32,6 +40,10 @@ public class EditProfileCommand implements Command {
             case "ASSIGN" -> {
                 String username = input.promptUsername();
                 String newRole = input.promptNewRole();
+                while (!isValidNewRole(newRole)) {
+                    System.out.println("Unknown command. Try again");
+                    newRole = input.promptNewRole();
+                }
                 builder.addPayload("username", username)
                         .addPayload("newRole", newRole);
             }
@@ -41,8 +53,20 @@ public class EditProfileCommand implements Command {
             }
             default -> {
                 builder.addPayload("error", "Unknown operation: " + subCommand);
+                return null;
             }
         }
         return builder.build();
+    }
+
+    private boolean isValidSubCommand(String subCommand) {
+        return subCommand.equals("CHANGE") ||
+                subCommand.equals("ASSIGN") ||
+                subCommand.equals("REMOVE") ||
+                subCommand.equals("SWITCH");
+    }
+
+    private boolean isValidNewRole(String newRole) {
+        return (newRole.equals("USER") || newRole.equals("ADMIN"));
     }
 }

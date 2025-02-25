@@ -24,7 +24,6 @@ public class RequestProcessor {
     private final ServerInfo serverInfo;
     private final CommandHandlerFactory factory;
 
-
     public RequestProcessor(PrintWriter out, BufferedReader in) {
         this.messenger = new Messenger(out, in);
         this.sessionManager = new SessionManager();
@@ -52,6 +51,7 @@ public class RequestProcessor {
             }
         } catch (Exception e) {
             log.error("Error handling client request: {}", e.getMessage());
+
         }
     }
 }

@@ -18,6 +18,7 @@ public class JsonConverter {
             gson = new Gson();
             return gson.toJson(obj);
         } catch (Exception e) {
+            log.error("Serialization error: {}", e.getMessage());
             throw new IllegalStateException("Error - failed to serialize JsonResponse to JSON", e);
         }
     }
@@ -28,7 +29,7 @@ public class JsonConverter {
             return gson.fromJson(json, classOfT);
         } catch (JsonSyntaxException e) {
             log.error("Deserialization error: {}", e.getMessage());
-            throw new IllegalArgumentException("Błędny format JSON", e);
+            throw new IllegalArgumentException("Invalid JSON format", e);
         }
     }
 }

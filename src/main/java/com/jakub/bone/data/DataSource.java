@@ -48,10 +48,11 @@ public class DataSource {
             if(connection != null){
                 log.info("Connection with database {} established", DATABASE);
             } else {
-                log.info("Failed to connect with database {}", DATABASE);
+                log.warn("Connection with database {} failed", DATABASE);
             }
-        } catch (SQLException ex) {
-            log.error("Error during database connection: {}", ex.getMessage());
+        } catch (SQLException e) {
+            log.error("Error during database connection: {}", e.getMessage());
+            throw new RuntimeException("Error connecting to the database", e);
 
         }
     }
@@ -66,8 +67,8 @@ public class DataSource {
                 connection.close();
                 log.info("Database disconnected");
             }
-        } catch(SQLException ex){
-            log.error("Error during database disconnection: {}", ex.getMessage());
+        } catch(SQLException e){
+            log.error("Error during database disconnection: {}", e.getMessage());
         }
     }
 }
