@@ -47,8 +47,7 @@ public class MailRepository {
                 .execute();
     }
 
-
-    public void clearTable(){
+    public void truncateTable(){
         context.truncate("mail").restartIdentity().execute();
     }
 
@@ -70,8 +69,8 @@ public class MailRepository {
                 .execute();
     }
 
-    public List<Mail> findMails(String boxType) {
-        String username = SessionManager.getInstance().getCurrentUser().getUsername();
+    public List<Mail> findMails(String boxType, SessionManager sessionManager) {
+        String username = sessionManager.getCurrentUser().getUsername();
         Condition condition;
         if (boxType.equalsIgnoreCase("SENT")) {
             condition = field("sender").eq(username)
@@ -93,8 +92,8 @@ public class MailRepository {
         return mails;
     }
 
-    public void deleteMails(String boxType) {
-        String username = SessionManager.getInstance().getCurrentUser().getUsername();
+    public void deleteMails(String boxType, SessionManager sessionManager) {
+        String username = sessionManager.getCurrentUser().getUsername();
         if (boxType.equalsIgnoreCase("SENT")) {
             context.update(table("mail"))
                     .set(field("deleted_by_sender"), 1)

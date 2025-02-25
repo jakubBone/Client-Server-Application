@@ -19,12 +19,14 @@ public class UserService {
     private DSLContext create;
     private UserRepository userRepository;
     private AuthService authManager;
+    private final SessionManager sessionManager;
 
-    public UserService() {
+    public UserService(AuthService authService) {
         this.create = DSL.using(DataSource.getInstance().getConnection());
         this.userRepository = new UserRepository(create);
         this.admin = new Admin();
-        this.authManager = new AuthService();
+        this.authManager = authService;
+        this.sessionManager = authService.getSessionManager();
     }
 
     public User findUserByUsername(String username) {
@@ -57,7 +59,7 @@ public class UserService {
 
     public void switchUser(User user) {
         log.info("Attempting to switch to user: {}", user.getUsername());
-        SessionManager.getInstance().setCurrentUser(user);
+        sessionManager.setCurrentUser(user);
         log.info("Switched to user: {}", user.getUsername());
     }
 

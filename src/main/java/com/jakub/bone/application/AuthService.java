@@ -1,13 +1,21 @@
 package com.jakub.bone.application;
 
 import com.jakub.bone.session.SessionManager;
+import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
 import com.jakub.bone.domain.User;
 
 import static com.jakub.bone.utils.ResponseStatus.*;
 
 @Log4j2
+@Getter
 public class AuthService {
+
+    private final SessionManager sessionManager;
+
+    public AuthService(SessionManager sessionManager) {
+        this.sessionManager = sessionManager;
+    }
 
     public String register(String username, String password, UserService userManager) {
         User user = userManager.getUserRepository().findUserByUsername(username);
@@ -36,10 +44,10 @@ public class AuthService {
             return LOGIN_FAILED_INCORRECT_PASSWORD.getResponse();
         }
 
-        SessionManager.getInstance().setCurrentUser(user);
+        sessionManager.setCurrentUser(user);
         log.info("Login success for user: {}", user.getUsername());
 
-        if (SessionManager.getInstance().isAdmin()) {
+        if (sessionManager.isAdmin()) {
             return ADMIN_LOGIN_SUCCEEDED.getResponse();
         } else {
             return USER_LOGIN_SUCCEEDED.getResponse();
@@ -51,9 +59,8 @@ public class AuthService {
     }
 
     public String logout() {
-        SessionManager.getInstance().setCurrentUser(null);
+        sessionManager.setCurrentUser(null);
         log.info("Logout successful");
-
         return LOGOUT_SUCCEEDED.getResponse();
     }
 

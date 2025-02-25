@@ -23,17 +23,19 @@ public class MailService {
     private final DSLContext context;
     private MailRepository mailRepository;
     private UserRepository userRepository;
+    private SessionManager sessionManager;
 
-    public MailService() {
+    public MailService(SessionManager sessionManager) {
         this.context = DSL.using(DataSource.getInstance().getConnection());
         this.userRepository = new UserRepository(context);
         this.mailRepository = new MailRepository(context, userRepository);
+        this.sessionManager = sessionManager;
     }
 
     public String sendMail(User recipient, String message) {
-        Mail mail = new Mail(SessionManager.getInstance().getCurrentUser(), recipient, message, LocalDateTime.now());
+        Mail mail = new Mail(sessionManager.getCurrentUser(), recipient, message, LocalDateTime.now());
 
-        if(mailRepository.isMailboxFull(recipient);){
+        if(mailRepository.isMailboxFull(recipient)){
             return SENDING_FAILED_BOX_FULL.getResponse();
         }
 
@@ -43,11 +45,11 @@ public class MailService {
     }
 
     public List<Mail> getMails(String boxType) {
-        return mailRepository.findMails(boxType);
+        return mailRepository.findMails(boxType, sessionManager);
     }
 
     public void deleteMails(String boxType) {
-        mailRepository.deleteMails(boxType);
-        log.info("{} mails soft-deleted for user {}", boxType, SessionManager.getInstance().getCurrentUser());
+        mailRepository.deleteMails(boxType, sessionManager);
+        log.info("{} mails soft-deleted for user {}", boxType, sessionManager.getCurrentUser());
     }
 }

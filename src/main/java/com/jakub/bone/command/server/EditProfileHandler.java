@@ -3,7 +3,6 @@ package com.jakub.bone.command.server;
 import com.jakub.bone.command.common.CommandDTO;
 import com.jakub.bone.domain.User;
 import com.jakub.bone.application.UserService;
-import com.jakub.bone.session.SessionManager;
 
 import static com.jakub.bone.utils.ResponseStatus.*;
 
@@ -43,7 +42,7 @@ public class EditProfileHandler implements CommandHandler {
             }
             case "SWITCH" -> {
                 userManager.switchUser(user);
-                if(SessionManager.getInstance().isAdmin()){
+                if(userManager.getSessionManager().isAdmin()){
                     return ADMIN_SWITCH_SUCCEEDED.getResponse();
                 } else {
                     return USER_SWITCH_SUCCEEDED.getResponse();

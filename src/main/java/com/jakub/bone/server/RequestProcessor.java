@@ -2,6 +2,7 @@ package com.jakub.bone.server;
 
 import com.jakub.bone.command.common.CommandDTO;
 
+import com.jakub.bone.session.SessionManager;
 import com.jakub.bone.utils.Messenger;
 import com.jakub.bone.command.server.CommandHandler;
 import com.jakub.bone.command.server.CommandHandlerFactory;
@@ -16,17 +17,20 @@ import java.io.PrintWriter;
 @Log4j2
 public class RequestProcessor {
     private final Messenger messenger;
+    private final SessionManager sessionManager;
     private final AuthService authManager;
     private final UserService userManager;
     private final MailService mailService;
     private final ServerInfo serverInfo;
     private final CommandHandlerFactory factory;
 
+
     public RequestProcessor(PrintWriter out, BufferedReader in) {
         this.messenger = new Messenger(out, in);
-        this.authManager = new AuthService();
-        this.userManager = new UserService();
-        this.mailService = new MailService();
+        this.sessionManager = new SessionManager();
+        this.authManager = new AuthService(sessionManager);
+        this.userManager = new UserService(authManager);
+        this.mailService = new MailService(sessionManager);
         this.serverInfo = new ServerInfo();
         this.factory = new CommandHandlerFactory(authManager, userManager, mailService, serverInfo);
 
