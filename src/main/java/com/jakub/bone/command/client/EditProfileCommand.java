@@ -22,8 +22,7 @@ public class EditProfileCommand implements Command {
 
         while (!isValidSubCommand(subCommand)) {
             Screen.printEditScreen();
-            System.out.println("Unknown command. Try again");
-            subCommand = input.getRequest().trim().toUpperCase();
+            subCommand = input.getRequest().trim().toUpperCase();;
         }
 
         CommandDTO.Builder builder = new CommandDTO.Builder()
@@ -40,8 +39,7 @@ public class EditProfileCommand implements Command {
             case "ASSIGN" -> {
                 String username = input.promptUsername();
                 String newRole = input.promptNewRole();
-                while (!isValidNewRole(newRole)) {
-                    System.out.println("Unknown command. Try again");
+                while (!isValidRole(newRole)) {
                     newRole = input.promptNewRole();
                 }
                 builder.addPayload("username", username)
@@ -60,13 +58,14 @@ public class EditProfileCommand implements Command {
     }
 
     private boolean isValidSubCommand(String subCommand) {
-        return subCommand.equals("CHANGE") ||
+        return subCommand != null && subCommand.equals("CHANGE") ||
                 subCommand.equals("ASSIGN") ||
                 subCommand.equals("REMOVE") ||
                 subCommand.equals("SWITCH");
     }
 
-    private boolean isValidNewRole(String newRole) {
-        return (newRole.equals("USER") || newRole.equals("ADMIN"));
+    private boolean isValidRole(String newRole) {
+        return (newRole != null && newRole.equalsIgnoreCase("USER")
+                || newRole.equalsIgnoreCase("ADMIN"));
     }
 }

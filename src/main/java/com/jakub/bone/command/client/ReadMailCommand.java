@@ -17,9 +17,17 @@ public class ReadMailCommand implements Command {
     public CommandDTO buildCommandMessage() throws IOException {
         Screen.printMailboxScreen();
         String boxType = input.getRequest().trim().toUpperCase();
+        while(!isBoxTypeValid(boxType)){
+            Screen.printMailboxScreen();
+            boxType = input.getRequest().trim().toUpperCase();
+        }
         return new CommandDTO.Builder()
                 .commandType("READ")
                 .addPayload("boxType", boxType)
                 .build();
+    }
+    private boolean isBoxTypeValid(String boxType) {
+        return (boxType != null && boxType.equalsIgnoreCase("INBOX")
+                || boxType.equalsIgnoreCase("SENT"));
     }
 }
