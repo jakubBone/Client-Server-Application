@@ -1,6 +1,6 @@
 # ✉️ Client-Server Application
 
-[![Watch the video](src/main/resources/images/logo.png)](https://www.youtube.com/watch?v=dmwIVkuxnnA&t=253s)
+[![Watch the video](src/main/resources/image/logo.png)](https://www.youtube.com/watch?v=dmwIVkuxnnA&t=253s)
 
 Welcome to the Client-Server App! This project demonstrates a simple client-server architecture
 that imitates an email system, showcasing communication between a client and a server using socket connections. 
