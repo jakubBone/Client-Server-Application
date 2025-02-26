@@ -1,4 +1,4 @@
-package application;
+package unit_test.application;
 
 import com.jakub.bone.application.AuthService;
 import com.jakub.bone.application.UserService;

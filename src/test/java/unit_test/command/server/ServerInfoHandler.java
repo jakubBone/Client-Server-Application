@@ -1,4 +1,4 @@
-package command.server;
+package unit_test.command.server;
 
 import com.jakub.bone.command.common.CommandDTO;
 import com.jakub.bone.command.server.ServerInfoHandler;

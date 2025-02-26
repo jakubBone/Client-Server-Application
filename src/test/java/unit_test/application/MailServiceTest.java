@@ -1,4 +1,4 @@
-package application;
+package unit_test.application;
 
 import com.jakub.bone.application.MailService;
 import com.jakub.bone.domain.Mail;

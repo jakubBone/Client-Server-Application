@@ -1,4 +1,4 @@
-package repository;
+package unit_test.repository;
 
 import com.jakub.bone.data.DataSource;
 import com.jakub.bone.domain.User;

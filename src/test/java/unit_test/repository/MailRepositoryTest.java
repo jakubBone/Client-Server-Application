@@ -1,4 +1,4 @@
-package repository;
+package unit_test.repository;
 
 import com.jakub.bone.data.DataSource;
 import com.jakub.bone.domain.Mail;
@@ -7,15 +7,17 @@ import com.jakub.bone.repository.MailRepository;
 import com.jakub.bone.repository.UserRepository;
 import com.jakub.bone.session.SessionManager;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.params.shadow.com.univocity.parsers.common.record.Record;
 
 import java.sql.Connection;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.when;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-
 public class MailRepositoryTest {
     private MailRepository mailRepository;
     private UserRepository userRepository;
@@ -91,5 +93,26 @@ public class MailRepositoryTest {
         mailRepository.deleteMails("SENT", sessionManager);
         List<Mail> sent = mailRepository.findMails("SENT", sessionManager);
         assertTrue(sent.isEmpty(), "Sent mailbox should be empty after deletion");
+    }
+
+    @Test
+    @DisplayName("Check if mailbox is full")
+    void testIsMailboxFull() {
+        // Create sender and recipient users
+        User sender = new User("sender3", "pass", User.Role.USER);
+        User recipient = new User("recipient3", "pass", User.Role.USER);
+        userRepository.createUser(sender);
+        userRepository.createUser(recipient);
+
+        // Sender sends 6 mails to recipient, exceeding the limit of 5
+        sessionManager.setCurrentUser(sender);
+        for (int i = 0; i < 6; i++) {
+            Mail mail = new Mail(sender, recipient, "Message " + i, LocalDateTime.now());
+            mailRepository.saveMail(mail);
+        }
+
+        // Check if the recipient's mailbox is considered full
+        boolean full = mailRepository.isMailboxFull(recipient);
+        assertTrue(full, "Mailbox should be considered full when more than 5 messages are present");
     }
 }

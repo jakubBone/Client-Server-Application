@@ -1,4 +1,4 @@
-package command.server;
+package unit_test.command.server;
 
 import com.jakub.bone.application.MailService;
 import com.jakub.bone.application.UserService;

@@ -1,7 +1,8 @@
-package com.jakub.bone.command.server;
+package unit_test.command.server;
 
 import com.jakub.bone.application.UserService;
 import com.jakub.bone.command.common.CommandDTO;
+import com.jakub.bone.command.server.EditUserHandler;
 import com.jakub.bone.domain.User;
 import com.jakub.bone.session.SessionManager;
 import com.jakub.bone.utils.ResponseStatus;
@@ -88,9 +89,9 @@ class EditUserHandlerTest {
                 .build();
 
 
-        SessionManager dummySessionManager = mock(SessionManager.class);
-        when(userService.getSessionManager()).thenReturn(dummySessionManager);
-        when(dummySessionManager.isAdmin()).thenReturn(false);
+        SessionManager testSessionManager = mock(SessionManager.class);
+        when(userService.getSessionManager()).thenReturn(testSessionManager);
+        when(testSessionManager.isAdmin()).thenReturn(false);
 
         String expected = ResponseStatus.USER_SWITCH_SUCCEEDED.getResponse();
         String response = editUserHandler.execute(commandDTO);
@@ -108,7 +109,7 @@ class EditUserHandlerTest {
                 .addPayload("username", "user")
                 .build();
 
-        String expected = com.jakub.bone.utils.ResponseStatus.UNKNOWN_REQUEST.getResponse();
+        String expected = ResponseStatus.UNKNOWN_REQUEST.getResponse();
         String response = editUserHandler.execute(commandDTO);
 
         // No service method should be called for an unknown subcommand.

@@ -1,4 +1,4 @@
-package command.client;
+package unit_test.command.client;
 
 import com.jakub.bone.command.client.*;
 import com.jakub.bone.command.common.CommandDTO;
@@ -6,18 +6,20 @@ import com.jakub.bone.ui.UserInput;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import static org.mockito.Mockito.*;
-import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.IOException;
 
-class CommandCreationTests {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+public class CreateCommandTest {
     private UserInput mockInput;
 
     @BeforeEach
     void setUp() {
-        mockInput = mock(UserInput.class);
+        mockInput = mock(com.jakub.bone.ui.UserInput.class);
     }
 
     @Test
@@ -161,4 +163,3 @@ class CommandCreationTests {
     // and promptPassword. Then you could override the instantiation in the test (for example, using a factory
     // or dependency injection). Here we simply note that AuthCommand should be refactored to allow testability.
 }
-
