@@ -7,13 +7,15 @@ import com.jakub.bone.utils.ResponseStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
-import static org.junit.jupiter.api.Assertions.*;
 
 class DeleteMailHandlerTest {
-    private MailService mailService;
-    private DeleteMailHandler deleteMailHandler;
-    private CommandDTO commandDTO;
+    MailService mailService;
+    DeleteMailHandler deleteMailHandler;
+    CommandDTO commandDTO;
 
     @BeforeEach
     void setUp() {

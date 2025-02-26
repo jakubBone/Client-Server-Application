@@ -14,10 +14,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 
 class EditUserHandlerTest {
-    private UserService userService;
-    private EditUserHandler editUserHandler;
-    private CommandDTO commandDTO;
-    private User dummyUser;
+    UserService userService;
+    EditUserHandler editUserHandler;
+    CommandDTO commandDTO;
+    User dummyUser;
 
     @BeforeEach
     void setUp() {

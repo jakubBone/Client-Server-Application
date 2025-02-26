@@ -11,9 +11,9 @@ import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class LogoutHandlerTest {
-    private AuthService authService;
-    private LogoutHandler logoutHandler;
-    private CommandDTO commandDTO;
+    AuthService authService;
+    LogoutHandler logoutHandler;
+    CommandDTO commandDTO;
 
     @BeforeEach
     void setUp() {

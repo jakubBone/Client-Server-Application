@@ -22,13 +22,13 @@ import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class MailServiceTest {
-    private MailService mailService;
-    private MailRepository mailRepository;
-    private UserRepository userRepository;
-    private SessionManager sessionManager;
-    private DSLContext context;
-    private User currentUser;
-    private User recipient;
+    MailService mailService;
+    MailRepository mailRepository;
+    UserRepository userRepository;
+    SessionManager sessionManager;
+    DSLContext context;
+    User currentUser;
+    User recipient;
 
     @BeforeEach
     void setUp() {

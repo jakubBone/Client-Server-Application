@@ -14,8 +14,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class CreateCommandTest {
-    private UserInput mockInput;
+class CreateCommandTest {
+    UserInput mockInput;
 
     @BeforeEach
     void setUp() {

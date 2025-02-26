@@ -7,22 +7,19 @@ import com.jakub.bone.repository.MailRepository;
 import com.jakub.bone.repository.UserRepository;
 import com.jakub.bone.session.SessionManager;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.params.shadow.com.univocity.parsers.common.record.Record;
 
 import java.sql.Connection;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class MailRepositoryTest {
-    private MailRepository mailRepository;
-    private UserRepository userRepository;
-    private SessionManager sessionManager;
-    private Connection connection;
+class MailRepositoryTest {
+    MailRepository mailRepository;
+    UserRepository userRepository;
+    SessionManager sessionManager;
+    Connection connection;
 
     @BeforeAll
     void setUp() {

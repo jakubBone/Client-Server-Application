@@ -10,9 +10,9 @@ import java.sql.Connection;
 import static org.junit.jupiter.api.Assertions.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class UserRepositoryTest {
-    private UserRepository userRepository;
-    private Connection connection;
+class UserRepositoryTest {
+    UserRepository userRepository;
+    Connection connection;
 
     @BeforeAll
     void setUp() {

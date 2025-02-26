@@ -16,10 +16,10 @@ import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class InboxHandlerTest {
-    private MailService mailService;
-    private InboxHandler inboxHandler;
-    private CommandDTO commandDTO;
-    private User sender;
+    MailService mailService;
+    InboxHandler inboxHandler;
+    CommandDTO commandDTO;
+    User sender;
 
     @BeforeEach
     void setUp() {

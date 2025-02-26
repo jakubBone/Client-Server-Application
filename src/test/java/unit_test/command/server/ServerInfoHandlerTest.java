@@ -7,10 +7,12 @@ import com.jakub.bone.utils.ResponseStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import static org.mockito.Mockito.*;
-import static org.junit.jupiter.api.Assertions.*;
 
-class ServerInfoHandlerTest {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+
+public class ServerInfoHandlerTest {
     private ServerInfo serverInfo;
     private ServerInfoHandler serverInfoHandler;
     private CommandDTO commandDTO;

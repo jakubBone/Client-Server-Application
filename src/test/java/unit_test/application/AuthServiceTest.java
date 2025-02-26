@@ -13,10 +13,10 @@ import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class AuthServiceTest {
-    private SessionManager sessionManager;
-    private UserService userService;
-    private UserRepository userRepository;
-    private AuthService authService;
+    SessionManager sessionManager;
+    UserService userService;
+    UserRepository userRepository;
+    AuthService authService;
 
     @BeforeEach
     void setUp() {

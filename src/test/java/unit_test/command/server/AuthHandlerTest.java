@@ -12,10 +12,10 @@ import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class AuthHandlerTest {
-    private AuthService authService;
-    private UserService userService;
-    private AuthHandler authHandler;
-    private CommandDTO commandDTO;
+    AuthService authService;
+    UserService userService;
+    AuthHandler authHandler;
+    CommandDTO commandDTO;
 
     @BeforeEach
     void setUp() {

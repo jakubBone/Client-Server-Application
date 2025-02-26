@@ -15,9 +15,9 @@ import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ReadMailHandlerTest {
-    private MailService mailService;
-    private ReadMailHandler readMailHandler;
-    private CommandDTO commandDTO;
+    MailService mailService;
+    ReadMailHandler readMailHandler;
+    CommandDTO commandDTO;
 
     @BeforeEach
     void setUp() {

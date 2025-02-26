@@ -7,7 +7,7 @@ import java.io.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class MessengerTest {
+class MessengerTest {
     @Test
     void testSendAndReceive() {
         String testMessage = "Hello!";

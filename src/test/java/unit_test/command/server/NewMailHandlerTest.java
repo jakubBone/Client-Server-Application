@@ -13,11 +13,11 @@ import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class NewMailHandlerTest {
-    private MailService mailService;
-    private UserService userService;
-    private NewMailHandler newMailHandler;
-    private CommandDTO commandDTO;
-    private User recipient;
+    MailService mailService;
+    UserService userService;
+    NewMailHandler newMailHandler;
+    CommandDTO commandDTO;
+    User recipient;
 
     @BeforeEach
     void setUp() {

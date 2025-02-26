@@ -13,10 +13,10 @@ import java.util.Date;
 import static com.jakub.bone.utils.ResponseStatus.LOGOUT_SUCCEEDED;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class SimpleRequestProcessorTest {
+class SimpleRequestProcessorTest {
     @Test
     @DisplayName("Test RequestProcessor handling LOGOUT command using StringWriter")
-    public void testLogoutCommandProcessing() throws IOException {
+    void testLogoutCommandProcessing() throws IOException {
         ServerConnectionManager.startTime = new Date();
 
         CommandDTO logoutCommand = new CommandDTO.Builder()

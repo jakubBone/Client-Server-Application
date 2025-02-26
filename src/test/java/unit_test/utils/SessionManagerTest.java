@@ -5,8 +5,7 @@ import com.jakub.bone.session.SessionManager;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
-
-public class SessionManagerTest {
+class SessionManagerTest {
     @Test
     void testSetAndGetCurrentUser() {
         SessionManager sessionManager = new SessionManager();
