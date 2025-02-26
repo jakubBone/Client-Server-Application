@@ -59,6 +59,14 @@ public class UserRepository {
             throw new RuntimeException("Failed to create user " + user.getUsername(), e);
         }
     }
+    public void truncateTable(){
+        try {
+            context.truncate("user").restartIdentity().execute();
+        } catch (Exception e) {
+            log.error("Error while table truncating: {}", e.getMessage());
+            throw new RuntimeException("Failed to truncate 'mail' table ", e);
+        }
+    }
 
     public User findUserByUsername(String username) {
         try {

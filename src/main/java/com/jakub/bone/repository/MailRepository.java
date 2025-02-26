@@ -132,9 +132,6 @@ public class MailRepository {
             log.error("Error while deleting {} mails: {}", boxType, e.getMessage());
             throw new RuntimeException("Failed to delete mails: " + boxType, e);
         }
-
-
-
     }
 
     public Mail mapRecordToMail(Record record) {
