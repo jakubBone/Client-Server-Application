@@ -2,14 +2,14 @@ package com.jakub.bone.ui;
 
 public class Screen {
 
-    public void printClientUI(boolean isLogged, boolean isAuthorized){
-        if(!isLogged) {
-            Screen.printMainScreen();
+    public static void printClientUI(boolean isLoggedIn, boolean isAuthorized) {
+        if(!isLoggedIn) {
+            printMainScreen();
         } else {
             if(isAuthorized){
-                Screen.printAdminScreen();
+                printAdminScreen();
             } else{
-                Screen.printUserScreen();
+                printUserScreen();
             }
         }
     }
@@ -76,9 +76,14 @@ public class Screen {
         System.out.print("Select: ");
     }
 
-    public static void printResponse(String response) {
+    public static void printResponse(String response){
         System.out.println("===============================================");
         System.out.println(response);
         System.out.println("===============================================\n");
+        try{
+            Thread.sleep(2000);
+        } catch (InterruptedException e){
+            Thread.currentThread().interrupt();
+        }
     }
 }

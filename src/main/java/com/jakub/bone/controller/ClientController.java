@@ -6,13 +6,13 @@ import com.jakub.bone.command.client.CommandFactory;
 import com.jakub.bone.command.common.CommandDTO;
 
 import com.jakub.bone.utils.Messenger;
-
-import com.jakub.bone.ui.Screen;
 import com.jakub.bone.ui.UserInput;
 import lombok.extern.log4j.Log4j2;
 
 import java.io.IOException;
 
+import static com.jakub.bone.ui.Screen.printClientUI;
+import static com.jakub.bone.ui.Screen.printResponse;
 import static com.jakub.bone.utils.ResponseStatus.*;
 
 @Log4j2
@@ -21,7 +21,7 @@ public class ClientController {
     private final CommandFactory commandFactory;
     private final Messenger messenger;
     private boolean isLoggedIn = false;
-    private boolean isAdmin = false;
+    private boolean isAuthorized = false;
 
     public ClientController(Messenger messenger) throws IOException {
         this.userInput = new UserInput();
@@ -32,7 +32,7 @@ public class ClientController {
     public void start() {
         boolean running = true;
         while (running) {
-            printUI();
+            printClientUI(isLoggedIn, isAuthorized);
             try {
                 String input = userInput.getRequest();
                 if ("EXIT".equalsIgnoreCase(input)) {
@@ -64,34 +64,12 @@ public class ClientController {
             isLoggedIn = true;
         } else if (response.equals(ADMIN_LOGIN_SUCCEEDED.getResponse())) {
             isLoggedIn = true;
-            isAdmin = true;
+            isAuthorized = true;
         } else if (response.equals(LOGOUT_SUCCEEDED.getResponse())) {
             isLoggedIn = false;
-            isAdmin = false;
+            isAuthorized = false;
         } else if (response.equals(USER_SWITCH_SUCCEEDED.getResponse())) {
-            isAdmin = false;
-        }
-    }
-
-    private void printUI() {
-        if (!isLoggedIn) {
-            Screen.printMainScreen();
-        } else {
-            if (isAdmin) {
-                Screen.printAdminScreen();
-            } else {
-                Screen.printUserScreen();
-            }
-        }
-    }
-
-    private void printResponse(String response){
-        Screen.printResponse(response);
-        try{
-            Thread.sleep(2000);
-        } catch (InterruptedException e){
-            log.error("Sleep interrupted: {}", e.getMessage(), e);
-            Thread.currentThread().interrupt();
+            isAuthorized = false;
         }
     }
 }

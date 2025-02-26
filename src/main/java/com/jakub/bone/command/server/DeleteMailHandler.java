@@ -21,4 +21,5 @@ public class DeleteMailHandler implements CommandHandler {
         mailService.deleteMails(boxType);
         return MAIL_DELETION_SUCCEEDED.getResponse();
     }
+
 }

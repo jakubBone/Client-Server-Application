@@ -2,10 +2,11 @@ package com.jakub.bone.command.client;
 
 import com.jakub.bone.command.common.Command;
 import com.jakub.bone.command.common.CommandDTO;
-import com.jakub.bone.ui.Screen;
 import com.jakub.bone.ui.UserInput;
 
 import java.io.IOException;
+
+import static com.jakub.bone.ui.Screen.printEditScreen;
 
 public class EditUserCommand implements Command {
     private UserInput input;
@@ -16,11 +17,11 @@ public class EditUserCommand implements Command {
 
     @Override
     public CommandDTO buildCommandMessage() throws IOException {
-        Screen.printEditScreen();
+        printEditScreen();
         String subCommand = input.getRequest().trim().toUpperCase();
 
         while (!isValidSubCommand(subCommand)) {
-            Screen.printEditScreen();
+            printEditScreen();
             subCommand = input.getRequest().trim().toUpperCase();;
         }
 

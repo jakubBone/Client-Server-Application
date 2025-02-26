@@ -20,23 +20,19 @@ import static com.jakub.bone.utils.ResponseStatus.SENDING_SUCCEEDED;
 @Log4j2
 @Setter
 public class MailService {
-    private final DSLContext context;
-    private MailRepository mailRepository;
-    private SessionManager sessionManager;
+    private final MailRepository mailRepository;
+    private final SessionManager sessionManager;
 
     public MailService(SessionManager sessionManager, MailRepository mailRepository) {
-        this.context = DSL.using(DataSource.getInstance().getConnection());
         this.mailRepository = mailRepository;
         this.sessionManager = sessionManager;
     }
 
     public String sendMail(User recipient, String message) {
         Mail mail = new Mail(sessionManager.getCurrentUser(), recipient, message, LocalDateTime.now());
-
         if(mailRepository.isMailboxFull(recipient)){
             return SENDING_FAILED_BOX_FULL.getResponse();
         }
-
         mailRepository.saveMail(mail);
         log.info("Mail sent successfully to {}", recipient.getUsername());
         return SENDING_SUCCEEDED.getResponse();

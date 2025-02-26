@@ -6,12 +6,11 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 
 @Getter
-@Setter
 public class Mail {
-    private User sender;
-    private User recipient;
-    private String message;
-    private LocalDateTime sendTime;
+    private final User sender;
+    private final User recipient;
+    private final String message;
+    private final LocalDateTime sendTime;
 
     public Mail(User sender, User recipient, String message, LocalDateTime sendTime) {
         this.sender = sender;
