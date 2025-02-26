@@ -1,5 +1,6 @@
 package com.jakub.bone.repository;
 
+import com.jakub.bone.data.DataSource;
 import com.jakub.bone.domain.Mail;
 import com.jakub.bone.session.SessionManager;
 import lombok.extern.log4j.Log4j2;
@@ -25,9 +26,9 @@ public class MailRepository {
     private final UserRepository userRepository;
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-
-    public MailRepository(DSLContext context, UserRepository userRepository) {
-        this.context = context;
+    public MailRepository(UserRepository userRepository) {
+        //this.context = context;
+        this.context = DSL.using(DataSource.getInstance().getConnection());
         this.userRepository = userRepository;
         createTable();
     }

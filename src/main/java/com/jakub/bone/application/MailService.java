@@ -22,13 +22,11 @@ import static com.jakub.bone.utils.ResponseStatus.SENDING_SUCCEEDED;
 public class MailService {
     private final DSLContext context;
     private MailRepository mailRepository;
-    private UserRepository userRepository;
     private SessionManager sessionManager;
 
-    public MailService(SessionManager sessionManager) {
+    public MailService(SessionManager sessionManager, MailRepository mailRepository) {
         this.context = DSL.using(DataSource.getInstance().getConnection());
-        this.userRepository = new UserRepository(context);
-        this.mailRepository = new MailRepository(context, userRepository);
+        this.mailRepository = mailRepository;
         this.sessionManager = sessionManager;
     }
 

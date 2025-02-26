@@ -1,5 +1,6 @@
 package com.jakub.bone.repository;
 
+import com.jakub.bone.data.DataSource;
 import lombok.extern.log4j.Log4j2;
 import org.jooq.DSLContext;
 import org.jooq.Record;
@@ -16,8 +17,9 @@ import static org.jooq.impl.SQLDataType.INTEGER;
 public class UserRepository {
     private final DSLContext context;
 
-    public UserRepository(DSLContext context) {
-        this.context = context;
+    public UserRepository() {
+        //this.context = context;
+        this.context = DSL.using(DataSource.getInstance().getConnection());
         createTable();
     }
 

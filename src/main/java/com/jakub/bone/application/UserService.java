@@ -21,9 +21,9 @@ public class UserService {
     private AuthService authManager;
     private final SessionManager sessionManager;
 
-    public UserService(AuthService authService) {
-        this.create = DSL.using(DataSource.getInstance().getConnection());
-        this.userRepository = new UserRepository(create);
+    public UserService(AuthService authService, UserRepository userRepository) {
+
+        this.userRepository = userRepository;
         this.admin = new Admin();
         this.authManager = authService;
         this.sessionManager = authService.getSessionManager();

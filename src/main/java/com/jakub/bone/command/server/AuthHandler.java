@@ -5,12 +5,12 @@ import com.jakub.bone.application.AuthService;
 import com.jakub.bone.application.UserService;
 
 public class AuthHandler implements CommandHandler {
-    private final AuthService authManager;
-    private final UserService userManager;
+    private final AuthService authService;
+    private final UserService userService;
 
-    public AuthHandler(AuthService authManager, UserService userManager) {
-        this.authManager = authManager;
-        this.userManager = userManager;
+    public AuthHandler(AuthService authService, UserService userService) {
+        this.authService = authService;
+        this.userService = userService;
     }
 
     @Override
@@ -18,9 +18,9 @@ public class AuthHandler implements CommandHandler {
         String username = commandDTO.getPayload().get("username");
         String password = commandDTO.getPayload().get("password");
         if ("REGISTER".equalsIgnoreCase(commandDTO.getCommandType())){
-            return authManager.register(username, password, userManager);
+            return authService.register(username, password);
         } else {
-            return authManager.login(username, password, userManager);
+            return authService.login(username, password);
         }
     }
 }
