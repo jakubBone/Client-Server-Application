@@ -16,10 +16,10 @@ public class User {
         USER;
     }
 
-    protected String username;
-    protected String password;
-    protected String hashedPassword;
-    protected Role role;
+    private String username;
+    private  String password;
+    private  String hashedPassword;
+    private Role role;
 
     public User(String username, String password, Role role) {
         this.username = username;

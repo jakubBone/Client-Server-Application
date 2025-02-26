@@ -20,14 +20,11 @@ import java.io.PrintWriter;
 public class RequestProcessor {
     private final Messenger messenger;
     private final SessionManager sessionManager;
-
     private final UserRepository userRepository;
     private final MailRepository mailRepository;
-
     private final AuthService authService;
     private final UserService userService;
     private final MailService mailService;
-
     private final ServerInfo serverInfo;
     private final CommandHandlerFactory factory;
 

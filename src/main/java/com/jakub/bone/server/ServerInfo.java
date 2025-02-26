@@ -16,10 +16,10 @@ import lombok.extern.log4j.Log4j2;
 @Setter
 @Log4j2
 public class ServerInfo {
-    private final String VERSION = "1.0.0";
-    private Map<String, String> commands = new LinkedHashMap<>();
-    private Map<String, String> serverDetails = new LinkedHashMap<>();
-    private Map<String, Long> uptime = new LinkedHashMap<>();
+    private final String version = "1.0.0";
+    private final Map<String, String> commands = new LinkedHashMap<>();
+    private final Map<String, String> serverDetails = new LinkedHashMap<>();
+    private final Map<String, Long> uptime = new LinkedHashMap<>();
 
     public ServerInfo() {
         setCommands();
@@ -39,7 +39,7 @@ public class ServerInfo {
     public void setServerDetails() {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
         String setupTimeFormatted = dateFormat.format(ServerConnectionManager.startTime);
-        serverDetails.put("Version", VERSION);
+        serverDetails.put("Version", version);
         serverDetails.put("Setup time", setupTimeFormatted);
     }
 

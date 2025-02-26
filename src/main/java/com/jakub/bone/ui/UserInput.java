@@ -6,7 +6,11 @@ import java.io.InputStreamReader;
 
 
 public class UserInput {
-    private static BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+    private final BufferedReader reader;
+
+    public UserInput() {
+        this.reader = new BufferedReader(new InputStreamReader(System.in));
+    }
 
     public String getRequest() throws IOException {
         return reader.readLine();
