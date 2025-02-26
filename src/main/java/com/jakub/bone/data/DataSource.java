@@ -5,14 +5,15 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
+import com.jakub.bone.utils.ConfigLoader;
 import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 @Getter
 public class DataSource {
-    private final String DATABASE_DIRECTORY = "src/main/resources/data";
-    private final String DATABASE = "/user_db.db";
+    private final String DATABASE_DIRECTORY = ConfigLoader.get("database.directory");
+    private final String DATABASE = ConfigLoader.get("database.name");
     private final String URL = String.format("jdbc:sqlite:%s", DATABASE_DIRECTORY + DATABASE);
     private static DataSource instance;
     private static Connection connection;
