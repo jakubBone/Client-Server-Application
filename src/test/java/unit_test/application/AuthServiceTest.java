@@ -24,29 +24,27 @@ class AuthServiceTest {
         userRepository = mock(UserRepository.class);
         userService = mock(UserService.class);
         authService = new AuthService(sessionManager, userRepository);
-
         when(userService.getUserRepository()).thenReturn(userRepository);
     }
 
     @Test
-    @DisplayName("Registration of a new user - success")
-    void register_NewUser_Success() {
+    @DisplayName("Should test registration of a new user")
+    void testRegisterNewUserSuccess() {
         String username = "newUser";
         String password = "pass123";
 
-        // User does not exist - findUserByUsername returns null
+        // User does not exist
         when(userRepository.findUserByUsername(username)).thenReturn(null);
 
         String response = authService.register(username, password);
 
-        // Verify that createUser method was called
         verify(userRepository, times(1)).createUser(any(User.class));
         assertEquals(ResponseStatus.REGISTRATION_SUCCESSFUL.getResponse(), response);
     }
 
     @Test
-    @DisplayName("Registration when user already exists - failure")
-    void register_UserAlreadyExists_Failure() {
+    @DisplayName("Should test registration with already existing user")
+    void testRegisterUserAlreadyExistsFailure() {
         String username = "existingUser";
         String password = "pass123";
         User existingUser = new User(username, password, User.Role.USER);
@@ -61,8 +59,8 @@ class AuthServiceTest {
     }
 
     @Test
-    @DisplayName("Login with a non-existent user - failure")
-    void login_UserNotFound_Failure() {
+    @DisplayName("Should test login with a non-existent user")
+    void testLoginUserNotFoundFailure() {
         String username = "nonexistent";
         String password = "pass123";
 
@@ -75,14 +73,13 @@ class AuthServiceTest {
     }
 
     @Test
-    @DisplayName("Login with an incorrect password - failure")
-    void login_IncorrectPassword_Failure() {
+    @DisplayName("Should test login with an incorrect password")
+    void testLoginIncorrectPasswordFailure() {
         String username = "user";
         String password = "wrongPass";
         User user = new User(username, "correctPassword", User.Role.USER);
 
         when(userRepository.findUserByUsername(username)).thenReturn(user);
-        // isPasswordCorrect uses the repository to verify the password
         when(userRepository.verifyUserPassword(password, username)).thenReturn(false);
 
         String response = authService.login(username, password);
@@ -92,8 +89,8 @@ class AuthServiceTest {
     }
 
     @Test
-    @DisplayName("Successful login for a regular user")
-    void login_CorrectPassword_UserSuccess() {
+    @DisplayName("Should test successful login for a regular user")
+    void testLoginCorrectPasswordUserSuccess() {
         String username = "user";
         String password = "correctPassword";
         User user = new User(username, password, User.Role.USER);
@@ -109,8 +106,8 @@ class AuthServiceTest {
     }
 
     @Test
-    @DisplayName("Successful login for an administrator")
-    void login_CorrectPassword_AdminSuccess() {
+    @DisplayName("Should test successful login for an admin")
+    void testLoginCorrectPasswordAdminSuccess() {
         String username = "adminUser";
         String password = "adminPass";
         User admin = new User(username, password, User.Role.ADMIN);
@@ -121,13 +118,12 @@ class AuthServiceTest {
         String response = authService.login(username, password);
 
         assertEquals(admin, sessionManager.getCurrentUser());
-        // For admin, ADMIN_LOGIN_SUCCEEDED response is expected
         assertEquals(ResponseStatus.ADMIN_LOGIN_SUCCEEDED.getResponse(), response);
     }
 
     @Test
-    @DisplayName("Checking password correctness")
-    void isPasswordCorrect_Test() {
+    @DisplayName("Should test password checking correctness")
+    void testIsPasswordCorrect() {
         String username = "testUser";
         String password = "pass123";
         User user = new User(username, password, User.Role.USER);
@@ -143,8 +139,8 @@ class AuthServiceTest {
     }
 
     @Test
-    @DisplayName("User logout")
-    void logout_Test() {
+    @DisplayName("Should test user logout")
+    void testLogout() {
         User user = new User("user", "pass", User.Role.USER);
         sessionManager.setCurrentUser(user);
 

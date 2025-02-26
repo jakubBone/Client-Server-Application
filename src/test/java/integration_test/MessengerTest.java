@@ -1,6 +1,7 @@
 package integration_test;
 
 import com.jakub.bone.utils.Messenger;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.io.*;
@@ -9,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class MessengerTest {
     @Test
+    @DisplayName("Should test communication between client and server")
     void testSendAndReceive() {
         String testMessage = "Hello!";
 

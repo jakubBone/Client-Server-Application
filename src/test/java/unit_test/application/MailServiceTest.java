@@ -48,24 +48,22 @@ class MailServiceTest {
     }
 
     @Test
-    @DisplayName("Sending mail - success")
-    void sendMail_Success() {
+    @DisplayName("Should test sending mail success")
+    void testSendMailSuccess() {
         recipient = new User("recipient", "pass", User.Role.USER);
         String message = "Test message";
 
-        // Recipient's mailbox is not full
         when(mailRepository.isMailboxFull(recipient)).thenReturn(false);
 
         String response = mailService.sendMail(recipient, message);
 
-        // Verify that saveMail was executed
         verify(mailRepository, times(1)).saveMail(any(Mail.class));
         assertEquals(ResponseStatus.SENDING_SUCCEEDED.getResponse(), response);
     }
 
     @Test
-    @DisplayName("Sending mail when mailbox is full - failure")
-    void sendMail_MailboxFull_Failure() {
+    @DisplayName("Should test sending mail when mailbox is full")
+    void testSendMailMailboxFullFailure() {
         recipient = new User("recipient", "pass", User.Role.USER);
         String message = "Test message";
 
@@ -73,17 +71,16 @@ class MailServiceTest {
 
         String response = mailService.sendMail(recipient, message);
 
-        // saveMail should not be called
         verify(mailRepository, never()).saveMail(any(Mail.class));
         assertEquals(ResponseStatus.SENDING_FAILED_BOX_FULL.getResponse(), response);
     }
 
     @Test
-    @DisplayName("Retrieving mails - non-empty list")
-    void getMails_NonEmptyList() {
+    @DisplayName("Should test retrieving mails with non-empty list")
+    void testGetMailsNonEmptyList() {
         String boxType = "INBOX";
-        Mail mail1 = new Mail(currentUser, recipient = new User("recipient", "pass", User.Role.USER), "Test", LocalDateTime.now());
-        List<Mail> mails = Arrays.asList(mail1);
+        Mail mail = new Mail(currentUser, recipient = new User("recipient", "pass", User.Role.USER), "Test", LocalDateTime.now());
+        List<Mail> mails = Arrays.asList(mail);
         when(mailRepository.findMails(boxType, sessionManager)).thenReturn(mails);
 
         List<Mail> result = mailService.getMails(boxType);
@@ -93,8 +90,8 @@ class MailServiceTest {
     }
 
     @Test
-    @DisplayName("Retrieving mails - empty list")
-    void getMails_EmptyList() {
+    @DisplayName("Should test retrieving mails with empty list")
+    void testGetMailsEmptyList() {
         String boxType = "INBOX";
         when(mailRepository.findMails(boxType, sessionManager)).thenReturn(Collections.emptyList());
 
@@ -104,13 +101,12 @@ class MailServiceTest {
     }
 
     @Test
-    @DisplayName("Deleting mails")
-    void deleteMails_Test() {
+    @DisplayName("Should test deleting mails")
+    void testDeleteMails() {
         String boxType = "SENT";
-        // Call deleteMails method
+
         mailService.deleteMails(boxType);
 
-        // Verify that the repository's deleteMails method was called
         verify(mailRepository, times(1)).deleteMails(boxType, sessionManager);
     }
 }

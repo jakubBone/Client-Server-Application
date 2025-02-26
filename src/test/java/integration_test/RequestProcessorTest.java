@@ -13,9 +13,9 @@ import java.util.Date;
 import static com.jakub.bone.utils.ResponseStatus.LOGOUT_SUCCEEDED;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class SimpleRequestProcessorTest {
+class RequestProcessorTest {
     @Test
-    @DisplayName("Test RequestProcessor handling LOGOUT command using StringWriter")
+    @DisplayName("Should test handling client command")
     void testLogoutCommandProcessing() throws IOException {
         ServerConnectionManager.startTime = new Date();
 
