@@ -48,7 +48,9 @@ public class RequestProcessor {
                 if (commandDTO == null) {
                     break;
                 }
-                log.debug("Received JSON request: {}", commandDTO);
+
+                log.debug("Received JSON request: {}", commandDTO.getCommandType());
+
                 CommandHandler commandHandler = factory.createHandler(commandDTO);
                 String response = commandHandler.execute(commandDTO);
 

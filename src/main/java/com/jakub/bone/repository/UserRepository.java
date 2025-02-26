@@ -1,6 +1,7 @@
 package com.jakub.bone.repository;
 
 import com.jakub.bone.data.DataSource;
+import com.jakub.bone.domain.Admin;
 import lombok.extern.log4j.Log4j2;
 import org.jooq.DSLContext;
 import org.jooq.Record;
@@ -18,9 +19,16 @@ public class UserRepository {
     private final DSLContext context;
 
     public UserRepository() {
-        //this.context = context;
         this.context = DSL.using(DataSource.getInstance().getConnection());
         createTable();
+        initAdmin();
+    }
+
+    private void initAdmin(){
+        User admin = findUserByUsername("admin");
+        if(admin == null){
+            createUser(new Admin());
+        }
     }
 
     public void createTable() {

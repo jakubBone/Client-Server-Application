@@ -24,9 +24,9 @@ class SimpleRequestProcessorTest {
                 .build();
         String jsonCommand = JsonConverter.serialize(logoutCommand) + "\n<<END>>\n";
 
-        // Simulate the network input with a ByteArrayInputStream
-        ByteArrayInputStream inputStream = new ByteArrayInputStream(jsonCommand.getBytes());
-        BufferedReader in = new BufferedReader(new InputStreamReader(inputStream));
+        // Simulate receiving by using the sent data as input
+        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(jsonCommand.getBytes());
+        BufferedReader in = new BufferedReader(new InputStreamReader(byteArrayInputStream));
 
         // Use StringWriter to capture output
         StringWriter stringWriter = new StringWriter();
@@ -38,6 +38,6 @@ class SimpleRequestProcessorTest {
         String output = stringWriter.toString();
         String expectedResponse = LOGOUT_SUCCEEDED.getResponse();
 
-        assertTrue(output.contains(expectedResponse), "Output should contain logout success response");
+        assertTrue(output.contains(expectedResponse));
     }
 }

@@ -17,7 +17,6 @@ public class ConfigLoader {
                 throw new RuntimeException("Configuration file 'config.properties' not found in classpath");
             }
             properties.load(input);
-            log.debug("Configuration file loaded successfully");
         } catch (IOException ex) {
             log.error("Failed to load configuration file", ex);
             throw new RuntimeException("Failed to load configuration file", ex);
