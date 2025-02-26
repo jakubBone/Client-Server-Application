@@ -12,7 +12,6 @@ import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class UserServiceTest {
-
     private UserService userService;
     private UserRepository userRepository;
     private SessionManager sessionManager;
@@ -23,7 +22,7 @@ class UserServiceTest {
         sessionManager = new SessionManager();
         userRepository = mock(UserRepository.class);
         authService = new AuthService(sessionManager, userRepository);
-        userService = spy(new UserService(authService, userRepository));
+        userService = spy(new UserService(authService, sessionManager, userRepository));
         // Replace the repository with the mock
         doReturn(userRepository).when(userService).getUserRepository();
     }

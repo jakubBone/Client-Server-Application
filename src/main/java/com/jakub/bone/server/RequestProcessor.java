@@ -37,7 +37,7 @@ public class RequestProcessor {
         this.userRepository = new UserRepository();
         this.mailRepository = new MailRepository(userRepository);
         this.authService = new AuthService(sessionManager, userRepository);
-        this.userService = new UserService(authService, userRepository);
+        this.userService = new UserService(authService, sessionManager, userRepository);
         this.mailService = new MailService(sessionManager, mailRepository);
         this.serverInfo = new ServerInfo();
         this.factory = new CommandHandlerFactory(authService, userService, mailService, serverInfo);

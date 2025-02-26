@@ -19,14 +19,13 @@ public class UserService {
     private DSLContext create;
     private UserRepository userRepository;
     private AuthService authManager;
-    private final SessionManager sessionManager;
+    private SessionManager sessionManager;
 
-    public UserService(AuthService authService, UserRepository userRepository) {
-
+    public UserService(AuthService authService, SessionManager sessionManager, UserRepository userRepository) {
         this.userRepository = userRepository;
         this.admin = new Admin();
         this.authManager = authService;
-        this.sessionManager = authService.getSessionManager();
+        this.sessionManager = sessionManager;
     }
 
     public User findUserByUsername(String username) {

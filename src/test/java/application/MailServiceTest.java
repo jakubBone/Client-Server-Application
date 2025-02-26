@@ -22,13 +22,11 @@ import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class MailServiceTest {
-
     private MailService mailService;
     private MailRepository mailRepository;
     private UserRepository userRepository;
     private SessionManager sessionManager;
-    private DSLContext dslContext;
-
+    private DSLContext context;
     private User currentUser;
     private User recipient;
 
@@ -43,7 +41,7 @@ class MailServiceTest {
         userRepository = mock(UserRepository.class);
 
         // Using a null DSLContext as we are not testing JOOQ behavior
-        dslContext = null;
+        context = null;
 
         mailService = new MailService(sessionManager, mailRepository);
         //mailService.setMailRepository(mailRepository);
