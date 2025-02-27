@@ -15,18 +15,18 @@ import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ReadMailHandlerTest {
-    MailService mailService;
+    MailService mockMailService;
     ReadMailHandler readMailHandler;
     CommandDTO commandDTO;
 
     @BeforeEach
     void setUp() {
-        mailService = mock(MailService.class);
-        readMailHandler = new ReadMailHandler(mailService);
+        mockMailService = mock(MailService.class);
+        readMailHandler = new ReadMailHandler(mockMailService);
     }
 
     @Test
-    @DisplayName("ReadMailHandler - missing boxType returns unknown request")
+    @DisplayName("Should test ReadMailHandler with missing boxType returns unknown request")
     void testMissingBoxType() {
         commandDTO = new CommandDTO.Builder()
                 .commandType("READ")
@@ -35,19 +35,19 @@ class ReadMailHandlerTest {
 
         String expected = com.jakub.bone.utils.ResponseStatus.UNKNOWN_REQUEST.getResponse();
         String response = readMailHandler.execute(commandDTO);
-        verify(mailService, never()).getMails(anyString());
+        verify(mockMailService, never()).getMails(anyString());
         assertEquals(expected, response);
     }
 
     @Test
-    @DisplayName("ReadMailHandler - empty mailbox returns mailbox empty")
+    @DisplayName("Should test ReadMailHandler with empty mailbox returns mailbox empty")
     void testEmptyMailbox() {
         commandDTO = new CommandDTO.Builder()
                 .commandType("READ")
                 .addPayload("boxType", "INBOX")
                 .build();
 
-        when(mailService.getMails("INBOX")).thenReturn(Collections.emptyList());
+        when(mockMailService.getMails("INBOX")).thenReturn(Collections.emptyList());
 
         String expected = ResponseStatus.MAILBOX_EMPTY.getResponse();
         String response = readMailHandler.execute(commandDTO);
@@ -55,7 +55,7 @@ class ReadMailHandlerTest {
     }
 
     @Test
-    @DisplayName("ReadMailHandler - non-empty mailbox returns formatted messages")
+    @DisplayName("Should test ReadMailHandler with non-empty mailbox returns formatted messages")
     void testNonEmptyMailbox() {
         commandDTO = new CommandDTO.Builder()
                 .commandType("READ")
@@ -63,22 +63,22 @@ class ReadMailHandlerTest {
                 .build();
 
         // Create mocks for sender and recipient
-        User sender = mock(User.class);
-        User recipient = mock(User.class);
-        when(recipient.getUsername()).thenReturn("recipient");
+        User mockSender = mock(User.class);
+        User mockRecipient = mock(User.class);
+        when(mockRecipient.getUsername()).thenReturn("recipient");
 
         // Create a mock for Mail and stub its methods
-        Mail mail = mock(Mail.class);
-        when(mail.getRecipient()).thenReturn(recipient);
-        when(mail.getSender()).thenReturn(sender);
-        when(mail.getMessage()).thenReturn("Test message");
+        Mail mockMail = mock(Mail.class);
+        when(mockMail.getRecipient()).thenReturn(mockRecipient);
+        when(mockMail.getSender()).thenReturn(mockSender);
+        when(mockMail.getMessage()).thenReturn("Test message");
 
-        List<Mail> mails = List.of(mail);
-        when(mailService.getMails("SENT")).thenReturn(mails);
+        List<Mail> mails = List.of(mockMail);
+        when(mockMailService.getMails("SENT")).thenReturn(mails);
 
         String response = readMailHandler.execute(commandDTO);
 
-        // Verify that the response contains "To:" because it's a SENT mailbox and includes the message.
+        // Response should contains "To:" because it's a SENT
         assertTrue(response.contains("To:"));
         assertTrue(response.contains("Test message"));
     }

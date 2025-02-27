@@ -13,35 +13,32 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 class DeleteMailHandlerTest {
-    MailService mailService;
+    MailService mockMailService;
     DeleteMailHandler deleteMailHandler;
     CommandDTO commandDTO;
 
     @BeforeEach
     void setUp() {
-        mailService = mock(MailService.class);
-        deleteMailHandler = new DeleteMailHandler(mailService);
+        mockMailService = mock(MailService.class);
+        deleteMailHandler = new DeleteMailHandler(mockMailService);
     }
 
     @Test
-    @DisplayName("DeleteMailHandler - valid payload")
+    @DisplayName("Should test DeleteMailHandler with valid payload")
     void testDeleteMailsValid() {
         commandDTO = new CommandDTO.Builder()
                 .commandType("DELETE")
                 .addPayload("boxType", "INBOX")
                 .build();
 
-        // Assume that deleteMails returns void and handler returns a success message
-        // We stub the response by returning a fixed success string after deletion.
-        // (In actual implementation, the handler calls deleteMails and returns MAIL_DELETION_SUCCEEDED.)
         String expected = ResponseStatus.MAIL_DELETION_SUCCEEDED.getResponse();
         String response = deleteMailHandler.execute(commandDTO);
-        verify(mailService, times(1)).deleteMails("INBOX");
+        verify(mockMailService, times(1)).deleteMails("INBOX");
         assertEquals(expected, response);
     }
 
     @Test
-    @DisplayName("DeleteMailHandler - missing payload returns unknown request")
+    @DisplayName("Should test DeleteMailHandler with missing payload returns unknown request")
     void testDeleteMailsMissingPayload() {
         commandDTO = new CommandDTO.Builder()
                 .commandType("DELETE")
@@ -50,7 +47,7 @@ class DeleteMailHandlerTest {
 
         String expected = ResponseStatus.UNKNOWN_REQUEST.getResponse();
         String response = deleteMailHandler.execute(commandDTO);
-        verify(mailService, never()).deleteMails(anyString());
+        verify(mockMailService, never()).deleteMails(anyString());
         assertEquals(expected, response);
     }
 }

@@ -13,17 +13,17 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class UserServiceTest {
     UserService userService;
-    UserRepository userRepository;
+    UserRepository mockUserRepository;
     SessionManager sessionManager;
     AuthService authService;
 
     @BeforeEach
     void setUp() {
         sessionManager = new SessionManager();
-        userRepository = mock(UserRepository.class);
-        authService = new AuthService(sessionManager, userRepository);
-        userService = spy(new UserService(authService, sessionManager, userRepository));
-        doReturn(userRepository).when(userService).getUserRepository();
+        mockUserRepository = mock(UserRepository.class);
+        authService = new AuthService(sessionManager, mockUserRepository);
+        userService = spy(new UserService(authService, sessionManager, mockUserRepository));
+        doReturn(mockUserRepository).when(userService).getUserRepository();
     }
 
     @Test
@@ -31,7 +31,7 @@ class UserServiceTest {
     void testFindUserByUsernameFound() {
         String username = "user";
         User user = new User(username, "pass", User.Role.USER);
-        when(userRepository.findUserByUsername(username)).thenReturn(user);
+        when(mockUserRepository.findUserByUsername(username)).thenReturn(user);
 
         User found = userService.findUserByUsername(username);
         assertNotNull(found);
@@ -42,7 +42,7 @@ class UserServiceTest {
     @DisplayName("Should test finding a non-existent user")
     void testFindUserByUsernameNotFound() {
         String username = "nonexistent";
-        when(userRepository.findUserByUsername(username)).thenReturn(null);
+        when(mockUserRepository.findUserByUsername(username)).thenReturn(null);
 
         User found = userService.findUserByUsername(username);
         assertNull(found);
@@ -61,7 +61,7 @@ class UserServiceTest {
         // Check that the password is updated and hash is regenerated
         assertEquals(newPassword, user.getPassword());
         assertNotNull(user.getHashedPassword());
-        verify(userRepository, times(1)).updateUser(user);
+        verify(mockUserRepository, times(1)).updateUser(user);
     }
 
     @Test
@@ -72,7 +72,7 @@ class UserServiceTest {
 
         userService.removeUser(user);
 
-        verify(userRepository, times(1)).removeUser(username);
+        verify(mockUserRepository, times(1)).removeUser(username);
     }
 
     @Test
@@ -97,6 +97,6 @@ class UserServiceTest {
         userService.changeUserRole(user, User.Role.ADMIN);
 
         assertEquals(User.Role.ADMIN, user.getRole());
-        verify(userRepository, times(1)).changeUserRole(user, User.Role.ADMIN);
+        verify(mockUserRepository, times(1)).changeUserRole(user, User.Role.ADMIN);
     }
 }

@@ -23,9 +23,9 @@ class CreateCommandTest {
     }
 
     @Test
-    @DisplayName("DeleteMailCommand builds correct CommandDTO")
+    @DisplayName("Should test DeleteMailCommand builds correct CommandDTO")
     void testDeleteMailCommand() throws IOException {
-        // simulate user input for mailbox type
+        // Simulate user input for mailbox type
         when(mockInput.getRequest()).thenReturn("inbox");
 
         DeleteMailCommand command = new DeleteMailCommand(mockInput);
@@ -36,23 +36,22 @@ class CreateCommandTest {
     }
 
     @Test
-    @DisplayName("NewMailCommand builds correct CommandDTO")
+    @DisplayName("Should test NewMailCommand builds correct CommandDTO")
     void testNewMailCommand() throws IOException {
-        when(mockInput.promptRecipient()).thenReturn("recipientUser");
-        when(mockInput.promptMessage()).thenReturn("Hello World");
+        when(mockInput.promptRecipient()).thenReturn("recipient");
+        when(mockInput.promptMessage()).thenReturn("Hello");
 
         NewMailCommand command = new NewMailCommand(mockInput);
         CommandDTO dto = command.buildCommandMessage();
 
         assertEquals("NEW", dto.getCommandType());
-        assertEquals("recipientUser", dto.getPayload().get("recipient"));
-        assertEquals("Hello World", dto.getPayload().get("message"));
+        assertEquals("recipient", dto.getPayload().get("recipient"));
+        assertEquals("Hello", dto.getPayload().get("message"));
     }
 
     @Test
-    @DisplayName("ReadMailCommand builds correct CommandDTO with valid box type")
+    @DisplayName("Should test ReadMailCommand builds correct CommandDTO with valid box type")
     void testReadMailCommand() throws IOException {
-        // First call returns a valid box type, so no need to loop
         when(mockInput.getRequest()).thenReturn("SENT");
 
         ReadMailCommand command = new ReadMailCommand(mockInput);
@@ -63,8 +62,8 @@ class CreateCommandTest {
     }
 
     @Test
-    @DisplayName("LogoutCommand builds correct CommandDTO")
-    void testLogoutCommand() throws IOException {
+    @DisplayName("Should test LogoutCommand builds correct CommandDTO")
+    void testLogoutCommand()  {
         LogoutCommand command = new LogoutCommand();
         CommandDTO dto = command.buildCommandMessage();
 
@@ -73,7 +72,7 @@ class CreateCommandTest {
     }
 
     @Test
-    @DisplayName("ServerInfoCommand builds correct CommandDTO for HELP command")
+    @DisplayName("Should test ServerInfoCommand builds correct CommandDTO for HELP command")
     void testServerInfoCommand_Help() {
         ServerInfoCommand command = new ServerInfoCommand("help");
         CommandDTO dto = command.buildCommandMessage();
@@ -83,12 +82,8 @@ class CreateCommandTest {
     }
 
     @Test
-    @DisplayName("EditUserCommand builds correct CommandDTO for CHANGE subcommand")
+    @DisplayName("Should test EditUserCommand builds correct CommandDTO for CHANGE subcommand")
     void testEditUserCommandChange() throws IOException {
-        // For EditUserCommand, simulate the following inputs:
-        // First, user enters "CHANGE" as subcommand.
-        // Then, promptUsername() returns a username,
-        // and promptNewPassword() returns a new password.
         when(mockInput.getRequest()).thenReturn("CHANGE");
         when(mockInput.promptUsername()).thenReturn("user1");
         when(mockInput.promptNewPassword()).thenReturn("newPass");
@@ -103,10 +98,8 @@ class CreateCommandTest {
     }
 
     @Test
-    @DisplayName("EditUserCommand builds correct CommandDTO for ASSIGN subcommand")
-    void testEditUserCommand_ssign() throws IOException {
-        // For ASSIGN, simulate:
-        // subCommand "ASSIGN", then promptUsername() and promptNewRole() returns valid role.
+    @DisplayName("Should test EditUserCommand builds correct CommandDTO for ASSIGN subcommand")
+    void testEditUserCommandAssign() throws IOException {
         when(mockInput.getRequest()).thenReturn("ASSIGN");
         when(mockInput.promptUsername()).thenReturn("user2");
         // First call to promptNewRole returns an invalid role to force re-prompt,
@@ -124,10 +117,8 @@ class CreateCommandTest {
     }
 
     @Test
-    @DisplayName("EditUserCommand builds correct CommandDTO for REMOVE subcommand")
+    @DisplayName("Should test EditUserCommand builds correct CommandDTO for REMOVE subcommand")
     void testEditUserCommandRemove() throws IOException {
-        // For REMOVE, simulate:
-        // subCommand "REMOVE", then promptUsername() returns a username.
         when(mockInput.getRequest()).thenReturn("REMOVE");
 
         when(mockInput.promptUsername()).thenReturn("user3");
@@ -141,10 +132,8 @@ class CreateCommandTest {
     }
 
     @Test
-    @DisplayName("EditUserCommand builds correct CommandDTO for SWITCH subcommand")
+    @DisplayName("Should test EditUserCommand builds correct CommandDTO for SWITCH subcommand")
     void testEditUserCommandSwitch() throws IOException {
-        // For SWITCH, simulate:
-        // subCommand "SWITCH", then promptUsername() returns a username.
         when(mockInput.getRequest()).thenReturn("SWITCH");
         when(mockInput.promptUsername()).thenReturn("user4");
 
@@ -155,11 +144,4 @@ class CreateCommandTest {
         assertEquals("SWITCH", dto.getPayload().get("subCommand"));
         assertEquals("user4", dto.getPayload().get("username"));
     }
-
-    // --- Note on AuthCommand ---
-    // AuthCommand currently instantiates a new UserInput within buildCommandMessage().
-    // For proper testing, it is recommended to refactor AuthCommand to use the injected instance.
-    // For demonstration, one approach is to create a TestUserInput subclass that overrides promptUsername
-    // and promptPassword. Then you could override the instantiation in the test (for example, using a factory
-    // or dependency injection). Here we simply note that AuthCommand should be refactored to allow testability.
 }

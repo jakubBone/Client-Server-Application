@@ -16,34 +16,34 @@ import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class InboxHandlerTest {
-    MailService mailService;
+    MailService mockMailService;
     InboxHandler inboxHandler;
     CommandDTO commandDTO;
     User sender;
 
     @BeforeEach
     void setUp() {
-        mailService = mock(MailService.class);
-        inboxHandler = new InboxHandler(mailService);
+        mockMailService = mock(MailService.class);
+        inboxHandler = new InboxHandler(mockMailService);
         sender = new User("sender", "pass", User.Role.USER);
     }
 
     @Test
-    @DisplayName("InboxHandler - null boxType defaults to INBOX and returns mailbox empty")
+    @DisplayName("Should test InboxHandler with null boxType defaults to INBOX and returns mailbox empty")
     void testDefaultInbox_Empty() {
         commandDTO = new CommandDTO.Builder()
                 .commandType("INBOX")
                 .build();
-        when(mailService.getMails("INBOX")).thenReturn(Collections.emptyList());
+        when(mockMailService.getMails("INBOX")).thenReturn(Collections.emptyList());
 
         String expected = ResponseStatus.MAILBOX_EMPTY.getResponse();
         String response = inboxHandler.execute(commandDTO);
-        verify(mailService, times(1)).getMails("INBOX");
+        verify(mockMailService, times(1)).getMails("INBOX");
         assertEquals(expected, response);
     }
 
     @Test
-    @DisplayName("InboxHandler - non-empty mailbox returns formatted messages")
+    @DisplayName("Should test InboxHandler with non-empty mailbox returns formatted messages")
     void testNonEmptyInbox() {
         commandDTO = new CommandDTO.Builder()
                 .commandType("INBOX")
@@ -52,10 +52,10 @@ class InboxHandlerTest {
 
         Mail mail = new Mail(sender, new User("recipient", "pass", User.Role.USER), "Hello", LocalDateTime.now());
         List<Mail> mails = List.of(mail);
-        when(mailService.getMails("INBOX")).thenReturn(mails);
+        when(mockMailService.getMails("INBOX")).thenReturn(mails);
 
         String response = inboxHandler.execute(commandDTO);
-        // Check that the response contains "From:" because it is INBOX
+        // Response should contains "From:" because it is INBOX
         assertTrue(response.contains("From:"));
         assertTrue(response.contains("Hello"));
     }

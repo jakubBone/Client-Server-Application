@@ -13,57 +13,57 @@ import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.times;
 
 public class ServerInfoHandlerTest {
-    private ServerInfo serverInfo;
+    private ServerInfo mockServerInfo;
     private ServerInfoHandler serverInfoHandler;
     private CommandDTO commandDTO;
 
     @BeforeEach
     void setUp() {
-        serverInfo = mock(ServerInfo.class);
-        serverInfoHandler = new ServerInfoHandler(serverInfo);
+        mockServerInfo = mock(ServerInfo.class);
+        serverInfoHandler = new ServerInfoHandler(mockServerInfo);
     }
 
     @Test
-    @DisplayName("ServerInfoHandler - UPTIME command")
+    @DisplayName("Should test ServerInfoHandler with UPTIME command")
     void testUptime() {
-        when(serverInfo.getUptime()).thenReturn("Uptime: 1 day, 2 hours, 3 minutes, 4 seconds");
+        when(mockServerInfo.getUptime()).thenReturn("Uptime: 1 day, 2 hours, 3 minutes, 4 seconds");
         commandDTO = new CommandDTO.Builder()
                 .commandType("UPTIME")
                 .build();
 
         String response = serverInfoHandler.execute(commandDTO);
-        verify(serverInfo, times(1)).getUptime();
+        verify(mockServerInfo, times(1)).getUptime();
         assertEquals("Uptime: 1 day, 2 hours, 3 minutes, 4 seconds", response);
     }
 
     @Test
-    @DisplayName("ServerInfoHandler - INFO command")
+    @DisplayName("Should test ServerInfoHandler with INFO command")
     void testInfo() {
-        when(serverInfo.getInfo()).thenReturn("Version: 1.0.0\nSetup time: 2025-02-25 12:00:00");
+        when(mockServerInfo.getInfo()).thenReturn("Version: 1.0.0\nSetup time: 2025-02-25 12:00:00");
         commandDTO = new CommandDTO.Builder()
                 .commandType("INFO")
                 .build();
 
         String response = serverInfoHandler.execute(commandDTO);
-        verify(serverInfo, times(1)).getInfo();
+        verify(mockServerInfo, times(1)).getInfo();
         assertEquals("Version: 1.0.0\nSetup time: 2025-02-25 12:00:00", response);
     }
 
     @Test
-    @DisplayName("ServerInfoHandler - HELP command")
+    @DisplayName("Should test ServerInfoHandler with HELP command")
     void testHelp() {
-        when(serverInfo.getHelp()).thenReturn("Register - Create a new account\nLogin - Login to account");
+        when(mockServerInfo.getHelp()).thenReturn("Register - Create a new account\nLogin - Login to account");
         commandDTO = new CommandDTO.Builder()
                 .commandType("HELP")
                 .build();
 
         String response = serverInfoHandler.execute(commandDTO);
-        verify(serverInfo, times(1)).getHelp();
+        verify(mockServerInfo, times(1)).getHelp();
         assertEquals("Register - Create a new account\nLogin - Login to account", response);
     }
 
     @Test
-    @DisplayName("ServerInfoHandler - Unknown command returns unknown request")
+    @DisplayName("Should test ServerInfoHandler with Unknown command returns unknown request")
     void testUnknownCommand() {
         commandDTO = new CommandDTO.Builder()
                 .commandType("UNKNOWN")

@@ -14,21 +14,21 @@ import static org.junit.jupiter.api.Assertions.*;
 
 
 class EditUserHandlerTest {
-    UserService userService;
+    UserService mockUserService;
     EditUserHandler editUserHandler;
     CommandDTO commandDTO;
     User dummyUser;
 
     @BeforeEach
     void setUp() {
-        userService = mock(UserService.class);
-        editUserHandler = new EditUserHandler(userService);
+        mockUserService = mock(UserService.class);
+        editUserHandler = new EditUserHandler(mockUserService);
         dummyUser = new User("user", "pass", User.Role.USER);
-        when(userService.findUserByUsername("user")).thenReturn(dummyUser);
+        when(mockUserService.findUserByUsername("user")).thenReturn(dummyUser);
     }
 
     @Test
-    @DisplayName("EditUserHandler - CHANGE subcommand")
+    @DisplayName("Should test EditUserHandler with CHANGE subcommand")
     void testChangePassword() {
         commandDTO = new CommandDTO.Builder()
                 .commandType("EDIT")
@@ -37,16 +37,15 @@ class EditUserHandlerTest {
                 .addPayload("newPassword", "newPass")
                 .build();
 
-        // No return value from changePassword so we expect OPERATION_SUCCEEDED response.
         String expected = ResponseStatus.OPERATION_SUCCEEDED.getResponse();
         String response = editUserHandler.execute(commandDTO);
 
-        verify(userService, times(1)).changePassword(dummyUser, "newPass");
+        verify(mockUserService, times(1)).changePassword(dummyUser, "newPass");
         assertEquals(expected, response);
     }
 
     @Test
-    @DisplayName("EditUserHandler - ASSIGN subcommand")
+    @DisplayName("Should test EditUserHandler with ASSIGN subcommand")
     void testAssignRole() {
         commandDTO = new CommandDTO.Builder()
                 .commandType("EDIT")
@@ -58,12 +57,12 @@ class EditUserHandlerTest {
         String expected = ResponseStatus.ROLE_CHANGE_SUCCEEDED.getResponse();
         String response = editUserHandler.execute(commandDTO);
 
-        verify(userService, times(1)).changeUserRole(dummyUser, User.Role.ADMIN);
+        verify(mockUserService, times(1)).changeUserRole(dummyUser, User.Role.ADMIN);
         assertEquals(expected, response);
     }
 
     @Test
-    @DisplayName("EditUserHandler - REMOVE subcommand")
+    @DisplayName("Should test EditUserHandler with REMOVE subcommand")
     void testRemoveUser() {
         commandDTO = new CommandDTO.Builder()
                 .commandType("EDIT")
@@ -74,14 +73,14 @@ class EditUserHandlerTest {
         String expected = ResponseStatus.USER_DELETE_SUCCEEDED.getResponse();
         String response = editUserHandler.execute(commandDTO);
 
-        verify(userService, times(1)).removeUser(dummyUser);
+        verify(mockUserService, times(1)).removeUser(dummyUser);
         assertEquals(expected, response);
     }
 
     @Test
-    @DisplayName("EditUserHandler - SWITCH subcommand with non-admin result")
+    @DisplayName("Should test EditUserHandler with SWITCH subcommand with non-admin result")
     void testSwitchUser_NonAdmin() {
-        // Let the session state reflect a non-admin after switching.
+        // Session state reflect a non-admin after switching
         commandDTO = new CommandDTO.Builder()
                 .commandType("EDIT")
                 .addPayload("subCommand", "SWITCH")
@@ -90,18 +89,18 @@ class EditUserHandlerTest {
 
 
         SessionManager testSessionManager = mock(SessionManager.class);
-        when(userService.getSessionManager()).thenReturn(testSessionManager);
+        when(mockUserService.getSessionManager()).thenReturn(testSessionManager);
         when(testSessionManager.isAdmin()).thenReturn(false);
 
         String expected = ResponseStatus.USER_SWITCH_SUCCEEDED.getResponse();
         String response = editUserHandler.execute(commandDTO);
 
-        verify(userService, times(1)).switchUser(dummyUser);
+        verify(mockUserService, times(1)).switchUser(dummyUser);
         assertEquals(expected, response);
     }
 
     @Test
-    @DisplayName("EditUserHandler - Unknown subcommand")
+    @DisplayName("Should test EditUserHandler with Unknown subcommand")
     void testUnknownSubcommand() {
         commandDTO = new CommandDTO.Builder()
                 .commandType("EDIT")
@@ -112,11 +111,11 @@ class EditUserHandlerTest {
         String expected = ResponseStatus.UNKNOWN_REQUEST.getResponse();
         String response = editUserHandler.execute(commandDTO);
 
-        // No service method should be called for an unknown subcommand.
-        verify(userService, never()).changePassword(any(), anyString());
-        verify(userService, never()).changeUserRole(any(), any());
-        verify(userService, never()).removeUser(any());
-        verify(userService, never()).switchUser(any());
+        // No service method should be called for an unknown subcommand
+        verify(mockUserService, never()).changePassword(any(), anyString());
+        verify(mockUserService, never()).changeUserRole(any(), any());
+        verify(mockUserService, never()).removeUser(any());
+        verify(mockUserService, never()).switchUser(any());
         assertEquals(expected, response);
     }
 }

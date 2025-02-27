@@ -11,25 +11,24 @@ import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class LogoutHandlerTest {
-    AuthService authService;
+    AuthService mockAuthService;
     LogoutHandler logoutHandler;
     CommandDTO commandDTO;
 
     @BeforeEach
     void setUp() {
-        authService = mock(AuthService.class);
-        logoutHandler = new LogoutHandler(authService);
-        // No payload required for logout command
+        mockAuthService = mock(AuthService.class);
+        logoutHandler = new LogoutHandler(mockAuthService);
         commandDTO = new CommandDTO.Builder().commandType("LOGOUT").build();
     }
 
     @Test
-    @DisplayName("LogoutHandler executes logout")
+    @DisplayName("Should test LogoutHandler executes logout")
     void testLogout() {
-        when(authService.logout()).thenReturn(ResponseStatus.LOGOUT_SUCCEEDED.getResponse());
+        when(mockAuthService.logout()).thenReturn(ResponseStatus.LOGOUT_SUCCEEDED.getResponse());
 
         String response = logoutHandler.execute(commandDTO);
-        verify(authService, times(1)).logout();
+        verify(mockAuthService, times(1)).logout();
         assertEquals(ResponseStatus.LOGOUT_SUCCEEDED.getResponse(), response);
     }
 }

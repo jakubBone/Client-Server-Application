@@ -12,20 +12,20 @@ import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class AuthHandlerTest {
-    AuthService authService;
-    UserService userService;
+    AuthService mockAuthService;
+    UserService mockUserService;
     AuthHandler authHandler;
     CommandDTO commandDTO;
 
     @BeforeEach
     void setUp() {
-        authService = mock(AuthService.class);
-        userService = mock(UserService.class);
-        authHandler = new AuthHandler(authService, userService);
+        mockAuthService = mock(AuthService.class);
+        mockUserService = mock(UserService.class);
+        authHandler = new AuthHandler(mockAuthService, mockUserService);
     }
 
     @Test
-    @DisplayName("AuthHandler - REGISTER command")
+    @DisplayName("Should test AuthHandler with REGISTER command")
     void testRegisterCommand() {
         // Prepare payload
         commandDTO = new CommandDTO.Builder()
@@ -33,31 +33,30 @@ class AuthHandlerTest {
                 .addPayload("username", "newUser")
                 .addPayload("password", "pass123")
                 .build();
+
         // Stub the authService.register call
-        when(authService.register("newUser", "pass123"))
+        when(mockAuthService.register("newUser", "pass123"))
                 .thenReturn(ResponseStatus.REGISTRATION_SUCCESSFUL.getResponse());
 
         String response = authHandler.execute(commandDTO);
-        verify(authService, times(1)).register("newUser", "pass123"
-        );
+        verify(mockAuthService, times(1)).register("newUser", "pass123");
         assertEquals(ResponseStatus.REGISTRATION_SUCCESSFUL.getResponse(), response);
     }
 
     @Test
-    @DisplayName("AuthHandler - LOGIN command")
+    @DisplayName("Should test AuthHandler with LOGIN command")
     void testLoginCommand() {
-        // Prepare payload
         commandDTO = new CommandDTO.Builder()
                 .commandType("LOGIN")
                 .addPayload("username", "user1")
                 .addPayload("password", "pass123")
                 .build();
-        // Stub the authService.login call
-        when(authService.login("user1", "pass123"))
+
+        when(mockAuthService.login("user1", "pass123"))
                 .thenReturn(ResponseStatus.USER_LOGIN_SUCCEEDED.getResponse());
 
         String response = authHandler.execute(commandDTO);
-        verify(authService, times(1)).login("user1", "pass123");
+        verify(mockAuthService, times(1)).login("user1", "pass123");
         assertEquals(ResponseStatus.USER_LOGIN_SUCCEEDED.getResponse(), response);
     }
 }

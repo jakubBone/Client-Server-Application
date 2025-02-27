@@ -37,9 +37,8 @@ class MailRepositoryTest {
     }
 
     @Test
-    @DisplayName("Save and retrieve mail")
+    @DisplayName("Should test save and retrieve mail")
     void testSaveAndRetrieveMail() {
-        // Create sender and recipient users
         User sender = new User("sender", "pass", User.Role.USER);
         User recipient = new User("recipient", "pass", User.Role.USER);
         userRepository.createUser(sender);
@@ -47,28 +46,27 @@ class MailRepositoryTest {
 
         // Set the sender as the current user and save a mail
         sessionManager.setCurrentUser(sender);
-        Mail mail = new Mail(sender, recipient, "Hello!", LocalDateTime.now());
+        Mail mail = new Mail(sender, recipient, "Hello", LocalDateTime.now());
         mailRepository.saveMail(mail);
 
-        // Retrieve mail from recipient's inbox
+        // Retrieve mail from recipient's INBOX
         sessionManager.setCurrentUser(recipient);
         List<Mail> inbox = mailRepository.findMails("INBOX", sessionManager);
-        assertNotNull(inbox, "Inbox should not be null");
-        assertFalse(inbox.isEmpty(), "Inbox should not be empty");
-        assertEquals("Hello!", inbox.get(0).getMessage(), "Mail message should match");
+        assertNotNull(inbox);
+        assertFalse(inbox.isEmpty());
+        assertEquals("Hello", inbox.get(0).getMessage());
 
-        // Retrieve mail from sender's sent mailbox
+        // Retrieve mail from sender's SENT
         sessionManager.setCurrentUser(sender);
         List<Mail> sent = mailRepository.findMails("SENT", sessionManager);
-        assertNotNull(sent, "Sent mailbox should not be null");
-        assertFalse(sent.isEmpty(), "Sent mailbox should not be empty");
-        assertEquals("Hello!", sent.get(0).getMessage(), "Mail message should match");
+        assertNotNull(sent);
+        assertFalse(sent.isEmpty());
+        assertEquals("Hello", sent.get(0).getMessage());
     }
 
     @Test
-    @DisplayName("Delete mails from mailbox")
+    @DisplayName("Should test delete mails from mailbox")
     void testDeleteMails() {
-        // Create sender and recipient users
         User sender = new User("sender2", "pass", User.Role.USER);
         User recipient = new User("recipient2", "pass", User.Role.USER);
         userRepository.createUser(sender);
@@ -83,19 +81,18 @@ class MailRepositoryTest {
         sessionManager.setCurrentUser(recipient);
         mailRepository.deleteMails("INBOX", sessionManager);
         List<Mail> inbox = mailRepository.findMails("INBOX", sessionManager);
-        assertTrue(inbox.isEmpty(), "Inbox should be empty after deletion");
+        assertTrue(inbox.isEmpty());
 
-        // Sender deletes mails from SENT mailbox
+        // Sender deletes mails from SENT
         sessionManager.setCurrentUser(sender);
         mailRepository.deleteMails("SENT", sessionManager);
         List<Mail> sent = mailRepository.findMails("SENT", sessionManager);
-        assertTrue(sent.isEmpty(), "Sent mailbox should be empty after deletion");
+        assertTrue(sent.isEmpty());
     }
 
     @Test
-    @DisplayName("Check if mailbox is full")
+    @DisplayName("Should test check if mailbox is full")
     void testIsMailboxFull() {
-        // Create sender and recipient users
         User sender = new User("sender3", "pass", User.Role.USER);
         User recipient = new User("recipient3", "pass", User.Role.USER);
         userRepository.createUser(sender);
@@ -108,8 +105,7 @@ class MailRepositoryTest {
             mailRepository.saveMail(mail);
         }
 
-        // Check if the recipient's mailbox is considered full
         boolean full = mailRepository.isMailboxFull(recipient);
-        assertTrue(full, "Mailbox should be considered full when more than 5 messages are present");
+        assertTrue(full);
     }
 }

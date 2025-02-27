@@ -23,8 +23,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class MailServiceTest {
     MailService mailService;
-    MailRepository mailRepository;
-    UserRepository userRepository;
+    MailRepository mockMailRepository;
+    UserRepository mockUserRepository;
     SessionManager sessionManager;
     DSLContext context;
     User currentUser;
@@ -37,13 +37,13 @@ class MailServiceTest {
         currentUser = new User("sender", "pass", User.Role.USER);
         sessionManager.setCurrentUser(currentUser);
 
-        mailRepository = mock(MailRepository.class);
-        userRepository = mock(UserRepository.class);
+        mockMailRepository = mock(MailRepository.class);
+        mockUserRepository = mock(UserRepository.class);
 
         // Using a null DSLContext as we are not testing JOOQ behavior
         context = null;
 
-        mailService = new MailService(sessionManager, mailRepository);
+        mailService = new MailService(sessionManager, mockMailRepository);
         //mailService.setMailRepository(mailRepository);
     }
 
@@ -53,11 +53,11 @@ class MailServiceTest {
         recipient = new User("recipient", "pass", User.Role.USER);
         String message = "Test message";
 
-        when(mailRepository.isMailboxFull(recipient)).thenReturn(false);
+        when(mockMailRepository.isMailboxFull(recipient)).thenReturn(false);
 
         String response = mailService.sendMail(recipient, message);
 
-        verify(mailRepository, times(1)).saveMail(any(Mail.class));
+        verify(mockMailRepository, times(1)).saveMail(any(Mail.class));
         assertEquals(ResponseStatus.SENDING_SUCCEEDED.getResponse(), response);
     }
 
@@ -67,11 +67,11 @@ class MailServiceTest {
         recipient = new User("recipient", "pass", User.Role.USER);
         String message = "Test message";
 
-        when(mailRepository.isMailboxFull(recipient)).thenReturn(true);
+        when(mockMailRepository.isMailboxFull(recipient)).thenReturn(true);
 
         String response = mailService.sendMail(recipient, message);
 
-        verify(mailRepository, never()).saveMail(any(Mail.class));
+        verify(mockMailRepository, never()).saveMail(any(Mail.class));
         assertEquals(ResponseStatus.SENDING_FAILED_BOX_FULL.getResponse(), response);
     }
 
@@ -81,7 +81,7 @@ class MailServiceTest {
         String boxType = "INBOX";
         Mail mail = new Mail(currentUser, recipient = new User("recipient", "pass", User.Role.USER), "Test", LocalDateTime.now());
         List<Mail> mails = Arrays.asList(mail);
-        when(mailRepository.findMails(boxType, sessionManager)).thenReturn(mails);
+        when(mockMailRepository.findMails(boxType, sessionManager)).thenReturn(mails);
 
         List<Mail> result = mailService.getMails(boxType);
 
@@ -93,7 +93,7 @@ class MailServiceTest {
     @DisplayName("Should test retrieving mails with empty list")
     void testGetMailsEmptyList() {
         String boxType = "INBOX";
-        when(mailRepository.findMails(boxType, sessionManager)).thenReturn(Collections.emptyList());
+        when(mockMailRepository.findMails(boxType, sessionManager)).thenReturn(Collections.emptyList());
 
         List<Mail> result = mailService.getMails(boxType);
 
@@ -107,6 +107,6 @@ class MailServiceTest {
 
         mailService.deleteMails(boxType);
 
-        verify(mailRepository, times(1)).deleteMails(boxType, sessionManager);
+        verify(mockMailRepository, times(1)).deleteMails(boxType, sessionManager);
     }
 }

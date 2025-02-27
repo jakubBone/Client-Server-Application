@@ -14,17 +14,17 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class AuthServiceTest {
     SessionManager sessionManager;
-    UserService userService;
-    UserRepository userRepository;
+    UserService mockUserService;
+    UserRepository mockUserRepository;
     AuthService authService;
 
     @BeforeEach
     void setUp() {
         sessionManager = new SessionManager();
-        userRepository = mock(UserRepository.class);
-        userService = mock(UserService.class);
-        authService = new AuthService(sessionManager, userRepository);
-        when(userService.getUserRepository()).thenReturn(userRepository);
+        mockUserRepository = mock(UserRepository.class);
+        mockUserService = mock(UserService.class);
+        authService = new AuthService(sessionManager, mockUserRepository);
+        when(mockUserService.getUserRepository()).thenReturn(mockUserRepository);
     }
 
     @Test
@@ -34,11 +34,11 @@ class AuthServiceTest {
         String password = "pass123";
 
         // User does not exist
-        when(userRepository.findUserByUsername(username)).thenReturn(null);
+        when(mockUserRepository.findUserByUsername(username)).thenReturn(null);
 
         String response = authService.register(username, password);
 
-        verify(userRepository, times(1)).createUser(any(User.class));
+        verify(mockUserRepository, times(1)).createUser(any(User.class));
         assertEquals(ResponseStatus.REGISTRATION_SUCCESSFUL.getResponse(), response);
     }
 
@@ -49,12 +49,12 @@ class AuthServiceTest {
         String password = "pass123";
         User existingUser = new User(username, password, User.Role.USER);
 
-        when(userRepository.findUserByUsername(username)).thenReturn(existingUser);
+        when(mockUserRepository.findUserByUsername(username)).thenReturn(existingUser);
 
         String response = authService.register(username, password);
 
         // New user creation should not occur
-        verify(userRepository, never()).createUser(any(User.class));
+        verify(mockUserRepository, never()).createUser(any(User.class));
         assertEquals(ResponseStatus.REGISTRATION_FAILED_USER_EXISTS.getResponse(), response);
     }
 
@@ -64,7 +64,7 @@ class AuthServiceTest {
         String username = "nonexistent";
         String password = "pass123";
 
-        when(userRepository.findUserByUsername(username)).thenReturn(null);
+        when(mockUserRepository.findUserByUsername(username)).thenReturn(null);
 
         String response = authService.login(username, password);
 
@@ -79,8 +79,8 @@ class AuthServiceTest {
         String password = "wrongPass";
         User user = new User(username, "correctPassword", User.Role.USER);
 
-        when(userRepository.findUserByUsername(username)).thenReturn(user);
-        when(userRepository.verifyUserPassword(password, username)).thenReturn(false);
+        when(mockUserRepository.findUserByUsername(username)).thenReturn(user);
+        when(mockUserRepository.verifyUserPassword(password, username)).thenReturn(false);
 
         String response = authService.login(username, password);
 
@@ -95,8 +95,8 @@ class AuthServiceTest {
         String password = "correctPassword";
         User user = new User(username, password, User.Role.USER);
 
-        when(userRepository.findUserByUsername(username)).thenReturn(user);
-        when(userRepository.verifyUserPassword(password, username)).thenReturn(true);
+        when(mockUserRepository.findUserByUsername(username)).thenReturn(user);
+        when(mockUserRepository.verifyUserPassword(password, username)).thenReturn(true);
 
         String response = authService.login(username, password);
 
@@ -112,8 +112,8 @@ class AuthServiceTest {
         String password = "adminPass";
         User admin = new User(username, password, User.Role.ADMIN);
 
-        when(userRepository.findUserByUsername(username)).thenReturn(admin);
-        when(userRepository.verifyUserPassword(password, username)).thenReturn(true);
+        when(mockUserRepository.findUserByUsername(username)).thenReturn(admin);
+        when(mockUserRepository.verifyUserPassword(password, username)).thenReturn(true);
 
         String response = authService.login(username, password);
 
@@ -128,12 +128,12 @@ class AuthServiceTest {
         String password = "pass123";
         User user = new User(username, password, User.Role.USER);
 
-        when(userRepository.verifyUserPassword(password, username)).thenReturn(true);
+        when(mockUserRepository.verifyUserPassword(password, username)).thenReturn(true);
 
         boolean result = authService.isPasswordCorrect(password, user);
         assertTrue(result);
 
-        when(userRepository.verifyUserPassword("wrong", username)).thenReturn(false);
+        when(mockUserRepository.verifyUserPassword("wrong", username)).thenReturn(false);
         result = authService.isPasswordCorrect("wrong", user);
         assertFalse(result);
     }

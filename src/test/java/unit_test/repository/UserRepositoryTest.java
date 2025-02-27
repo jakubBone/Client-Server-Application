@@ -26,52 +26,52 @@ class UserRepositoryTest {
     }
 
     @Test
-    @DisplayName("Create and find user")
+    @DisplayName("Should test create and find user")
     void testCreateAndFindUser() {
-        User user = new User("testuser", "password", User.Role.USER);
+        User user = new User("user1", "pass123", User.Role.USER);
         userRepository.createUser(user);
 
-        User found = userRepository.findUserByUsername("testuser");
-        assertNotNull(found, "User should be found");
-        assertEquals("testuser", found.getUsername(), "Username should be 'testuser'");
+        User found = userRepository.findUserByUsername("user1");
+        assertNotNull(found);
+        assertEquals("user1", found.getUsername());
     }
 
     @Test
-    @DisplayName("Verify user password")
+    @DisplayName("Should test verify user password")
     void testVerifyUserPassword() {
-        User user = new User("verifyUser", "secret", User.Role.USER);
+        User user = new User("user2", "pass123", User.Role.USER);
         userRepository.createUser(user);
 
-        boolean correct = userRepository.verifyUserPassword("secret", user.getUsername());
+        boolean correct = userRepository.verifyUserPassword("pass123", user.getUsername());
         assertTrue(correct, "Password should be verified correctly");
 
-        boolean wrong = userRepository.verifyUserPassword("wrong", "verifyUser");
-        assertFalse(wrong, "Incorrect password should be rejected");
+        boolean wrong = userRepository.verifyUserPassword("wrong", "user2");
+        assertFalse(wrong);
     }
 
     @Test
-    @DisplayName("Update user")
+    @DisplayName("Should test update user")
     void testUpdateUser() {
-        User user = new User("updateUser", "oldPass", User.Role.USER);
+        User user = new User("user3", "oldPass", User.Role.USER);
         userRepository.createUser(user);
 
-        // Changing the password – the setter should hash the new password
+        // After password change the setter hashes the new password
         user.setPassword("newPass");
         userRepository.updateUser(user);
 
-        User updated = userRepository.findUserByUsername("updateUser");
-        assertNotNull(updated, "Updated user should exist");
-        assertTrue(userRepository.verifyUserPassword("newPass", "updateUser"), "New password should be verified correctly");
+        User updated = userRepository.findUserByUsername("user3");
+        assertNotNull(updated);
+        assertTrue(userRepository.verifyUserPassword("newPass", "user3"));
     }
 
     @Test
-    @DisplayName("Remove user")
+    @DisplayName("Should test remove user")
     void testRemoveUser() {
-        User user = new User("removeUser", "pass", User.Role.USER);
+        User user = new User("user4", "pass123", User.Role.USER);
         userRepository.createUser(user);
 
-        userRepository.removeUser("removeUser");
-        User found = userRepository.findUserByUsername("removeUser");
-        assertNull(found, "User should be removed from the database");
+        userRepository.removeUser("user4");
+        User found = userRepository.findUserByUsername("user4");
+        assertNull(found);
     }
 }
