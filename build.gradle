@@ -1,7 +1,7 @@
 plugins {
     id 'java'
     id 'nu.studer.jooq' version '6.0'
-    //id 'application'
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
 }
 
 group 'org.example'
@@ -68,9 +68,15 @@ jooq {
     }
 }
 
-/*application {
-    applicationDefaultJvmArgs = ["-Dlog4j.configurationFile=config/log4j2.xml"]
-}*/
+shadowJar {
+    archiveBaseName.set('ServerLauncher')
+    archiveClassifier.set('')
+    archiveVersion.set('')
+    manifest {
+        attributes("Main-Class": "com.jakub.bone.server.ServerLauncher")
+    }
+}
+
 
 test {
     useJUnitPlatform()
