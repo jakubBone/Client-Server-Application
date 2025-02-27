@@ -46,7 +46,8 @@ src
 │           ├── application         # Business logic: AuthService, MailService, UserService
 │           ├── command
 │           │   ├── client          # Client commands (e.g., AuthCommand, EditUserCommand)
-│           │   └── server          # Server handlers (e.g., AuthHandler, DeleteMailHandler)
+│           │   ├── server          # Server handlers (e.g., AuthHandler, DeleteMailHandler)
+│           │   └── common          # Common interfaces and classes (e.g., Command, CommandDTO)
 │           ├── controller          # Client application launcher and controller
 │           ├── data                # DataSource and database initialization
 │           ├── domain              # Domain models (User, Mail, Admin)
@@ -103,7 +104,7 @@ Follow these steps to set up and run the project:
   - Options for registration, login, email operations, and administrative tasks
   
 - **Command Handling:**  
-  - Commands (e.g., LOGIN, REGISTER, NEW, READ, DELETE, EDIT) 
+  - Commands (e.g., LOGIN, REGISTER, READ, DELETE) 
   
 - **Input & Output:**  
   - Interactive console screens guide users through email operations and system commands
@@ -111,11 +112,11 @@ Follow these steps to set up and run the project:
 ### Server-Side
 - **Request Processing:**  
   - A modular architecture that uses command handlers to process client requests
-  - Centralized `RequestProcessor` and `CommandHandlerFactory`.
+  - Centralized `RequestProcessor` and `CommandHandlerFactory`
   
 - **Business Logic:**  
   - Authentication and email operations handled by dedicated services
-  - Administrative commands allow for user management and system diagnostics (e.g., server uptime and info).
+  - Administrative commands allow for user management and system diagnostics (e.g., server uptime and info)
 
 ### Database & Persistence
 - **SQLite with jOOQ:**  
