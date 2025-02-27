@@ -57,6 +57,9 @@ src
 │           ├── session             # Session management for current users
 │           ├── ui                  # Console-based user interface screens and input handling
 │           └── utils               # Utility classes (ConfigLoader, JsonConverter, Messenger, ResponseStatus)
+├── Dockerfile                   # Builds the JAR into a container
+├── docker-compose.yml           # Container orchestration 
+├── build.gradle                 # Build configuration
 └── test                         # Unit and integration tests
 ``` 
 
@@ -68,6 +71,7 @@ Follow these steps to set up and run the project:
 - **Java Development Kit (JDK)** 17 or higher
 - **Gradle 8.5** for dependency management
 - **SQLite** database 
+- **Docker and Docker Compose** for containerization
 
 ### Setup Instructions
 
@@ -82,14 +86,36 @@ Follow these steps to set up and run the project:
    - The SQLite database and tables will be automatically created and initialized on the first run
    
 3. **Build the Project**   
-   Use Gradle to build the project:
+   Use Gradle to build the project
    ```bash
    ./gradlew build
 
-4. **Run the Server**    
-   Start the server to start communications:
+### Containerized Deployment
+
+The application is fully containerized using Docker. 
+The provided docker-compose.yml orchestrates both the server application and the SQLite container for persistent data storage.
+
+1. **Create the JAR**   
+   Use Gradle to create the shadow JAR. The JAR will be located under `build/libs/ServerLauncher.jar`
    ```bash
-   java -cp build/classes/java/main com.jakub.bone.server.ServerLauncher
+   ./gradlew shadowJar
+	
+2. **Docker Desktop**     
+	Ensure that Docker Desktop is running before building and running the containers.
+
+3. **Run Docker Compose**   
+   From the project root, run:
+   ```bash
+   docker-compose up --build
+   ```
+   This command will:
+   - Start the SQLite Container 
+   - Build and run the server application container (start to listen on port 5000)
+   The REST API will be accessible at http://localhost:8080.
+   
+4. **Expose the Application**  
+   The application will be accessible at `http://localhost:5000`
+  
 
 5. **Run the Client**
    In a separate terminal window, start the client application:
