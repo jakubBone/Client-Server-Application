@@ -39,28 +39,33 @@ The project is divided into several key components:
 ## 📂 Project Structure
 
 ```
-src
-├── com
-│   └── jakub
-│       └── bone
-│           ├── application         # Business logic: AuthService, MailService, UserService
-│           ├── command
-│           │   ├── client          # Client commands (e.g., AuthCommand, EditUserCommand)
-│           │   ├── server          # Server handlers (e.g., AuthHandler, DeleteMailHandler)
-│           │   └── common          # Common interfaces and classes (e.g., Command, CommandDTO)
-│           ├── controller          # Client application launcher and controller
-│           ├── data                # DataSource and database initialization
-│           ├── domain              # Domain models (User, Mail, Admin)
-│           ├── network             # Client and server connection managers
-│           ├── repository          # Database repositories for users and emails
-│           ├── server              # Server launcher, request processor, and server info
-│           ├── session             # Session management for current users
-│           ├── ui                  # Console-based user interface screens and input handling
-│           └── utils               # Utility classes (ConfigLoader, JsonConverter, Messenger, ResponseStatus)
-├── Dockerfile                   # Builds the JAR into a container
-├── docker-compose.yml           # Container orchestration 
-├── build.gradle                 # Build configuration
-└── test                         # Unit and integration tests
+.
+├── src
+│   ├── main
+│   │   ├── java
+│   │   │   └── com
+│   │   │       └── jakub
+│   │   │           └── bone
+│   │   │               ├── application       # Business logic (AuthService, MailService, etc.)
+│   │   │               ├── command
+│   │   │               │   ├── client        # Client commands (AuthCommand, EditUserCommand)
+│   │   │               │   ├── server        # Server handlers (AuthHandler, DeleteMailHandler)
+│   │   │               │   └── common        # Common interfaces & classes (Command, CommandDTO)
+│   │   │               ├── controller        # Client app launcher & controller
+│   │   │               ├── data              # DataSource & database initialization
+│   │   │               ├── domain            # Domain models (User, Mail, Admin)
+│   │   │               ├── network           # Client/server connection management
+│   │   │               ├── repository        # Database repositories (User, Mail)
+│   │   │               ├── server            # Server launcher & request processor
+│   │   │               ├── session           # Session management
+│   │   │               ├── ui                # Console-based user interface
+│   │   │               └── utils             # Utility classes (ConfigLoader, JsonConverter, etc.)
+│   │   └── resources                        # Resources 
+│   └── test                                 # Unit & integration tests
+├── Dockerfile                               # Builds the JAR into a container image
+├── docker-compose.yml                       # Container orchestration
+├── build.gradle                             # Build configuration
+└── ...                                    
 ``` 
 
 ## 🚀 Getting Started
