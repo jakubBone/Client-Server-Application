@@ -21,13 +21,13 @@ The project is divided into several key components:
 - **Database Integration**: User and email data persisted in an SQLite database
 
 
-## 🚀 Technologies Used
+## 🚀 Technologies and Libraries Used
 
 **Java 17**: Core programming language for client-server logic
 
 **SQLite**: Database for persisting user and email data
 
-**jOOQ**: Library for database interactions
+**JOOQ**: Library for database interactions
 
 **Log4j2**: Logging system for debugging and monitoring
 
@@ -40,14 +40,23 @@ The project is divided into several key components:
 
 ```
 src
-├── client                # Client-side logic
-├── server                # Server-side logic
-├── database              # Database access and operations
-├── mail                  # Email handling logic
-├── request               # Request creation and handling
-├── response              # Response creation and processing
-├── utils                # Common utilities and components
-└── user                  # User management and authentication
+├── com
+│   └── jakub
+│       └── bone
+│           ├── application         # Business logic: AuthService, MailService, UserService
+│           ├── command
+│           │   ├── client          # Client commands (e.g., AuthCommand, EditUserCommand)
+│           │   └── server          # Server handlers (e.g., AuthHandler, DeleteMailHandler)
+│           ├── controller          # Client application launcher and controller
+│           ├── data                # DataSource and database initialization
+│           ├── domain              # Domain models (User, Mail, Admin)
+│           ├── network             # Client and server connection managers
+│           ├── repository          # Database repositories for users and emails
+│           ├── server              # Server launcher, request processor, and server info
+│           ├── session             # Session management for current users
+│           ├── ui                  # Console-based user interface screens and input handling
+│           └── utils               # Utility classes (ConfigLoader, JsonConverter, Messenger, ResponseStatus)
+└── test                         # Unit and integration tests
 ``` 
 
 ## 🚀 Getting Started
@@ -56,8 +65,8 @@ Follow these steps to set up and run the project:
 
 ### Ensure you have the following tools installed:
 - **Java Development Kit (JDK)** 17 or higher
-- **Gradle** for dependency management
-- **SQLite** database library
+- **Gradle 8.5** for dependency management
+- **SQLite** database 
 
 ### Setup Instructions
 
@@ -68,37 +77,55 @@ Follow these steps to set up and run the project:
    cd Client-Server
 
 2. **Configure the Database**  
-   - Ensure the database directory exists: src/main/resources/db
-   - SQLite database will automatically be initialized during the first run
+   - Ensure the database directory exists: src/main/resources/data
+   - The SQLite database and tables will be automatically created and initialized on the first run
    
 3. **Build the Project**   
    Use Gradle to build the project:
    ```bash
    ./gradlew build
 
-4. **Run the Server** to handle client requests:   
-   Start the server to manage plane communications:
+4. **Run the Server**    
+   Start the server to start communications:
    ```bash
-   java -cp build/classes/java/main server.Server
+   java -cp build/classes/java/main com.jakub.bone.server.ServerLauncher
 
-5. **Run the Client** to connect to the server:
-   Simulate planes connecting to the server:
+5. **Run the Client**
+   In a separate terminal window, start the client application:
    ```bash
-   java -cp build/classes/java/main/client.Client
+   java -cp build/classes/java/main com.jakub.bone.controller.ClientApp
  
 ## ✨ Key Functionalities
 
-### Client
-- Displays menu based on login status and role
-- Allows operations like login, registration, mailbox handling, and user management
+### Client-Side
+- **User Interface:**  
+  - Dynamic menus that change based on login status and role (User or Admin)
+  - Options for registration, login, email operations, and administrative tasks
+  
+- **Command Handling:**  
+  - Commands (e.g., LOGIN, REGISTER, NEW, READ, DELETE, EDIT) 
+  
+- **Input & Output:**  
+  - Interactive console screens guide users through email operations and system commands
 
-### Server
-- Processes client requests using a factory-based architecture
-- Manages user authentication, email transactions, and administrative operations
+### Server-Side
+- **Request Processing:**  
+  - A modular architecture that uses command handlers to process client requests
+  - Centralized `RequestProcessor` and `CommandHandlerFactory`.
+  
+- **Business Logic:**  
+  - Authentication and email operations handled by dedicated services
+  - Administrative commands allow for user management and system diagnostics (e.g., server uptime and info).
 
-### Database
-- Handles user credentials and emails
-- Enforces mailbox size limits for efficient management
+### Database & Persistence
+- **SQLite with jOOQ:**  
+  - User credentials and email data are stored persistently
+  - Automatic table creation and initialization streamline the setup process
+
+### Communication & Serialization
+- **Real-Time Messaging:**  
+  - Socket connections enable seamless client-server communication
+  - JSON-based message serialization and deserialization
 
 ## 📧 Contact
 
