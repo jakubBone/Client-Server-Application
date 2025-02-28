@@ -25,7 +25,7 @@ public class AuthService {
         User user = userRepository.findUserByUsername(username);
 
         if (user != null) {
-            log.warn("Registration failed â€“ user already exists: {}", username);
+            log.warn("Registration failed – user already exists: {}", username);
             return REGISTRATION_FAILED_USER_EXISTS.getResponse();
         }
 
@@ -39,12 +39,12 @@ public class AuthService {
     public String login(String username, String password) {
         User user = userRepository.findUserByUsername(username);
         if (user == null) {
-            log.warn("Login failed â€“ user not found: {}", username);
+            log.warn("Login failed – user not found: {}", username);
             return FAILED_TO_FIND_USER.getResponse();
         }
 
         if (!isPasswordCorrect(password, user)) {
-            log.warn("Login failed â€“ incorrect password for user: {}", user.getUsername());
+            log.warn("Login failed – incorrect password for user: {}", user.getUsername());
             return LOGIN_FAILED_INCORRECT_PASSWORD.getResponse();
         }
 
