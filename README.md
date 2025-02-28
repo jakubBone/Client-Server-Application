@@ -46,19 +46,17 @@ The project is divided into several key components:
 .
 ├── src
 │   ├── main
-│   │   ├── java/com/jakub/bone/command
-│   │   │                       ├── client        # Client commands (AuthCommand, EditUserCommand)
-│   │   │                       ├── server        # Server handlers (AuthHandler, DeleteMailHandler)
-│   │   │                       └── common        # Common interfaces & classes (Command, CommandDTO)
-│   │   ├── java/com/jakub/bone/controller        # Client app launcher & controller
-│   │   ├── java/com/jakub/bone/data              # DataSource & database initialization
-│   │   ├── java/com/jakub/bone/domain            # Domain models (User, Mail, Admin)
-│   │   ├── java/com/jakub/bone/network           # Client/server connection management
-│   │   ├── java/com/jakub/bone/repository        # Database repositories (User, Mail)
-│   │   ├── java/com/jakub/bone/server            # Server launcher & request processor
-│   │   ├── java/com/jakub/bone/session           # Session management
-│   │   ├── java/com/jakub/bone/ui                # Console-based user interface
-│   │   ├── java/com/jakub/bone/utils             # Utility classes (ConfigLoader, JsonConverter, etc.)
+│   │   ├── java
+│   │   │   ├── com/jakub/bone/command           # Client commands and server handlers                     
+│   │   │   ├── com/jakub/bone/controller        # Client app launcher & controller
+│   │   │   ├── com/jakub/bone/data              # DataSource & database initialization
+│   │   │   ├── com/jakub/bone/domain            # Domain models (User, Mail, Admin)
+│   │   │   ├── com/jakub/bone/network           # Client/server connection management
+│   │   │   ├── com/jakub/bone/repository        # Database repositories (User, Mail)
+│   │   │   ├── com/jakub/bone/server            # Server launcher & request processor
+│   │   │   ├── com/jakub/bone/session           # Session management
+│   │   │   ├── com/jakub/bone/ui                # Console-based user interface
+│   │   │   └── com/jakub/bone/utils             # Utility classes (ConfigLoader, JsonConverter, etc.)
 │   │   └── resources                        # Resources 
 │   └── test                                 # Unit & integration tests
 ├── Dockerfile                               # Builds the JAR into a container image
