@@ -29,6 +29,10 @@ The project is divided into several key components:
 
 **JOOQ**: Library for database interactions
 
+**Docker**: Containerization
+
+**Gradle**: Building and dependency management
+
 **Log4j2**: Logging system for debugging and monitoring
 
 **JUnit**: Unit testing 
