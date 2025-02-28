@@ -17,8 +17,13 @@ dependencies {
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
     testImplementation 'org.junit.jupiter:junit-jupiter-params:5.8.1'
 
-    // Log4j and Gson
+    // Log4j
     implementation 'org.apache.logging.log4j:log4j-core:2.23.0'
+
+    // SLF4J to load 'org.slf4j.impl.StaticLoggerBinder'
+    implementation 'org.slf4j:slf4j-nop:1.7.36'
+
+    // Gson
     implementation 'com.google.code.gson:gson:2.8.8'
 
     // Lombok
@@ -33,15 +38,14 @@ dependencies {
     implementation 'org.mindrot:jbcrypt:0.4'
     implementation 'org.xerial:sqlite-jdbc:3.46.0.0'
 
+    // PostgreSQL
+    implementation 'org.postgresql:postgresql:42.5.0'
+
     // JOOQ
     implementation 'org.jooq:jooq:3.19.10'
     implementation 'org.jooq:jooq-meta:3.19.10'
     implementation 'org.jooq:jooq-codegen:3.19.10'
-    jooqGenerator 'org.xerial:sqlite-jdbc:3.46.0.0'
-    jooqGenerator 'org.slf4j:slf4j-simple:2.0.13'
-
-    // SLF4J Simple implementation
-    implementation 'org.slf4j:slf4j-simple:2.0.13'
+    jooqGenerator 'org.postgresql:postgresql:42.2.24'
 }
 
 jooq {
@@ -50,17 +54,22 @@ jooq {
         main {
             generationTool {
                 jdbc {
-                    driver = 'org.sqlite.JDBC'
-                    url = 'jdbc:sqlite:src/main/resources/data/user_db.db'
+                    driver = 'org.postgresql.Driver'
+                    url = 'jdbc:postgresql://localhost:5432/mailbox_db'
+                    user = 'mail_user'
+                    password = 'mail123'
                 }
                 generator {
                     name = 'org.jooq.codegen.DefaultGenerator'
                     database {
-                        name = 'org.jooq.meta.sqlite.SQLiteDatabase'
+                        name = 'org.jooq.meta.postgres.PostgresDatabase'
+                        includes = '.*'
+                        excludes = ''
+                        inputSchema = 'public'
                     }
                     target {
                         packageName = 'jooq'
-                        directory = 'generated'
+                        directory = 'target'
                     }
                 }
             }
@@ -76,7 +85,6 @@ shadowJar {
         attributes("Main-Class": "com.jakub.bone.server.ServerLauncher")
     }
 }
-
 
 test {
     useJUnitPlatform()

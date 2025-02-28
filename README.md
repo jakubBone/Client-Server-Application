@@ -18,14 +18,14 @@ The project is divided into several key components:
 
 - **Client-Server Communication**: Real-time interaction via sockets
 
-- **Database Integration**: User and email data persisted in an SQLite database
+- **Database Integration**: User and email data persisted in an PosgtreSQL database
 
 
 ## 🚀 Technologies and Libraries Used
 
 **Java 17**: Core programming language for client-server logic
 
-**SQLite**: Database for persisting user and email data
+**PostgreSQL**: Database for persisting user and email data
 
 **JOOQ**: Library for database interactions
 
@@ -72,7 +72,7 @@ Follow these steps to set up and run the project:
 ### Ensure you have the following tools installed:
 - **Java Development Kit (JDK)** 17 or higher
 - **Gradle 8.5** for dependency management
-- **SQLite** database 
+- **PostgreSQL** database 
 - **Docker and Docker Compose** for containerization
 
 ### Setup Instructions
@@ -84,23 +84,24 @@ Follow these steps to set up and run the project:
    cd Client-Server
 
 2. **Configure the Database**  
-   - Ensure the database directory exists: src/main/resources/data
-   - The SQLite database and tables will be automatically created and initialized on the first run
+   Set up a PostgreSQL database:
+   - Create new data base 
+   - Update gradle JOOQ configuration with your database credentials 
+   - Update `config.properties` file with your database credentials
    
 3. **Build the Project**   
-   Use Gradle to build the project
+   Use Gradle to build the project and the shadow JAR. The JAR will be located under build/libs/ServerLauncher.jar:
    ```bash
    ./gradlew build
+   ./gradlew shadowJar
 
 ### Containerized Deployment
 
 The application is fully containerized using Docker. 
-The provided docker-compose.yml orchestrates both the server application and the SQLite container for persistent data storage.
+A sample docker-compose.yml is provided to orchestrate both the server app and the PostgreSQL database
 
-1. **Create the JAR**   
-   Use Gradle to create the shadow JAR. The JAR will be located under `build/libs/ServerLauncher.jar`
-   ```bash
-   ./gradlew shadowJar
+1. **Configure the Environment**   
+    Edit the config.properties if needed to update database credentials
 	
 2. **Docker Desktop**     
 	Ensure that Docker Desktop is running before building and running the containers.
@@ -111,9 +112,8 @@ The provided docker-compose.yml orchestrates both the server application and the
    docker-compose up --build
    ```
    This command will:
-   - Start the SQLite Container 
-   - Build and run the server application container (start to listen on port 5000)
-   The REST API will be accessible at http://localhost:8080.
+   - Build nad run the PostgreSQL container (using the postgres:15 image) with pre-configured credentials
+   - Build and run the server container (start to listen on port 5000)
    
 4. **Expose the Application**  
    The application will be accessible at `http://localhost:5000`
@@ -147,7 +147,7 @@ The provided docker-compose.yml orchestrates both the server application and the
   - Administrative commands allow for user management and system diagnostics (e.g., server uptime and info)
 
 ### Database & Persistence
-- **SQLite with jOOQ:**  
+- **PostgreSQL with jOOQ:**  
   - User credentials and email data are stored persistently
   - Automatic table creation and initialization streamline the setup process
 

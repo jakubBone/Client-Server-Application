@@ -33,26 +33,26 @@ public class UserRepository {
 
     public void createTable() {
         try {
-            context.createTableIfNotExists("user")
+            context.createTableIfNotExists("mail_user")
                     .column("id", INTEGER.identity(true))
                     .column("username", VARCHAR(255).nullable(false))
                     .column("password", VARCHAR(255).nullable(false))
                     .column("role", VARCHAR(50).nullable(false))
                     .column("hashed_password", VARCHAR(255).nullable(false))
                     .constraints(
-                            DSL.constraint("pk_user").primaryKey("id"),
-                            DSL.constraint("uk_user_username").unique("username")
+                            DSL.constraint("pk_mail_user").primaryKey("id"),
+                            DSL.constraint("uk_mail_user_username").unique("username")
                     )
                     .execute();
         } catch (Exception e) {
-            log.error("Error while 'user' table creating: {}", e.getMessage());
-            throw new RuntimeException("Failed to create 'user' table ", e);
+            log.error("Error while 'mail_user' table creating: {}", e.getMessage());
+            throw new RuntimeException("Failed to create 'mail_user' table ", e);
         }
     }
 
     public void createUser(User user) {
         try {
-            context.insertInto(table("user"),
+            context.insertInto(table("mail_user"),
                             field("username"),
                             field("password"),
                             field("role"),
@@ -63,22 +63,22 @@ public class UserRepository {
                             user.getHashedPassword())
                     .execute();
         } catch (Exception e) {
-            log.error("Error while creating user {}: {}", user.getUsername(), e.getMessage());
-            throw new RuntimeException("Failed to create user " + user.getUsername(), e);
+            log.error("Error while creating mail_user {}: {}", user.getUsername(), e.getMessage());
+            throw new RuntimeException("Failed to create mail_user " + user.getUsername(), e);
         }
     }
     public void truncateTable(){
         try {
-            context.truncate("user").restartIdentity().execute();
+            context.truncate("mail_user").restartIdentity().execute();
         } catch (Exception e) {
             log.error("Error while table truncating: {}", e.getMessage());
-            throw new RuntimeException("Failed to truncate 'mail' table ", e);
+            throw new RuntimeException("Failed to truncate 'mail_user' table ", e);
         }
     }
 
     public User findUserByUsername(String username) {
         try {
-            Record record = context.selectFrom("user")
+            Record record = context.selectFrom("mail_user")
                     .where(DSL.field("username").eq(username))
                     .fetchOne();
 
@@ -92,14 +92,14 @@ public class UserRepository {
                     User.Role.valueOf(record.getValue("role", String.class).toUpperCase())
             );
         } catch (Exception e) {
-            log.error("Error while finding user {}: {}", username, e.getMessage());
-            throw new RuntimeException("Failed to find user " + username, e);
+            log.error("Error while finding mail_user {}: {}", username, e.getMessage());
+            throw new RuntimeException("Failed to find mail_user " + username, e);
         }
     }
 
     public boolean verifyUserPassword(String typedPassword, String username) {
         try {
-            Record record = context.selectFrom("user")
+            Record record = context.selectFrom("mail_user")
                     .where(DSL.field("username").eq(username))
                     .fetchOne();
 
@@ -107,20 +107,20 @@ public class UserRepository {
 
             return BCrypt.checkpw(typedPassword, hashed);
         } catch (Exception e) {
-            log.error("Error while verifying password for user {}: {}", username, e.getMessage());
-            throw new RuntimeException("Failed to verify password for user " + username, e);
+            log.error("Error while verifying password for mail_user {}: {}", username, e.getMessage());
+            throw new RuntimeException("Failed to verify password for mail_user " + username, e);
         }
 
     }
 
     public void removeUser(String username) {
         try {
-            context.deleteFrom(table("user"))
+            context.deleteFrom(table("mail_user"))
                     .where(field("username").eq(username))
                     .execute();
         } catch (Exception e) {
-            log.error("Error while deleting user {}: {}", username, e.getMessage());
-            throw new RuntimeException("Failed to delete user " + username, e);
+            log.error("Error while deleting mail_user {}: {}", username, e.getMessage());
+            throw new RuntimeException("Failed to delete mail_user " + username, e);
         }
     }
 
@@ -130,15 +130,15 @@ public class UserRepository {
 
     public void updateUser(User user) {
         try {
-            context.update(table("user"))
+            context.update(table("mail_user"))
                     .set(field("password"), user.getPassword())
                     .set(field("role"), user.getRole().toString())
                     .set(field("hashed_password"), user.getHashedPassword())
                     .where(field("username").eq(user.getUsername()))
                     .execute();
         } catch (Exception e) {
-            log.error("Error while updating user {}: {}", user.getUsername(), e.getMessage());
-            throw new RuntimeException("Failed to update user " + user.getUsername(), e);
+            log.error("Error while updating mail_user {}: {}", user.getUsername(), e.getMessage());
+            throw new RuntimeException("Failed to update mail_user " + user.getUsername(), e);
         }
     }
 }

@@ -1,23 +1,36 @@
 services:
+  db:
+    image: postgres:15
+    container_name: mailbox_db
+    restart: always
+    environment:
+      POSTGRES_DB: mailbox_db
+      POSTGRES_USER: mail_user
+      POSTGRES_PASSWORD: mail123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "mail_user", "-d", "mailbox_db" ]
+      interval: 5s
+      retries: 5
+      timeout: 3s
+
   app:
     build: .
-    ports:
-      - "5000:5000"         # Exposes the server port (5000) to the host
-    environment:
-      - DATABASE_DIRECTORY=/data/
-      - DATABASE_NAME=user_db.db
-      - SERVER_HOST=0.0.0.0            # Server is listening on all network interfaces
-      - SERVER_PORT=5000
-    volumes:
-      - dbdata:/data                 # Mounts the shared volume for persistent storage of the database
+    container_name: server_app
+    restart: always
     depends_on:
-      - sqlite
-
-  sqlite:
-    image: nouchka/sqlite3:latest      # Uses image that contains SQLite tools
-    volumes:
-      - dbdata:/data                 # Dataabse shares the same volume with the app service
-    command: tail -f /dev/null      # Keeps the container running
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: jdbc:postgresql://db:5432/mailbox_db
+      DATABASE_NAME: mailbox_db
+      DATABASE_USER: mail_user
+      DATABASE_PASSWORD: mail123
+    ports:
+      - "5000:5000"
 
 volumes:
-  dbdata:
+  postgres_data:

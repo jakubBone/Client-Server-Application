@@ -1,6 +1,5 @@
 package com.jakub.bone.data;
 
-import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -12,14 +11,15 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 @Getter
 public class DataSource {
-    private final String DATABASE_DIRECTORY = ConfigLoader.get("database.directory");
+    private final String USER = ConfigLoader.get("database.username");
+    private final String PASSWORD = ConfigLoader.get("database.password");
     private final String DATABASE = ConfigLoader.get("database.name");
-    private final String URL = String.format("jdbc:sqlite:%s", DATABASE_DIRECTORY + DATABASE);
+    private final String PORT_NUMBER = ConfigLoader.get("database.port");
+    private final String URL = String.format("jdbc:postgresql://db:%s/%s", PORT_NUMBER, DATABASE);
     private static DataSource instance;
     private static Connection connection;
 
     public DataSource() {
-        createDatabaseDirectory();
         connect();
     }
 
@@ -30,30 +30,21 @@ public class DataSource {
         return instance;
     }
 
-    private void createDatabaseDirectory() {
-        File directory = new File(DATABASE_DIRECTORY);
-        if (!directory.exists()) {
-            if (directory.mkdirs()) {
-                log.info("Created directory for database at {}", DATABASE_DIRECTORY);
-            } else {
-                log.info("Failed to create directory for database at {}", DATABASE_DIRECTORY);
-            }
-        }
-    }
-
-
     public void connect() {
         try {
-            log.debug("Attempting to connect to the database...");
-            connection = DriverManager.getConnection(URL);
-            if(connection != null){
-                log.info("Database connection established: {}", DATABASE);
+            Class.forName("org.postgresql.Driver");
+            log.info("Attempting to connect with data base");
+            connection = DriverManager.getConnection(URL, USER, PASSWORD);
+            if (connection != null) {
+                log.info("Connection with {} database established on port {}", USER, PORT_NUMBER);
             } else {
-                log.warn("Failed to establish connection to the database: {}", DATABASE);
+                log.info("Failed to connect with {} database established on port {}", USER, PORT_NUMBER);
             }
         } catch (SQLException e) {
-            log.error("Database connection error: {}", e.getMessage());
-            throw new RuntimeException("Error while connecting to the database", e);
+            log.error("Error during database connection: {}", e.getMessage());
+
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
 
