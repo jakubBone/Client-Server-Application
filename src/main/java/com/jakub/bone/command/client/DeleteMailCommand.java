@@ -17,14 +17,10 @@ public class DeleteMailCommand implements Command {
 
     @Override
     public CommandDTO buildCommandMessage() throws IOException {
-        printMailboxScreen();
-        String boxType = input.getRequest().trim().toUpperCase();
-
+        String boxType = null;
         while (!(isBoxTypeValid(boxType))) {
-            printMailboxScreen();
-            boxType = input.getRequest().trim().toUpperCase();;
+            boxType = input.promptMailbox();
         }
-
         return new CommandDTO.Builder()
                 .commandType("DELETE")
                 .addPayload("boxType", boxType)
@@ -32,7 +28,7 @@ public class DeleteMailCommand implements Command {
     }
 
     private boolean isBoxTypeValid(String boxType) {
-        return (boxType != null && boxType.equalsIgnoreCase("INBOX")
+        return boxType != null && (boxType.equalsIgnoreCase("INBOX")
                 || boxType.equalsIgnoreCase("SENT"));
     }
 }

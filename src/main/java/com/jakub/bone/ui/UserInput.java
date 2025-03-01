@@ -45,4 +45,9 @@ public class UserInput {
         System.out.print("New role (ADMIN / USER): ");
         return reader.readLine();
     }
+
+    public String promptMailbox() throws IOException {
+        System.out.print("Read: (INBOX / SENT): ");
+        return reader.readLine();
+    }
 }

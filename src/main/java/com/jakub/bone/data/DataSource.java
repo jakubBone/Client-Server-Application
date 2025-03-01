@@ -15,7 +15,8 @@ public class DataSource {
     private final String PASSWORD = ConfigLoader.get("database.password");
     private final String DATABASE = ConfigLoader.get("database.name");
     private final String PORT_NUMBER = ConfigLoader.get("database.port");
-    private final String URL = String.format("jdbc:postgresql://db:%s/%s", PORT_NUMBER, DATABASE);
+    //private final String URL = String.format("jdbc:postgresql://db:%s/%s", PORT_NUMBER, DATABASE);
+    private final String URL = String.format("jdbc:postgresql://localhost:%s/%s", PORT_NUMBER, DATABASE);
     private static DataSource instance;
     private static Connection connection;
 

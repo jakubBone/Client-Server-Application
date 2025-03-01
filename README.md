@@ -85,7 +85,7 @@ Follow these steps to set up and run the project:
 
 2. **Configure the Database**  
    Set up a PostgreSQL database:
-   - Create new data base 
+   - Create new database 
    - Update gradle JOOQ configuration with your database credentials 
    - Update `config.properties` file with your database credentials
    

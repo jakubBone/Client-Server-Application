@@ -6,8 +6,6 @@ import com.jakub.bone.ui.UserInput;
 
 import java.io.IOException;
 
-import static com.jakub.bone.ui.Screen.printMailboxScreen;
-
 public class ReadMailCommand implements Command {
     private UserInput input;
     public ReadMailCommand(UserInput input) {
@@ -16,20 +14,18 @@ public class ReadMailCommand implements Command {
 
     @Override
     public CommandDTO buildCommandMessage() throws IOException {
-        printMailboxScreen();
-        String boxType = input.getRequest().trim().toUpperCase();
-
+        String boxType = null;
         while(!isBoxTypeValid(boxType)){
-            printMailboxScreen();
-            boxType = input.getRequest().trim().toUpperCase();
+            boxType = input.promptMailbox();
         }
         return new CommandDTO.Builder()
                 .commandType("READ")
                 .addPayload("boxType", boxType)
                 .build();
     }
+
     private boolean isBoxTypeValid(String boxType) {
-        return (boxType != null && boxType.equalsIgnoreCase("INBOX")
+        return boxType != null && (boxType.equalsIgnoreCase("INBOX")
                 || boxType.equalsIgnoreCase("SENT"));
     }
 }
