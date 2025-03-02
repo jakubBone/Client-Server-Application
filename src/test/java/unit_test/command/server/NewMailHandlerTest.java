@@ -9,6 +9,10 @@ import com.jakub.bone.utils.ResponseStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
+import java.util.HashMap;
+import java.util.Map;
+
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -31,10 +35,13 @@ class NewMailHandlerTest {
     @Test
     @DisplayName("Should test NewMailHandler executes sending mail")
     void testNewMailHandler() {
-        commandDTO = new CommandDTO.Builder()
+        Map<String, String> payLoad = new HashMap<>();
+        payLoad.put("recipient", "recipient");
+        payLoad.put("message", "Hello Mail");
+
+        commandDTO = CommandDTO.builder()
                 .commandType("NEW")
-                .addPayload("recipient", "recipient")
-                .addPayload("message", "Hello Mail")
+                .payload(payLoad)
                 .build();
 
         when(mockMailService.sendMail(recipient, "Hello Mail"))

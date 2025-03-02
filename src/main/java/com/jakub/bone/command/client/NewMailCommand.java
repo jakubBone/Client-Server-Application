@@ -5,6 +5,8 @@ import com.jakub.bone.command.common.CommandDTO;
 import com.jakub.bone.ui.UserInput;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class NewMailCommand implements Command {
 
@@ -18,10 +20,14 @@ public class NewMailCommand implements Command {
     public CommandDTO buildCommandMessage() throws IOException {
         String recipient = input.promptRecipient();
         String message = input.promptMessage();
-        return new CommandDTO.Builder()
+
+        Map<String, String> payLoad = new HashMap<>();
+        payLoad.put("recipient", recipient);
+        payLoad.put("message", message);
+
+        return CommandDTO.builder()
                 .commandType("NEW")
-                .addPayload("recipient", recipient)
-                .addPayload("message", message)
+                .payload(payLoad)
                 .build();
     }
 }

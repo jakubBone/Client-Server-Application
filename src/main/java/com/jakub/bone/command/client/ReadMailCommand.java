@@ -5,6 +5,8 @@ import com.jakub.bone.command.common.CommandDTO;
 import com.jakub.bone.ui.UserInput;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ReadMailCommand implements Command {
     private UserInput input;
@@ -18,9 +20,12 @@ public class ReadMailCommand implements Command {
         while(!isBoxTypeValid(boxType)){
             boxType = input.promptMailbox();
         }
-        return new CommandDTO.Builder()
+        Map<String, String> payload = new HashMap<>();
+        payload.put("boxType", boxType);
+
+        return CommandDTO.builder()
                 .commandType("READ")
-                .addPayload("boxType", boxType)
+                .payload(payload)
                 .build();
     }
 

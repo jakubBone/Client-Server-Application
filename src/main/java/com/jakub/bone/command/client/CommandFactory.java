@@ -17,7 +17,7 @@ public class CommandFactory {
     public Command createCommand(String command) throws IOException {
         return switch (command.toUpperCase()) {
             case "LOGIN", "REGISTER" -> new AuthCommand(command, input);
-            case "LOGOUT" -> new LogoutCommand();
+            case "LOGOUT" -> new LogoutCommand(command);
             case "UPTIME", "INFO", "HELP" -> new ServerInfoCommand(command);
             case "NEW" -> new NewMailCommand(input);
             case "READ" -> new ReadMailCommand(input);
@@ -25,7 +25,7 @@ public class CommandFactory {
             case "EDIT" -> new EditUserCommand(input);
             default -> {
                 log.warn("Unknown operation: {}", command);
-                yield null;
+                yield  null;
             }
         };
     }

@@ -5,7 +5,9 @@ import com.jakub.bone.command.common.CommandDTO;
 import com.jakub.bone.ui.UserInput;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.jakub.bone.ui.Screen.printEditScreen;
 
@@ -24,37 +26,37 @@ public class EditUserCommand implements Command {
             subCommand = input.getRequest().trim().toUpperCase();;
         }
 
-        CommandDTO.Builder builder = new CommandDTO.Builder()
-                .commandType("EDIT")
-                .addPayload("subCommand", subCommand);
+        Map<String, String> payload = new HashMap<>();
+        payload.put("subCommand", subCommand);
 
         switch (subCommand) {
-            case "CHANGE" -> handleChange(builder);
-            case "ASSIGN" -> handleAssign(builder);
-            case "REMOVE", "SWITCH" -> builder.addPayload("username", input.promptUsername());
-            default -> {
-                builder.addPayload("error", "Unknown operation: " + subCommand);
-                return null;
-            }
+            case "CHANGE" -> handleChange(payload);
+            case "ASSIGN" -> handleAssign(payload);
+            case "REMOVE", "SWITCH" -> payload.put("username", input.promptUsername());
+            default -> payload.put("errorCode", "UNKNOWN");
         }
-        return builder.build();
+
+        return CommandDTO.builder()
+                .commandType("EDIT")
+                .payload(payload)
+                .build();
     }
 
-    private void handleChange(CommandDTO.Builder builder) throws IOException {
+    private void handleChange(Map<String, String> payload) throws IOException {
         String username = input.promptUsername();
         String newPassword = input.promptNewPassword();
-        builder.addPayload("username", username)
-                .addPayload("newPassword", newPassword);
+        payload.put("username", username);
+        payload.put("newPassword", newPassword);
     }
 
-    private void handleAssign(CommandDTO.Builder builder) throws IOException {
+    private void handleAssign(Map<String, String> payload) throws IOException {
         String username = input.promptUsername();
         String newRole = input.promptNewRole();
         while (!isValidRole(newRole)) {
             newRole = input.promptNewRole();
         }
-        builder.addPayload("username", username)
-                .addPayload("newRole", newRole);
+        payload.put("username", username);
+        payload.put("newRole", newRole);
     }
 
     private boolean isValidSubCommand(String subCommand) {
@@ -64,18 +66,4 @@ public class EditUserCommand implements Command {
     private boolean isValidRole(String newRole) {
         return newRole != null && List.of("USER", "ADMIN").contains(newRole.toUpperCase());
     }
-
-    /*private boolean isValidSubCommand(String subCommand) {
-        return subCommand != null (&& subCommand.equals("CHANGE") ||
-                subCommand.equals("ASSIGN") ||
-                subCommand.equals("REMOVE") ||
-                subCommand.equals("SWITCH"));
-    }*/
-
-
-
-    /*private boolean isValidRole(String newRole) {
-        return (newRole != null && newRole.equalsIgnoreCase("USER")
-                || newRole.equalsIgnoreCase("ADMIN"));
-    }*/
 }

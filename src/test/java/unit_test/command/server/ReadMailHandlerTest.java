@@ -11,6 +11,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -28,7 +30,7 @@ class ReadMailHandlerTest {
     @Test
     @DisplayName("Should test ReadMailHandler with missing boxType returns unknown request")
     void testMissingBoxType() {
-        commandDTO = new CommandDTO.Builder()
+        commandDTO = CommandDTO.builder()
                 .commandType("READ")
                 // boxType not provided
                 .build();
@@ -42,9 +44,9 @@ class ReadMailHandlerTest {
     @Test
     @DisplayName("Should test ReadMailHandler with empty mailbox returns mailbox empty")
     void testEmptyMailbox() {
-        commandDTO = new CommandDTO.Builder()
+        commandDTO = CommandDTO.builder()
                 .commandType("READ")
-                .addPayload("boxType", "INBOX")
+                .payload(Map.of("boxType", "INBOX"))
                 .build();
 
         when(mockMailService.getMails("INBOX")).thenReturn(Collections.emptyList());
@@ -57,9 +59,9 @@ class ReadMailHandlerTest {
     @Test
     @DisplayName("Should test ReadMailHandler with non-empty mailbox returns formatted messages")
     void testNonEmptyMailbox() {
-        commandDTO = new CommandDTO.Builder()
+        commandDTO = CommandDTO.builder()
                 .commandType("READ")
-                .addPayload("boxType", "SENT")
+                .payload(Map.of("boxType", "SENT"))
                 .build();
 
         // Create mocks for sender and recipient

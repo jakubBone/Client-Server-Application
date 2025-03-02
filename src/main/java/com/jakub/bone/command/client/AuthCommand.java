@@ -5,6 +5,8 @@ import com.jakub.bone.command.common.CommandDTO;
 import com.jakub.bone.ui.UserInput;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class AuthCommand implements Command {
     private final String command;
@@ -20,10 +22,14 @@ public class AuthCommand implements Command {
         UserInput userInput = new UserInput();
         String username = userInput.promptUsername();
         String password = userInput.promptPassword();
-        return new CommandDTO.Builder()
+
+        Map<String, String> payload = new HashMap<>();
+        payload.put("username", username);
+        payload.put("password", password);
+
+        return CommandDTO.builder()
                 .commandType(command.toUpperCase())
-                .addPayload("username", username)
-                .addPayload("password", password)
+                .payload(payload)
                 .build();
     }
 }

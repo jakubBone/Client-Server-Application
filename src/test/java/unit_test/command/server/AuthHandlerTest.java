@@ -8,6 +8,10 @@ import com.jakub.bone.utils.ResponseStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
+import java.util.HashMap;
+import java.util.Map;
+
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -28,11 +32,14 @@ class AuthHandlerTest {
     @DisplayName("Should test AuthHandler with REGISTER command")
     void testRegisterCommand() {
         // Prepare payload
-        commandDTO = new CommandDTO.Builder()
-                .commandType("REGISTER")
-                .addPayload("username", "newUser")
-                .addPayload("password", "pass123")
-                .build();
+        Map<String, String> payload = new HashMap<>();
+        payload.put("username", "newUser");
+        payload.put("password", "pass123");
+
+        commandDTO = CommandDTO.builder()
+                        .commandType("REGISTER")
+                        .payload(payload)
+                        .build();
 
         // Stub the authService.register call
         when(mockAuthService.register("newUser", "pass123"))
@@ -46,10 +53,13 @@ class AuthHandlerTest {
     @Test
     @DisplayName("Should test AuthHandler with LOGIN command")
     void testLoginCommand() {
-        commandDTO = new CommandDTO.Builder()
+        Map<String, String> payload = new HashMap<>();
+        payload.put("username", "user1");
+        payload.put("password", "pass123");
+
+        commandDTO = CommandDTO.builder()
                 .commandType("LOGIN")
-                .addPayload("username", "user1")
-                .addPayload("password", "pass123")
+                .payload(payload)
                 .build();
 
         when(mockAuthService.login("user1", "pass123"))

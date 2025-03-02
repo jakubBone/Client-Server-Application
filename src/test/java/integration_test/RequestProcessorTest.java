@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.*;
 import java.util.Date;
+import java.util.HashMap;
 
 import static com.jakub.bone.utils.ResponseStatus.LOGOUT_SUCCEEDED;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -19,9 +20,11 @@ class RequestProcessorTest {
     void testLogoutCommandProcessing() throws IOException {
         ServerConnectionManager.startTime = new Date();
 
-        CommandDTO logoutCommand = new CommandDTO.Builder()
+        CommandDTO logoutCommand = CommandDTO.builder()
                 .commandType("LOGOUT")
+                .payload(new HashMap<>())
                 .build();
+
         String jsonCommand = JsonConverter.serialize(logoutCommand) + "\n<<END>>\n";
 
         // Simulate receiving by using the sent data as input

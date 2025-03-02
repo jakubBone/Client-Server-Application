@@ -11,7 +11,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -31,9 +34,8 @@ class InboxHandlerTest {
     @Test
     @DisplayName("Should test InboxHandler with null boxType defaults to INBOX and returns mailbox empty")
     void testDefaultInbox_Empty() {
-        commandDTO = new CommandDTO.Builder()
-                .commandType("INBOX")
-                .build();
+        commandDTO = CommandDTO.builder().commandType("INBOX").build();
+
         when(mockMailService.getMails("INBOX")).thenReturn(Collections.emptyList());
 
         String expected = ResponseStatus.MAILBOX_EMPTY.getResponse();
@@ -45,9 +47,9 @@ class InboxHandlerTest {
     @Test
     @DisplayName("Should test InboxHandler with non-empty mailbox returns formatted messages")
     void testNonEmptyInbox() {
-        commandDTO = new CommandDTO.Builder()
-                .commandType("INBOX")
-                .addPayload("boxType", "INBOX")
+        commandDTO = CommandDTO.builder()
+                .commandType("EDIT")
+                .payload(Map.of("boxType", "INBOX"))
                 .build();
 
         Mail mail = new Mail(sender, new User("recipient", "pass", User.Role.USER), "Hello", LocalDateTime.now());

@@ -26,7 +26,8 @@ class CreateCommandTest {
     @DisplayName("Should test DeleteMailCommand builds correct CommandDTO")
     void testDeleteMailCommand() throws IOException {
         // Simulate user input for mailbox type
-        when(mockInput.getRequest()).thenReturn("inbox");
+        when(mockInput.getRequest()).thenReturn("DELETE");
+        when(mockInput.promptMailbox()).thenReturn("INBOX");
 
         DeleteMailCommand command = new DeleteMailCommand(mockInput);
         CommandDTO dto = command.buildCommandMessage();
@@ -52,7 +53,8 @@ class CreateCommandTest {
     @Test
     @DisplayName("Should test ReadMailCommand builds correct CommandDTO with valid box type")
     void testReadMailCommand() throws IOException {
-        when(mockInput.getRequest()).thenReturn("SENT");
+        when(mockInput.getRequest()).thenReturn("READ");
+        when(mockInput.promptMailbox()).thenReturn("SENT");
 
         ReadMailCommand command = new ReadMailCommand(mockInput);
         CommandDTO dto = command.buildCommandMessage();
@@ -63,8 +65,8 @@ class CreateCommandTest {
 
     @Test
     @DisplayName("Should test LogoutCommand builds correct CommandDTO")
-    void testLogoutCommand()  {
-        LogoutCommand command = new LogoutCommand();
+    void testLogoutCommand() throws IOException {
+        LogoutCommand command = new LogoutCommand("LOGOUT");
         CommandDTO dto = command.buildCommandMessage();
 
         assertEquals("LOGOUT", dto.getCommandType());
@@ -74,7 +76,7 @@ class CreateCommandTest {
     @Test
     @DisplayName("Should test ServerInfoCommand builds correct CommandDTO for HELP command")
     void testServerInfoCommand_Help() {
-        ServerInfoCommand command = new ServerInfoCommand("help");
+        ServerInfoCommand command = new ServerInfoCommand("HELP");
         CommandDTO dto = command.buildCommandMessage();
 
         assertEquals("HELP", dto.getCommandType());
@@ -120,7 +122,6 @@ class CreateCommandTest {
     @DisplayName("Should test EditUserCommand builds correct CommandDTO for REMOVE subcommand")
     void testEditUserCommandRemove() throws IOException {
         when(mockInput.getRequest()).thenReturn("REMOVE");
-
         when(mockInput.promptUsername()).thenReturn("user3");
 
         EditUserCommand command = new EditUserCommand(mockInput);

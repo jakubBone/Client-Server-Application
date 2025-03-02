@@ -5,8 +5,8 @@ import com.jakub.bone.command.common.CommandDTO;
 import com.jakub.bone.ui.UserInput;
 
 import java.io.IOException;
-
-import static com.jakub.bone.ui.Screen.printMailboxScreen;
+import java.util.HashMap;
+import java.util.Map;
 
 public class DeleteMailCommand implements Command {
     private UserInput input;
@@ -21,9 +21,13 @@ public class DeleteMailCommand implements Command {
         while (!(isBoxTypeValid(boxType))) {
             boxType = input.promptMailbox();
         }
-        return new CommandDTO.Builder()
+
+        Map<String, String> payLoad = new HashMap<>();
+        payLoad.put("boxType", boxType);
+
+        return CommandDTO.builder()
                 .commandType("DELETE")
-                .addPayload("boxType", boxType)
+                .payload(payLoad)
                 .build();
     }
 

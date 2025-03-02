@@ -9,6 +9,10 @@ import com.jakub.bone.utils.ResponseStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
+import java.util.HashMap;
+import java.util.Map;
+
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -30,11 +34,14 @@ class EditUserHandlerTest {
     @Test
     @DisplayName("Should test EditUserHandler with CHANGE subcommand")
     void testChangePassword() {
-        commandDTO = new CommandDTO.Builder()
+        Map<String, String> payLoad = new HashMap<>();
+        payLoad.put("subCommand", "CHANGE");
+        payLoad.put("username", "user");
+        payLoad.put("newPassword", "newPass");
+
+        commandDTO = CommandDTO.builder()
                 .commandType("EDIT")
-                .addPayload("subCommand", "CHANGE")
-                .addPayload("username", "user")
-                .addPayload("newPassword", "newPass")
+                .payload(payLoad)
                 .build();
 
         String expected = ResponseStatus.OPERATION_SUCCEEDED.getResponse();
@@ -47,11 +54,14 @@ class EditUserHandlerTest {
     @Test
     @DisplayName("Should test EditUserHandler with ASSIGN subcommand")
     void testAssignRole() {
-        commandDTO = new CommandDTO.Builder()
+        Map<String, String> payLoad = new HashMap<>();
+        payLoad.put("subCommand", "ASSIGN");
+        payLoad.put("username", "user");
+        payLoad.put("newRole", "ADMIN");
+
+        commandDTO = CommandDTO.builder()
                 .commandType("EDIT")
-                .addPayload("subCommand", "ASSIGN")
-                .addPayload("username", "user")
-                .addPayload("newRole", "ADMIN")
+                .payload(payLoad)
                 .build();
 
         String expected = ResponseStatus.ROLE_CHANGE_SUCCEEDED.getResponse();
@@ -64,10 +74,13 @@ class EditUserHandlerTest {
     @Test
     @DisplayName("Should test EditUserHandler with REMOVE subcommand")
     void testRemoveUser() {
-        commandDTO = new CommandDTO.Builder()
+        Map<String, String> payLoad = new HashMap<>();
+        payLoad.put("subCommand", "REMOVE");
+        payLoad.put("username", "user");
+
+        commandDTO = CommandDTO.builder()
                 .commandType("EDIT")
-                .addPayload("subCommand", "REMOVE")
-                .addPayload("username", "user")
+                .payload(payLoad)
                 .build();
 
         String expected = ResponseStatus.USER_DELETE_SUCCEEDED.getResponse();
@@ -81,12 +94,14 @@ class EditUserHandlerTest {
     @DisplayName("Should test EditUserHandler with SWITCH subcommand with non-admin result")
     void testSwitchUser_NonAdmin() {
         // Session state reflect a non-admin after switching
-        commandDTO = new CommandDTO.Builder()
-                .commandType("EDIT")
-                .addPayload("subCommand", "SWITCH")
-                .addPayload("username", "user")
-                .build();
+        Map<String, String> payLoad = new HashMap<>();
+        payLoad.put("subCommand", "SWITCH");
+        payLoad.put("username", "user");
 
+        commandDTO = CommandDTO.builder()
+                .commandType("EDIT")
+                .payload(payLoad)
+                .build();
 
         SessionManager testSessionManager = mock(SessionManager.class);
         when(mockUserService.getSessionManager()).thenReturn(testSessionManager);
@@ -102,10 +117,13 @@ class EditUserHandlerTest {
     @Test
     @DisplayName("Should test EditUserHandler with Unknown subcommand")
     void testUnknownSubcommand() {
-        commandDTO = new CommandDTO.Builder()
+        Map<String, String> payLoad = new HashMap<>();
+        payLoad.put("subCommand", "INVALID");
+        payLoad.put("username", "user");
+
+        commandDTO = CommandDTO.builder()
                 .commandType("EDIT")
-                .addPayload("subCommand", "INVALID")
-                .addPayload("username", "user")
+                .payload(payLoad)
                 .build();
 
         String expected = ResponseStatus.UNKNOWN_REQUEST.getResponse();

@@ -19,7 +19,7 @@ class LogoutHandlerTest {
     void setUp() {
         mockAuthService = mock(AuthService.class);
         logoutHandler = new LogoutHandler(mockAuthService);
-        commandDTO = new CommandDTO.Builder().commandType("LOGOUT").build();
+        commandDTO = CommandDTO.builder().commandType("LOGOUT").build();
     }
 
     @Test

@@ -27,9 +27,7 @@ public class ServerInfoHandlerTest {
     @DisplayName("Should test ServerInfoHandler with UPTIME command")
     void testUptime() {
         when(mockServerInfo.getUptime()).thenReturn("Uptime: 1 day, 2 hours, 3 minutes, 4 seconds");
-        commandDTO = new CommandDTO.Builder()
-                .commandType("UPTIME")
-                .build();
+        commandDTO = CommandDTO.builder().commandType("UPTIME").build();
 
         String response = serverInfoHandler.execute(commandDTO);
         verify(mockServerInfo, times(1)).getUptime();
@@ -40,9 +38,7 @@ public class ServerInfoHandlerTest {
     @DisplayName("Should test ServerInfoHandler with INFO command")
     void testInfo() {
         when(mockServerInfo.getInfo()).thenReturn("Version: 1.0.0\nSetup time: 2025-02-25 12:00:00");
-        commandDTO = new CommandDTO.Builder()
-                .commandType("INFO")
-                .build();
+        commandDTO = CommandDTO.builder().commandType("INFO").build();
 
         String response = serverInfoHandler.execute(commandDTO);
         verify(mockServerInfo, times(1)).getInfo();
@@ -53,9 +49,7 @@ public class ServerInfoHandlerTest {
     @DisplayName("Should test ServerInfoHandler with HELP command")
     void testHelp() {
         when(mockServerInfo.getHelp()).thenReturn("Register - Create a new account\nLogin - Login to account");
-        commandDTO = new CommandDTO.Builder()
-                .commandType("HELP")
-                .build();
+        commandDTO = CommandDTO.builder().commandType("HELP").build();
 
         String response = serverInfoHandler.execute(commandDTO);
         verify(mockServerInfo, times(1)).getHelp();
@@ -65,9 +59,7 @@ public class ServerInfoHandlerTest {
     @Test
     @DisplayName("Should test ServerInfoHandler with Unknown command returns unknown request")
     void testUnknownCommand() {
-        commandDTO = new CommandDTO.Builder()
-                .commandType("UNKNOWN")
-                .build();
+        commandDTO = CommandDTO.builder().commandType("UNKNOWN").build();
 
         String expected = ResponseStatus.UNKNOWN_REQUEST.getResponse();
         String response = serverInfoHandler.execute(commandDTO);
