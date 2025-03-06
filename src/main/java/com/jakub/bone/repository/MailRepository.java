@@ -27,7 +27,6 @@ public class MailRepository {
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     public MailRepository(UserRepository userRepository) {
-        //this.context = context;
         this.context = DSL.using(DataSource.getInstance().getConnection());
         this.userRepository = userRepository;
         createTable();
@@ -47,6 +46,29 @@ public class MailRepository {
                             DSL.constraint("PK_MAIL").primaryKey("id")
                     )
                     .execute();
+
+            // Full-text search
+            context.execute("ALTER TABLE mail ADD COLUMN IF NOT EXISTS message_tsv tsvector");
+            context.execute("UPDATE mail SET message_tsv = to_tsvector('simple', message)");
+            context.execute("CREATE INDEX IF NOT EXISTS idx_message_tsv ON mail USING gin(message_tsv)");
+
+            // Create a trigger for message_tsv counting from new incoming mail
+            context.execute(
+                    "CREATE OR REPLACE FUNCTION update_message_tsv() RETURNS trigger AS $$ " +
+                            "BEGIN " +
+                            "  NEW.message_tsv := to_tsvector('simple', NEW.message); " +
+                            "  RETURN NEW; " +
+                            "END; " +
+                            "$$ LANGUAGE plpgsql"
+            );
+
+            // Remove existing trigger and create a new
+            context.execute("DROP TRIGGER IF EXISTS message_tsv_trigger ON mail");
+            context.execute(
+                    "CREATE TRIGGER message_tsv_trigger " +
+                            "BEFORE INSERT OR UPDATE ON mail " +
+                            "FOR EACH ROW EXECUTE PROCEDURE update_message_tsv()"
+            );
         } catch (Exception e) {
             log.error("Error while 'mail' table creating: {}", e.getMessage());
             throw new RuntimeException("Failed to create 'mail' table ", e);
@@ -60,7 +82,6 @@ public class MailRepository {
             log.error("Error while table truncating: {}", e.getMessage());
             throw new RuntimeException("Failed to truncate 'mail' table ", e);
         }
-
     }
 
     public void saveMail(Mail mail) {
