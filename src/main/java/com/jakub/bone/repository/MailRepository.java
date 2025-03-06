@@ -52,7 +52,7 @@ public class MailRepository {
             context.execute("UPDATE mail SET message_tsv = to_tsvector('simple', message)");
             context.execute("CREATE INDEX IF NOT EXISTS idx_message_tsv ON mail USING gin(message_tsv)");
 
-            // Create a trigger for message_tsv counting from new incoming mail
+            // Create a trigger parsing incoming messages to tokens in message_tsv column
             context.execute(
                     "CREATE OR REPLACE FUNCTION update_message_tsv() RETURNS trigger AS $$ " +
                             "BEGIN " +
