@@ -1,7 +1,7 @@
 package com.jakub.bone.controller;
 
+import com.jakub.bone.command.client.*;
 import com.jakub.bone.command.common.Command;
-import com.jakub.bone.command.client.CommandFactory;
 
 import com.jakub.bone.command.common.CommandDTO;
 
@@ -26,7 +26,7 @@ public class ClientController {
     public ClientController(Messenger messenger) throws IOException {
         this.userInput = new UserInput();
         this.messenger = messenger;
-        this.commandFactory = new CommandFactory(userInput);
+        this.commandFactory = new CommandFactory();
     }
 
     public void start() {
@@ -39,19 +39,34 @@ public class ClientController {
                     running = false;
                     continue;
                 }
-                Command command = commandFactory.createCommand(input);
+
+                Command command = switch (input.toUpperCase()) {
+                    case "LOGIN", "REGISTER" -> new AuthCommand(input, userInput);
+                    case "LOGOUT" -> new LogoutCommand(input);
+                    case "UPTIME", "INFO", "HELP" -> new ServerInfoCommand(input);
+                    case "NEW" -> new NewMailCommand(userInput);
+                    case "READ" -> new ReadMailCommand(userInput);
+                    case "DELETE" -> new DeleteMailCommand(userInput);
+                    case "EDIT" -> new EditUserCommand(userInput);
+                    default -> {
+                        log.warn("Unknown operation: {}", input);
+                        yield null;
+                    }
+                };
+
                 if (command == null) {
                     System.out.println("Unknown command. Try again");
                     continue;
                 }
 
-                CommandDTO commandDTO = command.buildCommandMessage();
+                CommandDTO commandDTO = commandFactory.createCommand(command);
                 messenger.send(commandDTO);
 
                 String response = messenger.receive(String.class);
 
                 updateState(response);
                 printResponse(response);
+
             } catch (IOException e) {
                 log.error("Error processing command: {}", e.getMessage());
                 System.err.println("An error occurred while processing your command: " + e.getMessage());
