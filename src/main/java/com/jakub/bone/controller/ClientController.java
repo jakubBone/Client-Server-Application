@@ -5,8 +5,8 @@ import com.jakub.bone.command.common.Command;
 
 import com.jakub.bone.command.common.CommandDTO;
 
+import com.jakub.bone.ui.ConsolerReader;
 import com.jakub.bone.utils.Messenger;
-import com.jakub.bone.ui.UserInput;
 import lombok.extern.log4j.Log4j2;
 
 import java.io.IOException;
@@ -17,14 +17,14 @@ import static com.jakub.bone.utils.ResponseStatus.*;
 
 @Log4j2
 public class ClientController {
-    private final UserInput userInput;
+    private final ConsolerReader reader;
     private final CommandFactory commandFactory;
     private final Messenger messenger;
     private boolean isLoggedIn = false;
     private boolean isAuthorized = false;
 
     public ClientController(Messenger messenger) throws IOException {
-        this.userInput = new UserInput();
+        this.reader = new ConsolerReader();
         this.messenger = messenger;
         this.commandFactory = new CommandFactory();
     }
@@ -34,22 +34,22 @@ public class ClientController {
         while (running) {
             printClientUI(isLoggedIn, isAuthorized);
             try {
-                String input = userInput.getRequest();
-                if ("EXIT".equalsIgnoreCase(input)) {
+                String request = reader.getRequest();
+                if ("EXIT".equalsIgnoreCase(request)) {
                     running = false;
                     continue;
                 }
 
-                Command command = switch (input.toUpperCase()) {
-                    case "LOGIN", "REGISTER" -> new AuthCommand(input, userInput);
-                    case "LOGOUT" -> new LogoutCommand(input);
-                    case "UPTIME", "INFO", "HELP" -> new ServerInfoCommand(input);
-                    case "NEW" -> new NewMailCommand(userInput);
-                    case "READ" -> new ReadMailCommand(userInput);
-                    case "DELETE" -> new DeleteMailCommand(userInput);
-                    case "EDIT" -> new EditUserCommand(userInput);
+                Command command = switch (request.toUpperCase()) {
+                    case "LOGIN", "REGISTER" -> new AuthCommand(request);
+                    case "LOGOUT" -> new LogoutCommand();
+                    case "UPTIME", "INFO", "HELP" -> new ServerInfoCommand(request);
+                    case "NEW" -> new NewMailCommand(reader);
+                    case "READ" -> new ReadMailCommand(reader);
+                    case "DELETE" -> new DeleteMailCommand(reader);
+                    case "EDIT" -> new EditUserCommand(reader);
                     default -> {
-                        log.warn("Unknown operation: {}", input);
+                        log.warn("Unknown operation: {}", request);
                         yield null;
                     }
                 };

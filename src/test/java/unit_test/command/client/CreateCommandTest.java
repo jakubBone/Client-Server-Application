@@ -2,7 +2,7 @@ package unit_test.command.client;
 
 import com.jakub.bone.command.client.*;
 import com.jakub.bone.command.common.CommandDTO;
-import com.jakub.bone.ui.UserInput;
+import com.jakub.bone.ui.ConsolerReader;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,11 +15,11 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class CreateCommandTest {
-    UserInput mockInput;
+    ConsolerReader mockInput;
 
     @BeforeEach
     void setUp() {
-        mockInput = mock(com.jakub.bone.ui.UserInput.class);
+        mockInput = mock(ConsolerReader.class);
     }
 
     @Test

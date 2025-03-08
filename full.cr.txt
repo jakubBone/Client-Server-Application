@@ -25,7 +25,7 @@ public class AuthService {
         User user = userRepository.findUserByUsername(username);
 
         if (user != null) {
-            log.warn("Registration failed – user already exists: {}", username);
+            log.warn("Registration failed ï¿½ user already exists: {}", username);
             return REGISTRATION_FAILED_USER_EXISTS.getResponse();
         }
 
@@ -39,12 +39,12 @@ public class AuthService {
     public String login(String username, String password) {
         User user = userRepository.findUserByUsername(username);
         if (user == null) {
-            log.warn("Login failed – user not found: {}", username);
+            log.warn("Login failed ï¿½ user not found: {}", username);
             return FAILED_TO_FIND_USER.getResponse();
         }
 
         if (!isPasswordCorrect(password, user)) {
-            log.warn("Login failed – incorrect password for user: {}", user.getUsername());
+            log.warn("Login failed ï¿½ incorrect password for user: {}", user.getUsername());
             return LOGIN_FAILED_INCORRECT_PASSWORD.getResponse();
         }
 
@@ -193,7 +193,7 @@ package com.jakub.bone.command.client;
 
 import com.jakub.bone.command.common.Command;
 import com.jakub.bone.command.common.CommandDTO;
-import com.jakub.bone.ui.UserInput;
+import com.jakub.bone.ui.ConsolerReader;
 
 import java.io.IOException;
 
@@ -208,9 +208,9 @@ public class AuthCommand implements Command {
 
     @Override
     public CommandDTO buildCommandMessage() throws IOException {
-        UserInput userInput = new UserInput();
-        String username = userInput.promptUsername();
-        String password = userInput.promptPassword();
+        UserInput consolerReader = new UserInput();
+        String username = consolerReader.promptUsername();
+        String password = consolerReader.promptPassword();
         return new CommandDTO.Builder()
                 .commandType(command.toUpperCase())
                 .addPayload("username", username)
@@ -226,7 +226,7 @@ package com.jakub.bone.command.client;
 
 import com.jakub.bone.command.common.Command;
 import lombok.extern.log4j.Log4j2;
-import com.jakub.bone.ui.UserInput;
+import com.jakub.bone.ui.ConsolerReader;
 
 import java.io.IOException;
 
@@ -262,7 +262,7 @@ package com.jakub.bone.command.client;
 
 import com.jakub.bone.command.common.Command;
 import com.jakub.bone.command.common.CommandDTO;
-import com.jakub.bone.ui.UserInput;
+import com.jakub.bone.ui.ConsolerReader;
 
 import java.io.IOException;
 
@@ -304,7 +304,7 @@ package com.jakub.bone.command.client;
 
 import com.jakub.bone.command.common.Command;
 import com.jakub.bone.command.common.CommandDTO;
-import com.jakub.bone.ui.UserInput;
+import com.jakub.bone.ui.ConsolerReader;
 
 import java.io.IOException;
 
@@ -397,7 +397,7 @@ package com.jakub.bone.command.client;
 
 import com.jakub.bone.command.common.Command;
 import com.jakub.bone.command.common.CommandDTO;
-import com.jakub.bone.ui.UserInput;
+import com.jakub.bone.ui.ConsolerReader;
 
 import java.io.IOException;
 
@@ -428,7 +428,7 @@ package com.jakub.bone.command.client;
 
 import com.jakub.bone.command.common.Command;
 import com.jakub.bone.command.common.CommandDTO;
-import com.jakub.bone.ui.UserInput;
+import com.jakub.bone.ui.ConsolerReader;
 
 import java.io.IOException;
 
@@ -940,7 +940,7 @@ import com.jakub.bone.command.client.CommandFactory;
 import com.jakub.bone.command.common.CommandDTO;
 
 import com.jakub.bone.utils.Messenger;
-import com.jakub.bone.ui.UserInput;
+import com.jakub.bone.ui.ConsolerReader;
 import lombok.extern.log4j.Log4j2;
 
 import java.io.IOException;
@@ -951,16 +951,16 @@ import static com.jakub.bone.utils.ResponseStatus.*;
 
 @Log4j2
 public class ClientController {
-    private final UserInput userInput;
+    private final UserInput consolerReader;
     private final CommandFactory commandFactory;
     private final Messenger messenger;
     private boolean isLoggedIn = false;
     private boolean isAuthorized = false;
 
     public ClientController(Messenger messenger) throws IOException {
-        this.userInput = new UserInput();
+        this.consolerReader = new UserInput();
         this.messenger = messenger;
-        this.commandFactory = new CommandFactory(userInput);
+        this.commandFactory = new CommandFactory(consolerReader);
     }
 
     public void start() {
@@ -968,7 +968,7 @@ public class ClientController {
         while (running) {
             printClientUI(isLoggedIn, isAuthorized);
             try {
-                String input = userInput.getRequest();
+                String input = consolerReader.getRequest();
                 if ("EXIT".equalsIgnoreCase(input)) {
                     running = false;
                     continue;
@@ -2600,7 +2600,7 @@ package unit_test.command.client;
 
 import com.jakub.bone.command.client.*;
 import com.jakub.bone.command.common.CommandDTO;
-import com.jakub.bone.ui.UserInput;
+import com.jakub.bone.ui.ConsolerReader;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -2617,7 +2617,7 @@ class CreateCommandTest {
 
     @BeforeEach
     void setUp() {
-        mockInput = mock(com.jakub.bone.ui.UserInput.class);
+        mockInput = mock(com.jakub.bone.ui.ConsolerReader.class);
     }
 
     @Test

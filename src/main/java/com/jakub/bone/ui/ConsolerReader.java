@@ -5,10 +5,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 
-public class UserInput {
+public class ConsolerReader {
     private final BufferedReader reader;
 
-    public UserInput() {
+    public ConsolerReader() {
         this.reader = new BufferedReader(new InputStreamReader(System.in));
     }
 
