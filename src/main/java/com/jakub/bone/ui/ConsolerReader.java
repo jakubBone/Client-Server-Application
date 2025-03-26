@@ -50,4 +50,9 @@ public class ConsolerReader {
         System.out.print("Read: (INBOX / SENT): ");
         return reader.readLine();
     }
+
+    public String promptMessageContent() throws IOException {
+        System.out.print("Message content: ");
+        return reader.readLine();
+    }
 }

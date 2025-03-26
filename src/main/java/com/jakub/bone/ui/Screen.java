@@ -34,8 +34,9 @@ public class Screen {
                 "|                                              |\n" +
                 "|1. New e-mail                                 |\n" +
                 "|2. Read e-mails                               |\n" +
-                "|3. Delete e-mails                             |\n" +
-                "|4. Logout                                     |\n" +
+                "|3. Search messages...                         |\n" +
+                "|4. Delete e-mails                             |\n" +
+                "|5. Logout                                     |\n" +
                 "+---------------------------------------------+");
         System.out.print("Select: ");
     }
@@ -46,9 +47,10 @@ public class Screen {
                 "|                                              |\n" +
                 "|1. New e-mail                                 |\n" +
                 "|2. Read e-mails                               |\n" +
-                "|3. Delete e-mails                             |\n" +
-                "|4. Edit users                                 |\n" +
-                "|5. Logout                                     |\n" +
+                "|3. Search messages...                         |\n" +
+                "|4. Delete e-mails                             |\n" +
+                "|5. Edit users                                 |\n" +
+                "|6. Logout                                     |\n" +
                 "+---------------------------------------------+");
         System.out.print("Select: ");
     }

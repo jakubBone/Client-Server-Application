@@ -38,6 +38,10 @@ public class MailService {
         return mailRepository.findMails(boxType, sessionManager);
     }
 
+    public List<Mail> searchMessages(String boxType, String content) {
+        return mailRepository.searchText(boxType, sessionManager, content);
+    }
+
     public void deleteMails(String boxType) {
         mailRepository.deleteMails(boxType, sessionManager);
         log.info("Soft-deleted {} emails for user {}", boxType, sessionManager.getCurrentUser().getUsername());

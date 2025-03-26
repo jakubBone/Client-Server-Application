@@ -46,6 +46,7 @@ public class ClientController {
                     case "UPTIME", "INFO", "HELP" -> new ServerInfoCommand(request);
                     case "NEW" -> new NewMailCommand(reader);
                     case "READ" -> new ReadMailCommand(reader);
+                    case "SEARCH" -> new SearchMessageCommand(reader);
                     case "DELETE" -> new DeleteMailCommand(reader);
                     case "EDIT" -> new EditUserCommand(reader);
                     default -> {

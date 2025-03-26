@@ -15,8 +15,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.jooq.impl.DSL.field;
-import static org.jooq.impl.DSL.table;
+import static org.jooq.impl.DSL.*;
 import static org.jooq.impl.SQLDataType.VARCHAR;
 import static org.jooq.impl.SQLDataType.INTEGER;
 
@@ -107,11 +106,30 @@ public class MailRepository {
         }
     }
 
+    /*
+    *  e_commerce=# SELECT
+                  product_id,
+                  product_name,
+                  retail_price
+              FROM products
+              WHERE product_name_tokens @@ to_tsquery('RIBENA');
+    *
+    * */
+
     public List<Mail> findMails(String boxType, SessionManager sessionManager) {
         try {
             String username = sessionManager.getCurrentUser().getUsername();
-            Condition condition;
-            if (boxType.equalsIgnoreCase("SENT")) {
+
+            Condition boxCondition = boxType.equalsIgnoreCase("SENT")
+                    ? field("sender").eq(username).and(field("deleted_by_sender").eq(0))
+                    : field("recipient").eq(username).and(field("deleted_by_receiver").eq(0));
+
+            List<Record> records = context.selectFrom("mail")
+                    .where(boxCondition)
+                    .orderBy(field("send_time").desc())
+                    .fetch();
+
+            /* if (boxType.equalsIgnoreCase("SENT")) {
                 condition = field("sender").eq(username)
                         .and(field("deleted_by_sender").eq(0)); // Only undeleted by sender
             } else { // INBOX
@@ -121,7 +139,7 @@ public class MailRepository {
             List<Record> records = context.selectFrom("mail")
                     .where(condition)
                     .orderBy(field("send_time").desc())
-                    .fetch();
+                    .fetch();*/
 
             List<Mail> mails = new ArrayList<>();
             for (Record record : records) {
@@ -152,6 +170,38 @@ public class MailRepository {
         } catch (Exception e) {
             log.error("Error while deleting {} mails: {}", boxType, e.getMessage());
             throw new RuntimeException("Failed to delete mails: " + boxType, e);
+        }
+    }
+
+    public List<Mail> searchText(String boxType, SessionManager sessionManager, String query) {
+        try {
+            String username = sessionManager.getCurrentUser().getUsername();
+
+            Condition boxCondition = boxType.equalsIgnoreCase("SENT")
+                    ? field("sender").eq(username).and(field("deleted_by_sender").eq(0))
+                    : field("recipient").eq(username).and(field("deleted_by_receiver").eq(0));
+
+            // Full-text searching
+            // 'plainto_tsquery' → simple parser)
+            Condition fullTextCondition =
+                    condition("message_tsv @@ plainto_tsquery('simple', ?)", query);
+
+            List<Record> records = context
+                    .selectFrom(table("mail"))
+                    .where(boxCondition)
+                    .and(fullTextCondition)
+                    .orderBy(field("send_time").desc())
+                    .fetch();
+
+            List<Mail> result = new ArrayList<>();
+            for (Record r : records) {
+                result.add(mapRecordToMail(r));
+            }
+            return result;
+        }
+        catch (Exception e) {
+            log.error("Error while searching mails: {}", e.getMessage());
+            throw new RuntimeException("Failed to search mails", e);
         }
     }
 

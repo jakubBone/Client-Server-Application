@@ -29,6 +29,7 @@ public class CommandHandlerFactory {
             case "HELP", "INFO", "UPTIME" -> new ServerInfoHandler(serverInfo);
             case "NEW" -> new NewMailHandler(mailService, userManager);
             case "READ" -> new ReadMailHandler(mailService);
+            case "SEARCH" -> new SearchMessageHandler(mailService);
             case "DELETE" -> new DeleteMailHandler(mailService);
             case "EDIT" -> new EditUserHandler(userManager);
             default -> {
