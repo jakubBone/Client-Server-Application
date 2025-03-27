@@ -17,6 +17,24 @@ services:
       retries: 5
       timeout: 3s
 
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.8.0
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9200/"]
+      interval: 10s
+      retries: 5
+      timeout: 5s
+
   app:
     build: .
     container_name: server_app
@@ -24,13 +42,18 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
     environment:
       DATABASE_URL: jdbc:postgresql://db:5432/mailbox_db
       DATABASE_NAME: mailbox_db
       DATABASE_USER: mail_user
       DATABASE_PASSWORD: mail123
+      ES_HOST: elasticsearch
+      ES_PORT: 9200
     ports:
       - "5000:5000"
 
 volumes:
   postgres_data:
+  es_data:

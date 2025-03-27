@@ -1,5 +1,6 @@
 package com.jakub.bone.server;
 
+import com.jakub.bone.application.ElasticSearchService;
 import com.jakub.bone.command.common.CommandDTO;
 
 import com.jakub.bone.repository.MailRepository;
@@ -14,6 +15,7 @@ import com.jakub.bone.application.MailService;
 import com.jakub.bone.application.UserService;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.PrintWriter;
 
 @Log4j2
@@ -24,21 +26,22 @@ public class RequestProcessor {
     private final MailRepository mailRepository;
     private final AuthService authService;
     private final UserService userService;
+    private final ElasticSearchService searchService;
     private final MailService mailService;
     private final ServerInfo serverInfo;
     private final CommandHandlerFactory factory;
 
-    public RequestProcessor(PrintWriter out, BufferedReader in) {
+    public RequestProcessor(PrintWriter out, BufferedReader in) throws IOException {
         this.messenger = new Messenger(out, in);
         this.sessionManager = new SessionManager();
         this.userRepository = new UserRepository();
         this.mailRepository = new MailRepository(userRepository);
         this.authService = new AuthService(sessionManager, userRepository);
         this.userService = new UserService(authService, sessionManager, userRepository);
-        this.mailService = new MailService(sessionManager, mailRepository);
+        this.searchService = new ElasticSearchService();
+        this.mailService = new MailService(sessionManager, mailRepository, searchService);
         this.serverInfo = new ServerInfo();
         this.factory = new CommandHandlerFactory(authService, userService, mailService, serverInfo);
-
     }
 
     public void start() {

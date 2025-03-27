@@ -87,6 +87,35 @@ public class MailRepository {
         try {
             // Date format: yyyy-MM-dd HH:mm:ss
             String formattedDate = mail.getSendTime().format(formatter);
+            var record = context.insertInto(table("mail"),
+                            field("sender"),
+                            field("recipient"),
+                            field("message"),
+                            field("send_time"),
+                            field("deleted_by_sender"),
+                            field("deleted_by_receiver"))
+                    .values(mail.getSender().getUsername(),
+                            mail.getRecipient().getUsername(),
+                            mail.getMessage(),
+                            formattedDate,
+                            0, 0)  // set false
+                    .returning(field("id")) // return to set Mail id
+                    .fetchOne();
+            if (record != null) {
+                Integer id = record.getValue("id", Integer.class);
+                // set Mail id
+                mail.setId(id.longValue());
+            }
+        } catch (Exception e) {
+            log.error("Error while creating mail from {}: {}", mail.getSender().getUsername(), e.getMessage());
+            throw new RuntimeException("Failed to create mail from" + mail.getSender(), e);
+        }
+    }
+
+    /*public void saveMail(Mail mail) {
+        try {
+            // Date format: yyyy-MM-dd HH:mm:ss
+            String formattedDate = mail.getSendTime().format(formatter);
             context.insertInto(table("mail"),
                             field("sender"),
                             field("recipient"),
@@ -104,17 +133,8 @@ public class MailRepository {
             log.error("Error while creating mail from {}: {}", mail.getSender().getUsername(), e.getMessage());
             throw new RuntimeException("Failed to create mail from" + mail.getSender(), e);
         }
-    }
+    }*/
 
-    /*
-    *  e_commerce=# SELECT
-                  product_id,
-                  product_name,
-                  retail_price
-              FROM products
-              WHERE product_name_tokens @@ to_tsquery('RIBENA');
-    *
-    * */
 
     public List<Mail> findMails(String boxType, SessionManager sessionManager) {
         try {
@@ -128,18 +148,6 @@ public class MailRepository {
                     .where(boxCondition)
                     .orderBy(field("send_time").desc())
                     .fetch();
-
-            /* if (boxType.equalsIgnoreCase("SENT")) {
-                condition = field("sender").eq(username)
-                        .and(field("deleted_by_sender").eq(0)); // Only undeleted by sender
-            } else { // INBOX
-                condition = field("recipient").eq(username)
-                        .and(field("deleted_by_receiver").eq(0)); // Only undeleted by receiver
-            }
-            List<Record> records = context.selectFrom("mail")
-                    .where(condition)
-                    .orderBy(field("send_time").desc())
-                    .fetch();*/
 
             List<Mail> mails = new ArrayList<>();
             for (Record record : records) {
@@ -207,6 +215,7 @@ public class MailRepository {
 
     public Mail mapRecordToMail(Record record) {
         try {
+            Integer id = record.getValue("id", Integer.class);
             String message = record.getValue("message", String.class);
             String senderUsername = record.getValue("sender", String.class);
             String recipientUsername = record.getValue("recipient", String.class);
@@ -217,7 +226,9 @@ public class MailRepository {
             User sender = userRepository.findUserByUsername(senderUsername);
             User recipient = userRepository.findUserByUsername(recipientUsername);
 
-            return new Mail(sender, recipient, message, sendTime);
+            Mail mail = new Mail(sender, recipient, message, sendTime);
+            mail.setId(id.longValue());
+            return mail;
         } catch (Exception e) {
             log.error("Error while mapping record to mail {}", e.getMessage());
             throw new RuntimeException("Failed to map mail", e);

@@ -46,6 +46,9 @@ dependencies {
     implementation 'org.jooq:jooq-meta:3.19.10'
     implementation 'org.jooq:jooq-codegen:3.19.10'
     jooqGenerator 'org.postgresql:postgresql:42.2.24'
+
+    // Elastic search
+    implementation 'org.elasticsearch.client:elasticsearch-rest-high-level-client:7.17.11'
 }
 
 jooq {

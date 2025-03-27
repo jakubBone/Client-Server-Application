@@ -6,7 +6,9 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 
 @Getter
+@Setter
 public class Mail {
+    private Long id;
     private final User sender;
     private final User recipient;
     private final String message;
