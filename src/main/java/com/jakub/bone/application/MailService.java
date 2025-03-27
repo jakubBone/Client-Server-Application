@@ -35,7 +35,7 @@ public class MailService {
         mailRepository.saveMail(mail);
         log.info("Mail sent successfully to {}", recipient.getUsername());
 
-        // Indeksowanie w Elastic
+        // Elastic search indexing
         try {
             searchService.indexMail(mail);
         } catch (Exception e) {
@@ -48,13 +48,8 @@ public class MailService {
         return mailRepository.findMails(boxType, sessionManager);
     }
 
-    public List<Mail> searchMessages(String boxType, String content) {
-        return mailRepository.searchText(boxType, sessionManager, content);
-    }
-
-    // Wyszukiwanie wiadomości za pomocą Elastic Search
-    // Implementacja polega na wywołaniu metody searchMails w ElasticMailIndexer i parsowaniu wyników.
-    public SearchResponse searchMessagesInElastic(String query) {
+    // Elastic search
+    public SearchResponse searchMessages(String query) {
         try {
             return searchService.searchMails(query);
         } catch (Exception e) {
@@ -68,9 +63,8 @@ public class MailService {
         mailRepository.deleteMails(boxType, sessionManager);
         log.info("Deleted {}mails from DB for {}", boxType, sessionManager.getCurrentUser().getUsername());
 
-        // Usuwamy wiadomości z Elastic
+        // Remove from Elastic
         for(Mail mail : mails) {
-            // Zakładamy, że mamy unikalny identyfikator wiadomości (mail.getId())
             try {
                 searchService.deleteMail(mail.getId().toString());
             } catch (Exception e) {

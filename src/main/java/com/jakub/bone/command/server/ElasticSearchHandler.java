@@ -23,7 +23,7 @@ public class ElasticSearchHandler implements CommandHandler{
     public String execute(CommandDTO commandDTO) {
         String query = commandDTO.getPayload().get("messageContent");
 
-        SearchResponse response = mailService.searchMessagesInElastic(query);
+        SearchResponse response = mailService.searchMessages(query);
 
         List<Mail> mails = mapSearchResponseToMails(response);
         StringBuilder responseBuilder = new StringBuilder("\nSEARCH RESULTS: \n\n");
@@ -35,18 +35,6 @@ public class ElasticSearchHandler implements CommandHandler{
         return responseBuilder.toString();
     }
 
-    /* @Override
-    public String execute(CommandDTO commandDTO) {
-        String query = commandDTO.getPayload().get("messageContent");
-
-        SearchResponse response = mailService.searchMessagesInElastic(query);
-        StringBuilder sb = new StringBuilder("Search Results:\n");
-        for (SearchHit hit : response.getHits().getHits()) {
-            sb.append(hit.getSourceAsString()).append("\n");
-        }
-        return sb.toString();
-    }*/
-
     public List<Mail> mapSearchResponseToMails(SearchResponse response) {
         List<Mail> mails = new ArrayList<>();
         for (SearchHit hit : response.getHits().getHits()) {
@@ -57,7 +45,6 @@ public class ElasticSearchHandler implements CommandHandler{
             String sendTimeStr = (String) source.get("sendTime");
             LocalDateTime sendTime = LocalDateTime.parse(sendTimeStr);
 
-            // Tworzymy uproszczone obiekty User - ewentualnie można pobrać pełne dane z bazy
             User sender = new User(senderUsername, "dummy", User.Role.USER);
             User recipient = new User(recipientUsername, "dummy", User.Role.USER);
 

@@ -1,11 +1,10 @@
 package com.jakub.bone.application;
 
 import com.jakub.bone.domain.Mail;
+import com.jakub.bone.utils.ConfigLoader;
 import org.apache.http.HttpHost;
 import org.elasticsearch.action.delete.DeleteRequest;
-import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.IndicesClient;
@@ -13,7 +12,6 @@ import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.indices.CreateIndexRequest;
-import org.elasticsearch.client.indices.CreateIndexResponse;
 import org.elasticsearch.client.indices.GetIndexRequest;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
@@ -24,16 +22,21 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ElasticSearchService {
-    private RestHighLevelClient client;
+    // Client for communicating with Elasticsearch
+    private final RestHighLevelClient client;
+    private final String host = ConfigLoader.get("elastic.host");
+    private final int port = Integer.parseInt(ConfigLoader.get("elastic.port"));
 
+    // "elasticsearch" is Docker Compose service name
     public ElasticSearchService() throws IOException {
         this.client = new RestHighLevelClient(
-                RestClient.builder(new HttpHost("elasticsearch", 9200, "http"))
+                RestClient.builder(new HttpHost(host, port, "http"))
         );
         ensureIndexExists("mails");
     }
 
-
+    // Checks if the specified index exists
+    // If not, creates it with defined settings and mappings
     private void ensureIndexExists(String indexName) throws IOException {
         IndicesClient indicesClient = client.indices();
         GetIndexRequest getIndexRequest = new GetIndexRequest(indexName);
@@ -52,41 +55,39 @@ public class ElasticSearchService {
                     "    \"sendTime\": { \"type\": \"date\" }\n" +
                     "  }\n" +
                     "}", XContentType.JSON);
-            CreateIndexResponse createIndexResponse = indicesClient.create(createIndexRequest, RequestOptions.DEFAULT);
-            System.out.println("Utworzono indeks " + indexName + ": " + createIndexResponse.isAcknowledged());
+            indicesClient.create(createIndexRequest, RequestOptions.DEFAULT);
         }
     }
 
-    // Indeksowanie wiadomości
+    // Create index for Mail object into Elasticsearch
     public void indexMail(Mail mail) throws IOException {
         Map<String, Object> jsonMap = new HashMap<>();
         jsonMap.put("sender", mail.getSender().getUsername());
         jsonMap.put("recipient", mail.getRecipient().getUsername());
         jsonMap.put("message", mail.getMessage());
         jsonMap.put("sendTime", mail.getSendTime().toString());
-        // Jeżeli masz identyfikator wiadomości, możesz go wykorzystać jako ID
+        // Create index request for 'mails' index using  JSON map
+        // Execute indexing operation
         IndexRequest indexRequest = new IndexRequest("mails").source(jsonMap);
-        IndexResponse response = client.index(indexRequest, RequestOptions.DEFAULT);
-        System.out.println("Indexed mail with id: " + response.getId());
+        client.index(indexRequest, RequestOptions.DEFAULT);
     }
 
-    // Usuwanie wiadomości z indeksu
+    // Delete a document from the "mails" index based on id
     public void deleteMail(String mailId) throws IOException {
+        // Create delete request for mail id
+        // Execute deleting operation
         DeleteRequest deleteRequest = new DeleteRequest("mails", mailId);
-        DeleteResponse response = client.delete(deleteRequest, RequestOptions.DEFAULT);
-        System.out.println("Deleted mail with id: " + response.getId());
+        client.delete(deleteRequest, RequestOptions.DEFAULT);
     }
 
-    // Wyszukiwanie wiadomości na podstawie treści
+    // Searches for mails based on message content
     public SearchResponse searchMails(String queryText) throws IOException {
         SearchRequest searchRequest = new SearchRequest("mails");
+        // Build search query using match query on "message" field
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
         sourceBuilder.query(QueryBuilders.matchQuery("message", queryText));
+        // Set the source of  search request
         searchRequest.source(sourceBuilder);
         return client.search(searchRequest, RequestOptions.DEFAULT);
-    }
-
-    public void close() throws IOException {
-        client.close();
     }
 }

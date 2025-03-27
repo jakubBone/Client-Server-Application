@@ -112,30 +112,6 @@ public class MailRepository {
         }
     }
 
-    /*public void saveMail(Mail mail) {
-        try {
-            // Date format: yyyy-MM-dd HH:mm:ss
-            String formattedDate = mail.getSendTime().format(formatter);
-            context.insertInto(table("mail"),
-                            field("sender"),
-                            field("recipient"),
-                            field("message"),
-                            field("send_time"),
-                            field("deleted_by_sender"),
-                            field("deleted_by_receiver"))
-                    .values(mail.getSender().getUsername(),
-                            mail.getRecipient().getUsername(),
-                            mail.getMessage(),
-                            formattedDate,
-                            0, 0)  // set false
-                    .execute();
-        } catch (Exception e) {
-            log.error("Error while creating mail from {}: {}", mail.getSender().getUsername(), e.getMessage());
-            throw new RuntimeException("Failed to create mail from" + mail.getSender(), e);
-        }
-    }*/
-
-
     public List<Mail> findMails(String boxType, SessionManager sessionManager) {
         try {
             String username = sessionManager.getCurrentUser().getUsername();
@@ -181,38 +157,6 @@ public class MailRepository {
         }
     }
 
-    public List<Mail> searchText(String boxType, SessionManager sessionManager, String query) {
-        try {
-            String username = sessionManager.getCurrentUser().getUsername();
-
-            Condition boxCondition = boxType.equalsIgnoreCase("SENT")
-                    ? field("sender").eq(username).and(field("deleted_by_sender").eq(0))
-                    : field("recipient").eq(username).and(field("deleted_by_receiver").eq(0));
-
-            // Full-text searching
-            // 'plainto_tsquery' → simple parser)
-            Condition fullTextCondition =
-                    condition("message_tsv @@ plainto_tsquery('simple', ?)", query);
-
-            List<Record> records = context
-                    .selectFrom(table("mail"))
-                    .where(boxCondition)
-                    .and(fullTextCondition)
-                    .orderBy(field("send_time").desc())
-                    .fetch();
-
-            List<Mail> result = new ArrayList<>();
-            for (Record r : records) {
-                result.add(mapRecordToMail(r));
-            }
-            return result;
-        }
-        catch (Exception e) {
-            log.error("Error while searching mails: {}", e.getMessage());
-            throw new RuntimeException("Failed to search mails", e);
-        }
-    }
-
     public Mail mapRecordToMail(Record record) {
         try {
             Integer id = record.getValue("id", Integer.class);
@@ -246,6 +190,5 @@ public class MailRepository {
             log.error("Error while checking mailbox capacity for user {}: {}", recipient.getUsername(), e.getMessage());
             throw new RuntimeException("Failed to check mailbox capacity for user" + recipient.getUsername(), e);
         }
-
     }
 }
