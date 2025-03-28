@@ -39,6 +39,8 @@ The project is divided into several key components:
 
 **BCrypt**: Secure password hashing
 
+**Elasticsearch API**: Text searching
+
 
 ## 📂 Project Structure
 
@@ -47,6 +49,7 @@ The project is divided into several key components:
 ├── src
 │   ├── main
 │   │   ├── java
+│   │   │   ├── com/jakub/bone/application       # Business logic layer                   
 │   │   │   ├── com/jakub/bone/command           # Client commands and server handlers                     
 │   │   │   ├── com/jakub/bone/controller        # Client app launcher & controller
 │   │   │   ├── com/jakub/bone/data              # DataSource & database initialization
@@ -114,6 +117,7 @@ A sample docker-compose.yml is provided to orchestrate both the server app and t
    This command will:
    - Build nad run the PostgreSQL container (using the postgres:15 image) with pre-configured credentials
    - Build and run the server container (start to listen on port 5000)
+   - Build and run the elasticsearch container (start to listen on port 9200)
    
 4. **Expose the Application**  
    The application will be accessible at `http://localhost:5000`
@@ -131,19 +135,19 @@ A sample docker-compose.yml is provided to orchestrate both the server app and t
   - Dynamic menus that change based on login status and role (User or Admin)
   - Options for registration, login, email operations, and administrative tasks
   
-- **Command Handling:**  
+- **Operations:**  
   - Commands (e.g., LOGIN, REGISTER, READ, DELETE) 
   
 - **Input & Output:**  
   - Interactive console screens guide users through email operations and system commands
 
 ### Server-Side
-- **Request Processing:**  
+- **Request Handling:**  
   - A modular architecture that uses command handlers to process client requests
-  - Centralized `RequestProcessor` and `CommandHandlerFactory`
+  - Centralized `CommandHandler` and `CommandHandlerFactory`
   
 - **Business Logic:**  
-  - Authentication and email operations handled by dedicated services
+  - Authentication, email operations and text search handling by dedicated services
   - Administrative commands allow for user management and system diagnostics (e.g., server uptime and info)
 
 ### Database & Persistence

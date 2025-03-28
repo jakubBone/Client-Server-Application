@@ -25,7 +25,7 @@ public class AuthService {
         User user = userRepository.findUserByUsername(username);
 
         if (user != null) {
-            log.warn("Registration failed � user already exists: {}", username);
+            log.warn("Registration failed – user already exists: {}", username);
             return REGISTRATION_FAILED_USER_EXISTS.getResponse();
         }
 
@@ -39,12 +39,12 @@ public class AuthService {
     public String login(String username, String password) {
         User user = userRepository.findUserByUsername(username);
         if (user == null) {
-            log.warn("Login failed � user not found: {}", username);
+            log.warn("Login failed – user not found: {}", username);
             return FAILED_TO_FIND_USER.getResponse();
         }
 
         if (!isPasswordCorrect(password, user)) {
-            log.warn("Login failed � incorrect password for user: {}", user.getUsername());
+            log.warn("Login failed – incorrect password for user: {}", user.getUsername());
             return LOGIN_FAILED_INCORRECT_PASSWORD.getResponse();
         }
 
@@ -70,20 +70,114 @@ public class AuthService {
 }
 
 ====================
+FILE: ElasticSearchService.java
+
+package com.jakub.bone.application;
+
+import com.jakub.bone.domain.Mail;
+import com.jakub.bone.utils.ConfigLoader;
+import org.apache.http.HttpHost;
+import org.elasticsearch.action.delete.DeleteRequest;
+import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.client.IndicesClient;
+import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.client.indices.CreateIndexRequest;
+import org.elasticsearch.client.indices.GetIndexRequest;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.xcontent.XContentType;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+public class ElasticSearchService {
+    // Client for communicating with Elasticsearch
+    private final RestHighLevelClient client;
+    private final String host = ConfigLoader.get("elastic.host");
+    private final int port = Integer.parseInt(ConfigLoader.get("elastic.port"));
+
+    // "elasticsearch" is Docker Compose service name
+    public ElasticSearchService() throws IOException {
+        this.client = new RestHighLevelClient(
+                RestClient.builder(new HttpHost(host, port, "http"))
+        );
+        ensureIndexExists("mails");
+    }
+
+    // Checks if the specified index exists
+    // If not, creates it with defined settings and mappings
+    private void ensureIndexExists(String indexName) throws IOException {
+        IndicesClient indicesClient = client.indices();
+        GetIndexRequest getIndexRequest = new GetIndexRequest(indexName);
+        boolean exists = indicesClient.exists(getIndexRequest, RequestOptions.DEFAULT);
+        if (!exists) {
+            CreateIndexRequest createIndexRequest = new CreateIndexRequest(indexName);
+            createIndexRequest.settings("{\n" +
+                    "  \"number_of_shards\": 1,\n" +
+                    "  \"number_of_replicas\": 0\n" +
+                    "}", XContentType.JSON);
+            createIndexRequest.mapping("{\n" +
+                    "  \"properties\": {\n" +
+                    "    \"sender\": { \"type\": \"keyword\" },\n" +
+                    "    \"recipient\": { \"type\": \"keyword\" },\n" +
+                    "    \"message\": { \"type\": \"text\" },\n" +
+                    "    \"sendTime\": { \"type\": \"date\" }\n" +
+                    "  }\n" +
+                    "}", XContentType.JSON);
+            indicesClient.create(createIndexRequest, RequestOptions.DEFAULT);
+        }
+    }
+
+    // Create index for Mail object into Elasticsearch
+    public void indexMail(Mail mail) throws IOException {
+        Map<String, Object> jsonMap = new HashMap<>();
+        jsonMap.put("sender", mail.getSender().getUsername());
+        jsonMap.put("recipient", mail.getRecipient().getUsername());
+        jsonMap.put("message", mail.getMessage());
+        jsonMap.put("sendTime", mail.getSendTime().toString());
+        // Create index request for 'mails' index using  JSON map
+        // Execute indexing operation
+        IndexRequest indexRequest = new IndexRequest("mails").source(jsonMap);
+        client.index(indexRequest, RequestOptions.DEFAULT);
+    }
+
+    // Delete a document from the "mails" index based on id
+    public void deleteMail(String mailId) throws IOException {
+        // Create delete request for mail id
+        // Execute deleting operation
+        DeleteRequest deleteRequest = new DeleteRequest("mails", mailId);
+        client.delete(deleteRequest, RequestOptions.DEFAULT);
+    }
+
+    // Searches for mails based on message content
+    public SearchResponse searchMails(String queryText) throws IOException {
+        SearchRequest searchRequest = new SearchRequest("mails");
+        // Build search query using match query on "message" field
+        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+        sourceBuilder.query(QueryBuilders.matchQuery("message", queryText));
+        // Set the source of  search request
+        searchRequest.source(sourceBuilder);
+        return client.search(searchRequest, RequestOptions.DEFAULT);
+    }
+}
+
+====================
 FILE: MailService.java
 
 package com.jakub.bone.application;
 
-import com.jakub.bone.data.DataSource;
 import com.jakub.bone.domain.Mail;
 import com.jakub.bone.repository.MailRepository;
-import com.jakub.bone.repository.UserRepository;
 import com.jakub.bone.session.SessionManager;
 import lombok.extern.log4j.Log4j2;
 import lombok.Setter;
-import org.jooq.DSLContext;
-import org.jooq.impl.DSL;
 import com.jakub.bone.domain.User;
+import org.elasticsearch.action.search.SearchResponse;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -96,10 +190,12 @@ import static com.jakub.bone.utils.ResponseStatus.SENDING_SUCCEEDED;
 public class MailService {
     private final MailRepository mailRepository;
     private final SessionManager sessionManager;
+    private final ElasticSearchService searchService;
 
-    public MailService(SessionManager sessionManager, MailRepository mailRepository) {
+    public MailService(SessionManager sessionManager, MailRepository mailRepository, ElasticSearchService searchService) {
         this.mailRepository = mailRepository;
         this.sessionManager = sessionManager;
+        this.searchService = searchService;
     }
 
     public String sendMail(User recipient, String message) {
@@ -109,6 +205,13 @@ public class MailService {
         }
         mailRepository.saveMail(mail);
         log.info("Mail sent successfully to {}", recipient.getUsername());
+
+        // Elastic search indexing
+        try {
+            searchService.indexMail(mail);
+        } catch (Exception e) {
+            log.error("Error indexing mail in Elastic: {}", e.getMessage());
+        }
         return SENDING_SUCCEEDED.getResponse();
     }
 
@@ -116,9 +219,29 @@ public class MailService {
         return mailRepository.findMails(boxType, sessionManager);
     }
 
+    // Elastic search
+    public SearchResponse searchMessages(String query) {
+        try {
+            return searchService.searchMails(query);
+        } catch (Exception e) {
+            log.error("Error searching mails in Elastic: {}", e.getMessage());
+            return null;
+        }
+    }
+
     public void deleteMails(String boxType) {
+        List<Mail> mails = mailRepository.findMails(boxType, sessionManager);
         mailRepository.deleteMails(boxType, sessionManager);
-        log.info("Soft-deleted {} emails for user {}", boxType, sessionManager.getCurrentUser().getUsername());
+        log.info("Deleted {}mails from DB for {}", boxType, sessionManager.getCurrentUser().getUsername());
+
+        // Remove from Elastic
+        for(Mail mail : mails) {
+            try {
+                searchService.deleteMail(mail.getId().toString());
+            } catch (Exception e) {
+                log.error("Error deleting mail from Elastic: {}", e.getMessage());
+            }
+        }
     }
 }
 
@@ -127,14 +250,13 @@ FILE: UserService.java
 
 package com.jakub.bone.application;
 
-import com.jakub.bone.data.DataSource;
 import com.jakub.bone.repository.UserRepository;
 import com.jakub.bone.session.SessionManager;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
 import org.jooq.DSLContext;
-import org.jooq.impl.DSL;
+
 import com.jakub.bone.domain.Admin;
 import com.jakub.bone.domain.User;
 
@@ -196,25 +318,29 @@ import com.jakub.bone.command.common.CommandDTO;
 import com.jakub.bone.ui.ConsolerReader;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class AuthCommand implements Command {
-    private final String command;
-    private UserInput input;
+    private final String request;
 
-    public AuthCommand(String command, UserInput input) {
-        this.command = command;
-        this.input = input;
+    public AuthCommand(String request) {
+        this.request = request;
     }
 
     @Override
     public CommandDTO buildCommandMessage() throws IOException {
-        UserInput consolerReader = new UserInput();
+        ConsolerReader consolerReader = new ConsolerReader();
         String username = consolerReader.promptUsername();
         String password = consolerReader.promptPassword();
-        return new CommandDTO.Builder()
-                .commandType(command.toUpperCase())
-                .addPayload("username", username)
-                .addPayload("password", password)
+
+        Map<String, String> payload = new HashMap<>();
+        payload.put("username", username);
+        payload.put("password", password);
+
+        return CommandDTO.builder()
+                .commandType(request.toUpperCase())
+                .payload(payload)
                 .build();
     }
 }
@@ -225,33 +351,16 @@ FILE: CommandFactory.java
 package com.jakub.bone.command.client;
 
 import com.jakub.bone.command.common.Command;
+import com.jakub.bone.command.common.CommandDTO;
 import lombok.extern.log4j.Log4j2;
-import com.jakub.bone.ui.ConsolerReader;
 
 import java.io.IOException;
 
 @Log4j2
 public class CommandFactory {
-    private final UserInput input;
 
-    public CommandFactory(UserInput input) {
-        this.input = input;
-    }
-
-    public Command createCommand(String command) throws IOException {
-        return switch (command.toUpperCase()) {
-            case "LOGIN", "REGISTER" -> new AuthCommand(command, input);
-            case "LOGOUT" -> new LogoutCommand();
-            case "UPTIME", "INFO", "HELP" -> new ServerInfoCommand(command);
-            case "NEW" -> new NewMailCommand(input);
-            case "READ" -> new ReadMailCommand(input);
-            case "DELETE" -> new DeleteMailCommand(input);
-            case "EDIT" -> new EditUserCommand(input);
-            default -> {
-                log.warn("Unknown operation: {}", command);
-                yield null;
-            }
-        };
+    public CommandDTO createCommand(Command command) throws IOException {
+        return command.buildCommandMessage();
     }
 }
 
@@ -265,34 +374,34 @@ import com.jakub.bone.command.common.CommandDTO;
 import com.jakub.bone.ui.ConsolerReader;
 
 import java.io.IOException;
-
-import static com.jakub.bone.ui.Screen.printMailboxScreen;
+import java.util.HashMap;
+import java.util.Map;
 
 public class DeleteMailCommand implements Command {
-    private UserInput input;
+    private final ConsolerReader reader;
 
-    public DeleteMailCommand(UserInput input) {
-        this.input = input;
+    public DeleteMailCommand(ConsolerReader reader) {
+        this.reader = reader;
     }
 
     @Override
     public CommandDTO buildCommandMessage() throws IOException {
-        printMailboxScreen();
-        String boxType = input.getRequest().trim().toUpperCase();
-
+        String boxType = null;
         while (!(isBoxTypeValid(boxType))) {
-            printMailboxScreen();
-            boxType = input.getRequest().trim().toUpperCase();;
+            boxType = reader.promptMailbox();
         }
 
-        return new CommandDTO.Builder()
+        Map<String, String> payLoad = new HashMap<>();
+        payLoad.put("boxType", boxType);
+
+        return CommandDTO.builder()
                 .commandType("DELETE")
-                .addPayload("boxType", boxType)
+                .payload(payLoad)
                 .build();
     }
 
     private boolean isBoxTypeValid(String boxType) {
-        return (boxType != null && boxType.equalsIgnoreCase("INBOX")
+        return boxType != null && (boxType.equalsIgnoreCase("INBOX")
                 || boxType.equalsIgnoreCase("SENT"));
     }
 }
@@ -307,68 +416,98 @@ import com.jakub.bone.command.common.CommandDTO;
 import com.jakub.bone.ui.ConsolerReader;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static com.jakub.bone.ui.Screen.printEditScreen;
 
 public class EditUserCommand implements Command {
-    private UserInput input;
+    private final ConsolerReader reader;
 
-    public EditUserCommand(UserInput input) {
-        this.input = input;
+    public EditUserCommand(ConsolerReader reader) {
+        this.reader = reader;
     }
 
     @Override
     public CommandDTO buildCommandMessage() throws IOException {
-        printEditScreen();
-        String subCommand = input.getRequest().trim().toUpperCase();
-
+        String subCommand = null;
         while (!isValidSubCommand(subCommand)) {
             printEditScreen();
-            subCommand = input.getRequest().trim().toUpperCase();;
+            subCommand = reader.getRequest().trim().toUpperCase();;
         }
 
-        CommandDTO.Builder builder = new CommandDTO.Builder()
-                .commandType("EDIT")
-                .addPayload("subCommand", subCommand);
+        Map<String, String> payload = new HashMap<>();
+        payload.put("subCommand", subCommand);
 
         switch (subCommand) {
-            case "CHANGE" -> {
-                String username = input.promptUsername();
-                String newPassword = input.promptNewPassword();
-                builder.addPayload("username", username)
-                        .addPayload("newPassword", newPassword);
-            }
-            case "ASSIGN" -> {
-                String username = input.promptUsername();
-                String newRole = input.promptNewRole();
-                while (!isValidRole(newRole)) {
-                    newRole = input.promptNewRole();
-                }
-                builder.addPayload("username", username)
-                        .addPayload("newRole", newRole);
-            }
-            case "REMOVE", "SWITCH" -> {
-                String username = input.promptUsername();
-                builder.addPayload("username", username);
-            }
-            default -> {
-                builder.addPayload("error", "Unknown operation: " + subCommand);
-                return null;
-            }
+            case "CHANGE" -> handleChange(payload);
+            case "ASSIGN" -> handleAssign(payload);
+            case "REMOVE", "SWITCH" -> payload.put("username", reader.promptUsername());
+            default -> payload.put("errorCode", "UNKNOWN");
         }
-        return builder.build();
+
+        return CommandDTO.builder()
+                .commandType("EDIT")
+                .payload(payload)
+                .build();
+    }
+
+    private void handleChange(Map<String, String> payload) throws IOException {
+        String username = reader.promptUsername();
+        String newPassword = reader.promptNewPassword();
+        payload.put("username", username);
+        payload.put("newPassword", newPassword);
+    }
+
+    private void handleAssign(Map<String, String> payload) throws IOException {
+        String username = reader.promptUsername();
+        String newRole = reader.promptNewRole();
+        while (!isValidRole(newRole)) {
+            newRole = reader.promptNewRole();
+        }
+        payload.put("username", username);
+        payload.put("newRole", newRole);
     }
 
     private boolean isValidSubCommand(String subCommand) {
-        return subCommand != null && subCommand.equals("CHANGE") ||
-                subCommand.equals("ASSIGN") ||
-                subCommand.equals("REMOVE") ||
-                subCommand.equals("SWITCH");
+        return subCommand != null && List.of("CHANGE", "ASSIGN", "REMOVE", "SWITCH").contains(subCommand);
     }
 
     private boolean isValidRole(String newRole) {
-        return (newRole != null && newRole.equalsIgnoreCase("USER")
-                || newRole.equalsIgnoreCase("ADMIN"));
+        return newRole != null && List.of("USER", "ADMIN").contains(newRole.toUpperCase());
+    }
+}
+
+====================
+FILE: ElasticSearchCommand.java
+
+package com.jakub.bone.command.client;
+
+import com.jakub.bone.command.common.Command;
+import com.jakub.bone.command.common.CommandDTO;
+import com.jakub.bone.ui.ConsolerReader;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+public class ElasticSearchCommand implements Command {
+    private final ConsolerReader reader;
+
+    public ElasticSearchCommand(ConsolerReader reader) {
+        this.reader = reader;
+    }
+
+    @Override
+    public CommandDTO buildCommandMessage() throws IOException {
+        String query = reader.promptMessageContent();
+        Map<String, String> payload = new HashMap<>();
+        payload.put("messageContent", query);
+        return CommandDTO.builder()
+                .commandType("SEARCH")
+                .payload(payload)
+                .build();
     }
 }
 
@@ -380,11 +519,13 @@ package com.jakub.bone.command.client;
 import com.jakub.bone.command.common.Command;
 import com.jakub.bone.command.common.CommandDTO;
 
+import java.io.IOException;
+
 public class LogoutCommand implements Command {
 
     @Override
-    public CommandDTO buildCommandMessage() {
-        return new CommandDTO.Builder()
+    public CommandDTO buildCommandMessage() throws IOException {
+        return CommandDTO.builder()
                 .commandType("LOGOUT")
                 .build();
     }
@@ -400,23 +541,29 @@ import com.jakub.bone.command.common.CommandDTO;
 import com.jakub.bone.ui.ConsolerReader;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class NewMailCommand implements Command {
 
-    private UserInput input;
+    private final ConsolerReader reader;
 
-    public NewMailCommand(UserInput input) {
-        this.input = input;
+    public NewMailCommand(ConsolerReader reader) {
+        this.reader = reader;
     }
 
     @Override
     public CommandDTO buildCommandMessage() throws IOException {
-        String recipient = input.promptRecipient();
-        String message = input.promptMessage();
-        return new CommandDTO.Builder()
+        String recipient = reader.promptRecipient();
+        String message = reader.promptMessage();
+
+        Map<String, String> payLoad = new HashMap<>();
+        payLoad.put("recipient", recipient);
+        payLoad.put("message", message);
+
+        return CommandDTO.builder()
                 .commandType("NEW")
-                .addPayload("recipient", recipient)
-                .addPayload("message", message)
+                .payload(payLoad)
                 .build();
     }
 }
@@ -431,31 +578,33 @@ import com.jakub.bone.command.common.CommandDTO;
 import com.jakub.bone.ui.ConsolerReader;
 
 import java.io.IOException;
-
-import static com.jakub.bone.ui.Screen.printMailboxScreen;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ReadMailCommand implements Command {
-    private UserInput input;
-    public ReadMailCommand(UserInput input) {
-        this.input = input;
+    private final ConsolerReader reader;
+
+    public ReadMailCommand(ConsolerReader reader) {
+        this.reader = reader;
     }
 
     @Override
     public CommandDTO buildCommandMessage() throws IOException {
-        printMailboxScreen();
-        String boxType = input.getRequest().trim().toUpperCase();
-
+        String boxType = null;
         while(!isBoxTypeValid(boxType)){
-            printMailboxScreen();
-            boxType = input.getRequest().trim().toUpperCase();
+            boxType = reader.promptMailbox();
         }
-        return new CommandDTO.Builder()
+        Map<String, String> payload = new HashMap<>();
+        payload.put("boxType", boxType);
+
+        return CommandDTO.builder()
                 .commandType("READ")
-                .addPayload("boxType", boxType)
+                .payload(payload)
                 .build();
     }
+
     private boolean isBoxTypeValid(String boxType) {
-        return (boxType != null && boxType.equalsIgnoreCase("INBOX")
+        return boxType != null && (boxType.equalsIgnoreCase("INBOX")
                 || boxType.equalsIgnoreCase("SENT"));
     }
 }
@@ -469,16 +618,16 @@ import com.jakub.bone.command.common.Command;
 import com.jakub.bone.command.common.CommandDTO;
 
 public class ServerInfoCommand implements Command {
-    private final String command;
+    private final String request;
 
-    public ServerInfoCommand(String command) {
-        this.command = command;
+    public ServerInfoCommand(String request) {
+        this.request = request;
     }
 
     @Override
     public CommandDTO buildCommandMessage() {
-        return new CommandDTO.Builder()
-                .commandType(command.toUpperCase()) //  "UPTIME", "INFO" or "HELP"
+        return CommandDTO.builder()
+                .commandType(request.toUpperCase()) //  "UPTIME", "INFO" or "HELP"
                 .build();
     }
 }
@@ -499,44 +648,21 @@ FILE: CommandDTO.java
 
 package com.jakub.bone.command.common;
 
+import lombok.Builder;
+import lombok.Getter;
+
 import java.util.HashMap;
 import java.util.Map;
 
+@Builder
+@Getter
 public class CommandDTO {
     private String commandType;
-    private Map<String, String> payload;
 
-    private CommandDTO(Builder builder) {
-        this.commandType = builder.commandType;
-        this.payload = builder.payload;
-    }
-
-    public String getCommandType() {
-        return commandType;
-    }
-
-    public Map<String, String> getPayload() {
-        return payload;
-    }
-
-    public static class Builder {
-        private String commandType;
-        private Map<String, String> payload = new HashMap<>();
-
-        public Builder commandType(String commandType) {
-            this.commandType = commandType;
-            return this;
-        }
-
-        public Builder addPayload(String key, String value) {
-            this.payload.put(key, value);
-            return this;
-        }
-
-        public CommandDTO build() {
-            return new CommandDTO(this);
-        }
-    }
+    // @Builder.Default ensures payload is never null
+    // Setting payload as empty Map to avoid NPE when payload is not set
+    @Builder.Default
+    private Map<String, String> payload = new HashMap<>();
 }
 
 ====================
@@ -547,6 +673,9 @@ package com.jakub.bone.command.server;
 import com.jakub.bone.command.common.CommandDTO;
 import com.jakub.bone.application.AuthService;
 import com.jakub.bone.application.UserService;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class AuthHandler implements CommandHandler {
     private final AuthService authService;
@@ -559,9 +688,11 @@ public class AuthHandler implements CommandHandler {
 
     @Override
     public String execute(CommandDTO commandDTO) {
+        String commandType = commandDTO.getCommandType();
         String username = commandDTO.getPayload().get("username");
         String password = commandDTO.getPayload().get("password");
-        if ("REGISTER".equalsIgnoreCase(commandDTO.getCommandType())){
+
+        if ("REGISTER".equalsIgnoreCase(commandType)){
             return authService.register(username, password);
         } else {
             return authService.login(username, password);
@@ -614,6 +745,7 @@ public class CommandHandlerFactory {
             case "HELP", "INFO", "UPTIME" -> new ServerInfoHandler(serverInfo);
             case "NEW" -> new NewMailHandler(mailService, userManager);
             case "READ" -> new ReadMailHandler(mailService);
+            case "SEARCH" -> new ElasticSearchHandler(mailService);
             case "DELETE" -> new DeleteMailHandler(mailService);
             case "EDIT" -> new EditUserHandler(userManager);
             default -> {
@@ -713,6 +845,66 @@ public class EditUserHandler implements CommandHandler {
                 return UNKNOWN_REQUEST.getResponse();
             }
         }
+    }
+}
+
+====================
+FILE: ElasticSearchHandler.java
+
+package com.jakub.bone.command.server;
+
+import com.jakub.bone.application.MailService;
+import com.jakub.bone.command.common.CommandDTO;
+import com.jakub.bone.domain.Mail;
+import com.jakub.bone.domain.User;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.search.SearchHit;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+public class ElasticSearchHandler implements CommandHandler{
+    private final MailService mailService;
+
+    public ElasticSearchHandler(MailService mailService) {
+        this.mailService = mailService;
+    }
+
+    @Override
+    public String execute(CommandDTO commandDTO) {
+        String query = commandDTO.getPayload().get("messageContent");
+
+        SearchResponse response = mailService.searchMessages(query);
+
+        List<Mail> mails = mapSearchResponseToMails(response);
+        StringBuilder responseBuilder = new StringBuilder("\nSEARCH RESULTS: \n\n");
+        for (Mail mail : mails) {
+                responseBuilder.append("To: ").append(mail.getRecipient().getUsername()).append("\n");
+                responseBuilder.append("From: ").append(mail.getSender().getUsername()).append("\n");
+            responseBuilder.append(" Message: ").append(mail.getMessage()).append("\n\n");
+        }
+        return responseBuilder.toString();
+    }
+
+    public List<Mail> mapSearchResponseToMails(SearchResponse response) {
+        List<Mail> mails = new ArrayList<>();
+        for (SearchHit hit : response.getHits().getHits()) {
+            Map<String, Object> source = hit.getSourceAsMap();
+            String senderUsername = (String) source.get("sender");
+            String recipientUsername = (String) source.get("recipient");
+            String message = (String) source.get("message");
+            String sendTimeStr = (String) source.get("sendTime");
+            LocalDateTime sendTime = LocalDateTime.parse(sendTimeStr);
+
+            User sender = new User(senderUsername, "dummy", User.Role.USER);
+            User recipient = new User(recipientUsername, "dummy", User.Role.USER);
+
+            Mail mail = new Mail(sender, recipient, message, sendTime);
+            mails.add(mail);
+        }
+        return mails;
     }
 }
 
@@ -934,13 +1126,13 @@ FILE: ClientController.java
 
 package com.jakub.bone.controller;
 
+import com.jakub.bone.command.client.*;
 import com.jakub.bone.command.common.Command;
-import com.jakub.bone.command.client.CommandFactory;
 
 import com.jakub.bone.command.common.CommandDTO;
 
-import com.jakub.bone.utils.Messenger;
 import com.jakub.bone.ui.ConsolerReader;
+import com.jakub.bone.utils.Messenger;
 import lombok.extern.log4j.Log4j2;
 
 import java.io.IOException;
@@ -951,16 +1143,16 @@ import static com.jakub.bone.utils.ResponseStatus.*;
 
 @Log4j2
 public class ClientController {
-    private final UserInput consolerReader;
+    private final ConsolerReader reader;
     private final CommandFactory commandFactory;
     private final Messenger messenger;
     private boolean isLoggedIn = false;
     private boolean isAuthorized = false;
 
     public ClientController(Messenger messenger) throws IOException {
-        this.consolerReader = new UserInput();
+        this.reader = new ConsolerReader();
         this.messenger = messenger;
-        this.commandFactory = new CommandFactory(consolerReader);
+        this.commandFactory = new CommandFactory();
     }
 
     public void start() {
@@ -968,24 +1160,40 @@ public class ClientController {
         while (running) {
             printClientUI(isLoggedIn, isAuthorized);
             try {
-                String input = consolerReader.getRequest();
-                if ("EXIT".equalsIgnoreCase(input)) {
+                String request = reader.getRequest();
+                if ("EXIT".equalsIgnoreCase(request)) {
                     running = false;
                     continue;
                 }
-                Command command = commandFactory.createCommand(input);
+
+                Command command = switch (request.toUpperCase()) {
+                    case "LOGIN", "REGISTER" -> new AuthCommand(request);
+                    case "LOGOUT" -> new LogoutCommand();
+                    case "UPTIME", "INFO", "HELP" -> new ServerInfoCommand(request);
+                    case "NEW" -> new NewMailCommand(reader);
+                    case "READ" -> new ReadMailCommand(reader);
+                    case "SEARCH" -> new ElasticSearchCommand(reader);
+                    case "DELETE" -> new DeleteMailCommand(reader);
+                    case "EDIT" -> new EditUserCommand(reader);
+                    default -> {
+                        log.warn("Unknown operation: {}", request);
+                        yield null;
+                    }
+                };
+
                 if (command == null) {
                     System.out.println("Unknown command. Try again");
                     continue;
                 }
 
-                CommandDTO commandDTO = command.buildCommandMessage();
+                CommandDTO commandDTO = commandFactory.createCommand(command);
                 messenger.send(commandDTO);
 
                 String response = messenger.receive(String.class);
 
                 updateState(response);
                 printResponse(response);
+
             } catch (IOException e) {
                 log.error("Error processing command: {}", e.getMessage());
                 System.err.println("An error occurred while processing your command: " + e.getMessage());
@@ -1013,7 +1221,6 @@ FILE: DataSource.java
 
 package com.jakub.bone.data;
 
-import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -1025,14 +1232,16 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 @Getter
 public class DataSource {
-    private final String DATABASE_DIRECTORY = ConfigLoader.get("database.directory");
+    private final String USER = ConfigLoader.get("database.username");
+    private final String PASSWORD = ConfigLoader.get("database.password");
     private final String DATABASE = ConfigLoader.get("database.name");
-    private final String URL = String.format("jdbc:sqlite:%s", DATABASE_DIRECTORY + DATABASE);
+    private final String PORT_NUMBER = ConfigLoader.get("database.port");
+    private final String URL = String.format("jdbc:postgresql://db:%s/%s", PORT_NUMBER, DATABASE);
+    //private final String URL = String.format("jdbc:postgresql://localhost:%s/%s", PORT_NUMBER, DATABASE);
     private static DataSource instance;
     private static Connection connection;
 
     public DataSource() {
-        createDatabaseDirectory();
         connect();
     }
 
@@ -1043,30 +1252,21 @@ public class DataSource {
         return instance;
     }
 
-    private void createDatabaseDirectory() {
-        File directory = new File(DATABASE_DIRECTORY);
-        if (!directory.exists()) {
-            if (directory.mkdirs()) {
-                log.info("Created directory for database at {}", DATABASE_DIRECTORY);
-            } else {
-                log.info("Failed to create directory for database at {}", DATABASE_DIRECTORY);
-            }
-        }
-    }
-
-
     public void connect() {
         try {
-            log.debug("Attempting to connect to the database...");
-            connection = DriverManager.getConnection(URL);
-            if(connection != null){
-                log.info("Database connection established: {}", DATABASE);
+            Class.forName("org.postgresql.Driver");
+            log.info("Attempting to connect with data base");
+            connection = DriverManager.getConnection(URL, USER, PASSWORD);
+            if (connection != null) {
+                log.info("Connection with {} database established on port {}", USER, PORT_NUMBER);
             } else {
-                log.warn("Failed to establish connection to the database: {}", DATABASE);
+                log.info("Failed to connect with {} database established on port {}", USER, PORT_NUMBER);
             }
         } catch (SQLException e) {
-            log.error("Database connection error: {}", e.getMessage());
-            throw new RuntimeException("Error while connecting to the database", e);
+            log.error("Error during database connection: {}", e.getMessage());
+
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -1113,7 +1313,9 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 
 @Getter
+@Setter
 public class Mail {
+    private Long id;
     private final User sender;
     private final User recipient;
     private final String message;
@@ -1302,8 +1504,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.jooq.impl.DSL.field;
-import static org.jooq.impl.DSL.table;
+import static org.jooq.impl.DSL.*;
 import static org.jooq.impl.SQLDataType.VARCHAR;
 import static org.jooq.impl.SQLDataType.INTEGER;
 
@@ -1314,7 +1515,6 @@ public class MailRepository {
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     public MailRepository(UserRepository userRepository) {
-        //this.context = context;
         this.context = DSL.using(DataSource.getInstance().getConnection());
         this.userRepository = userRepository;
         createTable();
@@ -1334,6 +1534,29 @@ public class MailRepository {
                             DSL.constraint("PK_MAIL").primaryKey("id")
                     )
                     .execute();
+
+            // Full-text search
+            context.execute("ALTER TABLE mail ADD COLUMN IF NOT EXISTS message_tsv tsvector");
+            context.execute("UPDATE mail SET message_tsv = to_tsvector('simple', message)");
+            context.execute("CREATE INDEX IF NOT EXISTS idx_message_tsv ON mail USING gin(message_tsv)");
+
+            // Create a trigger parsing incoming messages to tokens in message_tsv column
+            context.execute(
+                    "CREATE OR REPLACE FUNCTION update_message_tsv() RETURNS trigger AS $$ " +
+                            "BEGIN " +
+                            "  NEW.message_tsv := to_tsvector('simple', NEW.message); " +
+                            "  RETURN NEW; " +
+                            "END; " +
+                            "$$ LANGUAGE plpgsql"
+            );
+
+            // Remove existing trigger and create a new
+            context.execute("DROP TRIGGER IF EXISTS message_tsv_trigger ON mail");
+            context.execute(
+                    "CREATE TRIGGER message_tsv_trigger " +
+                            "BEFORE INSERT OR UPDATE ON mail " +
+                            "FOR EACH ROW EXECUTE PROCEDURE update_message_tsv()"
+            );
         } catch (Exception e) {
             log.error("Error while 'mail' table creating: {}", e.getMessage());
             throw new RuntimeException("Failed to create 'mail' table ", e);
@@ -1347,14 +1570,13 @@ public class MailRepository {
             log.error("Error while table truncating: {}", e.getMessage());
             throw new RuntimeException("Failed to truncate 'mail' table ", e);
         }
-
     }
 
     public void saveMail(Mail mail) {
         try {
             // Date format: yyyy-MM-dd HH:mm:ss
             String formattedDate = mail.getSendTime().format(formatter);
-            context.insertInto(table("mail"),
+            var record = context.insertInto(table("mail"),
                             field("sender"),
                             field("recipient"),
                             field("message"),
@@ -1366,7 +1588,13 @@ public class MailRepository {
                             mail.getMessage(),
                             formattedDate,
                             0, 0)  // set false
-                    .execute();
+                    .returning(field("id")) // return to set Mail id
+                    .fetchOne();
+            if (record != null) {
+                Integer id = record.getValue("id", Integer.class);
+                // set Mail id
+                mail.setId(id.longValue());
+            }
         } catch (Exception e) {
             log.error("Error while creating mail from {}: {}", mail.getSender().getUsername(), e.getMessage());
             throw new RuntimeException("Failed to create mail from" + mail.getSender(), e);
@@ -1376,16 +1604,13 @@ public class MailRepository {
     public List<Mail> findMails(String boxType, SessionManager sessionManager) {
         try {
             String username = sessionManager.getCurrentUser().getUsername();
-            Condition condition;
-            if (boxType.equalsIgnoreCase("SENT")) {
-                condition = field("sender").eq(username)
-                        .and(field("deleted_by_sender").eq(0)); // Only undeleted by sender
-            } else { // INBOX
-                condition = field("recipient").eq(username)
-                        .and(field("deleted_by_receiver").eq(0)); // Only undeleted by receiver
-            }
+
+            Condition boxCondition = boxType.equalsIgnoreCase("SENT")
+                    ? field("sender").eq(username).and(field("deleted_by_sender").eq(0))
+                    : field("recipient").eq(username).and(field("deleted_by_receiver").eq(0));
+
             List<Record> records = context.selectFrom("mail")
-                    .where(condition)
+                    .where(boxCondition)
                     .orderBy(field("send_time").desc())
                     .fetch();
 
@@ -1423,6 +1648,7 @@ public class MailRepository {
 
     public Mail mapRecordToMail(Record record) {
         try {
+            Integer id = record.getValue("id", Integer.class);
             String message = record.getValue("message", String.class);
             String senderUsername = record.getValue("sender", String.class);
             String recipientUsername = record.getValue("recipient", String.class);
@@ -1433,7 +1659,9 @@ public class MailRepository {
             User sender = userRepository.findUserByUsername(senderUsername);
             User recipient = userRepository.findUserByUsername(recipientUsername);
 
-            return new Mail(sender, recipient, message, sendTime);
+            Mail mail = new Mail(sender, recipient, message, sendTime);
+            mail.setId(id.longValue());
+            return mail;
         } catch (Exception e) {
             log.error("Error while mapping record to mail {}", e.getMessage());
             throw new RuntimeException("Failed to map mail", e);
@@ -1451,7 +1679,6 @@ public class MailRepository {
             log.error("Error while checking mailbox capacity for user {}: {}", recipient.getUsername(), e.getMessage());
             throw new RuntimeException("Failed to check mailbox capacity for user" + recipient.getUsername(), e);
         }
-
     }
 }
 
@@ -1493,26 +1720,26 @@ public class UserRepository {
 
     public void createTable() {
         try {
-            context.createTableIfNotExists("user")
+            context.createTableIfNotExists("mail_user")
                     .column("id", INTEGER.identity(true))
                     .column("username", VARCHAR(255).nullable(false))
                     .column("password", VARCHAR(255).nullable(false))
                     .column("role", VARCHAR(50).nullable(false))
                     .column("hashed_password", VARCHAR(255).nullable(false))
                     .constraints(
-                            DSL.constraint("pk_user").primaryKey("id"),
-                            DSL.constraint("uk_user_username").unique("username")
+                            DSL.constraint("pk_mail_user").primaryKey("id"),
+                            DSL.constraint("uk_mail_user_username").unique("username")
                     )
                     .execute();
         } catch (Exception e) {
-            log.error("Error while 'user' table creating: {}", e.getMessage());
-            throw new RuntimeException("Failed to create 'user' table ", e);
+            log.error("Error while 'mail_user' table creating: {}", e.getMessage());
+            throw new RuntimeException("Failed to create 'mail_user' table ", e);
         }
     }
 
     public void createUser(User user) {
         try {
-            context.insertInto(table("user"),
+            context.insertInto(table("mail_user"),
                             field("username"),
                             field("password"),
                             field("role"),
@@ -1523,22 +1750,22 @@ public class UserRepository {
                             user.getHashedPassword())
                     .execute();
         } catch (Exception e) {
-            log.error("Error while creating user {}: {}", user.getUsername(), e.getMessage());
-            throw new RuntimeException("Failed to create user " + user.getUsername(), e);
+            log.error("Error while creating mail_user {}: {}", user.getUsername(), e.getMessage());
+            throw new RuntimeException("Failed to create mail_user " + user.getUsername(), e);
         }
     }
     public void truncateTable(){
         try {
-            context.truncate("user").restartIdentity().execute();
+            context.truncate("mail_user").restartIdentity().execute();
         } catch (Exception e) {
             log.error("Error while table truncating: {}", e.getMessage());
-            throw new RuntimeException("Failed to truncate 'mail' table ", e);
+            throw new RuntimeException("Failed to truncate 'mail_user' table ", e);
         }
     }
 
     public User findUserByUsername(String username) {
         try {
-            Record record = context.selectFrom("user")
+            Record record = context.selectFrom("mail_user")
                     .where(DSL.field("username").eq(username))
                     .fetchOne();
 
@@ -1552,14 +1779,14 @@ public class UserRepository {
                     User.Role.valueOf(record.getValue("role", String.class).toUpperCase())
             );
         } catch (Exception e) {
-            log.error("Error while finding user {}: {}", username, e.getMessage());
-            throw new RuntimeException("Failed to find user " + username, e);
+            log.error("Error while finding mail_user {}: {}", username, e.getMessage());
+            throw new RuntimeException("Failed to find mail_user " + username, e);
         }
     }
 
     public boolean verifyUserPassword(String typedPassword, String username) {
         try {
-            Record record = context.selectFrom("user")
+            Record record = context.selectFrom("mail_user")
                     .where(DSL.field("username").eq(username))
                     .fetchOne();
 
@@ -1567,20 +1794,20 @@ public class UserRepository {
 
             return BCrypt.checkpw(typedPassword, hashed);
         } catch (Exception e) {
-            log.error("Error while verifying password for user {}: {}", username, e.getMessage());
-            throw new RuntimeException("Failed to verify password for user " + username, e);
+            log.error("Error while verifying password for mail_user {}: {}", username, e.getMessage());
+            throw new RuntimeException("Failed to verify password for mail_user " + username, e);
         }
 
     }
 
     public void removeUser(String username) {
         try {
-            context.deleteFrom(table("user"))
+            context.deleteFrom(table("mail_user"))
                     .where(field("username").eq(username))
                     .execute();
         } catch (Exception e) {
-            log.error("Error while deleting user {}: {}", username, e.getMessage());
-            throw new RuntimeException("Failed to delete user " + username, e);
+            log.error("Error while deleting mail_user {}: {}", username, e.getMessage());
+            throw new RuntimeException("Failed to delete mail_user " + username, e);
         }
     }
 
@@ -1590,15 +1817,15 @@ public class UserRepository {
 
     public void updateUser(User user) {
         try {
-            context.update(table("user"))
+            context.update(table("mail_user"))
                     .set(field("password"), user.getPassword())
                     .set(field("role"), user.getRole().toString())
                     .set(field("hashed_password"), user.getHashedPassword())
                     .where(field("username").eq(user.getUsername()))
                     .execute();
         } catch (Exception e) {
-            log.error("Error while updating user {}: {}", user.getUsername(), e.getMessage());
-            throw new RuntimeException("Failed to update user " + user.getUsername(), e);
+            log.error("Error while updating mail_user {}: {}", user.getUsername(), e.getMessage());
+            throw new RuntimeException("Failed to update mail_user " + user.getUsername(), e);
         }
     }
 }
@@ -1608,6 +1835,7 @@ FILE: RequestProcessor.java
 
 package com.jakub.bone.server;
 
+import com.jakub.bone.application.ElasticSearchService;
 import com.jakub.bone.command.common.CommandDTO;
 
 import com.jakub.bone.repository.MailRepository;
@@ -1622,6 +1850,7 @@ import com.jakub.bone.application.MailService;
 import com.jakub.bone.application.UserService;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.PrintWriter;
 
 @Log4j2
@@ -1632,21 +1861,22 @@ public class RequestProcessor {
     private final MailRepository mailRepository;
     private final AuthService authService;
     private final UserService userService;
+    private final ElasticSearchService searchService;
     private final MailService mailService;
     private final ServerInfo serverInfo;
     private final CommandHandlerFactory factory;
 
-    public RequestProcessor(PrintWriter out, BufferedReader in) {
+    public RequestProcessor(PrintWriter out, BufferedReader in) throws IOException {
         this.messenger = new Messenger(out, in);
         this.sessionManager = new SessionManager();
         this.userRepository = new UserRepository();
         this.mailRepository = new MailRepository(userRepository);
         this.authService = new AuthService(sessionManager, userRepository);
         this.userService = new UserService(authService, sessionManager, userRepository);
-        this.mailService = new MailService(sessionManager, mailRepository);
+        this.searchService = new ElasticSearchService();
+        this.mailService = new MailService(sessionManager, mailRepository, searchService);
         this.serverInfo = new ServerInfo();
         this.factory = new CommandHandlerFactory(authService, userService, mailService, serverInfo);
-
     }
 
     public void start() {
@@ -1762,7 +1992,6 @@ import com.jakub.bone.network.ServerConnectionManager;
 import com.jakub.bone.utils.ConfigLoader;
 import lombok.extern.log4j.Log4j2;
 
-
 @Log4j2
 public class ServerLauncher {
     public static void main(String[] args) {
@@ -1814,6 +2043,68 @@ public class SessionManager {
 }
 
 ====================
+FILE: ConsolerReader.java
+
+package com.jakub.bone.ui;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
+
+public class ConsolerReader {
+    private final BufferedReader reader;
+
+    public ConsolerReader() {
+        this.reader = new BufferedReader(new InputStreamReader(System.in));
+    }
+
+    public String getRequest() throws IOException {
+        return reader.readLine();
+    }
+
+    public String promptUsername() throws IOException {
+        System.out.print("Username: ");
+        return reader.readLine();
+    }
+
+    public String promptPassword() throws IOException {
+        System.out.print("Password: ");
+        return reader.readLine();
+    }
+
+    public String promptNewPassword() throws IOException{
+        System.out.print("New password: ");
+        return reader.readLine();
+    }
+
+    public String promptRecipient() throws IOException {
+        System.out.print("Send to: ");
+        return reader.readLine();
+    }
+
+    public String promptMessage() throws IOException {
+        System.out.println("Message (max 255 characters): ");
+        return reader.readLine();
+    }
+
+    public String promptNewRole() throws IOException {
+        System.out.print("New role (ADMIN / USER): ");
+        return reader.readLine();
+    }
+
+    public String promptMailbox() throws IOException {
+        System.out.print("Read: (INBOX / SENT): ");
+        return reader.readLine();
+    }
+
+    public String promptMessageContent() throws IOException {
+        System.out.print("Message content: ");
+        return reader.readLine();
+    }
+}
+
+====================
 FILE: Screen.java
 
 package com.jakub.bone.ui;
@@ -1852,8 +2143,9 @@ public class Screen {
                 "|                                              |\n" +
                 "|1. New e-mail                                 |\n" +
                 "|2. Read e-mails                               |\n" +
-                "|3. Delete e-mails                             |\n" +
-                "|4. Logout                                     |\n" +
+                "|3. Search messages...                         |\n" +
+                "|4. Delete e-mails                             |\n" +
+                "|5. Logout                                     |\n" +
                 "+---------------------------------------------+");
         System.out.print("Select: ");
     }
@@ -1864,9 +2156,10 @@ public class Screen {
                 "|                                              |\n" +
                 "|1. New e-mail                                 |\n" +
                 "|2. Read e-mails                               |\n" +
-                "|3. Delete e-mails                             |\n" +
-                "|4. Edit users                                 |\n" +
-                "|5. Logout                                     |\n" +
+                "|3. Search messages...                         |\n" +
+                "|4. Delete e-mails                             |\n" +
+                "|5. Edit users                                 |\n" +
+                "|6. Logout                                     |\n" +
                 "+---------------------------------------------+");
         System.out.print("Select: ");
     }
@@ -1903,58 +2196,6 @@ public class Screen {
         } catch (InterruptedException e){
             Thread.currentThread().interrupt();
         }
-    }
-}
-
-====================
-FILE: UserInput.java
-
-package com.jakub.bone.ui;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-
-
-public class UserInput {
-    private final BufferedReader reader;
-
-    public UserInput() {
-        this.reader = new BufferedReader(new InputStreamReader(System.in));
-    }
-
-    public String getRequest() throws IOException {
-        return reader.readLine();
-    }
-
-    public String promptUsername() throws IOException {
-        System.out.print("Username: ");
-        return reader.readLine();
-    }
-
-    public String promptPassword() throws IOException {
-        System.out.print("Password: ");
-        return reader.readLine();
-    }
-
-    public String promptNewPassword() throws IOException{
-        System.out.print("New password: ");
-        return reader.readLine();
-    }
-
-    public String promptRecipient() throws IOException {
-        System.out.print("Send to: ");
-        return reader.readLine();
-    }
-
-    public String promptMessage() throws IOException {
-        System.out.println("Message (max 255 characters): ");
-        return reader.readLine();
-    }
-
-    public String promptNewRole() throws IOException {
-        System.out.print("New role (ADMIN / USER): ");
-        return reader.readLine();
     }
 }
 
@@ -2089,23 +2330,19 @@ package com.jakub.bone.utils;
 public enum ResponseStatus {
     OPERATION_SUCCEEDED("operation.succeeded"),
     FAILED_TO_FIND_USER("failed.to.find.user"),
+    FAILED_TO_FIND_MESSAGE("failed.to.find.message"),
     REGISTRATION_SUCCESSFUL("registration.successful"),
     REGISTRATION_FAILED_USER_EXISTS("registration.failed.user.exists"),
     USER_LOGIN_SUCCEEDED("user.login.succeeded"),
     ADMIN_LOGIN_SUCCEEDED("admin.login.succeeded"),
     LOGIN_FAILED_INCORRECT_PASSWORD("login.failed.incorrect.password"),
     LOGOUT_SUCCEEDED("logout.succeeded"),
-    AUTHORIZATION_SUCCEEDED("authorization.succeeded"),
-    AUTHORIZATION_FAILED("authorization.failed"),
     USER_SWITCH_SUCCEEDED("user.switch.succeeded"),
     ADMIN_SWITCH_SUCCEEDED("admin.switch.succeeded"),
-    SWITCH_FAILED("switch.failed"),
     ROLE_CHANGE_SUCCEEDED("role.change.succeeded"),
     USER_DELETE_SUCCEEDED("user.delete.succeeded"),
     SENDING_SUCCEEDED("sending.succeeded"),
     SENDING_FAILED_BOX_FULL("sending.failed.box.full"),
-    SENDING_FAILED_TO_LONG_MESSAGE("sending.failed.too.long.message"),
-    SENDING_FAILED_RECIPIENT_NOT_FOUND("sending.failed.recipient.not.found"),
     MAIL_DELETION_SUCCEEDED("mail.deletion.succeeded"),
     MAILBOX_EMPTY("mailbox.empty"),
     UNKNOWN_REQUEST("unknown.request");
@@ -2180,6 +2417,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.*;
 import java.util.Date;
+import java.util.HashMap;
 
 import static com.jakub.bone.utils.ResponseStatus.LOGOUT_SUCCEEDED;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -2190,9 +2428,11 @@ class RequestProcessorTest {
     void testLogoutCommandProcessing() throws IOException {
         ServerConnectionManager.startTime = new Date();
 
-        CommandDTO logoutCommand = new CommandDTO.Builder()
+        CommandDTO logoutCommand = CommandDTO.builder()
                 .commandType("LOGOUT")
+                .payload(new HashMap<>())
                 .build();
+
         String jsonCommand = JsonConverter.serialize(logoutCommand) + "\n<<END>>\n";
 
         // Simulate receiving by using the sent data as input
@@ -2613,18 +2853,19 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class CreateCommandTest {
-    UserInput mockInput;
+    ConsolerReader mockInput;
 
     @BeforeEach
     void setUp() {
-        mockInput = mock(com.jakub.bone.ui.ConsolerReader.class);
+        mockInput = mock(ConsolerReader.class);
     }
 
     @Test
     @DisplayName("Should test DeleteMailCommand builds correct CommandDTO")
     void testDeleteMailCommand() throws IOException {
         // Simulate user input for mailbox type
-        when(mockInput.getRequest()).thenReturn("inbox");
+        when(mockInput.getRequest()).thenReturn("DELETE");
+        when(mockInput.promptMailbox()).thenReturn("INBOX");
 
         DeleteMailCommand command = new DeleteMailCommand(mockInput);
         CommandDTO dto = command.buildCommandMessage();
@@ -2650,7 +2891,8 @@ class CreateCommandTest {
     @Test
     @DisplayName("Should test ReadMailCommand builds correct CommandDTO with valid box type")
     void testReadMailCommand() throws IOException {
-        when(mockInput.getRequest()).thenReturn("SENT");
+        when(mockInput.getRequest()).thenReturn("READ");
+        when(mockInput.promptMailbox()).thenReturn("SENT");
 
         ReadMailCommand command = new ReadMailCommand(mockInput);
         CommandDTO dto = command.buildCommandMessage();
@@ -2661,8 +2903,8 @@ class CreateCommandTest {
 
     @Test
     @DisplayName("Should test LogoutCommand builds correct CommandDTO")
-    void testLogoutCommand()  {
-        LogoutCommand command = new LogoutCommand();
+    void testLogoutCommand() throws IOException {
+        LogoutCommand command = new LogoutCommand("LOGOUT");
         CommandDTO dto = command.buildCommandMessage();
 
         assertEquals("LOGOUT", dto.getCommandType());
@@ -2672,7 +2914,7 @@ class CreateCommandTest {
     @Test
     @DisplayName("Should test ServerInfoCommand builds correct CommandDTO for HELP command")
     void testServerInfoCommand_Help() {
-        ServerInfoCommand command = new ServerInfoCommand("help");
+        ServerInfoCommand command = new ServerInfoCommand("HELP");
         CommandDTO dto = command.buildCommandMessage();
 
         assertEquals("HELP", dto.getCommandType());
@@ -2718,7 +2960,6 @@ class CreateCommandTest {
     @DisplayName("Should test EditUserCommand builds correct CommandDTO for REMOVE subcommand")
     void testEditUserCommandRemove() throws IOException {
         when(mockInput.getRequest()).thenReturn("REMOVE");
-
         when(mockInput.promptUsername()).thenReturn("user3");
 
         EditUserCommand command = new EditUserCommand(mockInput);
@@ -2757,6 +2998,10 @@ import com.jakub.bone.utils.ResponseStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
+import java.util.HashMap;
+import java.util.Map;
+
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -2777,11 +3022,14 @@ class AuthHandlerTest {
     @DisplayName("Should test AuthHandler with REGISTER command")
     void testRegisterCommand() {
         // Prepare payload
-        commandDTO = new CommandDTO.Builder()
-                .commandType("REGISTER")
-                .addPayload("username", "newUser")
-                .addPayload("password", "pass123")
-                .build();
+        Map<String, String> payload = new HashMap<>();
+        payload.put("username", "newUser");
+        payload.put("password", "pass123");
+
+        commandDTO = CommandDTO.builder()
+                        .commandType("REGISTER")
+                        .payload(payload)
+                        .build();
 
         // Stub the authService.register call
         when(mockAuthService.register("newUser", "pass123"))
@@ -2795,10 +3043,13 @@ class AuthHandlerTest {
     @Test
     @DisplayName("Should test AuthHandler with LOGIN command")
     void testLoginCommand() {
-        commandDTO = new CommandDTO.Builder()
+        Map<String, String> payload = new HashMap<>();
+        payload.put("username", "user1");
+        payload.put("password", "pass123");
+
+        commandDTO = CommandDTO.builder()
                 .commandType("LOGIN")
-                .addPayload("username", "user1")
-                .addPayload("password", "pass123")
+                .payload(payload)
                 .build();
 
         when(mockAuthService.login("user1", "pass123"))
@@ -2823,6 +3074,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
@@ -2841,9 +3095,13 @@ class DeleteMailHandlerTest {
     @Test
     @DisplayName("Should test DeleteMailHandler with valid payload")
     void testDeleteMailsValid() {
-        commandDTO = new CommandDTO.Builder()
+        Map<String, String> payload = new HashMap<>();
+        payload.put("username", "newUser");
+        payload.put("password", "pass123");
+
+        commandDTO = CommandDTO.builder()
                 .commandType("DELETE")
-                .addPayload("boxType", "INBOX")
+                .payload(Map.of("boxType", "INBOX"))
                 .build();
 
         String expected = ResponseStatus.MAIL_DELETION_SUCCEEDED.getResponse();
@@ -2855,7 +3113,7 @@ class DeleteMailHandlerTest {
     @Test
     @DisplayName("Should test DeleteMailHandler with missing payload returns unknown request")
     void testDeleteMailsMissingPayload() {
-        commandDTO = new CommandDTO.Builder()
+        commandDTO = CommandDTO.builder()
                 .commandType("DELETE")
                 // no payload for boxType provided
                 .build();
@@ -2881,6 +3139,10 @@ import com.jakub.bone.utils.ResponseStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
+import java.util.HashMap;
+import java.util.Map;
+
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -2902,11 +3164,14 @@ class EditUserHandlerTest {
     @Test
     @DisplayName("Should test EditUserHandler with CHANGE subcommand")
     void testChangePassword() {
-        commandDTO = new CommandDTO.Builder()
+        Map<String, String> payLoad = new HashMap<>();
+        payLoad.put("subCommand", "CHANGE");
+        payLoad.put("username", "user");
+        payLoad.put("newPassword", "newPass");
+
+        commandDTO = CommandDTO.builder()
                 .commandType("EDIT")
-                .addPayload("subCommand", "CHANGE")
-                .addPayload("username", "user")
-                .addPayload("newPassword", "newPass")
+                .payload(payLoad)
                 .build();
 
         String expected = ResponseStatus.OPERATION_SUCCEEDED.getResponse();
@@ -2919,11 +3184,14 @@ class EditUserHandlerTest {
     @Test
     @DisplayName("Should test EditUserHandler with ASSIGN subcommand")
     void testAssignRole() {
-        commandDTO = new CommandDTO.Builder()
+        Map<String, String> payLoad = new HashMap<>();
+        payLoad.put("subCommand", "ASSIGN");
+        payLoad.put("username", "user");
+        payLoad.put("newRole", "ADMIN");
+
+        commandDTO = CommandDTO.builder()
                 .commandType("EDIT")
-                .addPayload("subCommand", "ASSIGN")
-                .addPayload("username", "user")
-                .addPayload("newRole", "ADMIN")
+                .payload(payLoad)
                 .build();
 
         String expected = ResponseStatus.ROLE_CHANGE_SUCCEEDED.getResponse();
@@ -2936,10 +3204,13 @@ class EditUserHandlerTest {
     @Test
     @DisplayName("Should test EditUserHandler with REMOVE subcommand")
     void testRemoveUser() {
-        commandDTO = new CommandDTO.Builder()
+        Map<String, String> payLoad = new HashMap<>();
+        payLoad.put("subCommand", "REMOVE");
+        payLoad.put("username", "user");
+
+        commandDTO = CommandDTO.builder()
                 .commandType("EDIT")
-                .addPayload("subCommand", "REMOVE")
-                .addPayload("username", "user")
+                .payload(payLoad)
                 .build();
 
         String expected = ResponseStatus.USER_DELETE_SUCCEEDED.getResponse();
@@ -2953,12 +3224,14 @@ class EditUserHandlerTest {
     @DisplayName("Should test EditUserHandler with SWITCH subcommand with non-admin result")
     void testSwitchUser_NonAdmin() {
         // Session state reflect a non-admin after switching
-        commandDTO = new CommandDTO.Builder()
-                .commandType("EDIT")
-                .addPayload("subCommand", "SWITCH")
-                .addPayload("username", "user")
-                .build();
+        Map<String, String> payLoad = new HashMap<>();
+        payLoad.put("subCommand", "SWITCH");
+        payLoad.put("username", "user");
 
+        commandDTO = CommandDTO.builder()
+                .commandType("EDIT")
+                .payload(payLoad)
+                .build();
 
         SessionManager testSessionManager = mock(SessionManager.class);
         when(mockUserService.getSessionManager()).thenReturn(testSessionManager);
@@ -2974,10 +3247,13 @@ class EditUserHandlerTest {
     @Test
     @DisplayName("Should test EditUserHandler with Unknown subcommand")
     void testUnknownSubcommand() {
-        commandDTO = new CommandDTO.Builder()
+        Map<String, String> payLoad = new HashMap<>();
+        payLoad.put("subCommand", "INVALID");
+        payLoad.put("username", "user");
+
+        commandDTO = CommandDTO.builder()
                 .commandType("EDIT")
-                .addPayload("subCommand", "INVALID")
-                .addPayload("username", "user")
+                .payload(payLoad)
                 .build();
 
         String expected = ResponseStatus.UNKNOWN_REQUEST.getResponse();
@@ -3008,7 +3284,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -3028,9 +3307,8 @@ class InboxHandlerTest {
     @Test
     @DisplayName("Should test InboxHandler with null boxType defaults to INBOX and returns mailbox empty")
     void testDefaultInbox_Empty() {
-        commandDTO = new CommandDTO.Builder()
-                .commandType("INBOX")
-                .build();
+        commandDTO = CommandDTO.builder().commandType("INBOX").build();
+
         when(mockMailService.getMails("INBOX")).thenReturn(Collections.emptyList());
 
         String expected = ResponseStatus.MAILBOX_EMPTY.getResponse();
@@ -3042,9 +3320,9 @@ class InboxHandlerTest {
     @Test
     @DisplayName("Should test InboxHandler with non-empty mailbox returns formatted messages")
     void testNonEmptyInbox() {
-        commandDTO = new CommandDTO.Builder()
-                .commandType("INBOX")
-                .addPayload("boxType", "INBOX")
+        commandDTO = CommandDTO.builder()
+                .commandType("EDIT")
+                .payload(Map.of("boxType", "INBOX"))
                 .build();
 
         Mail mail = new Mail(sender, new User("recipient", "pass", User.Role.USER), "Hello", LocalDateTime.now());
@@ -3082,7 +3360,7 @@ class LogoutHandlerTest {
     void setUp() {
         mockAuthService = mock(AuthService.class);
         logoutHandler = new LogoutHandler(mockAuthService);
-        commandDTO = new CommandDTO.Builder().commandType("LOGOUT").build();
+        commandDTO = CommandDTO.builder().commandType("LOGOUT").build();
     }
 
     @Test
@@ -3110,6 +3388,10 @@ import com.jakub.bone.utils.ResponseStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
+import java.util.HashMap;
+import java.util.Map;
+
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -3132,10 +3414,13 @@ class NewMailHandlerTest {
     @Test
     @DisplayName("Should test NewMailHandler executes sending mail")
     void testNewMailHandler() {
-        commandDTO = new CommandDTO.Builder()
+        Map<String, String> payLoad = new HashMap<>();
+        payLoad.put("recipient", "recipient");
+        payLoad.put("message", "Hello Mail");
+
+        commandDTO = CommandDTO.builder()
                 .commandType("NEW")
-                .addPayload("recipient", "recipient")
-                .addPayload("message", "Hello Mail")
+                .payload(payLoad)
                 .build();
 
         when(mockMailService.sendMail(recipient, "Hello Mail"))
@@ -3163,6 +3448,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -3180,7 +3467,7 @@ class ReadMailHandlerTest {
     @Test
     @DisplayName("Should test ReadMailHandler with missing boxType returns unknown request")
     void testMissingBoxType() {
-        commandDTO = new CommandDTO.Builder()
+        commandDTO = CommandDTO.builder()
                 .commandType("READ")
                 // boxType not provided
                 .build();
@@ -3194,9 +3481,9 @@ class ReadMailHandlerTest {
     @Test
     @DisplayName("Should test ReadMailHandler with empty mailbox returns mailbox empty")
     void testEmptyMailbox() {
-        commandDTO = new CommandDTO.Builder()
+        commandDTO = CommandDTO.builder()
                 .commandType("READ")
-                .addPayload("boxType", "INBOX")
+                .payload(Map.of("boxType", "INBOX"))
                 .build();
 
         when(mockMailService.getMails("INBOX")).thenReturn(Collections.emptyList());
@@ -3209,9 +3496,9 @@ class ReadMailHandlerTest {
     @Test
     @DisplayName("Should test ReadMailHandler with non-empty mailbox returns formatted messages")
     void testNonEmptyMailbox() {
-        commandDTO = new CommandDTO.Builder()
+        commandDTO = CommandDTO.builder()
                 .commandType("READ")
-                .addPayload("boxType", "SENT")
+                .payload(Map.of("boxType", "SENT"))
                 .build();
 
         // Create mocks for sender and recipient
@@ -3268,9 +3555,7 @@ public class ServerInfoHandlerTest {
     @DisplayName("Should test ServerInfoHandler with UPTIME command")
     void testUptime() {
         when(mockServerInfo.getUptime()).thenReturn("Uptime: 1 day, 2 hours, 3 minutes, 4 seconds");
-        commandDTO = new CommandDTO.Builder()
-                .commandType("UPTIME")
-                .build();
+        commandDTO = CommandDTO.builder().commandType("UPTIME").build();
 
         String response = serverInfoHandler.execute(commandDTO);
         verify(mockServerInfo, times(1)).getUptime();
@@ -3281,9 +3566,7 @@ public class ServerInfoHandlerTest {
     @DisplayName("Should test ServerInfoHandler with INFO command")
     void testInfo() {
         when(mockServerInfo.getInfo()).thenReturn("Version: 1.0.0\nSetup time: 2025-02-25 12:00:00");
-        commandDTO = new CommandDTO.Builder()
-                .commandType("INFO")
-                .build();
+        commandDTO = CommandDTO.builder().commandType("INFO").build();
 
         String response = serverInfoHandler.execute(commandDTO);
         verify(mockServerInfo, times(1)).getInfo();
@@ -3294,9 +3577,7 @@ public class ServerInfoHandlerTest {
     @DisplayName("Should test ServerInfoHandler with HELP command")
     void testHelp() {
         when(mockServerInfo.getHelp()).thenReturn("Register - Create a new account\nLogin - Login to account");
-        commandDTO = new CommandDTO.Builder()
-                .commandType("HELP")
-                .build();
+        commandDTO = CommandDTO.builder().commandType("HELP").build();
 
         String response = serverInfoHandler.execute(commandDTO);
         verify(mockServerInfo, times(1)).getHelp();
@@ -3306,9 +3587,7 @@ public class ServerInfoHandlerTest {
     @Test
     @DisplayName("Should test ServerInfoHandler with Unknown command returns unknown request")
     void testUnknownCommand() {
-        commandDTO = new CommandDTO.Builder()
-                .commandType("UNKNOWN")
-                .build();
+        commandDTO = CommandDTO.builder().commandType("UNKNOWN").build();
 
         String expected = ResponseStatus.UNKNOWN_REQUEST.getResponse();
         String response = serverInfoHandler.execute(commandDTO);
