@@ -21,13 +21,18 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * The ElasticSearchService class provides an interface for interacting with Elasticsearch
+ * An ES index is a structure used to organize and store documents, enabling fast search
+ * Handles operations on the "mails" index such as creating, searching, and deleting documents
+ */
 public class ElasticSearchService {
     // Client for communicating with Elasticsearch
     private final RestHighLevelClient client;
     private final String host = ConfigLoader.get("elastic.host");
     private final int port = Integer.parseInt(ConfigLoader.get("elastic.port"));
 
-    // "elasticsearch" is Docker Compose service name
+    // Host "elasticsearch" is Docker Compose service name
     public ElasticSearchService() throws IOException {
         this.client = new RestHighLevelClient(
                 RestClient.builder(new HttpHost(host, port, "http"))
@@ -35,8 +40,8 @@ public class ElasticSearchService {
         ensureIndexExists("mails");
     }
 
-    // Checks if the specified index exists
-    // If not, creates it with defined settings and mappings
+    // Elasticsearch index is created using a CreateIndexRequest
+    // It specify its name, settings, and mappings to define how documents are stored and search
     private void ensureIndexExists(String indexName) throws IOException {
         IndicesClient indicesClient = client.indices();
         GetIndexRequest getIndexRequest = new GetIndexRequest(indexName);
@@ -66,16 +71,14 @@ public class ElasticSearchService {
         jsonMap.put("recipient", mail.getRecipient().getUsername());
         jsonMap.put("message", mail.getMessage());
         jsonMap.put("sendTime", mail.getSendTime().toString());
-        // Create index request for 'mails' index using  JSON map
-        // Execute indexing operation
+        // Create index request for 'mails' and execute indexing operation
         IndexRequest indexRequest = new IndexRequest("mails").source(jsonMap);
         client.index(indexRequest, RequestOptions.DEFAULT);
     }
 
     // Delete a document from the "mails" index based on id
     public void deleteMail(String mailId) throws IOException {
-        // Create delete request for mail id
-        // Execute deleting operation
+        // Create delete request for mail id and execute deleting operation
         DeleteRequest deleteRequest = new DeleteRequest("mails", mailId);
         client.delete(deleteRequest, RequestOptions.DEFAULT);
     }
