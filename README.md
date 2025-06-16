@@ -1,8 +1,8 @@
-# ✉️ Client-Server Application
+# ✉️ Client-Server Mailing System
 
 [![Watch the video](src/main/resources/image/logo.png)](https://www.youtube.com/watch?v=dmwIVkuxnnA&t=253s)
 
-Welcome to the Client-Server App! This project demonstrates a simple client-server architecture
+Welcome to the Client-Server Mailing System! This project demonstrates a simple client-server architecture
 that imitates an email system, showcasing communication between a client and a server using sockets. 
 It offers robust features such as user management, mailbox operations, and message handling.
 
